@@ -1,0 +1,41 @@
+import 'package:flutter/material.dart';
+
+class BlinkingBar extends StatefulWidget {
+  final double width;
+  final double height;
+  const BlinkingBar({Key? key, required this.width, required this.height}) : super(key: key);
+
+  @override
+  _BlinkingBarState createState() => _BlinkingBarState();
+}
+
+class _BlinkingBarState extends State<BlinkingBar> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller.drive(Tween(begin: 0.3, end: 1.0)),
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        color: Colors.white54,
+      ),
+    );
+  }
+}
