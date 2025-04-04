@@ -5,26 +5,44 @@ Este proyecto está creado con Flutter. A continuación se describen los pasos b
 ## Capturas de pantalla
 A continuación, se muestran algunas capturas de pantalla de la aplicación:
 
-### Pantalla de inicio
-![Pantalla de inicio](./img_app/1-home.jpg)
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
 
-### Listado de ejercicios
-![Listado de ejercicios](./img_app/2-listado-ejercicios.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/1-home.jpg" alt="Pantalla de inicio" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Pantalla de inicio</p>
+</div>
 
-### Entrenamiento
-![Entrenamiento](./img_app/3-entrenamiento.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/2-listado-ejercicios.jpg" alt="Listado de ejercicios" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Listado de ejercicios</p>
+</div>
 
-### Resumen del entrenamiento
-![Resumen del entrenamiento](./img_app/4-resumen-entrenamiento.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/3-entrenamiento.jpg" alt="Entrenamiento" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Entrenamiento</p>
+</div>
 
-### Recuperación muscular
-![Recuperación muscular](./img_app/5-recuperacion-muscular.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/4-resumen-entrenamiento.jpg" alt="Resumen del entrenamiento" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Resumen del entrenamiento</p>
+</div>
 
-### Detalle del ejercicio
-![Detalle del ejercicio](./img_app/6-detalle-ejercicio.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/5-recuperacion-muscular.jpg" alt="Recuperación muscular" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Recuperación muscular</p>
+</div>
 
-### Historia
-![Historia](./img_app/7-historia.jpg)
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/6-detalle-ejercicio.jpg" alt="Detalle del ejercicio" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Detalle del ejercicio</p>
+</div>
+
+<div style="flex: 1; max-width: 48%;">
+<img src="./img_app/7-historia.jpg" alt="Historia" style="max-height: 750px; width: 100%;">
+<p style="text-align: center;">Historia</p>
+</div>
+
+</div>
 
 ## Explicación del proyecto
 MrFit es una aplicación de entrenamiento personalizada que permite gestionar rutinas, seguir el progreso de los ejercicios y utilizar funcionalidades de voz para guiar al usuario. Con Flutter y SQLite como base, ofrece una experiencia multiplataforma sencilla de configurar.
