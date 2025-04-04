@@ -273,11 +273,11 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
             ],
           ),
         Positioned(
-          bottom: _ejercicios.isEmpty ? 16 : 90,
+          bottom: (_ejercicios.isEmpty) ? 16 : 90,
           right: 16,
           child: FloatingActionButton(
             onPressed: _mostrarBusquedaEjercicios,
-            backgroundColor: _ejercicios.isEmpty ? AppColors.advertencia : AppColors.accentColor,
+            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.advertencia : AppColors.accentColor,
             child: const Icon(Icons.add, color: AppColors.background),
           ),
         ),
@@ -377,6 +377,31 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
   Widget _buildTrainingButton() {
     if (_ejercicios.isEmpty) {
       return const SizedBox.shrink();
+    }
+    if (_ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.advertencia.withOpacity(0.5)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: AppColors.advertencia),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "Agrega series al ejercicio pulsando sobre él. Toca la imagen para ver detalles.",
+                  style: TextStyle(color: AppColors.whiteText),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     return Padding(
       padding: const EdgeInsets.all(16.0),

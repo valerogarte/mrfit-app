@@ -226,6 +226,9 @@ extension UsuarioHealthExtension on Usuario {
 
   Future<int> getCurrentHeight(int nDays) async {
     final heights = await getReadHeight(nDays);
+    if (heights.entries.isEmpty) {
+      return 0;
+    }
     return heights.entries.last.value;
   }
 
