@@ -7,6 +7,7 @@ import '../../utils/colors.dart';
 import '../../models/usuario/usuario.dart';
 import '../../models/rutina/rutina.dart';
 import '../../providers/usuario_provider.dart';
+import '../../widgets/not_found/not_found.dart';
 
 class PlanesPage extends ConsumerStatefulWidget {
   const PlanesPage({super.key});
@@ -188,67 +189,81 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
       backgroundColor: AppColors.background,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : GridView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: rutinas.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                final rutina = rutinas[index];
-                return Card(
-                  color: AppColors.cardBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  elevation: 4,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(15),
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EntrenamientoDiasPage(
-                            rutina: rutina,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Text(
-                            rutina.titulo,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.whiteText,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _mostrarDialogoEditarPlan(rutina);
-                            },
-                          ),
-                        ),
-                      ],
+          : rutinas.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: NotFoundData(
+                      title: 'Sin rutinas',
+                      textNoResults: 'Puedes crear la primera clicando en el botón del "+".',
                     ),
                   ),
-                );
-              },
-            ),
+                )
+              : GridView.builder(
+                  padding: const EdgeInsets.all(10),
+                  itemCount: rutinas.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemBuilder: (context, index) {
+                    final rutina = rutinas[index];
+                    return Card(
+                      color: AppColors.cardBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 4,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(15),
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EntrenamientoDiasPage(
+                                rutina: rutina,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: Text(
+                                rutina.titulo,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.whiteText,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white),
+                                onPressed: () {
+                                  _mostrarDialogoEditarPlan(rutina);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarDialogoNuevoPlan,
-        backgroundColor: AppColors.accentColor,
+        backgroundColor: rutinas.isEmpty ? AppColors.advertencia : AppColors.accentColor,
         child: const Icon(Icons.add, color: AppColors.background),
       ),
     );

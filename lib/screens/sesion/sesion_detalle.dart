@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/colors.dart';
 import '../../models/rutina/sesion.dart';
-import '../../widgets/chart/grafica.dart'; // Asegúrate de importar el ChartWidget
+import '../../widgets/chart/grafica.dart';
+import '../../widgets/not_found/not_found.dart';
 
 class SesionDetallePage extends ConsumerStatefulWidget {
   final Sesion sesion;
@@ -29,24 +30,21 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
             FutureBuilder<List<Map<String, dynamic>>>(
               future: widget.sesion.getInfo(),
               builder: (context, snapshot) {
-                // Debug: imprime el contenido de snapshot
-                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                  debugPrint("Datos getInfo: ${snapshot.data}");
-                } else {
-                  debugPrint("Cargando getInfo...");
+                final bool loading = snapshot.connectionState != ConnectionState.done;
+                final List<Map<String, dynamic>>? data = snapshot.data;
+
+                if (!loading && (data == null || data.isEmpty)) {
+                  return const NotFoundData(
+                    title: "Sin datos disponibles",
+                    textNoResults: "Empieza a entrenar, y verás aquí tus progresos.",
+                  );
                 }
 
-                final bool loading = snapshot.connectionState != ConnectionState.done;
-                final String numeroSesiones = !loading && snapshot.hasData ? snapshot.data![0]['numero_sesiones'] : '';
-                final String tiempoTotal = !loading && snapshot.hasData ? snapshot.data![1]['tiempo_total'] : '';
-                final String duracionMedia = !loading && snapshot.hasData ? snapshot.data![2]['duración_media'] : '';
-                final String setsCompletados = !loading && snapshot.hasData ? snapshot.data![3]['sets_completados'] : '';
-
-                // Debug: imprime cada valor
-                debugPrint("numeroSesiones: $numeroSesiones");
-                debugPrint("tiempoTotal: $tiempoTotal");
-                debugPrint("duracionMedia: $duracionMedia");
-                debugPrint("setsCompletados: $setsCompletados");
+                // Ensure the list has the required number of elements
+                final String numeroSesiones = !loading && data != null && data.length > 0 ? data[0]['numero_sesiones'] : '';
+                final String tiempoTotal = !loading && data != null && data.length > 1 ? data[1]['tiempo_total'] : '';
+                final String duracionMedia = !loading && data != null && data.length > 2 ? data[2]['duración_media'] : '';
+                final String setsCompletados = !loading && data != null && data.length > 3 ? data[3]['sets_completados'] : '';
 
                 return LayoutBuilder(
                   builder: (context, constraints) {

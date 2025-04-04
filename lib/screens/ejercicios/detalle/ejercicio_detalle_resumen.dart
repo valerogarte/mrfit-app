@@ -15,7 +15,7 @@ class EjercicioResumen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16.0), // Agrega un margin bottom
+        margin: const EdgeInsets.only(bottom: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -172,7 +172,7 @@ class EjercicioResumen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: ejercicio.erroresComunes
                           .map((error) => Container(
-                                width: double.infinity, // Ocupa 100% del ancho
+                                width: double.infinity,
                                 padding: const EdgeInsets.all(8.0),
                                 margin: const EdgeInsets.symmetric(vertical: 4.0),
                                 decoration: BoxDecoration(

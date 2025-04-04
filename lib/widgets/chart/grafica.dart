@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
 import '../../utils/colors.dart';
+import '../not_found/not_found.dart';
 
 class ChartWidget extends StatelessWidget {
   final String title;
@@ -20,19 +21,9 @@ class ChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (values.isEmpty || labels.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.info_outline, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              textNoResults,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      return const NotFoundData(
+        title: "Sin datos disponibles",
+        textNoResults: "No hay información para mostrar en el gráfico.",
       );
     }
 

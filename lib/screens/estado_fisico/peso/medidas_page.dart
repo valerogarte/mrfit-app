@@ -32,7 +32,7 @@ class MedidasPage extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
               ),
-              clipBehavior: Clip.hardEdge, // agregado para recortar el overflow
+              clipBehavior: Clip.hardEdge,
               child: ChartWidget(
                 title: 'Pesaje',
                 labels: labels,

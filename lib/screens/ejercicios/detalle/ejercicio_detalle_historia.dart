@@ -3,6 +3,7 @@ import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import '../../../models/ejercicio/ejercicio.dart';
 import '../../../utils/colors.dart';
 import '../../../widgets/entrenamiento/entrenamiento_resumen_series.dart';
+import '../../../widgets/not_found/not_found.dart';
 
 class EjercicioHistoria extends StatelessWidget {
   final Ejercicio ejercicio;
@@ -19,20 +20,11 @@ class EjercicioHistoria extends StatelessWidget {
         }
         final seriesGrouped = snapshot.data!;
         if (seriesGrouped.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.info_outline, size: 48, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'Cuando realices este ejercicio se mostrarán los datos',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: NotFoundData(
+              title: 'Sin datos de historia',
+              textNoResults: 'Cuando realices este ejercicio se mostrarán los datos.',
             ),
           );
         }

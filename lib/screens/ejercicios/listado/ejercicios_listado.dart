@@ -14,6 +14,7 @@ import '../../../models/entrenamiento/entrenamiento.dart';
 import '../../../widgets/pills_dificultad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/usuario_provider.dart';
+import '../../../widgets/not_found/not_found.dart';
 
 part 'ejercicios_listado_serie.dart';
 
@@ -223,51 +224,60 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Column(
-          children: [
-            Expanded(
-              child: ReorderableListView(
-                onReorder: _onReorder,
-                proxyDecorator: (child, index, animation) {
-                  return Material(
-                    color: AppColors.advertencia,
-                    child: child,
-                  );
-                },
-                padding: const EdgeInsets.only(bottom: 80),
-                children: List.generate(_ejercicios.length, (index) {
-                  final ejercicio = _ejercicios[index];
-                  return Container(
-                    key: ValueKey(ejercicio.id),
-                    margin: EdgeInsets.only(
-                      top: index == 0 ? 10.0 : 6.0,
-                      bottom: 4.0,
-                      left: 12.0,
-                      right: 12.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBackground,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildExerciseHeader(index, ejercicio),
-                      ],
-                    ),
-                  );
-                }),
-              ),
+        if (_ejercicios.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: const NotFoundData(
+              title: 'No hay ejercicios',
+              textNoResults: 'Agrega ejercicios para comenzar.',
             ),
-            _buildTrainingButton(),
-          ],
-        ),
+          )
+        else
+          Column(
+            children: [
+              Expanded(
+                child: ReorderableListView(
+                  onReorder: _onReorder,
+                  proxyDecorator: (child, index, animation) {
+                    return Material(
+                      color: AppColors.advertencia,
+                      child: child,
+                    );
+                  },
+                  padding: const EdgeInsets.only(bottom: 80),
+                  children: List.generate(_ejercicios.length, (index) {
+                    final ejercicio = _ejercicios[index];
+                    return Container(
+                      key: ValueKey(ejercicio.id),
+                      margin: EdgeInsets.only(
+                        top: index == 0 ? 10.0 : 6.0,
+                        bottom: 4.0,
+                        left: 12.0,
+                        right: 12.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBackground,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildExerciseHeader(index, ejercicio),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              _buildTrainingButton(),
+            ],
+          ),
         Positioned(
-          bottom: 90,
+          bottom: _ejercicios.isEmpty ? 16 : 90,
           right: 16,
           child: FloatingActionButton(
             onPressed: _mostrarBusquedaEjercicios,
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: _ejercicios.isEmpty ? AppColors.advertencia : AppColors.accentColor,
             child: const Icon(Icons.add, color: AppColors.background),
           ),
         ),
@@ -365,6 +375,9 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
   }
 
   Widget _buildTrainingButton() {
+    if (_ejercicios.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ElevatedButton(

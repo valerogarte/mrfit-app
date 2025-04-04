@@ -46,7 +46,7 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
 - Patrones de Estado con StatefulWidgets y Singletons simplificados.
 
 ## Conectividad Google Fit
-- Aun pendiente de ajustar.
+- Aún pendiente de ajustar.
 
 ## Contribuciones
 1. Haz un fork de este repositorio.
