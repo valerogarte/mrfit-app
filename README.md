@@ -2,6 +2,39 @@
 
 Este proyecto está creado con Flutter. A continuación se describen los pasos básicos para ejecutar la aplicación.
 
+## Capturas de pantalla
+A continuación, se muestran algunas capturas de pantalla de la aplicación:
+
+### Pantalla de inicio
+![Pantalla de inicio](./img_app/1-home.jpg)
+
+### Listado de ejercicios
+![Listado de ejercicios](./img_app/2-listado-ejercicios.jpg)
+
+### Entrenamiento
+![Entrenamiento](./img_app/3-entrenamiento.jpg)
+
+### Resumen del entrenamiento
+![Resumen del entrenamiento](./img_app/4-resumen-entrenamiento.jpg)
+
+### Recuperación muscular
+![Recuperación muscular](./img_app/5-recuperacion-muscular.jpg)
+
+### Detalle del ejercicio
+![Detalle del ejercicio](./img_app/6-detalle-ejercicio.jpg)
+
+### Historia
+![Historia](./img_app/7-historia.jpg)
+
+## Explicación del proyecto
+MrFit es una aplicación de entrenamiento personalizada que permite gestionar rutinas, seguir el progreso de los ejercicios y utilizar funcionalidades de voz para guiar al usuario. Con Flutter y SQLite como base, ofrece una experiencia multiplataforma sencilla de configurar.
+
+## Características principales
+- Gestión de rutinas diarias de entrenamiento.
+- Integración con voz para indicar repeticiones, peso y series a realizar.
+- SQLite para guardar y consultar ejercicios.
+- Interfaz intuitiva con animaciones y filtros avanzados para encontrar ejercicios.
+
 ## Requisitos
 - Flutter SDK instalado.
 - IDE o editor con soporte para Flutter (VSCode, Android Studio, etc.).
@@ -28,15 +61,6 @@ flutter build apk --release
 ```
 
 Para más herramientas y configuración avanzada, consulta la documentación oficial de Flutter.
-
-## Explicación del proyecto
-MrFit es una aplicación de entrenamiento personalizada que permite gestionar rutinas, seguir el progreso de los ejercicios y utilizar funcionalidades de voz para guiar al usuario. Con Flutter y SQLite como base, ofrece una experiencia multiplataforma sencilla de configurar.
-
-## Características principales
-- Gestión de rutinas diarias de entrenamiento.
-- Integración con voz para indicar repeticiones, peso y series a realizar.
-- SQLite para guardar y consultar ejercicios.
-- Interfaz intuitiva con animaciones y filtros avanzados para encontrar ejercicios.
 
 ## Arquitectura general
 - Carpeta "models" con los modelos de los contenidos.
