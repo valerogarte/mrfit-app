@@ -49,6 +49,13 @@ dependencies:
   health: 12.0.1 # Healht
   flutter_riverpod: ^2.3.6 # Variables globales
   confetti: ^0.8.0 # Confetti
+  flutter_launcher_icons: ^0.13.1 # Icono de la app
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icono_app.png"
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
