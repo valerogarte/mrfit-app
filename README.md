@@ -1,15 +1,14 @@
 # MrFit
 
-Este proyecto está creado con Flutter. A continuación se describen los pasos básicos para ejecutar la aplicación.
-
-## Capturas de pantalla
-A continuación, se muestran algunas capturas de pantalla de la aplicación:
-
-### Pantalla de inicio
-![Collage](./img_app/collage.png)
-
 ## Explicación del proyecto
 MrFit es una aplicación de entrenamiento personalizada que permite gestionar rutinas, seguir el progreso de los ejercicios y utilizar funcionalidades de voz para guiar al usuario. Con Flutter y SQLite como base, ofrece una experiencia multiplataforma sencilla de configurar.
+
+## Tour Application
+![Tour](./img_app/gif/tour.gif)
+
+## Capturas de pantalla
+
+![Collage](./img_app/collage.png)
 
 ## Características principales
 - Gestión de rutinas diarias de entrenamiento.
