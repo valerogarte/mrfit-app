@@ -215,14 +215,14 @@ class Usuario {
       final historiaLesiones = row['historia_lesiones'] is String ? jsonDecode(row['historia_lesiones'].toString()) : (row['historia_lesiones'] ?? []);
 
       final usuario = Usuario(
-        id: int.parse(row['id'].toString()),
+        id: row['id'] is int ? row['id'] as int : (int.tryParse(row['id']?.toString() ?? '') ?? 0),
         username: row['username']?.toString() ?? '',
         isStaff: row['is_staff'] == 1,
         isActive: row['is_active'] == 1,
         dateJoined: DateTime.parse(row['date_joined'].toString()),
         lastLogin: row['last_login'] != null ? DateTime.parse(row['last_login'].toString()) : null,
-        objetivoPasosDiarios: row['objetivo_pasos_diarios'] is int ? row['objetivo_pasos_diarios'] as int : int.parse(row['objetivo_pasos_diarios'].toString()),
-        objetivoEntrenamientoSemanal: row['objetivo_entrenamiento_semanal'] is int ? row['objetivo_entrenamiento_semanal'] as int : int.parse(row['objetivo_entrenamiento_semanal'].toString()),
+        objetivoPasosDiarios: row['objetivo_pasos_diarios'] is int ? row['objetivo_pasos_diarios'] as int : (int.tryParse(row['objetivo_pasos_diarios']?.toString() ?? '') ?? 0),
+        objetivoEntrenamientoSemanal: row['objetivo_entrenamiento_semanal'] is int ? row['objetivo_entrenamiento_semanal'] as int : (int.tryParse(row['objetivo_entrenamiento_semanal']?.toString() ?? '') ?? 0),
         fechaNacimiento: row['fecha_nacimiento'] != null ? DateTime.parse(row['fecha_nacimiento'].toString()) : DateTime.now().subtract(const Duration(days: 365 * 30)),
         genero: row['genero']?.toString() ?? '',
         historialPesos: historialPesos,
@@ -231,7 +231,7 @@ class Usuario {
         experiencia: row['experiencia']?.toString() ?? '',
         unidades: row['unidades']?.toString() ?? '',
         sonido: row['sonido']?.toString() ?? '',
-        tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : int.parse(row['tiempo_descanso'].toString()),
+        tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
       );
 
       await usuario.getCurrentMrPoints();

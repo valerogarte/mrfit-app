@@ -84,25 +84,16 @@ class Entrenamiento {
       factorRec = 0.0;
       return;
     }
-    // Obtiene la fecha y hora actual
     final now = DateTime.now();
-    // Calcula la diferencia en horas entre 'fin' y 'now', y la multiplica por -1 para obtener un valor positivo si 'fin' está en el pasado
     final int horasDesdeFin = fin!.difference(now).inHours * -1;
-    // Convierte las horas en días
     final double dias = horasDesdeFin / 24.0;
-    // Limita el valor de 'dias' entre 0 y 5
     final double maximoTiempoRecuperacion = getDiasMaximoParaRecuperacionMuscular();
     final double d = math.max(0.0, math.min(dias, maximoTiempoRecuperacion));
-    // Constante de decaimiento, es la curva, cuanto más alta más rápido decae
     const double kDecay = 1.0;
-    // Limita el valor de 'd' a un máximo de 3
     final double tiempoRecuperacion = getDiasParaRecuperacionMuscular();
     final double dExp = math.min(d, tiempoRecuperacion);
-    // Calcula el factor exponencial usando la constante de decaimiento y 'dExp'
     final double factorExpo = math.exp(-kDecay * dExp);
-    // Calcula 'r' limitando el valor entre 0 y 1
     final double r = math.max(0.0, math.min((d - 3.0) / 2.0, 1.0));
-    // Calcula el factor de recuperación final
     factorRec = factorExpo * (1 - r);
   }
 
@@ -138,12 +129,10 @@ class Entrenamiento {
   String formatTimeAgo() {
     final now = DateTime.now();
     final difference = now.difference(inicio);
-
     final years = (difference.inDays / 365).floor();
     final months = (difference.inDays / 30).floor();
     final days = difference.inDays;
     final hours = difference.inHours;
-
     if (years > 0) {
       return 'Hace $years ${years == 1 ? 'año' : 'años'}';
     } else if (months > 0) {
@@ -162,26 +151,18 @@ class Entrenamiento {
   Future<void> calcularRecuperacion(Usuario usuario) async {
     if (_recoveryCalculated) return;
     _recoveryCalculated = true;
-
     calcularFactorRecuperacion();
-
     final usuario = await Usuario.load();
-
-    // print('-Entrenamiento $fin. Peso usuario: $userWeight');
-
     for (final ejercicioRealizado in ejercicios) {
       final ejercicioVolumen = await ejercicioRealizado.calcularMrPointsTotal(usuario);
       entrenamientoVolumen = entrenamientoVolumen + ejercicioVolumen;
       await ejercicioRealizado.calcularRecuperacionSerie(factorRec, usuario);
     }
-
     entrenamientoVolumenActual = entrenamientoVolumen * factorRec;
   }
 
   List<Map<String, dynamic>> getVolumenPorMusculoPorcentaje() {
     final Map<String, double> totalVolumenPorMusculo = {};
-
-    // Para cada ejercicio, usa su método propio
     for (final ejercicioRealizado in ejercicios) {
       for (final entry in ejercicioRealizado.volumenPorMusculo.entries) {
         final musculo = entry.key;
@@ -189,18 +170,13 @@ class Entrenamiento {
         totalVolumenPorMusculo[musculo] = (totalVolumenPorMusculo[musculo] ?? 0) + vol;
       }
     }
-
     return totalVolumenPorMusculo.entries.map((entry) {
-      return {
-        entry.key: entry.value,
-      };
+      return {entry.key: entry.value};
     }).toList();
   }
 
   List<Map<String, dynamic>> getVolumenActualPorMusculoPorcentaje() {
     final Map<String, double> totalVolumenPorMusculo = {};
-
-    // Para cada ejercicio, usa su método propio
     for (final ejercicioRealizado in ejercicios) {
       for (final entry in ejercicioRealizado.volumenPorMusculo.entries) {
         final musculo = entry.key;
@@ -208,18 +184,13 @@ class Entrenamiento {
         totalVolumenPorMusculo[musculo] = (totalVolumenPorMusculo[musculo] ?? 0) + vol;
       }
     }
-
     return totalVolumenPorMusculo.entries.map((entry) {
-      return {
-        entry.key: entry.value,
-      };
+      return {entry.key: entry.value};
     }).toList();
   }
 
   List<Map<String, dynamic>> getVolumenActualPorMusculo() {
     final Map<String, double> totalVolumenPorMusculo = {};
-
-    // Para cada ejercicio, usa su método propio
     for (final ejercicioRealizado in ejercicios) {
       for (final entry in ejercicioRealizado.volumenPorMusculo.entries) {
         final musculo = entry.key;
@@ -227,11 +198,8 @@ class Entrenamiento {
         totalVolumenPorMusculo[musculo] = (totalVolumenPorMusculo[musculo] ?? 0) + vol;
       }
     }
-
     return totalVolumenPorMusculo.entries.map((entry) {
-      return {
-        entry.key: entry.value,
-      };
+      return {entry.key: entry.value};
     }).toList();
   }
 
@@ -269,30 +237,22 @@ class Entrenamiento {
     final res = await db.query('entrenamiento_entrenamiento', where: 'id = ?', whereArgs: [id], limit: 1);
     if (res.isEmpty) return null;
     final row = res.first;
-
-    // Use DateTime.now() as fallback when 'inicio' or 'fin' is null.
     final inicio = row['inicio'] != null ? DateTime.parse(row['inicio'] as String) : DateTime.now();
     final fin = row['fin'] != null ? DateTime.parse(row['fin'] as String) : DateTime.now();
     final sesionId = row['sesion_id'];
-
-    // Cargar la sesion
     final sesionData = await db.query('rutinas_sesion', where: 'id = ?', whereArgs: [sesionId], limit: 1);
-    // Updated the following line to provide a default empty string if 'titulo' is null.
     final String sesionNombre = sesionData.first["titulo"] as String? ?? '';
-
-    // Add null check for peso_usuario
     final double pesoUsuario = (row['peso_usuario'] == null) ? 0.0 : (row['peso_usuario'] as num).toDouble();
-
     final ejerciciosData = await db.query(
       'entrenamiento_ejerciciorealizado',
       where: 'entrenamiento_id = ?',
       whereArgs: [id],
+      orderBy: 'peso_orden ASC',
     );
     final List<EjercicioRealizado> ejerciciosRealizados = [];
     for (final eRow in ejerciciosData) {
       final int ejercicioId = eRow['ejercicio_id'] as int;
       final ejercicio = await Ejercicio.loadById(ejercicioId);
-
       final seriesData = await db.query(
         'entrenamiento_serierealizada',
         where: 'ejercicio_realizado_id = ?',
@@ -314,16 +274,15 @@ class Entrenamiento {
           'deleted': sRow['deleted'],
         });
       }).toList();
-
       ejerciciosRealizados.add(
         EjercicioRealizado(
           id: eRow['id'] as int,
           ejercicio: ejercicio,
           series: series,
+          pesoOrden: eRow['peso_orden'] as int,
         ),
       );
     }
-
     return Entrenamiento(
       id: row['id'] as int,
       titulo: sesionNombre,

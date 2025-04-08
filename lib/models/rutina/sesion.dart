@@ -196,12 +196,14 @@ class Sesion {
       await getEjercicios();
     }
 
+    int pesoOrden = 0;
     for (var ejercicioP in ejerciciosPersonalizados) {
       final ejercicioRealizadoId = await db.insert(
         'entrenamiento_ejerciciorealizado',
         {
           'ejercicio_id': ejercicioP.ejercicio.id,
           'entrenamiento_id': entrenamientoId,
+          'peso_orden': pesoOrden,
         },
       );
 
@@ -229,6 +231,7 @@ class Sesion {
           },
         );
       }
+      pesoOrden++;
     }
 
     return Entrenamiento.loadById(entrenamientoId);

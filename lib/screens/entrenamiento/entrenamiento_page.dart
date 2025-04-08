@@ -307,6 +307,8 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                 IconButton(
                   icon: const Icon(Icons.edit, color: AppColors.advertencia),
                   onPressed: () {
+                    _entrenadora.detener();
+                    restartEntrenadora = true;
                     Navigator.push(
                       context,
                       MaterialPageRoute(

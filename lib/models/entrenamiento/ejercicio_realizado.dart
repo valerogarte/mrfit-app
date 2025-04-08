@@ -7,18 +7,20 @@ class EjercicioRealizado {
   final int id;
   final Ejercicio ejercicio;
   final List<SerieRealizada> series;
+  int pesoOrden = 0;
   Map<String, dynamic> volumenPorMusculo = {};
   double volumenTotal = 0.0;
   double volumenTotalActual = 0.0;
   bool deleted;
 
-  EjercicioRealizado({required this.id, required this.ejercicio, required this.series, this.volumenPorMusculo = const {}, this.volumenTotal = 0.0, this.volumenTotalActual = 0.0, this.deleted = false});
+  EjercicioRealizado({required this.id, required this.ejercicio, required this.series, required this.pesoOrden, this.volumenPorMusculo = const {}, this.volumenTotal = 0.0, this.volumenTotalActual = 0.0, this.deleted = false});
 
   factory EjercicioRealizado.fromJson(Map<String, dynamic> json) {
     return EjercicioRealizado(
       id: json['id'],
       ejercicio: Ejercicio.fromJson(json['ejercicio']),
       series: (json['series'] as List).map((item) => SerieRealizada.fromJson(item)).toList(),
+      pesoOrden: json['pesoOrden'] ?? 0,
       volumenPorMusculo: json['volumenPorMusculo'] ?? {},
       volumenTotal: (json['volumenTotal'] ?? 0.0).toDouble(),
       volumenTotalActual: (json['volumenTotalActual'] ?? 0.0).toDouble(),
@@ -27,7 +29,19 @@ class EjercicioRealizado {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'ejercicio': ejercicio.toJson(), 'series': series.map((s) => s.toJson()).toList(), 'volumenPorMusculo': volumenPorMusculo, 'deleted': deleted.toString()};
+    return {'id': id, 'ejercicio': ejercicio.toJson(), 'series': series.map((s) => s.toJson()).toList(), 'peso_orden': pesoOrden, 'volumenPorMusculo': volumenPorMusculo, 'deleted': deleted.toString()};
+  }
+
+  Future<void> setPesoOrden(int peso) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.update(
+      'entrenamiento_ejerciciorealizado',
+      {'peso_orden': peso},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    print('Actualizando el peso orden de $id a $peso');
+    pesoOrden = peso;
   }
 
   int countSeries() {
