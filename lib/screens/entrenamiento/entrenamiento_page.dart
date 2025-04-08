@@ -408,80 +408,82 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
           ),
 
           // Sección inferior que ocupa el 100% del ancho en lugar de FAB flotantes
-          bottomNavigationBar: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            color: Colors.transparent,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Botón de finalizar, izquierda
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.advertencia,
-                    foregroundColor: AppColors.cardBackground,
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              color: Colors.transparent,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Botón de finalizar, izquierda
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.advertencia,
+                      foregroundColor: AppColors.cardBackground,
+                    ),
+                    icon: const Icon(Icons.flag, color: AppColors.cardBackground),
+                    label: const Text("Finalizar"),
+                    onPressed: () async {
+                      await _entrenadora.detener();
+                      await widget.entrenamiento.finalizar();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FinalizarPage(entrenamiento: widget.entrenamiento),
+                        ),
+                      );
+                    },
                   ),
-                  icon: const Icon(Icons.flag, color: AppColors.cardBackground),
-                  label: const Text("Finalizar"),
-                  onPressed: () async {
-                    await _entrenadora.detener();
-                    await widget.entrenamiento.finalizar();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FinalizarPage(entrenamiento: widget.entrenamiento),
-                      ),
-                    );
-                  },
-                ),
 
-                // Botón de descanso (solo se muestra si _isResting == true)
-                if (_isResting)
+                  // Botón de descanso (solo se muestra si _isResting == true)
+                  if (_isResting)
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.appBarBackground,
+                      ),
+                      onPressed: () {
+                        _setInicioNextSeries();
+                        setState(() {
+                          _restTimer?.cancel();
+                          _isResting = false;
+                          _restingTimeLeft = 0;
+                          _entrenadora.setSaltarDescanso(true);
+                        });
+                        _entrenadora.reanudar();
+                      },
+                      icon: const Icon(Icons.fast_forward, color: AppColors.advertencia),
+                      label: TweenAnimationBuilder<double>(
+                        key: ValueKey(_restingTimeLeft),
+                        tween: Tween<double>(begin: 1.5, end: 1.0),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, scaleValue, child) {
+                          return Transform.scale(
+                            scale: scaleValue,
+                            child: Text(
+                              '${_restingTimeLeft ?? 0}s',
+                              style: const TextStyle(color: AppColors.advertencia),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    const SizedBox.shrink(),
+
+                  // Botón de añadir serie, derecha
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.appBarBackground,
                     ),
-                    onPressed: () {
-                      _setInicioNextSeries();
-                      setState(() {
-                        _restTimer?.cancel();
-                        _isResting = false;
-                        _restingTimeLeft = 0;
-                        _entrenadora.setSaltarDescanso(true);
-                      });
-                      _entrenadora.reanudar();
+                    icon: const Icon(Icons.add, color: AppColors.textColor),
+                    label: const Text("Serie"),
+                    onPressed: () async {
+                      final currentEjercicio = widget.entrenamiento.ejercicios[_currentIndex];
+                      await currentEjercicio.insertSerieRealizada();
                     },
-                    icon: const Icon(Icons.fast_forward, color: AppColors.advertencia),
-                    label: TweenAnimationBuilder<double>(
-                      key: ValueKey(_restingTimeLeft),
-                      tween: Tween<double>(begin: 1.5, end: 1.0),
-                      duration: const Duration(seconds: 1),
-                      builder: (context, scaleValue, child) {
-                        return Transform.scale(
-                          scale: scaleValue,
-                          child: Text(
-                            '${_restingTimeLeft ?? 0}s',
-                            style: const TextStyle(color: AppColors.advertencia),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                else
-                  const SizedBox.shrink(),
-
-                // Botón de añadir serie, derecha
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.appBarBackground,
                   ),
-                  icon: const Icon(Icons.add, color: AppColors.textColor),
-                  label: const Text("Serie"),
-                  onPressed: () async {
-                    final currentEjercicio = widget.entrenamiento.ejercicios[_currentIndex];
-                    await currentEjercicio.insertSerieRealizada();
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

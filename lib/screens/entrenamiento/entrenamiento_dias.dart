@@ -312,10 +312,12 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                 );
               }).toList(),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarDialogoNuevaSesion,
-        backgroundColor: _listadoSesiones.isEmpty ? AppColors.advertencia : AppColors.accentColor,
-        child: const Icon(Icons.add, color: AppColors.background),
+      floatingActionButton: SafeArea(
+        child: FloatingActionButton(
+          onPressed: _mostrarDialogoNuevaSesion,
+          backgroundColor: _listadoSesiones.isEmpty ? AppColors.advertencia : AppColors.accentColor,
+          child: const Icon(Icons.add, color: AppColors.background),
+        ),
       ),
     );
   }

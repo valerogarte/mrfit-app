@@ -222,7 +222,8 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return SafeArea(
+        child: Stack(
       children: [
         if (_ejercicios.isEmpty)
           Padding(
@@ -282,7 +283,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildExerciseHeader(int index, EjercicioPersonalizado ejercicioPersonalizado) {
