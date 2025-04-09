@@ -288,6 +288,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
 
   Widget _buildExerciseHeader(int index, EjercicioPersonalizado ejercicioPersonalizado) {
     final ejercicio = ejercicioPersonalizado.ejercicio;
+    int seriesCount = _ejercicios[index].countSeriesPersonalizadas();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -345,16 +346,52 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                           maxLines: 2,
                         ),
                       ),
-                      buildDificultadPills(ejercicio, 6, 12),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          buildDificultadPills(ejercicio, 6, 12),
+                          const SizedBox(height: 8),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width: 40,
+                                  child: Text(
+                                    '$seriesCount',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: seriesCount == 0 ? AppColors.advertencia : AppColors.textColor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Transform.translate(
+                                  offset: const Offset(0, 10),
+                                  child: SizedBox(
+                                    width: 40,
+                                    child: Text(
+                                      'series',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: seriesCount == 0 ? AppColors.advertencia : AppColors.textColor,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${_ejercicios[index].countSeriesPersonalizadas()} series',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textColor,
-                    ),
                   ),
                 ],
               ),
