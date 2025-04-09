@@ -36,7 +36,6 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
   late TextEditingController _weightController;
   late TextEditingController _speedController;
   late TextEditingController _restController;
-  late TextEditingController _rirController;
 
   @override
   void initState() {
@@ -56,7 +55,6 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
     _weightController = TextEditingController(text: widget.serieP.peso.toString());
     _speedController = TextEditingController(text: widget.serieP.velocidadRepeticion.toString());
     _restController = TextEditingController(text: widget.serieP.descanso.toString());
-    _rirController = TextEditingController(text: widget.serieP.rer.toString());
   }
 
   // Cada vez que el widget se actualiza (el padre cambia isExpanded),
@@ -80,7 +78,6 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
     _weightController.dispose();
     _speedController.dispose();
     _restController.dispose();
-    _rirController.dispose();
     super.dispose();
   }
 
@@ -93,9 +90,8 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
     double peso = double.tryParse(_weightController.text) ?? 0.0;
     double velocidadRepeticion = double.tryParse(_speedController.text) ?? 0.0;
     int descanso = int.tryParse(_restController.text) ?? 0;
-    int rer = int.tryParse(_rirController.text) ?? 0;
 
-    if (repeticiones < 0 || peso < 0 || velocidadRepeticion < 0 || descanso < 0 || rer < 0) {
+    if (repeticiones < 0 || peso < 0 || velocidadRepeticion < 0 || descanso < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Los valores no pueden ser negativos.')),
       );
@@ -106,8 +102,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
       ..repeticiones = repeticiones
       ..peso = peso
       ..velocidadRepeticion = velocidadRepeticion
-      ..descanso = descanso
-      ..rer = rer;
+      ..descanso = descanso;
     widget.serieP.save();
 
     // Notificamos al padre para que recalcule (tiempo, volumen, etc.)
@@ -364,16 +359,6 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
                     onChanged: (value) {
                       setState(() {
                         widget.serieP.descanso = int.tryParse(value) ?? 0;
-                      });
-                    },
-                    isDecimal: false,
-                  ),
-                  _buildInputField(
-                    label: 'RIR',
-                    controller: _rirController,
-                    onChanged: (value) {
-                      setState(() {
-                        widget.serieP.rer = int.tryParse(value) ?? 0;
                       });
                     },
                     isDecimal: false,
