@@ -54,10 +54,10 @@ class _EjercicioGraficaProgresionMarcaState extends State<EjercicioGraficaProgre
 
         // Lista de gráficos disponibles
         final charts = [
-          {'title': 'RM', 'values': rmData},
-          {'title': 'Máx Reps', 'values': maxRepsData},
-          {'title': 'Máx Peso', 'values': pesoMaximoData},
-          {'title': 'Máx Volumen', 'values': volumenMaximoData},
+          if (rmData.any((value) => value > 0.0)) {'title': 'RM', 'values': rmData},
+          if (maxRepsData.any((value) => value > 0.0)) {'title': 'Máx Reps', 'values': maxRepsData},
+          if (pesoMaximoData.any((value) => value > 0.0)) {'title': 'Máx Peso', 'values': pesoMaximoData},
+          if (volumenMaximoData.any((value) => value > 0.0)) {'title': 'Máx Volumen', 'values': volumenMaximoData},
         ];
 
         return Column(
