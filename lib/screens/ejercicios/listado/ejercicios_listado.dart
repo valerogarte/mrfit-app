@@ -336,16 +336,20 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          ejercicio.nombre,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: AppColors.whiteText,
+                        child: Transform.translate(
+                          offset: const Offset(0, -4), // desplaza 3px hacia arriba
+                          child: Text(
+                            ejercicio.nombre,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: AppColors.whiteText,
+                            ),
+                            maxLines: 3, // Modificado de 2 a 3
                           ),
-                          maxLines: 2,
                         ),
                       ),
+                      const SizedBox(width: 5),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
