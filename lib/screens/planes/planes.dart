@@ -263,7 +263,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarDialogoNuevoPlan,
-        backgroundColor: rutinas.isEmpty ? AppColors.advertencia : AppColors.accentColor,
+        backgroundColor: rutinas.isEmpty ? AppColors.advertencia : AppColors.secondaryColor,
         child: const Icon(Icons.add, color: AppColors.background),
       ),
     );

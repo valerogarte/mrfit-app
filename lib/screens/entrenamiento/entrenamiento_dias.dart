@@ -315,7 +315,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
       floatingActionButton: SafeArea(
         child: FloatingActionButton(
           onPressed: _mostrarDialogoNuevaSesion,
-          backgroundColor: _listadoSesiones.isEmpty ? AppColors.advertencia : AppColors.accentColor,
+          backgroundColor: _listadoSesiones.isEmpty ? AppColors.advertencia : AppColors.secondaryColor,
           child: const Icon(Icons.add, color: AppColors.background),
         ),
       ),
