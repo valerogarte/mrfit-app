@@ -1,5 +1,7 @@
 // usuario.dart
 
+import 'package:flutter/material.dart';
+
 import '../ejercicio/ejercicio.dart';
 import '../../data/database_helper.dart';
 import 'usuario_backup.dart';
@@ -264,6 +266,10 @@ class Usuario {
 
   int getTargetKcalBurned() {
     return 2500;
+  }
+
+  int getTargetSleepMinutes() {
+    return 480;
   }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(

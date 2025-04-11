@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../../models/usuario/usuario.dart';
 import '../../utils/colors.dart';
-import 'triple_ring_loader.dart';
+import '../chart/triple_ring_loader.dart';
 
 class DailyStats {
   final int steps;

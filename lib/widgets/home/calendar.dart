@@ -140,7 +140,6 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
         // Manejo de gestos: ignoramos la pulsación vertical
         dragStartBehavior: DragStartBehavior.down,
         onPageChanged: (page) {
-          Logger().d("Page changed to: $page");
           final diff = page - _currentPage;
           setState(() {
             _baseDate = _baseDate.add(Duration(days: diff * 7));
@@ -171,7 +170,6 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     onTap: () {
-                      Logger().d("Day tapped: $date");
                       widget.onDateSelected(date);
                     },
                     child: Container(

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import '../utils/colors.dart';
 import '../models/usuario/usuario.dart';
 import '../data/database_helper.dart';
-import '../models/entrenamiento/entrenamiento.dart';
 import '../widgets/home/calendar.dart';
-import '../widgets/entrenamiento/entrenamiento_listado.dart';
-import '../widgets/chart/daily.dart';
+import '../widgets/home/daily_steps_activity_kcal.dart';
+import '../widgets/home/daily_sleep.dart';
+import '../widgets/home/daily_weekly.dart';
+import '../widgets/home/daily_trainings.dart';
 import '../providers/usuario_provider.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -87,103 +89,75 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Si _selectedDate no se ha modificado, se usará el día actual.
-            dailyStatsWidget(day: _selectedDate, usuario: usuario),
-            const SizedBox(height: 10),
-            // Se reemplaza la lógica del calendario por CalendarWidget
-            CalendarWidget(
+      body: Column(
+        children: [
+          // Fixed CalendarWidget at the top with padding
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: CalendarWidget(
               selectedDate: _selectedDate,
               diasEntrenados: _diasEntrenados,
               onDateSelected: (date) {
                 DateTime today = DateTime.now();
                 if (date.isAfter(today)) {
-                  return; // No actualizar si se selecciona un día futuro.
+                  return;
                 }
                 setState(() {
                   _selectedDate = date;
                 });
               },
             ),
-            const SizedBox(height: 0),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '$daysTrainedLast30Days/30',
-                        style: TextStyle(
-                          fontSize: 40,
-                          color: AppColors.accentColor,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          DateFormat('EEEE, d \'de\' MMMM', 'es').format(_selectedDate).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase()),
+                          style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Text(
-                        'últimos 30 días.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 15),
+                    dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                    const SizedBox(height: 15),
+                    dailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                    const SizedBox(height: 15),
+                    sleepStatsWidget(day: _selectedDate, usuario: usuario),
+                    const SizedBox(height: 15),
+                    WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
+                    const SizedBox(height: 15),
+                    // Expanded(
+                    //   flex: 2,
+                    //   child: ListadoEntrenamientos(
+                    //     resumenEntrenamientos: _resumenEntrenamientos,
+                    //     onDismissed: (context, index, removedTraining) async {
+                    //       setState(() {
+                    //         _resumenEntrenamientos.removeAt(index);
+                    //       });
+                    //       if (removedTraining['isGoogleFit'] != true) {
+                    //         final entrenamientoObj = await Entrenamiento.loadById(removedTraining['id']);
+                    //         if (entrenamientoObj != null) {
+                    //           await entrenamientoObj.delete();
+                    //         }
+                    //       }
+                    //       _refreshCalendar();
+                    //     },
+                    //     onTrainingDeleted: _refreshCalendar,
+                    //   ),
+                    // ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(
-                    Icons.fitness_center,
-                    color: AppColors.accentColor,
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '$daysTrainedLast7Days/7',
-                        style: TextStyle(
-                          fontSize: 40,
-                          color: AppColors.accentColor,
-                        ),
-                      ),
-                      Text(
-                        'últimos 7 días.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              flex: 2,
-              child: ListadoEntrenamientos(
-                resumenEntrenamientos: _resumenEntrenamientos,
-                onDismissed: (context, index, removedTraining) async {
-                  setState(() {
-                    _resumenEntrenamientos.removeAt(index);
-                  });
-                  if (removedTraining['isGoogleFit'] != true) {
-                    final entrenamientoObj = await Entrenamiento.loadById(removedTraining['id']);
-                    if (entrenamientoObj != null) {
-                      await entrenamientoObj.delete();
-                    }
-                  }
-                  _refreshCalendar();
-                },
-                onTrainingDeleted: _refreshCalendar,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

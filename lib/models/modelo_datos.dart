@@ -180,4 +180,26 @@ class ModeloDatos {
     if (value == 3) return "¡Día espectacular!";
     return "";
   }
+
+  // Función para matchear workoutActivityType
+  Map<String, dynamic> getActivityTypeDetails(String activityType) {
+    print(activityType);
+    switch (activityType) {
+      case "HealthWorkoutActivityType.OTHER":
+        return {
+          'icon': Icons.fitness_center,
+          'nombre': "Entrenamiento",
+        };
+      case "HealthWorkoutActivityType.RUNNING":
+        return {
+          'icon': Icons.directions_run,
+          'nombre': "Correr",
+        };
+      default:
+        return {
+          'icon': Icons.fitness_center,
+          'nombre': "Otro",
+        };
+    }
+  }
 }

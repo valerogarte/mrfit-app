@@ -384,7 +384,6 @@ extension UsuarioHealthExtension on Usuario {
 
     Map<DateTime, int> activityTimeTotal = {parsedDate: 0};
     for (var dp in dataPoints) {
-      print(dp);
       if (dp.value is WorkoutHealthValue) {
         final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
         activityTimeTotal[parsedDate] = (activityTimeTotal[parsedDate] ?? 0) + duration;
@@ -413,7 +412,6 @@ extension UsuarioHealthExtension on Usuario {
     );
 
     Map<DateTime, double> tempMap = {parsedDate: 0.0};
-    print(dataPoints);
     for (var dp in dataPoints) {
       final calValue = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0.0;
       tempMap[parsedDate] = (tempMap[parsedDate] ?? 0.0) + calValue;
@@ -443,6 +441,72 @@ extension UsuarioHealthExtension on Usuario {
     for (var dp in dataPoints) {
       final calValue = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
       tempMap[parsedDate] = (tempMap[parsedDate] ?? 0) + calValue.toInt();
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, int>> getSleepByDate(String date) async {
+    final parsedDate = DateTime.parse(date);
+    final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+    final end = start.add(const Duration(days: 1));
+    int totalSleep = 0;
+    final sleepKeys = ["SLEEP_DEEP", "SLEEP_LIGHT", "SLEEP_REM", "SLEEP_ASLEEP"];
+    for (var key in sleepKeys) {
+      if (await _health.hasPermissions(
+            [healthDataTypesString[key]!],
+            permissions: [healthDataPermissions[key]!],
+          ) ??
+          false) {
+        final dataPoints = await _health.getHealthDataFromTypes(
+          startTime: start,
+          endTime: end,
+          types: [healthDataTypesString[key]!],
+        );
+        for (var dp in dataPoints) {
+          final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
+          totalSleep += value;
+        }
+      }
+    }
+    return {parsedDate: totalSleep};
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getDailyTrainingsByDate(String date) async {
+    final hasPermission = await _health.hasPermissions(
+          [healthDataTypesString["WORKOUT"]!],
+          permissions: [healthDataPermissions["WORKOUT"]!],
+        ) ??
+        false;
+    if (!hasPermission) return {};
+
+    final parsedDate = DateTime.parse(date);
+    final dateKey = DateFormat('yyyy-MM-dd').format(parsedDate);
+    final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+    final end = start.add(const Duration(days: 1));
+
+    final dataPoints = await _health.getHealthDataFromTypes(
+      startTime: start,
+      endTime: end,
+      types: [healthDataTypesString["WORKOUT"]!],
+    );
+
+    Map<String, List<Map<String, dynamic>>> tempMap = {dateKey: []};
+    for (var dp in dataPoints) {
+      if (dp.value is WorkoutHealthValue) {
+        final workoutValue = dp.value as WorkoutHealthValue;
+        final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
+        tempMap[dateKey]!.add({
+          'date': dateKey,
+          'dateFrom': dp.dateFrom,
+          'dateTo': dp.dateTo,
+          'duration': duration,
+          'activityType': workoutValue.workoutActivityType,
+          'activityTypeTitle': workoutValue.totalDistance,
+          'totalEnergyBurned': workoutValue.totalEnergyBurned,
+          'totalSteps': workoutValue.totalSteps,
+          'value': dp.value,
+        });
+      }
     }
     return tempMap;
   }
