@@ -7,6 +7,7 @@ import '../data/database_helper.dart';
 import '../models/entrenamiento/entrenamiento.dart';
 import '../widgets/home/calendar.dart';
 import '../widgets/entrenamiento/entrenamiento_listado.dart';
+import '../widgets/chart/daily.dart';
 import '../providers/usuario_provider.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -17,7 +18,7 @@ class InicioPage extends ConsumerStatefulWidget {
 }
 
 class _InicioPageState extends ConsumerState<InicioPage> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate = DateTime.now(); // Por defecto, día de hoy.
   List<dynamic> _resumenEntrenamientos = [];
   Set<DateTime> _diasEntrenados = {};
 
@@ -82,6 +83,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     DateTime today = DateTime.now();
     int daysTrainedLast7Days = _diasEntrenados.where((date) => date.isAfter(today.subtract(Duration(days: 7)))).length;
     int daysTrainedLast30Days = _diasEntrenados.where((date) => date.isAfter(today.subtract(Duration(days: 30)))).length;
+    final usuario = ref.read(usuarioProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -89,17 +91,24 @@ class _InicioPageState extends ConsumerState<InicioPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Si _selectedDate no se ha modificado, se usará el día actual.
+            dailyStatsWidget(day: _selectedDate, usuario: usuario),
+            const SizedBox(height: 10),
             // Se reemplaza la lógica del calendario por CalendarWidget
             CalendarWidget(
               selectedDate: _selectedDate,
               diasEntrenados: _diasEntrenados,
               onDateSelected: (date) {
+                DateTime today = DateTime.now();
+                if (date.isAfter(today)) {
+                  return; // No actualizar si se selecciona un día futuro.
+                }
                 setState(() {
                   _selectedDate = date;
                 });
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 0),
             Row(
               children: [
                 Expanded(

@@ -43,13 +43,13 @@ dependencies:
   path_provider: ^2.1.5 # 
   logger: ^2.5.0 # Logs
   dartssh2: ^2.11.0 # SSH
-  flutter_local_notifications: ^18.0.1 # Notificaciones
-  android_alarm_manager_plus: ^4.0.6 # Cron
+  flutter_local_notifications: ^19.0.0 # Notificaciones
+  android_alarm_manager_plus: ^4.0.7 # Cron
   fl_chart: ^0.70.2 # Gráficos
-  health: 12.0.1 # Healht
+  health: ^12.1.0 # Healht
   flutter_riverpod: ^2.3.6 # Variables globales
   confetti: ^0.8.0 # Confetti
-  flutter_launcher_icons: ^0.13.1 # Icono de la app
+  flutter_launcher_icons: ^0.14.3 # Icono de la app
 
 flutter_icons:
   android: true

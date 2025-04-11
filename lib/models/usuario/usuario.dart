@@ -258,8 +258,12 @@ class Usuario {
     return 7500;
   }
 
+  int getTargetMinActividad() {
+    return 60;
+  }
+
   int getTargetKcalBurned() {
-    return 500;
+    return 2500;
   }
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
