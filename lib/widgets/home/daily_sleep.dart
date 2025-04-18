@@ -97,144 +97,127 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
     future: UsageStatsHelper.hasUsageStatsPermission(),
     builder: (context, permissionSnapshot) {
       if (!permissionSnapshot.hasData) {
-        return const Center(child: CircularProgressIndicator());
+        return _buildStatsContainer(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppColors.background,
+                  child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      "0h 0min",
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "00:00 - 00:00",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+          loader: Container(), // No loader
+          key: const ValueKey('loading_sleep'),
+        );
       }
       if (!permissionSnapshot.data!) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.background,
-                    child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Sueño',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.only(left: 44),
-                child: const Text(
-                  'Estimamos tus horas de sueño basándonos en el uso del dispositivo.',
-                  style: TextStyle(color: AppColors.textColor),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.only(left: 44),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    UsageStatsHelper.openUsageStatsSettings();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.background,
-                  ),
-                  icon: const Icon(Icons.settings, color: AppColors.advertencia),
-                  label: const Text(
-                    'Conceder permisos',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        return _buildPermissionContainer();
       } else {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-            child: FutureBuilder<Sleep>(
-              future: _loadSleepData(usuario, day),
-              builder: (context, snapshot) {
-                Widget content;
-                if (snapshot.connectionState != ConnectionState.done) {
-                  content = Column(
+        return FutureBuilder<Sleep>(
+          future: _loadSleepData(usuario, day),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return _buildStatsContainer(
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: AppColors.background,
-                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "0h 0m",
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AppColors.background,
+                        child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            "0h 0min",
                             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "00:00 - 00:00",
+                            style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ],
                       ),
                     ],
-                  );
-                } else if (snapshot.hasError) {
-                  content = const SizedBox(key: ValueKey('error'));
-                } else {
-                  final sleepData = snapshot.data!;
-                  final sleepSlot = sleepData.getSleepSlot();
-                  content = Column(
+                  ),
+                ],
+                loader: Container(), // No loader
+                key: const ValueKey('loading_sleep_data'),
+              );
+            } else if (snapshot.hasError) {
+              return const SizedBox(key: ValueKey('error_sleep'));
+            } else {
+              final sleepData = snapshot.data!;
+              final sleepSlot = sleepData.getSleepSlot();
+              return _buildStatsContainer(
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: AppColors.background,
-                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                          ),
-                          const SizedBox(width: 12),
-                          // Se anima desde 0 hasta la suma de las duraciones de todos los slots
-                          TweenAnimationBuilder<double>(
-                            tween: Tween<double>(
-                              begin: 0,
-                              end: sleepData.getTotalSleepMinutes().toDouble(),
-                            ),
-                            duration: const Duration(seconds: 1),
-                            builder: (context, totalValue, child) {
-                              final int total = totalValue.round();
-                              final int hours = total ~/ 60;
-                              final int minutes = total % 60;
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AppColors.background,
+                        child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(
+                          begin: 0,
+                          end: sleepData.getTotalSleepMinutes().toDouble(),
+                        ),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, totalValue, child) {
+                          final int total = totalValue.round();
+                          final int hours = total ~/ 60;
+                          final int minutes = total % 60;
 
-                              if (sleepSlot.isEmpty) {
-                                return Text(
-                                  '${hours}h ${minutes}m',
-                                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                );
-                              }
+                          if (sleepSlot.isEmpty) {
+                            return Text(
+                              '${hours}h ${minutes}m',
+                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            );
+                          }
 
-                              return TweenAnimationBuilder<double>(
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${hours}h ${minutes}m',
+                                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              TweenAnimationBuilder<double>(
                                 tween: Tween<double>(
                                   begin: 0,
                                   end: (sleepSlot.first.start.hour * 60 + sleepSlot.first.start.minute).toDouble(),
                                 ),
                                 duration: const Duration(seconds: 1),
                                 builder: (context, startValue, child) {
-                                  final int sHour = (startValue ~/ 60).toInt();
-                                  final int sMin = (startValue % 60).toInt();
+                                  final int startHour = (startValue ~/ 60).toInt();
+                                  final int startMinute = (startValue % 60).toInt();
 
                                   return TweenAnimationBuilder<double>(
                                     tween: Tween<double>(
@@ -243,40 +226,120 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                                     ),
                                     duration: const Duration(seconds: 1),
                                     builder: (context, endValue, child) {
-                                      final int eHour = (endValue ~/ 60).toInt();
-                                      final int eMin = (endValue % 60).toInt();
+                                      final int endHour = (endValue ~/ 60).toInt();
+                                      final int endMinute = (endValue % 60).toInt();
 
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '${hours}h ${minutes}m',
-                                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            '$sHour:${sMin.toString().padLeft(2, '0')} - $eHour:${eMin.toString().padLeft(2, '0')}',
-                                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                                          ),
-                                        ],
+                                      return Text(
+                                        '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')} - ${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 14),
                                       );
                                     },
                                   );
                                 },
-                              );
-                            },
-                          ),
-                        ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
-                  );
-                }
-                return content;
-              },
-            ),
-          ),
+                  ),
+                ],
+                loader: Container(), // No loader
+                key: const ValueKey('loaded_sleep'),
+              );
+            }
+          },
         );
       }
     },
+  );
+}
+
+Widget _buildStatsContainer({
+  required List<Widget> children,
+  required Widget loader,
+  required Key key,
+}) {
+  return Container(
+    key: key,
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+    decoration: BoxDecoration(
+      color: AppColors.appBarBackground.withAlpha(75),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          ),
+        ),
+        const SizedBox(width: 20),
+        loader,
+      ],
+    ),
+  );
+}
+
+Widget _buildPermissionContainer() {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppColors.appBarBackground.withAlpha(75),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: AppColors.background,
+              child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Sueño',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 44),
+          child: const Text(
+            'Estimamos tus horas de sueño basándonos en el uso del dispositivo.',
+            style: TextStyle(color: AppColors.textColor),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.only(left: 44),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              UsageStatsHelper.openUsageStatsSettings();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.background,
+            ),
+            icon: const Icon(Icons.settings, color: AppColors.advertencia),
+            label: const Text(
+              'Conceder permisos',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }
