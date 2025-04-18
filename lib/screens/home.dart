@@ -10,6 +10,7 @@ import '../widgets/home/daily_steps_activity_kcal.dart';
 import '../widgets/home/daily_sleep.dart';
 import '../widgets/home/daily_weekly.dart';
 import '../widgets/home/daily_trainings.dart';
+import '../widgets/home/daily_physical.dart';
 import '../providers/usuario_provider.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -132,6 +133,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     sleepStatsWidget(day: _selectedDate, usuario: usuario),
                     const SizedBox(height: 15),
                     WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
+                    const SizedBox(height: 15),
+                    dailyPhysicalWidget(),
                     const SizedBox(height: 15),
                     // Expanded(
                     //   flex: 2,
