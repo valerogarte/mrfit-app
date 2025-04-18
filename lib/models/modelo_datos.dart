@@ -195,10 +195,15 @@ class ModeloDatos {
           'icon': Icons.directions_run,
           'nombre': "Correr",
         };
+      case "HealthWorkoutActivityType.WALKING":
+        return {
+          'icon': Icons.directions_walk,
+          'nombre': "Caminar",
+        };
       default:
         return {
           'icon': Icons.fitness_center,
-          'nombre': "Otro",
+          'nombre': activityType,
         };
     }
   }

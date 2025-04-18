@@ -186,12 +186,12 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                                   ? isFuture
                                       ? AppColors.accentColor.withAlpha((0.8 * 255).toInt())
                                       : isToday
-                                          ? (hasTrained ? AppColors.accentColor : AppColors.appBarBackground.withAlpha((0.5 * 255).toInt()))
-                                          : (hasTrained ? AppColors.accentColor : AppColors.appBarBackground.withAlpha((0.5 * 255).toInt()))
+                                          ? AppColors.mutedAdvertencia
+                                          : (hasTrained ? AppColors.accentColor : AppColors.textColor)
                                   : isFuture
-                                      ? AppColors.accentColor.withAlpha((0.8 * 255).toInt())
+                                      ? AppColors.appBarBackground.withAlpha((0.5 * 255).toInt())
                                       : isToday
-                                          ? AppColors.advertencia
+                                          ? AppColors.mutedAdvertencia
                                           : (hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withAlpha((0.5 * 255).toInt())),
                             ),
                           ),

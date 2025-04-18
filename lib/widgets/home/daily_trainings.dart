@@ -15,8 +15,55 @@ Widget dailyTrainingsWidget({required DateTime day, required Usuario usuario}) {
       if (snapshot.connectionState != ConnectionState.done) {
         content = _buildStatsContainer(
           children: [
-            const Text("Cargando entrenamientos...", style: TextStyle(color: Colors.white)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppColors.mutedAdvertencia,
+                  child: const Icon(Icons.fitness_center, color: AppColors.background, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: const Text(
+                    "Cargando entrenamientos",
+                    style: TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add logic for "Entrenar" button
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.background,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    child: const Text("Entrenar", style: TextStyle(color: AppColors.mutedAdvertencia)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add logic for "Rutinas" button
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.background,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    child: const Text("Rutinas", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
           ],
           loader: Container(),
           key: const ValueKey('loading_tr'),
@@ -41,8 +88,39 @@ Widget dailyTrainingsWidget({required DateTime day, required Usuario usuario}) {
                   Flexible(
                     child: const Text(
                       "Sin entrenamientos",
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Add logic for "Entrenar" button
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.background,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      child: const Text("Entrenar", style: TextStyle(color: AppColors.mutedAdvertencia)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Add logic for "Rutinas" button
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.background,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      child: const Text("Rutinas", style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -53,47 +131,80 @@ Widget dailyTrainingsWidget({required DateTime day, required Usuario usuario}) {
           );
         } else {
           final typesActivitys = ModeloDatos().getActivityTypeDetails;
-          content = Column(
-            children: trainings.asMap().entries.map<Widget>((entry) {
-              final index = entry.key;
-              final exercise = entry.value;
-              final activityDetails = typesActivitys(exercise['activityType'].toString());
-              return Padding(
-                padding: EdgeInsets.only(bottom: index == trainings.length - 1 ? 0 : 15),
-                child: _buildStatsContainer(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+          content = _buildStatsContainer(
+            children: [
+              Column(
+                children: [
+                  Column(
+                    children: trainings.map<Widget>((exercise) {
+                      final activityDetails = typesActivitys(exercise['activityType'].toString());
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppColors.mutedAdvertencia,
-                              child: Icon(activityDetails["icon"], color: AppColors.background, size: 18),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.mutedAdvertencia,
+                                  child: Icon(activityDetails["icon"], color: AppColors.background, size: 18),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  activityDetails["nombre"],
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 12),
                             Text(
-                              activityDetails["nombre"],
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                              "${exercise['duration']} min",
+                              style: const TextStyle(color: Colors.white70, fontSize: 16),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
-                        Text(
-                          "${exercise['duration']} min",
-                          style: const TextStyle(color: Colors.white70, fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Add logic for "Entrenar" button
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.background,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          ),
+                          child: const Text("Entrenar", style: TextStyle(color: AppColors.mutedAdvertencia)),
                         ),
-                      ],
-                    ),
-                  ],
-                  loader: Container(),
-                  key: ValueKey('exercise_${exercise['id'] ?? UniqueKey()}'),
-                ),
-              );
-            }).toList(),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Add logic for "Rutinas" button
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.background,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          ),
+                          child: const Text("Rutinas", style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+            loader: Container(),
+            key: const ValueKey('all_exercises'),
           );
         }
       }
