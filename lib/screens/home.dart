@@ -11,6 +11,7 @@ import '../widgets/home/daily_sleep.dart';
 import '../widgets/home/daily_weekly.dart';
 import '../widgets/home/daily_trainings.dart';
 import '../widgets/home/daily_physical.dart';
+import '../widgets/home/daily_nutrition.dart';
 import '../providers/usuario_provider.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -110,52 +111,68 @@ class _InicioPageState extends ConsumerState<InicioPage> {
             ),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          DateFormat('EEEE, d \'de\' MMMM', 'es').format(_selectedDate).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase()),
-                          style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  child: SingleChildScrollView(
+                    // padding: const EdgeInsets.all(16), // Padding inside the scrollable area
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                            child: Text(
+                              DateFormat('EEEE, d \'de\' MMMM', 'es').format(_selectedDate).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase()),
+                              style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold), // Adjusted text color
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 15),
+                        dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                        const SizedBox(height: 15),
+                        DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                        const SizedBox(height: 15),
+                        dailySleepWidget(day: _selectedDate, usuario: usuario),
+                        const SizedBox(height: 15),
+                        DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                        const SizedBox(height: 15),
+                        WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
+                        const SizedBox(height: 15),
+                        dailyPhysicalWidget(),
+                        const SizedBox(height: 15),
+                        // Expanded(
+                        //   flex: 2,
+                        //   child: ListadoEntrenamientos(
+                        //     resumenEntrenamientos: _resumenEntrenamientos,
+                        //     onDismissed: (context, index, removedTraining) async {
+                        //       setState(() {
+                        //         _resumenEntrenamientos.removeAt(index);
+                        //       });
+                        //       if (removedTraining['isGoogleFit'] != true) {
+                        //         final entrenamientoObj = await Entrenamiento.loadById(removedTraining['id']);
+                        //         if (entrenamientoObj != null) {
+                        //           await entrenamientoObj.delete();
+                        //         }
+                        //       }
+                        //       _refreshCalendar();
+                        //     },
+                        //     onTrainingDeleted: _refreshCalendar,
+                        //   ),
+                        // ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
-                    const SizedBox(height: 15),
-                    dailyStatsWidget(day: _selectedDate, usuario: usuario),
-                    const SizedBox(height: 15),
-                    dailyTrainingsWidget(day: _selectedDate, usuario: usuario),
-                    const SizedBox(height: 15),
-                    sleepStatsWidget(day: _selectedDate, usuario: usuario),
-                    const SizedBox(height: 15),
-                    WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
-                    const SizedBox(height: 15),
-                    dailyPhysicalWidget(),
-                    const SizedBox(height: 15),
-                    // Expanded(
-                    //   flex: 2,
-                    //   child: ListadoEntrenamientos(
-                    //     resumenEntrenamientos: _resumenEntrenamientos,
-                    //     onDismissed: (context, index, removedTraining) async {
-                    //       setState(() {
-                    //         _resumenEntrenamientos.removeAt(index);
-                    //       });
-                    //       if (removedTraining['isGoogleFit'] != true) {
-                    //         final entrenamientoObj = await Entrenamiento.loadById(removedTraining['id']);
-                    //         if (entrenamientoObj != null) {
-                    //           await entrenamientoObj.delete();
-                    //         }
-                    //       }
-                    //       _refreshCalendar();
-                    //     },
-                    //     onTrainingDeleted: _refreshCalendar,
-                    //   ),
-                    // ),
-                  ],
+                  ),
                 ),
               ),
             ),

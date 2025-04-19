@@ -45,7 +45,7 @@ class CalendarWidget extends ConsumerStatefulWidget {
 }
 
 class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
-  Map<DateTime, int> _stepsByDay = {};
+  int _stepsByDay = 0;
   Map<DateTime, double> _kcalBurned = {};
   int _targetSteps = 0;
   int _targetKcalBurned = 0;
@@ -95,16 +95,14 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     _targetKcalBurned = usuario.getTargetKcalBurned();
 
     if (stepsPermission) {
-      // Se asume que getReadSteps acepta (DateTime, días)
-      final listStepsByDay = await usuario.getReadSteps(effectiveWeek, 7);
+      final listStepsByDay = await usuario.getTotalSteps(startDate: effectiveWeek, nDays: 7);
       setState(() {
         _stepsByDay = listStepsByDay;
       });
     }
 
     if (kcalPermission) {
-      // Se asume que getTotalCaloriesBurned acepta (DateTime, días)
-      final listKcalBurnedByDay = await usuario.getTotalCaloriesBurned(effectiveWeek, 7);
+      final listKcalBurnedByDay = await usuario.getTotalCaloriesBurned(startDate: effectiveWeek, nDays: 7);
       setState(() {
         _kcalBurned = listKcalBurnedByDay;
       });
@@ -113,8 +111,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
 
   double _getStepsProgress(DateTime date) {
     if (!_hasStepsPermission || _targetSteps == 0) return 0;
-    final dateKey = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
-    final steps = _stepsByDay[dateKey] ?? 0;
+    final steps = _stepsByDay;
     double progress = steps / _targetSteps;
     return progress.clamp(0.0, 1.0);
   }

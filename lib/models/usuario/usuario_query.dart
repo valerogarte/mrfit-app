@@ -41,7 +41,7 @@ extension UsuarioQueryExtension on Usuario {
     try {
       final db = await DatabaseHelper.instance.database;
       final result = await db.rawQuery('''
-        SELECT * FROM rutinas_rutina WHERE usuario_id = 1;
+        SELECT * FROM rutinas_rutina WHERE usuario_id = 1 ORDER BY peso DESC;
       ''');
       final rutinas = result.map((row) => Rutina.fromJson(row)).toList();
       return rutinas;
@@ -59,8 +59,9 @@ extension UsuarioQueryExtension on Usuario {
       'imagen': imagen,
       'fecha_creacion': DateTime.now().toIso8601String(),
       'usuario_id': 1,
+      'grupo_id': 1,
     });
-    return Rutina(id: id, titulo: titulo, imagen: imagen);
+    return Rutina(id: id, titulo: titulo, imagen: imagen, grupoId: 1);
   }
 
   // Nuevo método para obtener entrenamientos de los últimos 5 días.

@@ -28,17 +28,15 @@ Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
   final parsedDate = DateTime.parse(formattedDay);
 
   if (grantedPermissions['STEPS'] == true) {
-    final Map<DateTime, int> stepsMap = await usuario.getReadStepsByDate(formattedDay);
-    steps = stepsMap[parsedDate] ?? 0;
+    steps = await usuario.getTotalSteps(date: formattedDay);
   }
 
-  if (grantedPermissions['WORKOUT'] == true) {
-    final Map<DateTime, int> distance = await usuario.getReadTimeActivityByDate(formattedDay);
-    minutes = distance[parsedDate] ?? 0;
+  if (grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true) {
+    minutes = await usuario.getTimeActivityByDate(formattedDay);
   }
 
   if (grantedPermissions['TOTAL_CALORIES_BURNED'] == true) {
-    final Map<DateTime, double> kcalMap = await usuario.getTotalCaloriesBurnedByDay(formattedDay);
+    final Map<DateTime, double> kcalMap = await usuario.getTotalCaloriesBurned(date: formattedDay);
     kcal = kcalMap[parsedDate]?.round() ?? 0;
   }
 

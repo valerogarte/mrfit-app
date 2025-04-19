@@ -14,11 +14,16 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../rutina/rutina.dart';
 import '../../models/entrenamiento/entrenamiento.dart';
+import '../../utils/usage_stats_helper.dart';
 
 part 'usuario_health.dart';
 part 'usuario_google.dart';
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';
+part 'usuario_health/usuario_health_activity.dart';
+part 'usuario_health/usuario_health_corporal.dart';
+part 'usuario_health/usuario_health_sleep.dart';
+part 'usuario_health/usuario_health_nutrition.dart';
 
 class Usuario {
   final int id;
@@ -40,6 +45,7 @@ class Usuario {
   String sonido;
   int tiempoDescanso;
   double weight;
+  int? rutinaActualId; // Nuevo campo para la rutina actual
   Map<String, double>? _cachedMrPoints;
   final Health _health = Health();
 
@@ -65,6 +71,7 @@ class Usuario {
     required this.sonido,
     required this.tiempoDescanso,
     this.weight = 0.0,
+    this.rutinaActualId, // Incluir el nuevo campo en el constructor
   });
 
   static final backup = UsuarioBackup();
@@ -89,6 +96,7 @@ class Usuario {
       unidades: json['unidades'] ?? '',
       sonido: json['sonido'] ?? '',
       tiempoDescanso: json['tiempo_descanso'] ?? 0,
+      rutinaActualId: json['rutina_actual_id'], // Mapear el nuevo campo
     );
   }
 
@@ -112,6 +120,7 @@ class Usuario {
       'unidades': unidades,
       'sonido': sonido,
       'tiempo_descanso': tiempoDescanso,
+      'rutina_actual_id': rutinaActualId, // Incluir el nuevo campo en el JSON
     };
   }
 
@@ -207,6 +216,35 @@ class Usuario {
     return count > 0;
   }
 
+  // Método para establecer la rutina actual
+  Future<bool> setRutinaActual(int? rutinaId) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      int count = await db.update('auth_user', {'rutina_actual_id': rutinaId}, where: 'id = ?', whereArgs: [1]);
+
+      if (count > 0) {
+        this.rutinaActualId = rutinaId;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      Logger().e('Error al establecer rutina actual: $e');
+      return false;
+    }
+  }
+
+  // Método para obtener la rutina actual
+  Future<Rutina?> getRutinaActual() async {
+    if (rutinaActualId == null) return null;
+
+    try {
+      return await Rutina.loadById(rutinaActualId!);
+    } catch (e) {
+      Logger().e('Error al obtener rutina actual: $e');
+      return null;
+    }
+  }
+
   static Future<Usuario> load() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -234,6 +272,7 @@ class Usuario {
         unidades: row['unidades']?.toString() ?? '',
         sonido: row['sonido']?.toString() ?? '',
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
+        rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '') ?? null), // Cargar rutina_actual_id
       );
 
       await usuario.getCurrentMrPoints();
@@ -256,12 +295,25 @@ class Usuario {
     ];
   }
 
+  Future<Rutina> getCurrentRutina() async {
+    final db = await DatabaseHelper.instance.database;
+    final results = await db.rawQuery('SELECT rutina_actual_id FROM auth_user WHERE id = ?', [1]);
+    if (results.isEmpty) throw Exception('User not found');
+    final idRutina = results.first["rutina_actual_id"] as int;
+
+    final rutina = await Rutina.loadById(idRutina);
+    if (rutina == null) {
+      throw Exception('Rutina not found for id: $idRutina');
+    }
+    return rutina;
+  }
+
   int getTargetSteps() {
     return 7500;
   }
 
   int getTargetMinActividad() {
-    return 60;
+    return 75;
   }
 
   int getTargetKcalBurned() {

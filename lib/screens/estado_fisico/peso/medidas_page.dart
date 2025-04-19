@@ -12,6 +12,15 @@ class MedidasPage extends ConsumerWidget {
     final usuario = ref.read(usuarioProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Medidas"), // Title "Medidas"
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Back arrow
+          onPressed: () {
+            Navigator.pop(context); // Navigate back
+          },
+        ),
+      ),
       body: FutureBuilder<Map<DateTime, double>>(
         future: usuario.getReadWeight(9999),
         builder: (context, snapshot) {

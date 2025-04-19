@@ -87,22 +87,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
-
-  // Lista de páginas para la navegación
-  static final List<Widget> _widgetOptions = <Widget>[
-    const InicioPage(), // Página de Inicio
-    const EstadoFisicoPage(), // Página de Estado Físico
-    const PlanesPage(), // Página de Planes
-  ];
-
-  // Maneja el cambio de pestaña en la barra de navegación
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,13 +98,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               TextSpan(text: 'Mr', style: const TextStyle(color: AppColors.advertencia)),
               TextSpan(text: 'Fit', style: const TextStyle(color: AppColors.whiteText)),
-              // TextSpan(text: '\nOPENSOURCE', style: const TextStyle(color: AppColors.background, fontSize: 7.5)),
             ],
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings), // icono de engranaje
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
@@ -130,30 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.secondaryColor,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendario',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.accessibility_new),
-            label: 'Físico',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Rutinas',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors.advertencia,
-        unselectedItemColor: AppColors.background,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-        onTap: _onItemTapped,
-      ),
+      body: const InicioPage(), // Directly load InicioPage
     );
   }
 }

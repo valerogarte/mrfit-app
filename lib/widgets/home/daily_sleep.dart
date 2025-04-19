@@ -1,291 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../models/usuario/usuario.dart';
 import '../../utils/colors.dart';
-import '../../utils/usage_stats_helper.dart'; // Contendrá los métodos hasUsageStatsPermission(), openUsageStatsSettings() y getInactivitySlots()
+import '../../utils/usage_stats_helper.dart';
 
-/// Representa un slot de inactividad
-class SleepSlot {
-  DateTime start; // Removed 'final' to make it mutable
-  DateTime end;
-  int duration;
-
-  SleepSlot({
-    required this.start,
-    required this.end,
-    required this.duration,
-  });
-
-  factory SleepSlot.fromMap(Map<dynamic, dynamic> map) {
-    final DateTime s = DateTime.fromMillisecondsSinceEpoch(map['start'] ?? 0);
-    final DateTime e = DateTime.fromMillisecondsSinceEpoch(map['end'] ?? 0);
-    final int dur = e.difference(s).inMinutes;
-    return SleepSlot(start: s, end: e, duration: dur);
-  }
-
-  @override
-  String toString() {
-    return 'SleepSlot(start: $start, end: $end, duration: $duration)';
-  }
-}
-
-/// Agrupa la información de sueño/inactividad
-class Sleep {
-  List<SleepSlot> slots;
-  final DateTime selectedDate;
-  List<SleepSlot>? sleepSlot;
-  Sleep({
-    required this.slots,
-    required this.selectedDate,
-    this.sleepSlot,
-  });
-
-  List<SleepSlot> getSleepSlot() {
-    if (sleepSlot != null) {
-      return sleepSlot!;
-    }
-    final DateTime horaInicioDormirHabitual = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
-    final DateTime horaFinDormirHabitual = horaInicioDormirHabitual.add(const Duration(hours: 11));
-
-    // Filtro aquellos que estén se inicien entre horaInicioDormirHabitual y horaFinDormirHabitual
-    List<SleepSlot> sleepTodaySlot = slots.where((slot) => slot.start.isAfter(horaInicioDormirHabitual) || slot.start.isAtSameMomentAs(horaInicioDormirHabitual)).where((slot) => slot.start.isBefore(horaFinDormirHabitual)).toList();
-    sleepTodaySlot.sort((a, b) => b.duration.compareTo(a.duration));
-    if (sleepTodaySlot.isNotEmpty) {
-      sleepTodaySlot = [sleepTodaySlot.first];
-    }
-
-    if (sleepTodaySlot.first.start == horaInicioDormirHabitual) {
-      final sleepYesterdaySlot = slots.where((slot) => slot.start.isAfter(horaInicioDormirHabitual.subtract(const Duration(days: 1))) && slot.start.isBefore(horaInicioDormirHabitual)).toList();
-      if (sleepYesterdaySlot.isNotEmpty) {
-        sleepTodaySlot.first.start = sleepYesterdaySlot.last.start;
-        sleepTodaySlot.first.duration = sleepTodaySlot.first.duration + sleepYesterdaySlot.last.duration;
+Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
+  return FutureBuilder<Map<String, int>>(
+    future: usuario.getSleepByDate(DateFormat('yyyy-MM-dd').format(day)),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState != ConnectionState.done) {
+        return _sleepPlaceholder();
       }
-    }
-
-    // Ordenar los slots de sueño por hora de inicio
-    if (sleepTodaySlot.isNotEmpty) {
-      sleepTodaySlot.sort((a, b) => a.start.compareTo(b.start));
-      sleepSlot = sleepTodaySlot;
-    }
-    return sleepTodaySlot;
-  }
-
-  // getTotalSleepMinutes
-  int getTotalSleepMinutes() {
-    var sleepSlots = getSleepSlot();
-    final totalSleepHours = sleepSlots.fold(0, (sum, slot) => sum + slot.duration);
-    return totalSleepHours;
-  }
-}
-
-/// Función para cargar la información de sueño para un día
-Future<Sleep> _loadSleepData(Usuario usuario, DateTime day) async {
-  final String formattedDay = day.toIso8601String().split('T').first;
-
-  // Obtenemos los slots de inactividad
-  List<dynamic> slotsData = await UsageStatsHelper.getInactivitySlots(formattedDay);
-  List<SleepSlot> inactivitySlots = slotsData.map((s) => SleepSlot.fromMap(s)).toList();
-
-  return Sleep(slots: inactivitySlots, selectedDate: day);
-}
-
-/// Widget principal de estadísticas de sueño
-Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
-  return FutureBuilder<bool>(
-    key: ValueKey(day),
-    future: UsageStatsHelper.hasUsageStatsPermission(),
-    builder: (context, permissionSnapshot) {
-      if (!permissionSnapshot.hasData) {
-        return _buildStatsContainer(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppColors.background,
-                  child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "0h 0min",
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "00:00 - 00:00",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-          loader: Container(), // No loader
-          key: const ValueKey('loading_sleep'),
-        );
+      if (snapshot.data != null && snapshot.data!.isNotEmpty) {
+        final firstEntry = snapshot.data!.entries.first;
+        if (firstEntry.value > 0) {
+          final totalMinutes = snapshot.data!.values.first;
+          return _sleepStats(totalMinutes, null);
+        }
       }
-      if (!permissionSnapshot.data!) {
-        return _buildPermissionContainer();
-      } else {
-        return FutureBuilder<Sleep>(
-          future: _loadSleepData(usuario, day),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return _buildStatsContainer(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppColors.background,
-                        child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "0h 0min",
-                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "00:00 - 00:00",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-                loader: Container(), // No loader
-                key: const ValueKey('loading_sleep_data'),
-              );
-            } else if (snapshot.hasError) {
-              return const SizedBox(key: ValueKey('error_sleep'));
-            } else {
-              final sleepData = snapshot.data!;
-              final sleepSlot = sleepData.getSleepSlot();
-              return _buildStatsContainer(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppColors.background,
-                        child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween<double>(
-                          begin: 0,
-                          end: sleepData.getTotalSleepMinutes().toDouble(),
-                        ),
-                        duration: const Duration(seconds: 1),
-                        builder: (context, totalValue, child) {
-                          final int total = totalValue.round();
-                          final int hours = total ~/ 60;
-                          final int minutes = total % 60;
-
-                          if (sleepSlot.isEmpty) {
-                            return Text(
-                              '${hours}h ${minutes}m',
-                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                            );
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${hours}h ${minutes}m',
-                                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 4),
-                              TweenAnimationBuilder<double>(
-                                tween: Tween<double>(
-                                  begin: 0,
-                                  end: (sleepSlot.first.start.hour * 60 + sleepSlot.first.start.minute).toDouble(),
-                                ),
-                                duration: const Duration(seconds: 1),
-                                builder: (context, startValue, child) {
-                                  final int startHour = (startValue ~/ 60).toInt();
-                                  final int startMinute = (startValue % 60).toInt();
-
-                                  return TweenAnimationBuilder<double>(
-                                    tween: Tween<double>(
-                                      begin: 0,
-                                      end: (sleepSlot.first.end.hour * 60 + sleepSlot.first.end.minute).toDouble(),
-                                    ),
-                                    duration: const Duration(seconds: 1),
-                                    builder: (context, endValue, child) {
-                                      final int endHour = (endValue ~/ 60).toInt();
-                                      final int endMinute = (endValue % 60).toInt();
-
-                                      return Text(
-                                        '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')} - ${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
-                                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-                loader: Container(), // No loader
-                key: const ValueKey('loaded_sleep'),
-              );
-            }
-          },
-        );
-      }
+      return FutureBuilder<List<SleepSlot>>(
+        future: usuario.getSleepSlotsForDay(day),
+        builder: (context, slotSnapshot) {
+          if (slotSnapshot.connectionState != ConnectionState.done) {
+            return _sleepPlaceholder();
+          }
+          if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
+            return _sleepPermission();
+          }
+          final slots = usuario.filterAndMergeSlots(slotSnapshot.data!, day);
+          final totalMinutes = usuario.calculateTotalMinutes(slots);
+          final firstSlot = slots.isNotEmpty ? slots.first : null;
+          return _sleepStats(totalMinutes, firstSlot);
+        },
+      );
     },
   );
 }
 
-Widget _buildStatsContainer({
-  required List<Widget> children,
-  required Widget loader,
-  required Key key,
-}) {
-  return Container(
-    key: key,
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-    decoration: BoxDecoration(
-      color: AppColors.appBarBackground.withAlpha(75),
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: children,
-          ),
-        ),
-        const SizedBox(width: 20),
-        loader,
-      ],
-    ),
+Widget _sleepPlaceholder() {
+  return _sleepBase(
+    mainText: '0h 0m',
+    subText: '00:00 - 00:00',
   );
 }
 
-Widget _buildPermissionContainer() {
+Widget _sleepPermission() {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -293,7 +52,6 @@ Widget _buildPermissionContainer() {
       borderRadius: BorderRadius.circular(30),
     ),
     child: Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -301,43 +59,71 @@ Widget _buildPermissionContainer() {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppColors.background,
-              child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
+              child: const Icon(Icons.bedtime, color: AppColors.advertencia, size: 18),
             ),
             const SizedBox(width: 12),
             const Text(
               'Sueño',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.only(left: 44),
-          child: const Text(
-            'Estimamos tus horas de sueño basándonos en el uso del dispositivo.',
-            style: TextStyle(color: AppColors.textColor),
-          ),
-        ),
+        const Text('Activa permisos para estimar tu sueño.'),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.only(left: 44),
           child: ElevatedButton.icon(
-            onPressed: () {
-              UsageStatsHelper.openUsageStatsSettings();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.background,
-            ),
-            icon: const Icon(Icons.settings, color: AppColors.advertencia),
-            label: const Text(
-              'Conceder permisos',
-              style: TextStyle(color: Colors.white),
-            ),
+            onPressed: UsageStatsHelper.openUsageStatsSettings,
+            icon: const Icon(Icons.settings),
+            label: const Text('Permisos'),
           ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _sleepStats(int totalMinutes, SleepSlot? slot) {
+  final hours = totalMinutes ~/ 60;
+  final minutes = totalMinutes % 60;
+  final startTime = slot != null ? DateFormat.Hm().format(slot.start) : '00:00';
+  final endTime = slot != null ? DateFormat.Hm().format(slot.end) : '00:00';
+  return _sleepBase(
+    mainText: '${hours}h ${minutes}m',
+    subText: '$startTime - $endTime',
+  );
+}
+
+Widget _sleepBase({required String mainText, required String subText}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+    decoration: BoxDecoration(
+      color: AppColors.appBarBackground.withAlpha(75),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: AppColors.background,
+          child: const Icon(Icons.bedtime, color: AppColors.advertencia, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              mainText,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subText,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ],
         ),
       ],
     ),
