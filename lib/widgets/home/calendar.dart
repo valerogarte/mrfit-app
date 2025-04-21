@@ -1,19 +1,48 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+
 import '../../utils/colors.dart';
 import '../../models/usuario/usuario.dart';
 import '../../providers/usuario_provider.dart';
 
-/// Física personalizada que aumenta el dragStartDistanceMotionThreshold.
-/// Al subir 'dragThreshold', hay que arrastrar más para que la página cambie.
+// ---------------------------------------------
+// Extensions
+// ---------------------------------------------
+extension DateTimeUtils on DateTime {
+  bool get isToday {
+    final now = DateTime.now();
+    return year == now.year && month == now.month && day == now.day;
+  }
+
+  bool get isYesterday {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
+  }
+
+  DateTime get startOfWeek {
+    return subtract(Duration(days: weekday - DateTime.monday));
+  }
+
+  String formattedCalendarHeader(String locale) {
+    if (isToday) return 'Hoy';
+    if (isYesterday) return 'Ayer';
+    final formatted = DateFormat("EEEE, d 'de' MMMM", locale).format(this);
+    return formatted.replaceFirstMapped(RegExp(r'^\w'), (m) => m.group(0)!.toUpperCase());
+  }
+}
+
+// ---------------------------------------------
+// Custom Scroll Physics
+// ---------------------------------------------
 class CustomPageScrollPhysics extends PageScrollPhysics {
   final double dragThreshold;
+
   const CustomPageScrollPhysics({
     ScrollPhysics? parent,
-    this.dragThreshold = 80.0, // Ajusta aquí
+    this.dragThreshold = 80.0,
   }) : super(parent: parent);
 
   @override
@@ -28,11 +57,15 @@ class CustomPageScrollPhysics extends PageScrollPhysics {
   }
 }
 
-/// Widget para mostrar el encabezado del calendario con la fecha seleccionada y el botón "Ir a hoy"
+// ---------------------------------------------
+// Calendar Header
+// ---------------------------------------------
+typedef DateChangedCallback = void Function(DateTime);
+
 class CalendarHeaderWidget extends StatelessWidget {
   final DateTime selectedDate;
   final GlobalKey<State<CalendarWidget>> calendarKey;
-  final Function(DateTime) onDateChanged;
+  final DateChangedCallback onDateChanged;
 
   const CalendarHeaderWidget({
     Key? key,
@@ -41,11 +74,10 @@ class CalendarHeaderWidget extends StatelessWidget {
     required this.onDateChanged,
   }) : super(key: key);
 
+  bool get _showGoToToday => !selectedDate.isToday && !CalendarWidget.isDateInCurrentWeek(selectedDate);
+
   @override
   Widget build(BuildContext context) {
-    // Check if selected date is in the current week
-    final isInDifferentWeek = !CalendarWidget.isDateInCurrentWeek(selectedDate);
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: Row(
@@ -53,25 +85,28 @@ class CalendarHeaderWidget extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              _formatDate(selectedDate),
-              style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.left,
+              selectedDate.formattedCalendarHeader('es'),
+              style: const TextStyle(
+                color: AppColors.textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          if (isInDifferentWeek)
+          if (_showGoToToday)
             TextButton(
-              onPressed: () {
-                CalendarWidget.jumpToToday(calendarKey);
-                onDateChanged(DateTime.now());
-              },
+              onPressed: _goToToday,
               style: TextButton.styleFrom(
-                padding: EdgeInsets.zero, // Elimina el padding
-                minimumSize: Size.zero, // Elimina el tamaño mínimo
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce el área de toque
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: const Text(
-                "Ir a hoy",
-                style: TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold),
+                'Ir a hoy',
+                style: TextStyle(
+                  color: AppColors.accentColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
         ],
@@ -79,21 +114,15 @@ class CalendarHeaderWidget extends StatelessWidget {
     );
   }
 
-  // Format the date as "Hoy", "Ayer", or the formatted date
-  String _formatDate(DateTime date) {
-    final today = DateTime.now();
-    final yesterday = today.subtract(const Duration(days: 1));
-
-    if (date.year == today.year && date.month == today.month && date.day == today.day) {
-      return 'Hoy';
-    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
-      return 'Ayer';
-    } else {
-      return DateFormat('EEEE, d \'de\' MMMM', 'es').format(date).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase());
-    }
+  void _goToToday() {
+    CalendarWidget.jumpToToday(calendarKey);
+    onDateChanged(DateTime.now());
   }
 }
 
+// ---------------------------------------------
+// Calendar Widget
+// ---------------------------------------------
 class CalendarWidget extends ConsumerStatefulWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateSelected;
@@ -106,45 +135,41 @@ class CalendarWidget extends ConsumerStatefulWidget {
     required this.diasEntrenados,
   }) : super(key: key);
 
-  // Static method to jump to today without requiring state access
   static void jumpToToday(GlobalKey<State<CalendarWidget>> key) {
     final state = key.currentState as _CalendarWidgetState?;
-    if (state != null) {
-      state.jumpToToday();
-    }
+    state?.jumpToToday();
   }
 
-  // Add static method to check if a date is in the current week
   static bool isDateInCurrentWeek(DateTime date) {
-    final today = DateTime.now();
-    final startOfCurrentWeek = DateTime(today.year, today.month, today.day).subtract(Duration(days: today.weekday - 1));
-    final endOfCurrentWeek = startOfCurrentWeek.add(const Duration(days: 6));
-
-    return !(date.isBefore(startOfCurrentWeek) || date.isAfter(endOfCurrentWeek));
+    final start = DateTime.now().startOfWeek;
+    final end = start.add(const Duration(days: 6));
+    return !date.isBefore(start) && !date.isAfter(end);
   }
 
   @override
-  _CalendarWidgetState createState() => _CalendarWidgetState();
+  ConsumerState<CalendarWidget> createState() => _CalendarWidgetState();
 }
 
 class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
-  int _stepsByDay = 0;
-  Map<DateTime, double> _kcalBurned = {};
-  int _targetSteps = 0;
-  int _targetKcalBurned = 0;
+  static const int _basePage = 10000;
+
+  late final PageController _pageController;
+  late DateTime _baseDate;
+  int _currentPage = _basePage;
+
   bool _hasStepsPermission = false;
   bool _hasKcalPermission = false;
 
-  static const int _basePage = 10000;
-  int _currentPage = _basePage; // inicializamos _currentPage aquí
-  late DateTime _baseDate;
-  late PageController _pageController;
+  Map<DateTime, int> _stepsByDay = {};
+  Map<DateTime, double> _kcalBurned = {};
+
+  int _targetSteps = 0;
+  int _targetKcal = 0;
 
   @override
   void initState() {
     super.initState();
-    _baseDate = _getStartOfWeek(widget.selectedDate);
-    // _currentPage ya fue inicializado, no es necesaria asignación adicional
+    _baseDate = widget.selectedDate.startOfWeek;
     _pageController = PageController(initialPage: _basePage);
     _loadData();
   }
@@ -155,241 +180,245 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     super.dispose();
   }
 
-  DateTime _getStartOfWeek(DateTime date) => date.subtract(Duration(days: date.weekday - 1));
+  Future<void> _loadData([DateTime? weekStart]) async {
+    final start = weekStart ?? _baseDate;
+    final usuario = ref.read(usuarioProvider);
 
-  // Improved method to jump to today's week
+    final stepsPerm = await usuario.checkPermissionsFor('STEPS');
+    final kcalPerm = await usuario.checkPermissionsFor('TOTAL_CALORIES_BURNED');
+
+    if (!stepsPerm && !kcalPerm) {
+      Logger().w('Permisos de Health Connect no concedidos.');
+      setState(() => _hasStepsPermission = _hasKcalPermission = false);
+      return;
+    }
+
+    setState(() {
+      _hasStepsPermission = stepsPerm;
+      _hasKcalPermission = kcalPerm;
+    });
+
+    _targetSteps = usuario.getTargetSteps();
+    _targetKcal = usuario.getTargetKcalBurned();
+
+    if (stepsPerm) {
+      print("Cargando PASOS para la fecha: $start");
+      final stepsMapString = await usuario.getStepsByDateMap(start.toIso8601String(), nDays: 7);
+      final Map<DateTime, int> steps = {};
+      stepsMapString.forEach((key, value) {
+        steps[DateTime.parse(key)] = value;
+      });
+      setState(() => _stepsByDay = steps);
+    }
+    if (kcalPerm) {
+      print("Cargando KCAL para la fecha: $start");
+      final kcals = await usuario.getTotalCaloriesBurnedByDayMap(start.toIso8601String(), nDays: 7);
+      final Map<DateTime, double> kcalsMap = {};
+      kcals.forEach((key, value) {
+        kcalsMap[DateTime.parse(key)] = value;
+      });
+      setState(() => _kcalBurned = kcalsMap);
+    }
+  }
+
   void jumpToToday() {
     final today = DateTime.now();
     setState(() {
-      _baseDate = _getStartOfWeek(today);
+      _baseDate = today.startOfWeek;
       _currentPage = _basePage;
     });
-
-    // Use animateToPage instead of jumpToPage for smoother transition
     _pageController.animateToPage(
       _basePage,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-
     _loadData(_baseDate);
   }
 
-  Future<void> _loadData([DateTime? weekStart]) async {
-    final effectiveWeek = weekStart ?? _baseDate;
-    final usuario = ref.read(usuarioProvider);
-
-    final stepsPermission = await usuario.checkPermissionsFor("STEPS");
-    final kcalPermission = await usuario.checkPermissionsFor("TOTAL_CALORIES_BURNED");
-
-    setState(() {
-      _hasStepsPermission = stepsPermission;
-      _hasKcalPermission = kcalPermission;
-    });
-
-    if (!stepsPermission && !kcalPermission) {
-      Logger().w('No se han concedido los permisos con Health Connect.');
-      return;
-    }
-
-    _targetSteps = usuario.getTargetSteps();
-    _targetKcalBurned = usuario.getTargetKcalBurned();
-
-    if (stepsPermission) {
-      final listStepsByDay = await usuario.getTotalSteps(startDate: effectiveWeek, nDays: 7);
-      setState(() {
-        _stepsByDay = listStepsByDay;
-      });
-    }
-
-    if (kcalPermission) {
-      final listKcalBurnedByDay = await usuario.getTotalCaloriesBurned(startDate: effectiveWeek, nDays: 7);
-      setState(() {
-        _kcalBurned = listKcalBurnedByDay;
-      });
-    }
-  }
-
-  double _getStepsProgress(DateTime date) {
-    if (!_hasStepsPermission || _targetSteps == 0) return 0;
-    final steps = _stepsByDay;
-    double progress = steps / _targetSteps;
-    return progress.clamp(0.0, 1.0);
-  }
-
-  double _getKcalProgress(DateTime date) {
-    if (!_hasKcalPermission || _targetKcalBurned == 0) return 0;
-    final dateKey = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
-    final kcal = _kcalBurned[dateKey] ?? 0;
-    double progress = kcal / _targetKcalBurned;
-    return progress.clamp(0.0, 1.0);
+  double _progress(double value, int target) {
+    if (target == 0) return 0.0;
+    return (value / target).clamp(0.0, 1.0);
   }
 
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-
     return SizedBox(
       height: 100,
       child: PageView.builder(
         controller: _pageController,
-        // Aquí aplicamos la física personalizada
-        physics: const CustomPageScrollPhysics(dragThreshold: 80.0),
-        // Manejo de gestos: ignoramos la pulsación vertical
+        physics: const CustomPageScrollPhysics(),
         dragStartBehavior: DragStartBehavior.down,
-        onPageChanged: (page) {
-          final diff = page - _currentPage;
+        onPageChanged: (idx) {
+          final diff = idx - _currentPage;
           setState(() {
             _baseDate = _baseDate.add(Duration(days: diff * 7));
-            _currentPage = page;
+            _currentPage = idx;
           });
-          _loadData(_baseDate); // Carga los datos correspondientes a la nueva semana
+          _loadData(_baseDate);
         },
-        itemBuilder: (context, index) {
-          final diff = index - _currentPage;
-          final weekStart = _baseDate.add(Duration(days: diff * 7));
-          final weekDates = List.generate(7, (i) => weekStart.add(Duration(days: i)));
-
+        itemBuilder: (_, idx) {
+          final weekStart = _baseDate.add(Duration(days: (idx - _currentPage) * 7));
+          final days = List<DateTime>.generate(
+            7,
+            (i) => weekStart.add(Duration(days: i)),
+          );
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: weekDates.map((date) {
-              final isToday = date.day == today.day && date.month == today.month && date.year == today.year;
-              final isSelected = date.day == widget.selectedDate.day && date.month == widget.selectedDate.month && date.year == widget.selectedDate.year;
-              final hasTrained = widget.diasEntrenados.any(
-                (d) => d.day == date.day && d.month == date.month && d.year == date.year,
-              );
-              final isFuture = date.isAfter(today);
-
-              return Expanded(
-                // wrap each child in Expanded to prevent overflow
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      widget.onDateSelected(date);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Column(
-                        children: [
-                          Text(
-                            // Ej: "Lun", "Mar", ...
-                            DateFormat.E('es').format(date)[0].toUpperCase() + DateFormat.E('es').format(date).substring(1),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected
-                                  ? isFuture
-                                      ? AppColors.accentColor.withAlpha((0.8 * 255).toInt())
-                                      : isToday
-                                          ? AppColors.mutedAdvertencia
-                                          : (hasTrained ? AppColors.accentColor : AppColors.textColor)
-                                  : isFuture
-                                      ? AppColors.appBarBackground.withAlpha((0.5 * 255).toInt())
-                                      : isToday
-                                          ? AppColors.mutedAdvertencia
-                                          : (hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withAlpha((0.5 * 255).toInt())),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: 43,
-                                height: 43,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.mutedAdvertencia
-                                      : isToday
-                                          ? AppColors.mutedAdvertencia
-                                          : isFuture
-                                              ? AppColors.cardBackground
-                                              : (hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withAlpha((0.5 * 255).toInt())),
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: isFuture
-                                    ? const SizedBox.shrink()
-                                    : Icon(
-                                        hasTrained
-                                            ? Icons.check
-                                            : isToday
-                                                ? Icons.question_mark
-                                                : Icons.close,
-                                        color: hasTrained || (isToday && hasTrained)
-                                            ? AppColors.whiteText
-                                            : isToday
-                                                ? AppColors.background
-                                                : AppColors.mutedRed,
-                                        size: 16,
-                                      ),
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: SizedBox(
-                                  width: 36,
-                                  height: 36,
-                                  child: _hasStepsPermission
-                                      ? TweenAnimationBuilder<double>(
-                                          tween: Tween<double>(begin: 0, end: _getStepsProgress(date)),
-                                          duration: const Duration(milliseconds: 800),
-                                          builder: (context, value, child) => CircularProgressIndicator(
-                                            value: value,
-                                            strokeWidth: 2,
-                                            backgroundColor: Colors.transparent,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              (isToday || isSelected) ? AppColors.background : AppColors.accentColor,
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: SizedBox(
-                                  width: 28,
-                                  height: 28,
-                                  child: _hasKcalPermission
-                                      ? TweenAnimationBuilder<double>(
-                                          tween: Tween<double>(begin: 0, end: _getKcalProgress(date)),
-                                          duration: const Duration(milliseconds: 800),
-                                          builder: (context, value, child) => CircularProgressIndicator(
-                                            value: value,
-                                            strokeWidth: 2,
-                                            backgroundColor: Colors.transparent,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              (isToday || isSelected) ? AppColors.background : AppColors.advertencia,
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            DateFormat.d().format(date),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isToday ? AppColors.advertencia : AppColors.textColor,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+            children: days.map((date) {
+              final trained = widget.diasEntrenados.any((d) => d.year == date.year && d.month == date.month && d.day == date.day);
+              return _DayCell(
+                date: date,
+                isSelected: date.year == widget.selectedDate.year && date.month == widget.selectedDate.month && date.day == widget.selectedDate.day,
+                isToday: date.isToday,
+                isFuture: date.isAfter(today),
+                hasTrained: trained,
+                stepsProgress: _hasStepsPermission ? _progress((_stepsByDay[DateTime(date.year, date.month, date.day)] ?? 0).toDouble(), _targetSteps) : 0,
+                kcalProgress: _hasKcalPermission ? _progress(_kcalBurned[DateTime(date.year, date.month, date.day)] ?? 0, _targetKcal) : 0,
+                onTap: () => widget.onDateSelected(date),
               );
             }).toList(),
           );
         },
       ),
     );
+  }
+}
+
+// ---------------------------------------------
+// Individual Day Cell
+// ---------------------------------------------
+class _DayCell extends StatelessWidget {
+  final DateTime date;
+  final bool isSelected;
+  final bool isToday;
+  final bool isFuture;
+  final bool hasTrained;
+  final double stepsProgress;
+  final double kcalProgress;
+  final VoidCallback onTap;
+
+  const _DayCell({
+    Key? key,
+    required this.date,
+    required this.isSelected,
+    required this.isToday,
+    required this.isFuture,
+    required this.hasTrained,
+    required this.stepsProgress,
+    required this.kcalProgress,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final dayName = DateFormat.E('es').format(date);
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              dayName,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: _labelColor(),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                _statusCircle(),
+                if (!isFuture) _statusIcon(),
+                if (_showProgress)
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: CircularProgressIndicator(
+                      value: stepsProgress,
+                      strokeWidth: 2,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation(
+                        isSelected || isToday ? AppColors.background : AppColors.accentColor,
+                      ),
+                    ),
+                  ),
+                if (_showProgress)
+                  SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      value: kcalProgress,
+                      strokeWidth: 2,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation(
+                        isSelected || isToday ? AppColors.background : AppColors.advertencia,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${date.day}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isToday ? AppColors.advertencia : AppColors.textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool get _showProgress => stepsProgress > 0 || kcalProgress > 0;
+
+  Color _labelColor() {
+    if (isSelected) {
+      if (isFuture) return AppColors.accentColor.withOpacity(0.8);
+      return isToday ? AppColors.mutedAdvertencia : (hasTrained ? AppColors.accentColor : AppColors.textColor);
+    }
+    if (isFuture) return AppColors.appBarBackground.withOpacity(0.5);
+    if (isToday) return AppColors.mutedAdvertencia;
+    return hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withOpacity(0.5);
+  }
+
+  Widget _statusCircle() {
+    final bgColor = isSelected || isToday
+        ? AppColors.mutedAdvertencia
+        : isFuture
+            ? AppColors.cardBackground
+            : (hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withOpacity(0.5));
+    return Container(
+      width: 43,
+      height: 43,
+      decoration: BoxDecoration(
+        color: bgColor,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
+  Widget _statusIcon() {
+    IconData icon;
+    Color color;
+    if (hasTrained) {
+      icon = Icons.check;
+      color = AppColors.whiteText;
+    } else if (isToday) {
+      icon = Icons.question_mark;
+      color = AppColors.background;
+    } else {
+      icon = Icons.close;
+      color = AppColors.mutedRed;
+    }
+    return Icon(icon, size: 16, color: color);
   }
 }
