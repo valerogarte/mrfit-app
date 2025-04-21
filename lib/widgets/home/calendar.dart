@@ -28,6 +28,72 @@ class CustomPageScrollPhysics extends PageScrollPhysics {
   }
 }
 
+/// Widget para mostrar el encabezado del calendario con la fecha seleccionada y el botón "Ir a hoy"
+class CalendarHeaderWidget extends StatelessWidget {
+  final DateTime selectedDate;
+  final GlobalKey<State<CalendarWidget>> calendarKey;
+  final Function(DateTime) onDateChanged;
+
+  const CalendarHeaderWidget({
+    Key? key,
+    required this.selectedDate,
+    required this.calendarKey,
+    required this.onDateChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Check if selected date is in the current week
+    final isInDifferentWeek = !CalendarWidget.isDateInCurrentWeek(selectedDate);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              _formatDate(selectedDate),
+              style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          if (isInDifferentWeek)
+            TextButton(
+              onPressed: () {
+                CalendarWidget.jumpToToday(calendarKey);
+                onDateChanged(DateTime.now());
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero, // Elimina el padding
+                minimumSize: Size.zero, // Elimina el tamaño mínimo
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce el área de toque
+              ),
+              child: const Text(
+                "Ir a hoy",
+                style: TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Format the date as "Hoy", "Ayer", or the formatted date
+  String _formatDate(DateTime date) {
+    final today = DateTime.now();
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    if (date.year == today.year && date.month == today.month && date.day == today.day) {
+      return 'Hoy';
+    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
+      return 'Ayer';
+    } else {
+      return DateFormat('EEEE, d \'de\' MMMM', 'es').format(date).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase());
+    }
+  }
+}
+
 class CalendarWidget extends ConsumerStatefulWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateSelected;
@@ -39,6 +105,23 @@ class CalendarWidget extends ConsumerStatefulWidget {
     required this.onDateSelected,
     required this.diasEntrenados,
   }) : super(key: key);
+
+  // Static method to jump to today without requiring state access
+  static void jumpToToday(GlobalKey<State<CalendarWidget>> key) {
+    final state = key.currentState as _CalendarWidgetState?;
+    if (state != null) {
+      state.jumpToToday();
+    }
+  }
+
+  // Add static method to check if a date is in the current week
+  static bool isDateInCurrentWeek(DateTime date) {
+    final today = DateTime.now();
+    final startOfCurrentWeek = DateTime(today.year, today.month, today.day).subtract(Duration(days: today.weekday - 1));
+    final endOfCurrentWeek = startOfCurrentWeek.add(const Duration(days: 6));
+
+    return !(date.isBefore(startOfCurrentWeek) || date.isAfter(endOfCurrentWeek));
+  }
 
   @override
   _CalendarWidgetState createState() => _CalendarWidgetState();
@@ -73,6 +156,24 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   }
 
   DateTime _getStartOfWeek(DateTime date) => date.subtract(Duration(days: date.weekday - 1));
+
+  // Improved method to jump to today's week
+  void jumpToToday() {
+    final today = DateTime.now();
+    setState(() {
+      _baseDate = _getStartOfWeek(today);
+      _currentPage = _basePage;
+    });
+
+    // Use animateToPage instead of jumpToPage for smoother transition
+    _pageController.animateToPage(
+      _basePage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+
+    _loadData(_baseDate);
+  }
 
   Future<void> _loadData([DateTime? weekStart]) async {
     final effectiveWeek = weekStart ?? _baseDate;

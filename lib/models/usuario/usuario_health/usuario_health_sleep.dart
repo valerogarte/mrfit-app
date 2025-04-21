@@ -98,4 +98,65 @@ extension UsuarioSleepExtension on Usuario {
     final data = await UsageStatsHelper.getInactivitySlots(formattedDay);
     return data.map((m) => SleepSlot.fromMap(m)).toList();
   }
+
+  /// Writes sleep data to the health store.
+  ///
+  /// Parameters:
+  ///   * [timeInicio] - The start time of the sleep session
+  ///   * [timeFin] - The end time of the sleep session
+  ///   * [sleepType] - The type of sleep to record (defaults to SLEEP_SESSION)
+  ///   * SLEEP_ASLEEP - Sleep Asleep
+  ///   * SLEEP_AWAKE_IN_BED - Awake in Bed
+  ///   * SLEEP_AWAKE - Awake
+  ///   * SLEEP_DEEP - Sleep Deep
+  ///   * SLEEP_IN_BED - In Bed
+  ///   * SLEEP_LIGHT - Sleep Light
+  ///   * SLEEP_OUT_OF_BED - Out of Bed
+  ///   * SLEEP_REM - Sleep REM
+  ///   * SLEEP_SESSION - Sleep Session
+  ///   * SLEEP_UNKNOWN - Unknown Sleep State
+  /// Returns true if the sleep data was successfully written, false otherwise.
+  Future<bool> writeSleepData({
+    required DateTime timeInicio,
+    required DateTime timeFin,
+    HealthDataType sleepType = HealthDataType.SLEEP_SESSION,
+  }) async {
+    if (timeInicio.isAfter(timeFin)) {
+      return false;
+    }
+
+    try {
+      // Check if we have permissions to write sleep data
+      final hasPermission = await _health.hasPermissions(
+        [sleepType],
+        permissions: [HealthDataAccess.WRITE],
+      );
+
+      // Request permissions if we don't have them
+      if (hasPermission == null || !hasPermission) {
+        final permissionGranted = await _health.requestAuthorization(
+          [sleepType],
+          permissions: [HealthDataAccess.WRITE],
+        );
+
+        if (!permissionGranted) {
+          return false;
+        }
+      }
+
+      // Write sleep data
+      final result = await _health.writeHealthData(
+        value: 1, // For sleep data, the value is usually 1
+        type: sleepType,
+        startTime: timeInicio,
+        endTime: timeFin,
+        recordingMethod: RecordingMethod.manual,
+      );
+
+      return result;
+    } catch (e) {
+      print('Error writing sleep data: $e');
+      return false;
+    }
+  }
 }

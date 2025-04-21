@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:health/health.dart';
 import '../../models/usuario/usuario.dart';
 import '../../utils/colors.dart';
 import '../../utils/usage_stats_helper.dart';
@@ -27,8 +28,22 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
             return _sleepPermission();
           }
+
           final slots = usuario.filterAndMergeSlots(slotSnapshot.data!, day);
           final totalMinutes = usuario.calculateTotalMinutes(slots);
+
+          // If we have valid slots, write the sleep data to the health store
+          if (slots.isNotEmpty) {
+            final mainSleepSlot = slots.first;
+
+            // Write the sleep data with SLEEP_SESSION type
+            usuario.writeSleepData(
+              timeInicio: mainSleepSlot.start,
+              timeFin: mainSleepSlot.end,
+              sleepType: HealthDataType.SLEEP_SESSION,
+            );
+          }
+
           final firstSlot = slots.isNotEmpty ? slots.first : null;
           return _sleepStats(totalMinutes, firstSlot);
         },

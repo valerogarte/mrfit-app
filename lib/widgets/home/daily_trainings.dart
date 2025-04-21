@@ -20,6 +20,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
   Widget _buildActivityRow({
     required String title,
     required IconData icon,
+    required Color iconColor,
     required Color iconBackgroundColor,
     required String timeInfo,
   }) {
@@ -33,7 +34,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: iconBackgroundColor,
-                child: Icon(icon, color: AppColors.background, size: 18),
+                child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 12),
               Text(
@@ -76,7 +77,8 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   return _buildActivityRow(
                     title: "Caminar (automático)",
                     icon: Icons.directions_walk,
-                    iconBackgroundColor: AppColors.mutedAdvertencia,
+                    iconColor: AppColors.advertencia,
+                    iconBackgroundColor: AppColors.appBarBackground,
                     timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${activity['durationMin']} min)",
                   );
                 } else if (activity['type'] == 'workout') {
@@ -85,7 +87,8 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   return _buildActivityRow(
                     title: info["nombre"],
                     icon: info["icon"],
-                    iconBackgroundColor: AppColors.mutedAdvertencia,
+                    iconColor: AppColors.advertencia,
+                    iconBackgroundColor: AppColors.appBarBackground,
                     timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${duration} min)",
                   );
                 }

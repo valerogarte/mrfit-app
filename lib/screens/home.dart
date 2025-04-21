@@ -12,7 +12,10 @@ import '../widgets/home/daily_weekly.dart';
 import '../widgets/home/daily_trainings.dart';
 import '../widgets/home/daily_physical.dart';
 import '../widgets/home/daily_nutrition.dart';
+import '../widgets/home/daily_hearth.dart';
 import '../providers/usuario_provider.dart';
+import '../widgets/home/daily_medals.dart';
+import '../widgets/home/daily_notes.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
   const InicioPage({super.key});
@@ -25,6 +28,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   DateTime _selectedDate = DateTime.now(); // Por defecto, día de hoy.
   List<dynamic> _resumenEntrenamientos = [];
   Set<DateTime> _diasEntrenados = {};
+  final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
 
   @override
   void initState() {
@@ -97,6 +101,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             child: CalendarWidget(
+              key: _calendarKey,
               selectedDate: _selectedDate,
               diasEntrenados: _diasEntrenados,
               onDateSelected: (date) {
@@ -110,6 +115,20 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               },
             ),
           ),
+          // Use the new CalendarHeaderWidget instead of the custom Row
+          Align(
+            alignment: Alignment.centerLeft,
+            child: CalendarHeaderWidget(
+              selectedDate: _selectedDate,
+              calendarKey: _calendarKey,
+              onDateChanged: (date) {
+                setState(() {
+                  _selectedDate = date;
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 15),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -127,17 +146,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     // padding: const EdgeInsets.all(16), // Padding inside the scrollable area
                     child: Column(
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                            child: Text(
-                              DateFormat('EEEE, d \'de\' MMMM', 'es').format(_selectedDate).replaceFirstMapped(RegExp(r'^\w'), (match) => match.group(0)!.toUpperCase()),
-                              style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold), // Adjusted text color
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
                         dailyStatsWidget(day: _selectedDate, usuario: usuario),
                         const SizedBox(height: 15),
                         DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
@@ -149,6 +157,12 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
                         const SizedBox(height: 15),
                         dailyPhysicalWidget(),
+                        const SizedBox(height: 15),
+                        dailyHearthWidget(heartRate: 72), // Example heart rate value
+                        const SizedBox(height: 15),
+                        MedalsWidget(),
+                        const SizedBox(height: 15),
+                        NotesWidget(initialNote: ""), // Pass an empty string or a default note
                         const SizedBox(height: 15),
                         // Expanded(
                         //   flex: 2,
