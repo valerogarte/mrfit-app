@@ -141,7 +141,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                   return Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.timer, color: AppColors.advertencia, size: 16),
+                                      const Icon(Icons.timer, color: AppColors.mutedAdvertencia, size: 16),
                                       const SizedBox(width: 4),
                                       Text(
                                         tiempoFormateado,
@@ -151,7 +151,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      const Icon(Icons.fitness_center, color: AppColors.advertencia, size: 16),
+                                      const Icon(Icons.fitness_center, color: AppColors.mutedAdvertencia, size: 16),
                                       const SizedBox(width: 4),
                                       Text(
                                         '$volumen kg',
@@ -241,7 +241,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                   onReorder: _onReorder,
                   proxyDecorator: (child, index, animation) {
                     return Material(
-                      color: AppColors.advertencia,
+                      color: AppColors.mutedAdvertencia,
                       child: child,
                     );
                   },
@@ -278,7 +278,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           right: 16,
           child: FloatingActionButton(
             onPressed: _mostrarBusquedaEjercicios,
-            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.advertencia : AppColors.secondaryColor,
+            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.secondaryColor,
             child: const Icon(Icons.add, color: AppColors.background),
           ),
         ),
@@ -309,7 +309,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                 right: 4,
                 child: Icon(
                   Icons.info_outline,
-                  color: AppColors.advertencia,
+                  color: AppColors.mutedAdvertencia,
                   size: 16,
                   shadows: [
                     Shadow(
@@ -368,7 +368,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: seriesCount == 0 ? AppColors.advertencia : AppColors.textColor,
+                                      color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textColor,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -384,7 +384,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                       'series',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: seriesCount == 0 ? AppColors.advertencia : AppColors.textColor,
+                                        color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textColor,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -428,11 +428,11 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.advertencia.withOpacity(0.5)),
+            border: Border.all(color: AppColors.mutedAdvertencia.withOpacity(0.5)),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, color: AppColors.advertencia),
+              Icon(Icons.info_outline, color: AppColors.mutedAdvertencia),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -451,7 +451,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
         onPressed: _handleTrainingButton,
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
-          backgroundColor: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.advertencia : AppColors.accentColor,
+          backgroundColor: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.mutedAdvertencia : AppColors.accentColor,
         ),
         child: Text(
           (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? 'Continuar' : 'Comenzar entrenamiento',

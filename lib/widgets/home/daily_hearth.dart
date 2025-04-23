@@ -16,7 +16,7 @@ Widget dailyHearthWidget({required int heartRate}) {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppColors.background,
-              child: const Icon(Icons.favorite, color: AppColors.advertencia, size: 18),
+              child: const Icon(Icons.favorite, color: AppColors.mutedAdvertencia, size: 18),
             ),
             const SizedBox(width: 12),
             const Text(
@@ -36,7 +36,7 @@ Widget dailyHearthWidget({required int heartRate}) {
             Text(
               "$heartRate bpm",
               style: const TextStyle(
-                color: AppColors.advertencia,
+                color: AppColors.mutedAdvertencia,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),

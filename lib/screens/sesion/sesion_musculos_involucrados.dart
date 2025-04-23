@@ -122,7 +122,7 @@ class MusclesListWidget extends StatelessWidget {
     // Alta participación: normalized ≥ 0.60, Media participación: 0.35 ≤ normalized < 0.60, Baja participación: normalized < 0.35.
     Color barColor;
     if (normalized >= 0.60) {
-      barColor = AppColors.advertencia;
+      barColor = AppColors.mutedAdvertencia;
     } else if (normalized >= 0.35) {
       barColor = Colors.green;
     } else {
@@ -209,7 +209,7 @@ class LegendWidget extends StatelessWidget {
       runSpacing: 8, // Separa verticalmente las líneas de la leyenda
       alignment: WrapAlignment.center,
       children: [
-        _buildLegendItem(AppColors.advertencia, 'Principales'),
+        _buildLegendItem(AppColors.mutedAdvertencia, 'Principales'),
         _buildLegendItem(Colors.green, 'Secundarios'),
         _buildLegendItem(Colors.red, 'Residuales'),
       ],

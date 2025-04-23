@@ -83,7 +83,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
                 children: [
                   CircleAvatar(
                     radius: 16,
-                    backgroundColor: AppColors.advertencia,
+                    backgroundColor: AppColors.mutedAdvertencia,
                     child: const Icon(
                       Icons.restaurant,
                       color: AppColors.background,
@@ -152,7 +152,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
               Text(
                 '$_currentCalories',
                 style: const TextStyle(
-                  color: AppColors.advertencia,
+                  color: AppColors.mutedAdvertencia,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -160,7 +160,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
               const Text(
                 'kcal',
                 style: TextStyle(
-                  color: AppColors.advertencia,
+                  color: AppColors.mutedAdvertencia,
                   fontSize: 12,
                 ),
               ),

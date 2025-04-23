@@ -18,7 +18,7 @@ class NotFoundData extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: AppColors.advertencia,
+          color: AppColors.mutedAdvertencia,
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Column(

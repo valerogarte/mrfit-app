@@ -126,7 +126,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
                       child: Center(
                         child: Text(
                           detalles.length >= promedio + 1 ? 'En ocasiones haces ${(detalles.length - promedio).toInt()} más.' : 'Solo realizas la ${detalles.length}ª serie el $porcentaje% de los entrenamientos*',
-                          style: const TextStyle(fontSize: 14, color: AppColors.advertencia),
+                          style: const TextStyle(fontSize: 14, color: AppColors.mutedAdvertencia),
                         ),
                       ),
                     ),
@@ -194,7 +194,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
             onPressed: () => Navigator.pop(context),
             child: const Text(
               'Cancelar',
-              style: TextStyle(color: AppColors.deleteColor),
+              style: TextStyle(color: AppColors.mutedRed),
             ),
           ),
           ElevatedButton(

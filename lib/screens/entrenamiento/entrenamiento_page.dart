@@ -307,7 +307,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                 ),
                 // Botón de edición
                 IconButton(
-                  icon: const Icon(Icons.edit, color: AppColors.advertencia),
+                  icon: const Icon(Icons.edit, color: AppColors.mutedAdvertencia),
                   onPressed: () {
                     _entrenadora.detener();
                     restartEntrenadora = true;
@@ -372,7 +372,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                       } else if (allSeriesCompleted) {
                         bulletColor = AppColors.accentColor; // Ejercicio completado
                       } else if (index < _currentIndex && !allSeriesCompleted) {
-                        bulletColor = AppColors.advertencia; // Ejercicio anterior incompleto
+                        bulletColor = AppColors.mutedAdvertencia; // Ejercicio anterior incompleto
                       } else {
                         bulletColor = AppColors.textColor; // Ejercicio pendiente
                       }
@@ -422,7 +422,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                   // Botón de finalizar, izquierda
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.advertencia,
+                      backgroundColor: AppColors.mutedAdvertencia,
                       foregroundColor: AppColors.cardBackground,
                     ),
                     icon: const Icon(Icons.flag, color: AppColors.cardBackground),
@@ -457,7 +457,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                         });
                         _entrenadora.reanudar();
                       },
-                      icon: const Icon(Icons.fast_forward, color: AppColors.advertencia),
+                      icon: const Icon(Icons.fast_forward, color: AppColors.mutedAdvertencia),
                       label: TweenAnimationBuilder<double>(
                         key: ValueKey(_restingTimeLeft),
                         tween: Tween<double>(begin: 1.5, end: 1.0),
@@ -467,7 +467,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                             scale: scaleValue,
                             child: Text(
                               '${_restingTimeLeft ?? 0}s',
-                              style: const TextStyle(color: AppColors.advertencia),
+                              style: const TextStyle(color: AppColors.mutedAdvertencia),
                             ),
                           );
                         },
@@ -535,7 +535,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                         right: 4,
                         child: Icon(
                           Icons.info_outline,
-                          color: AppColors.advertencia,
+                          color: AppColors.mutedAdvertencia,
                           size: 16,
                           shadows: [
                             Shadow(

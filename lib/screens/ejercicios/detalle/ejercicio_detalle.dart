@@ -20,8 +20,8 @@ class EjercicioDetallePage extends StatelessWidget {
         appBar: AppBar(
           title: Text(ejercicio.nombre), // Add title to AppBar
           bottom: TabBar(
-            indicatorColor: AppColors.advertencia, // Indicator in advertencia
-            labelColor: AppColors.advertencia,
+            indicatorColor: AppColors.mutedAdvertencia, // Indicator in advertencia
+            labelColor: AppColors.mutedAdvertencia,
             unselectedLabelColor: AppColors.background,
             tabs: const [
               Tab(text: 'Resumen'),

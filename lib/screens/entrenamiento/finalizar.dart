@@ -83,7 +83,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle_outline, size: 60, color: AppColors.advertencia),
+                  const Icon(Icons.check_circle_outline, size: 60, color: AppColors.mutedAdvertencia),
                   const SizedBox(height: 20),
                   const Text(
                     '¡Entrenamiento completado!',
@@ -110,9 +110,9 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                       ),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppColors.advertencia,
-                          inactiveTrackColor: AppColors.mutedWarning.withOpacity(0.3),
-                          thumbColor: AppColors.advertencia,
+                          activeTrackColor: AppColors.mutedAdvertencia,
+                          inactiveTrackColor: AppColors.mutedAdvertencia,
+                          thumbColor: AppColors.mutedAdvertencia,
                           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                           overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
                           trackHeight: 4,
@@ -133,7 +133,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                         padding: const EdgeInsets.only(top: 5),
                         child: Text(
                           ModeloDatos.getSensacionText(_ratingValue),
-                          style: const TextStyle(color: AppColors.advertencia, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -186,11 +186,11 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               minimumSize: const Size(4, 4), // much smaller particles
               maximumSize: const Size(6, 6), // much smaller particles
               colors: const [
-                AppColors.advertencia,
+                AppColors.mutedAdvertencia,
                 AppColors.mutedRed,
                 AppColors.appBarBackground,
                 AppColors.mutedRed,
-                AppColors.mutedWarning,
+                AppColors.mutedAdvertencia,
                 AppColors.textColor,
               ],
             ),
@@ -211,11 +211,11 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               minimumSize: const Size(4, 4),
               maximumSize: const Size(6, 6),
               colors: const [
-                AppColors.advertencia,
+                AppColors.mutedAdvertencia,
                 AppColors.mutedRed,
                 AppColors.appBarBackground,
                 AppColors.accentColor,
-                AppColors.mutedWarning,
+                AppColors.mutedAdvertencia,
                 AppColors.textColor,
               ],
             ),
@@ -227,7 +227,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
-            backgroundColor: AppColors.advertencia,
+            backgroundColor: AppColors.mutedAdvertencia,
           ),
           onPressed: _isUpdatingMrPoints
               ? null
@@ -241,7 +241,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                 },
           child: Text(
             _isUpdatingMrPoints ? 'Actualizando Datos${'.' * (_dotCount + 1)}' : 'Continuar',
-            style: TextStyle(fontSize: 18, color: _isUpdatingMrPoints ? AppColors.advertencia : AppColors.background),
+            style: TextStyle(fontSize: 18, color: _isUpdatingMrPoints ? AppColors.mutedAdvertencia : AppColors.background),
           ),
         ),
       ),

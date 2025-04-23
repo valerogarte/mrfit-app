@@ -124,7 +124,7 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
       height: 80,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppColors.advertencia,
+        color: AppColors.mutedAdvertencia,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

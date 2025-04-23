@@ -18,7 +18,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.advertencia),
+                    border: Border.all(color: AppColors.mutedAdvertencia),
                   ),
                   child: const Icon(Icons.fitness_center, color: AppColors.accentColor),
                 ),
@@ -43,7 +43,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.advertencia),
+                    border: Border.all(color: AppColors.mutedAdvertencia),
                   ),
                   child: const Icon(Icons.line_weight, color: AppColors.accentColor),
                 ),
@@ -68,7 +68,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.advertencia),
+                    border: Border.all(color: AppColors.mutedAdvertencia),
                   ),
                   child: const Icon(Icons.repeat, color: AppColors.accentColor),
                 ),
@@ -93,7 +93,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.advertencia),
+                    border: Border.all(color: AppColors.mutedAdvertencia),
                   ),
                   child: const Icon(Icons.bar_chart, color: AppColors.accentColor),
                 ),
@@ -118,7 +118,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.advertencia),
+                    border: Border.all(color: AppColors.mutedAdvertencia),
                   ),
                   child: const Icon(Icons.format_list_numbered, color: AppColors.accentColor),
                 ),

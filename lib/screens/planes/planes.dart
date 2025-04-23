@@ -309,7 +309,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                         margin: const EdgeInsets.only(right: 10),
                                         child: Card(
                                           margin: EdgeInsets.zero, // <-- quitamos margen
-                                          color: esActual ? AppColors.advertencia : AppColors.cardBackground,
+                                          color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(15),
                                           ),
@@ -338,7 +338,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                           margin: const EdgeInsets.only(right: 10),
                                           child: Card(
                                             margin: EdgeInsets.zero, // <-- quitamos margen
-                                            color: esActual ? AppColors.advertencia : AppColors.cardBackground,
+                                            color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(15),
                                             ),
@@ -366,7 +366,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarDialogoNuevoPlan,
-        backgroundColor: gruposConRutinas.isEmpty ? AppColors.advertencia : AppColors.secondaryColor,
+        backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.secondaryColor,
         child: const Icon(Icons.add, color: AppColors.background),
       ),
     );

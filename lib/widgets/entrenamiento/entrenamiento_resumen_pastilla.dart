@@ -59,7 +59,7 @@ class ResumenPastilla extends StatelessWidget {
           Divider(
             height: sectionSpacing,
             thickness: 1,
-            color: AppColors.advertencia,
+            color: AppColors.mutedAdvertencia,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -97,7 +97,7 @@ class ResumenPastilla extends StatelessWidget {
         Icon(
           icon,
           size: iconSize,
-          color: AppColors.advertencia,
+          color: AppColors.mutedAdvertencia,
         ),
         const SizedBox(height: 8),
         Text(
@@ -122,7 +122,7 @@ class ResumenPastilla extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.advertencia,
+            color: AppColors.mutedAdvertencia,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(

@@ -27,8 +27,8 @@ class _SesionPageState extends State<SesionPage> {
           title: Text(widget.sesion.titulo),
           backgroundColor: AppColors.appBarBackground,
           bottom: TabBar(
-            indicatorColor: AppColors.advertencia,
-            labelColor: AppColors.advertencia,
+            indicatorColor: AppColors.mutedAdvertencia,
+            labelColor: AppColors.mutedAdvertencia,
             unselectedLabelColor: AppColors.background,
             tabs: const [
               Tab(text: 'Ejercicios'),

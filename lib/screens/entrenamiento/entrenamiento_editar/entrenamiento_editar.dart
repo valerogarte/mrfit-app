@@ -21,7 +21,7 @@ class _EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
           'Editar Entrenamiento',
           style: TextStyle(color: AppColors.background),
         ),
-        backgroundColor: AppColors.advertencia,
+        backgroundColor: AppColors.mutedAdvertencia,
         iconTheme: const IconThemeData(color: AppColors.background),
       ),
       body: ReorderableListView(
@@ -84,7 +84,7 @@ class _EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
             onPressed: () async {},
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(50),
-              backgroundColor: AppColors.advertencia, // Updated to advertencia
+              backgroundColor: AppColors.mutedAdvertencia, // Updated to advertencia
             ),
             child: const Text(
               'Añadir Ejercicio',

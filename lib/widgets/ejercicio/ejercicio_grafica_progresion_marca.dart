@@ -87,7 +87,7 @@ class _EjercicioGraficaProgresionMarcaState extends State<EjercicioGraficaProgre
                         ),
                         selected: selectedIndex == i,
                         backgroundColor: AppColors.background,
-                        selectedColor: AppColors.advertencia,
+                        selectedColor: AppColors.mutedAdvertencia,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                           side: const BorderSide(color: AppColors.appBarBackground),

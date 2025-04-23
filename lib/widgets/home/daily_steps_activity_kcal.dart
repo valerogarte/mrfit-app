@@ -56,8 +56,8 @@ Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
       if (snapshot.connectionState != ConnectionState.done) {
         final items = [
           (AppColors.accentColor, Icons.directions_walk, 0, 'pasos', targetSteps),
-          (AppColors.mutedRed, Icons.access_time, 0, 'min', targetMinActividad),
-          (AppColors.mutedAdvertencia, Icons.local_fire_department, 0, 'kcal', targetKcalBurned),
+          (AppColors.mutedAdvertencia, Icons.access_time, 0, 'min', targetMinActividad),
+          (AppColors.mutedGreen, Icons.local_fire_department, 0, 'kcal', targetKcalBurned),
         ];
         content = _buildStatsContainer(
           children: buildInfoItems(items: items, isAnimated: false),
@@ -71,8 +71,8 @@ Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
         final stats = snapshot.data!;
         final items = [
           (AppColors.accentColor, Icons.directions_walk, stats.steps, 'pasos', targetSteps),
-          (AppColors.mutedRed, Icons.access_time, stats.minutes, 'min', targetMinActividad),
-          (AppColors.mutedAdvertencia, Icons.local_fire_department, stats.kcal, 'kcal', targetKcalBurned),
+          (AppColors.mutedAdvertencia, Icons.access_time, stats.minutes, 'min', targetMinActividad),
+          (AppColors.mutedGreen, Icons.local_fire_department, stats.kcal, 'kcal', targetKcalBurned),
         ];
         content = _buildStatsContainer(
           children: buildInfoItems(items: items, isAnimated: true),

@@ -31,7 +31,7 @@ class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
                       TableRow(
                         children: [
                           Row(
-                            children: [Icon(Icons.arrow_upward, color: AppColors.advertencia, size: 20), const SizedBox(width: 4), Text("Concéntrica:")],
+                            children: [Icon(Icons.arrow_upward, color: AppColors.mutedAdvertencia, size: 20), const SizedBox(width: 4), Text("Concéntrica:")],
                           ),
                           Text("${ejercicio.tiempos.faseConcentrica}s"),
                         ],
@@ -39,7 +39,7 @@ class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
                       TableRow(
                         children: [
                           Row(
-                            children: [Icon(Icons.horizontal_rule, color: AppColors.advertencia, size: 20), const SizedBox(width: 4), Text("Isométrica:")],
+                            children: [Icon(Icons.horizontal_rule, color: AppColors.mutedAdvertencia, size: 20), const SizedBox(width: 4), Text("Isométrica:")],
                           ),
                           Text("${ejercicio.tiempos.faseIsometrica}s"),
                         ],
@@ -47,7 +47,7 @@ class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
                       TableRow(
                         children: [
                           Row(
-                            children: [Icon(Icons.arrow_downward, color: AppColors.advertencia, size: 20), const SizedBox(width: 4), Text("Excéntrica:")],
+                            children: [Icon(Icons.arrow_downward, color: AppColors.mutedAdvertencia, size: 20), const SizedBox(width: 4), Text("Excéntrica:")],
                           ),
                           Text("${ejercicio.tiempos.faseExcentrica}s"),
                         ],
@@ -66,7 +66,7 @@ class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.advertencia,
+                          color: AppColors.mutedAdvertencia,
                         ),
                       ),
                     ],

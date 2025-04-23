@@ -52,7 +52,7 @@ class GraficoCircularMusculosInvolucrados extends StatelessWidget {
                 ),
                 child: ExpansionTile(
                   collapsedBackgroundColor: AppColors.accentColor,
-                  backgroundColor: AppColors.advertencia,
+                  backgroundColor: AppColors.mutedAdvertencia,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
@@ -83,7 +83,7 @@ class GraficoCircularMusculosInvolucrados extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.advertencia,
+                          color: AppColors.mutedAdvertencia,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
@@ -186,7 +186,7 @@ class _PieChartPainter extends CustomPainter {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.advertencia,
+                color: AppColors.mutedAdvertencia,
               ),
             ),
             TextSpan(
@@ -217,7 +217,7 @@ class _PieChartPainter extends CustomPainter {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColors.advertencia,
+                color: AppColors.mutedAdvertencia,
               ),
             ),
             TextSpan(

@@ -21,18 +21,15 @@ class AppColors {
   /// Color del texto principal
   static const Color textColor = Color(0xFFE0E0E0); // Gris claro
 
-  // Color mensaje de error
-  static const Color advertencia = Colors.yellow; // Amarillo
-
+  // Color de resltado
   static const Color mutedAdvertencia = Color.fromARGB(255, 202, 202, 41);
 
-  static const Color mutedWarning = Color(0xFF9A9B1F); // Amarillo verdoso apagado
-
-  // Color advertencia
-  static const Color deleteColor = Color(0xFFE74C3C); // Rojo brillante
-
   /// Rojo más apagado que tira hacia el cardBackground
-  static const Color mutedRed = Color(0xFF8B3A3A); // Rojo apagado
+  static const Color mutedRed = Color(0xFFD35400); // Naranja apagado
+
+  static Color mutedGreen = HSLColor.fromColor(Color.lerp(AppColors.accentColor, AppColors.mutedAdvertencia, 0.4)!)
+      .withSaturation((HSLColor.fromColor(Color.lerp(AppColors.accentColor, AppColors.mutedAdvertencia, 0.4)!).saturation * 1.25).clamp(0.0, 1.0))
+      .toColor(); // Verde apagado
 
   /// Color del texto en elementos destacados o blancos
   static const Color whiteText = Color(0xFFFFFFFF); // Blanco puro

@@ -118,7 +118,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.background, // Fondo cambiado a background
                   ),
-                  icon: const Icon(Icons.settings, color: AppColors.advertencia), // Icono cambiado a advertencia
+                  icon: const Icon(Icons.settings, color: AppColors.mutedAdvertencia), // Icono cambiado a advertencia
                   label: const Text(
                     'Conceder permisos',
                     style: TextStyle(color: Colors.white),

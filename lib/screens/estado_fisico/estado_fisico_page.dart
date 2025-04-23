@@ -23,8 +23,8 @@ class _EstadoFisicoPageState extends State<EstadoFisicoPage> {
         appBar: AppBar(
           toolbarHeight: 0,
           bottom: TabBar(
-            indicatorColor: AppColors.advertencia, // Indicator in advertencia
-            labelColor: AppColors.advertencia,
+            indicatorColor: AppColors.mutedAdvertencia, // Indicator in advertencia
+            labelColor: AppColors.mutedAdvertencia,
             unselectedLabelColor: AppColors.background,
             tabs: const [
               Tab(text: 'Recuperación'),

@@ -99,7 +99,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                       uuid: "automatic",
                       title: "Caminar (automático)",
                       icon: Icons.directions_walk,
-                      iconColor: AppColors.advertencia,
+                      iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
                       timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${activity['durationMin']} min)",
                     ),
@@ -119,7 +119,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                       uuid: activity['uuid'],
                       title: info["nombre"],
                       icon: info["icon"],
-                      iconColor: AppColors.advertencia,
+                      iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
                       timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${duration} min)",
                       sourceName: activity['sourceName'],
@@ -223,7 +223,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
         CircleAvatar(
           radius: 16,
           backgroundColor: AppColors.appBarBackground,
-          child: Icon(icon, size: 18, color: AppColors.advertencia),
+          child: Icon(icon, size: 18, color: AppColors.mutedAdvertencia),
         ),
         const SizedBox(width: 12),
         Text(

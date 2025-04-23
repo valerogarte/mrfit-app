@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
           text: TextSpan(
             style: Theme.of(context).appBarTheme.titleTextStyle,
             children: [
-              TextSpan(text: 'Mr', style: const TextStyle(color: AppColors.advertencia)),
+              TextSpan(text: 'Mr', style: const TextStyle(color: AppColors.mutedAdvertencia)),
               TextSpan(text: 'Fit', style: const TextStyle(color: AppColors.whiteText)),
             ],
           ),

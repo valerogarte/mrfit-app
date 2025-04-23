@@ -40,8 +40,8 @@ class _MusculoDetallePageState extends State<MusculoDetallePage> {
           ),
           backgroundColor: AppColors.appBarBackground,
           bottom: TabBar(
-            indicatorColor: AppColors.advertencia,
-            labelColor: AppColors.advertencia,
+            indicatorColor: AppColors.mutedAdvertencia,
+            labelColor: AppColors.mutedAdvertencia,
             unselectedLabelColor: AppColors.background,
             tabs: const [
               Tab(text: 'Gasto'),

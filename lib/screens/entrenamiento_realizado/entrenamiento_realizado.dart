@@ -32,7 +32,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   const Text(
                     'Error al cargar el entrenamiento',
-                    style: TextStyle(fontSize: 18, color: AppColors.advertencia),
+                    style: TextStyle(fontSize: 18, color: AppColors.mutedAdvertencia),
                   ),
                   Text('${snapshot.error}', style: const TextStyle(color: AppColors.mutedRed)),
                 ],
@@ -87,11 +87,11 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.advertencia, width: 1),
+                    border: Border.all(color: AppColors.mutedAdvertencia, width: 1),
                   ),
                   child: Text(
                     ModeloDatos.getSensacionText(entrenamiento.sensacion.toDouble()),
-                    style: const TextStyle(color: AppColors.advertencia, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center, // Center align the text
                   ),
                 ),

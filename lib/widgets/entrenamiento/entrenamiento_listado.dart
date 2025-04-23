@@ -49,7 +49,7 @@ class ListadoEntrenamientos extends StatelessWidget {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(ctx).pop(false),
-                    child: const Text('Cancelar', style: TextStyle(color: AppColors.deleteColor)),
+                    child: const Text('Cancelar', style: TextStyle(color: AppColors.mutedRed)),
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.of(ctx).pop(true),

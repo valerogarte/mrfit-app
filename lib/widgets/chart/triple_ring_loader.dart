@@ -36,8 +36,8 @@ class TripleRingLoaderPainter extends CustomPainter {
     final percentages = [pasosPercent, minutosPercent, kcalPercent];
     final colors = [
       AppColors.accentColor,
-      AppColors.mutedRed,
       AppColors.mutedAdvertencia,
+      AppColors.mutedGreen,
     ];
 
     for (int i = 0; i < 3; i++) {

@@ -74,7 +74,7 @@ Widget _sleepPermission() {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppColors.background,
-              child: const Icon(Icons.bedtime, color: AppColors.advertencia, size: 18),
+              child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
             ),
             const SizedBox(width: 12),
             const Text(
@@ -123,7 +123,7 @@ Widget _sleepBase({required String mainText, required String subText}) {
         CircleAvatar(
           radius: 16,
           backgroundColor: AppColors.background,
-          child: const Icon(Icons.bedtime, color: AppColors.advertencia, size: 18),
+          child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
         ),
         const SizedBox(width: 12),
         Column(

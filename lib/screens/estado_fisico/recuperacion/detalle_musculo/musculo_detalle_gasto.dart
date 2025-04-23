@@ -67,7 +67,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Card(
-        color: AppColors.advertencia,
+        color: AppColors.mutedAdvertencia,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -135,9 +135,9 @@ class DetalleMusculoGasto extends ConsumerWidget {
                       ),
                       Row(
                         children: [
-                          Icon(Icons.flash_on, color: AppColors.advertencia, size: 24),
+                          Icon(Icons.flash_on, color: AppColors.mutedAdvertencia, size: 24),
                           const SizedBox(width: 5),
-                          Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.advertencia, fontSize: 16)),
+                          Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.mutedAdvertencia, fontSize: 16)),
                         ],
                       )
                     ],

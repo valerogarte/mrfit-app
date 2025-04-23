@@ -317,7 +317,7 @@ class _DayCell extends StatelessWidget {
                         minutosPercent: minutosPercent,
                         kcalPercent: kcalProgress,
                         trainedToday: hasTrained,
-                        backgroundColorRing: AppColors.appBarBackground,
+                        backgroundColorRing: AppColors.appBarBackground.withAlpha(100),
                         showNumberLap: false,
                       ),
                     ),

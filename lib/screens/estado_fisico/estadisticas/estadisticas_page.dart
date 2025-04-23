@@ -50,7 +50,7 @@ class StatItemCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.advertencia,
+                color: AppColors.mutedAdvertencia,
               ),
               textAlign: TextAlign.center,
             ),

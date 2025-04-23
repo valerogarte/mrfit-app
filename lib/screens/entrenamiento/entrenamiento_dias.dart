@@ -298,7 +298,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                               return AnimatedContainer(
                                 duration: const Duration(seconds: 1),
                                 height: 4,
-                                color: AppColors.advertencia,
+                                color: AppColors.mutedAdvertencia,
                                 curve: Curves.easeInOut,
                               );
                             } else {
@@ -315,7 +315,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
       floatingActionButton: SafeArea(
         child: FloatingActionButton(
           onPressed: _mostrarDialogoNuevaSesion,
-          backgroundColor: _listadoSesiones.isEmpty ? AppColors.advertencia : AppColors.secondaryColor,
+          backgroundColor: _listadoSesiones.isEmpty ? AppColors.mutedAdvertencia : AppColors.secondaryColor,
           child: const Icon(Icons.add, color: AppColors.background),
         ),
       ),

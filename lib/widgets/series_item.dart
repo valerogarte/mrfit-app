@@ -341,13 +341,13 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
                             Text(
                               'Recomendación ${widget.ejercicioP.ejercicio.sumaTiempos()}s por repetición',
                               style: const TextStyle(
-                                color: AppColors.advertencia,
+                                color: AppColors.mutedAdvertencia,
                                 fontSize: 12,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(Icons.info_outline, color: AppColors.advertencia, size: 16),
+                            const Icon(Icons.info_outline, color: AppColors.mutedAdvertencia, size: 16),
                           ],
                         ),
                       ),

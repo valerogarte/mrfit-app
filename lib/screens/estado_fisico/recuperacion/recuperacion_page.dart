@@ -223,10 +223,10 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
                                   barColor = AppColors.mutedRed;
                                 } else if (pct <= 60) {
                                   final double ratio = (pct - 25) / 35; // 0 a 1 cuando pct va de 25 a 60
-                                  barColor = Color.lerp(AppColors.mutedRed, AppColors.advertencia, ratio) ?? AppColors.mutedRed;
+                                  barColor = Color.lerp(AppColors.mutedRed, AppColors.mutedAdvertencia, ratio) ?? AppColors.mutedRed;
                                 } else {
                                   final double ratio = (pct - 60) / 40; // 0 a 1 cuando pct va de 60 a 100
-                                  barColor = Color.lerp(AppColors.advertencia, AppColors.accentColor, ratio) ?? AppColors.advertencia;
+                                  barColor = Color.lerp(AppColors.mutedAdvertencia, AppColors.accentColor, ratio) ?? AppColors.mutedAdvertencia;
                                 }
                                 return SizedBox(
                                   width: muscleItemWidth,

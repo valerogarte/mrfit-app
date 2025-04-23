@@ -43,7 +43,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("SpO2:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
-            Text("$spo2%", style: const TextStyle(fontSize: 16, color: AppColors.advertencia, fontWeight: FontWeight.bold)),
+            Text("$spo2%", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 8),
@@ -52,7 +52,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("Estrés:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
-            Text("$stress%", style: const TextStyle(fontSize: 16, color: AppColors.advertencia, fontWeight: FontWeight.bold)),
+            Text("$stress%", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 8),
@@ -61,7 +61,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("VO2 máx:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
-            Text("$vo2Max ml/kg/min", style: const TextStyle(fontSize: 16, color: AppColors.advertencia, fontWeight: FontWeight.bold)),
+            Text("$vo2Max ml/kg/min", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 8),
@@ -70,7 +70,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("Escaleras subidas:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
-            Text("$stairsClimbed", style: const TextStyle(fontSize: 16, color: AppColors.advertencia, fontWeight: FontWeight.bold)),
+            Text("$stairsClimbed", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
       ],

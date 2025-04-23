@@ -70,7 +70,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary: AppColors.cardBackground,
-              onPrimary: AppColors.advertencia,
+              onPrimary: AppColors.mutedAdvertencia,
               onSurface: AppColors.cardBackground,
             ),
             dialogBackgroundColor: AppColors.cardBackground,
@@ -128,7 +128,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
                     },
                     padding: const EdgeInsets.all(8),
                     backgroundColor: Colors.grey[200],
-                    selectedColor: AppColors.advertencia,
+                    selectedColor: AppColors.mutedAdvertencia,
                   ),
                 );
               }).toList(),
@@ -171,7 +171,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
                     },
                     padding: const EdgeInsets.all(8),
                     backgroundColor: Colors.grey[200],
-                    selectedColor: AppColors.advertencia,
+                    selectedColor: AppColors.mutedAdvertencia,
                   ),
                 );
               }).toList(),
@@ -230,7 +230,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.advertencia,
+                                color: AppColors.mutedAdvertencia,
                               ),
                               textAlign: TextAlign.center,
                             ),

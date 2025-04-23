@@ -178,7 +178,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                             final primaryMuscles = ejercicio.musculosInvolucrados.where((m) => m.tipo == 'P').map((m) => m.musculo.titulo).join(', ');
 
                             return Card(
-                              color: isSelected ? AppColors.advertencia : AppColors.cardBackground,
+                              color: isSelected ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                               child: Row(
                                 children: [
                                   // Imagen con icono de información
@@ -211,7 +211,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                                           right: 4,
                                           child: Icon(
                                             Icons.info_outline,
-                                            color: AppColors.advertencia,
+                                            color: AppColors.mutedAdvertencia,
                                             size: 16,
                                             shadows: [
                                               Shadow(
