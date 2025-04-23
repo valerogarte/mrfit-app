@@ -70,7 +70,7 @@ class CalendarHeaderWidget extends StatelessWidget {
             child: Text(
               selectedDate.formattedCalendarHeader('es'),
               style: const TextStyle(
-                color: AppColors.textColor,
+                color: AppColors.textMedium,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

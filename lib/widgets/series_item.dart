@@ -118,12 +118,12 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: const Text('Eliminar Serie', style: TextStyle(color: AppColors.whiteText)),
-          content: const Text('¿Estás seguro de que deseas eliminar esta serie?', style: TextStyle(color: AppColors.whiteText)),
+          title: const Text('Eliminar Serie', style: TextStyle(color: AppColors.textNormal)),
+          content: const Text('¿Estás seguro de que deseas eliminar esta serie?', style: TextStyle(color: AppColors.textNormal)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
@@ -156,7 +156,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
             const Text(
               'Tiempo recomendado por repetición',
               style: TextStyle(
-                color: AppColors.whiteText,
+                color: AppColors.textNormal,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -197,7 +197,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
           // Botón para restar
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.whiteText, width: 1),
+              side: const BorderSide(color: AppColors.textNormal, width: 1),
               shape: const CircleBorder(),
             ),
             onPressed: () {
@@ -208,7 +208,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
               controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
               onChanged(controller.text);
             },
-            child: const Icon(Icons.remove, size: 20, color: AppColors.whiteText),
+            child: const Icon(Icons.remove, size: 20, color: AppColors.textNormal),
           ),
           // Campo de texto
           Expanded(
@@ -216,10 +216,10 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
               controller: controller,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.whiteText),
+              style: const TextStyle(color: AppColors.textNormal),
               decoration: InputDecoration(
                 labelText: label,
-                labelStyle: const TextStyle(color: AppColors.whiteText),
+                labelStyle: const TextStyle(color: AppColors.textNormal),
                 suffixText: suffixText,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -231,7 +231,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
           // Botón para sumar
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.whiteText, width: 1),
+              side: const BorderSide(color: AppColors.textNormal, width: 1),
               shape: const CircleBorder(),
             ),
             onPressed: () {
@@ -241,7 +241,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
               controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
               onChanged(controller.text);
             },
-            child: const Icon(Icons.add, size: 20, color: AppColors.whiteText),
+            child: const Icon(Icons.add, size: 20, color: AppColors.textNormal),
           ),
         ],
       ),
@@ -278,14 +278,14 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
             '${widget.serieP.peso}kg '
             'y ${widget.serieP.descanso}s',
             style: const TextStyle(
-              color: AppColors.textColor,
+              color: AppColors.textMedium,
               fontSize: 14,
             ),
           ),
           // Rotamos la flechita para indicar expansión
           trailing: RotationTransition(
             turns: Tween(begin: 0.0, end: 0.5).animate(_animation),
-            child: const Icon(Icons.expand_more, color: AppColors.textColor),
+            child: const Icon(Icons.expand_more, color: AppColors.textMedium),
           ),
           onTap: widget.onToggleExpand,
         ),
@@ -373,9 +373,9 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Icon(Icons.delete, size: 20, color: AppColors.textColor),
+                            Icon(Icons.delete, size: 20, color: AppColors.textMedium),
                             SizedBox(width: 4),
-                            Text('Eliminar Serie', style: TextStyle(color: AppColors.textColor)),
+                            Text('Eliminar Serie', style: TextStyle(color: AppColors.textMedium)),
                           ],
                         ),
                       ),
@@ -385,9 +385,9 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Icon(Icons.save, size: 20, color: AppColors.textColor),
+                            Icon(Icons.save, size: 20, color: AppColors.textMedium),
                             SizedBox(width: 4),
-                            Text('Guardar', style: TextStyle(color: AppColors.textColor)),
+                            Text('Guardar', style: TextStyle(color: AppColors.textMedium)),
                           ],
                         ),
                       ),

@@ -181,7 +181,7 @@ class EjercicioResumen extends StatelessWidget {
                                 ),
                                 child: Text(
                                   error.texto,
-                                  style: TextStyle(color: AppColors.whiteText),
+                                  style: TextStyle(color: AppColors.textNormal),
                                 ),
                               ))
                           .toList(),

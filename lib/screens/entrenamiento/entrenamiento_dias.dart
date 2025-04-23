@@ -46,13 +46,13 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: const Text('Nuevo Día de Entrenamiento', style: TextStyle(color: AppColors.whiteText)),
+          title: const Text('Nuevo Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
           content: TextField(
             decoration: const InputDecoration(
               labelText: 'Título de la sesión',
-              labelStyle: TextStyle(color: AppColors.whiteText),
+              labelStyle: TextStyle(color: AppColors.textNormal),
             ),
-            style: const TextStyle(color: AppColors.whiteText),
+            style: const TextStyle(color: AppColors.textNormal),
             onChanged: (value) {
               nuevoTitulo = value;
             },
@@ -60,7 +60,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -87,10 +87,10 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: const Text('Editar Día de Entrenamiento', style: TextStyle(color: AppColors.whiteText)),
+          title: const Text('Editar Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
           content: TextField(
-            decoration: const InputDecoration(labelText: 'Título de la sesión', labelStyle: TextStyle(color: AppColors.whiteText)),
-            style: const TextStyle(color: AppColors.whiteText),
+            decoration: const InputDecoration(labelText: 'Título de la sesión', labelStyle: TextStyle(color: AppColors.textNormal)),
+            style: const TextStyle(color: AppColors.textNormal),
             controller: TextEditingController(text: nuevoTitulo),
             onChanged: (value) {
               nuevoTitulo = value;
@@ -106,12 +106,12 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                   builder: (context) {
                     return AlertDialog(
                       backgroundColor: AppColors.cardBackground,
-                      title: const Text('Eliminar Día de Entrenamiento', style: TextStyle(color: AppColors.whiteText)),
-                      content: const Text('¿Estás seguro de que deseas eliminar este día?', style: TextStyle(color: AppColors.whiteText)),
+                      title: const Text('Eliminar Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
+                      content: const Text('¿Estás seguro de que deseas eliminar este día?', style: TextStyle(color: AppColors.textNormal)),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+                          child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context, true),
@@ -132,7 +132,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -230,7 +230,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                                       Text(
                                         titulo,
                                         style: const TextStyle(
-                                          color: AppColors.whiteText,
+                                          color: AppColors.textNormal,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -238,7 +238,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                                       const SizedBox(height: 8),
                                       Row(
                                         children: [
-                                          const Icon(Icons.fitness_center, color: Colors.white54, size: 20),
+                                          const Icon(Icons.fitness_center, color: AppColors.textNormal, size: 20),
                                           const SizedBox(width: 5),
                                           FutureBuilder<int>(
                                             future: sesion.getEjerciciosCount(),
@@ -248,15 +248,15 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                                               } else if (snapshot.hasData) {
                                                 return Text(
                                                   "${snapshot.data} ejercicios",
-                                                  style: const TextStyle(color: AppColors.whiteText),
+                                                  style: const TextStyle(color: AppColors.textNormal),
                                                 );
                                               } else {
-                                                return const Text("0 ejercicios", style: TextStyle(color: AppColors.whiteText));
+                                                return const Text("0 ejercicios", style: TextStyle(color: AppColors.textNormal));
                                               }
                                             },
                                           ),
                                           const SizedBox(width: 16),
-                                          const Icon(Icons.timer, color: Colors.white54, size: 20),
+                                          const Icon(Icons.timer, color: AppColors.textNormal, size: 20),
                                           const SizedBox(width: 5),
                                           FutureBuilder<String>(
                                             future: sesion.calcularTiempoEntrenamiento(),
@@ -266,12 +266,12 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                                               } else if (snapshot.hasError) {
                                                 return const Text(
                                                   'Error',
-                                                  style: TextStyle(color: AppColors.whiteText),
+                                                  style: TextStyle(color: AppColors.textNormal),
                                                 );
                                               } else {
                                                 return Text(
                                                   snapshot.data ?? '',
-                                                  style: const TextStyle(color: AppColors.whiteText),
+                                                  style: const TextStyle(color: AppColors.textNormal),
                                                 );
                                               }
                                             },
@@ -283,7 +283,7 @@ class _EntrenamientoDiasPageState extends State<EntrenamientoDiasPage> {
                                 ),
                                 // Replace PopupMenuButton with IconButton (lápiz)
                                 IconButton(
-                                  icon: const Icon(Icons.edit, color: AppColors.whiteText),
+                                  icon: const Icon(Icons.edit, color: AppColors.textNormal),
                                   onPressed: () => _mostrarDialogoEditarSesion(sesion),
                                 ),
                               ],

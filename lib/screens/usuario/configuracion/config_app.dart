@@ -34,16 +34,16 @@ class ConfiguracionApp {
           backgroundColor: AppColors.cardBackground,
           title: const Text(
             'Confirmación',
-            style: TextStyle(color: AppColors.whiteText),
+            style: TextStyle(color: AppColors.textNormal),
           ),
           content: const Text(
             '¿Estás seguro de que quieres desvincular tu cuenta de Google Fit?',
-            style: TextStyle(color: AppColors.whiteText),
+            style: TextStyle(color: AppColors.textNormal),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
@@ -111,7 +111,7 @@ class ConfiguracionApp {
                           const SizedBox(height: 30),
                           Text(
                             'Respaldo sFTP',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.whiteText),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textNormal),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
@@ -150,14 +150,14 @@ class ConfiguracionApp {
                           DropdownButtonFormField<String>(
                             value: selectedFrequency,
                             decoration: const InputDecoration(labelText: 'Frecuencia de sincronización'),
-                            style: const TextStyle(color: AppColors.whiteText),
+                            style: const TextStyle(color: AppColors.textNormal),
                             dropdownColor: AppColors.cardBackground,
                             items: frequencyOptions.map((freq) {
                               return DropdownMenuItem<String>(
                                 value: freq,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                  child: Text(freq, style: const TextStyle(color: AppColors.whiteText)),
+                                  child: Text(freq, style: const TextStyle(color: AppColors.textNormal)),
                                 ),
                               );
                             }).toList(),
@@ -192,7 +192,7 @@ class ConfiguracionApp {
                                 ? SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.whiteText),
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textNormal),
                                   )
                                 : const Text('Test de conectividad'),
                           ),
@@ -218,7 +218,7 @@ class ConfiguracionApp {
                               Expanded(
                                 child: TextButton(
                                   onPressed: () => Navigator.pop(sheetContext),
-                                  child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+                                  child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
                                 ),
                               ),
                               Expanded(
@@ -339,7 +339,7 @@ class ConfiguracionApp {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(AppColors.accentColor)),
             const SizedBox(height: 10),
-            Text("Cargando archivos de respaldo...", style: const TextStyle(color: AppColors.whiteText)),
+            Text("Cargando archivos de respaldo...", style: const TextStyle(color: AppColors.textNormal)),
           ],
         ),
       ),
@@ -356,7 +356,7 @@ class ConfiguracionApp {
       builder: (context) {
         return SimpleDialog(
           backgroundColor: AppColors.cardBackground,
-          title: Text('Selecciona un archivo de respaldo', style: const TextStyle(color: AppColors.whiteText)),
+          title: Text('Selecciona un archivo de respaldo', style: const TextStyle(color: AppColors.textNormal)),
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -371,7 +371,7 @@ class ConfiguracionApp {
                         label: Text(
                           fileName,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.whiteText),
+                          style: const TextStyle(color: AppColors.textNormal),
                         ),
                         backgroundColor: AppColors.background,
                         onPressed: () => Navigator.pop(context, fileName),
@@ -383,7 +383,7 @@ class ConfiguracionApp {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: SimpleDialogOption(
                       onPressed: () => Navigator.pop(context, fileName),
-                      child: Text(fileName, style: const TextStyle(color: AppColors.whiteText)),
+                      child: Text(fileName, style: const TextStyle(color: AppColors.textNormal)),
                     ),
                   );
                 }).toList(),
@@ -404,12 +404,12 @@ class ConfiguracionApp {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: Text('Confirmación', style: const TextStyle(color: AppColors.whiteText)),
-          content: Text('¿Estás seguro de restaurar los datos desde el archivo $selectedFile?', style: const TextStyle(color: AppColors.whiteText)),
+          title: Text('Confirmación', style: const TextStyle(color: AppColors.textNormal)),
+          content: Text('¿Estás seguro de restaurar los datos desde el archivo $selectedFile?', style: const TextStyle(color: AppColors.textNormal)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
@@ -432,7 +432,7 @@ class ConfiguracionApp {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(AppColors.accentColor)),
             const SizedBox(height: 10),
-            Text("Esto puede tardar unos instantes", style: const TextStyle(color: AppColors.whiteText)),
+            Text("Esto puede tardar unos instantes", style: const TextStyle(color: AppColors.textNormal)),
           ],
         ),
       ),

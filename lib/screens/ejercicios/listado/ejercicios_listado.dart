@@ -126,7 +126,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.whiteText,
+                                color: AppColors.textNormal,
                               ),
                             ),
                             FutureBuilder<List<dynamic>>(
@@ -147,7 +147,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                         tiempoFormateado,
                                         style: const TextStyle(
                                           fontSize: 16,
-                                          color: AppColors.whiteText,
+                                          color: AppColors.textNormal,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
@@ -157,7 +157,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                         '$volumen kg',
                                         style: const TextStyle(
                                           fontSize: 16,
-                                          color: AppColors.whiteText,
+                                          color: AppColors.textNormal,
                                         ),
                                       ),
                                     ],
@@ -343,7 +343,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: AppColors.whiteText,
+                              color: AppColors.textNormal,
                             ),
                             maxLines: 3, // Modificado de 2 a 3
                           ),
@@ -368,7 +368,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textColor,
+                                      color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textMedium,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -384,7 +384,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                                       'series',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textColor,
+                                        color: seriesCount == 0 ? AppColors.mutedAdvertencia : AppColors.textMedium,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -437,7 +437,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
               Expanded(
                 child: Text(
                   "Agrega series al ejercicio pulsando sobre él. Toca la imagen para ver detalles.",
-                  style: TextStyle(color: AppColors.whiteText),
+                  style: TextStyle(color: AppColors.textNormal),
                 ),
               ),
             ],
@@ -457,7 +457,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? 'Continuar' : 'Comenzar entrenamiento',
           style: TextStyle(
             fontSize: 18,
-            color: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.background : AppColors.whiteText,
+            color: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.background : AppColors.textNormal,
           ),
         ),
       ),

@@ -32,7 +32,7 @@ class ListadoEntrenamientos extends StatelessWidget {
             padding: const EdgeInsets.only(right: 20),
             child: const Text(
               'Eliminar entrenamiento',
-              style: TextStyle(color: AppColors.whiteText),
+              style: TextStyle(color: AppColors.textNormal),
             ),
           ),
           direction: DismissDirection.endToStart,
@@ -41,10 +41,10 @@ class ListadoEntrenamientos extends StatelessWidget {
               context: context,
               builder: (ctx) => AlertDialog(
                 backgroundColor: AppColors.cardBackground,
-                title: const Text('Eliminar Entrenamiento', style: TextStyle(color: AppColors.whiteText)),
+                title: const Text('Eliminar Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
                 content: const Text(
                   '¿Estás seguro de que deseas eliminar este entrenamiento?',
-                  style: TextStyle(color: AppColors.whiteText),
+                  style: TextStyle(color: AppColors.textNormal),
                 ),
                 actions: [
                   TextButton(
@@ -75,7 +75,7 @@ class ListadoEntrenamientos extends StatelessWidget {
                 children: [
                   Text(
                     entrenamiento['titulo'],
-                    style: const TextStyle(color: AppColors.whiteText),
+                    style: const TextStyle(color: AppColors.textNormal),
                   ),
                   if (entrenamiento['isGoogleFit'] == true)
                     Padding(
@@ -98,11 +98,11 @@ class ListadoEntrenamientos extends StatelessWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today, color: AppColors.textColor),
+                            const Icon(Icons.calendar_today, color: AppColors.textMedium),
                             const SizedBox(width: 8),
                             Text(
                               DateFormat('dd/MM/yy').format(DateTime.parse(entrenamiento['inicio'])),
-                              style: const TextStyle(color: AppColors.textColor),
+                              style: const TextStyle(color: AppColors.textMedium),
                             ),
                           ],
                         ),
@@ -111,11 +111,11 @@ class ListadoEntrenamientos extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.timer, color: AppColors.textColor),
+                            const Icon(Icons.timer, color: AppColors.textMedium),
                             const SizedBox(width: 8),
                             Text(
                               entrenamiento['duracion'],
-                              style: const TextStyle(color: AppColors.textColor),
+                              style: const TextStyle(color: AppColors.textMedium),
                             ),
                           ],
                         ),
@@ -123,11 +123,11 @@ class ListadoEntrenamientos extends StatelessWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            const Icon(Icons.local_fire_department, color: AppColors.textColor),
+                            const Icon(Icons.local_fire_department, color: AppColors.textMedium),
                             const SizedBox(width: 8),
                             Text(
                               'X kcal',
-                              style: const TextStyle(color: AppColors.textColor),
+                              style: const TextStyle(color: AppColors.textMedium),
                             ),
                           ],
                         ),

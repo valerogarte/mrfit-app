@@ -25,7 +25,7 @@ Widget dailyPhysicalWidget() {
               const Text(
                 "Condición física",
                 style: TextStyle(
-                  color: AppColors.textColor,
+                  color: AppColors.textMedium,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -50,10 +50,10 @@ Widget dailyPhysicalWidget() {
                     backgroundColor: AppColors.background,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
-                  icon: const Icon(Icons.local_hospital, color: AppColors.textColor, size: 18), // Pharmacy cross icon
+                  icon: const Icon(Icons.local_hospital, color: AppColors.textMedium, size: 18), // Pharmacy cross icon
                   label: const Text(
                     "Recuperación",
-                    style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -72,10 +72,10 @@ Widget dailyPhysicalWidget() {
                     backgroundColor: AppColors.background,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
-                  icon: const Icon(Icons.straighten, color: AppColors.textColor, size: 18), // Measurement icon
+                  icon: const Icon(Icons.straighten, color: AppColors.textMedium, size: 18), // Measurement icon
                   label: const Text(
                     "Medidas",
-                    style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

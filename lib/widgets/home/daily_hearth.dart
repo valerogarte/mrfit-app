@@ -22,7 +22,7 @@ Widget dailyHearthWidget({required int heartRate}) {
             const Text(
               "Frecuencia cardíaca",
               style: TextStyle(
-                color: AppColors.textColor,
+                color: AppColors.textMedium,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

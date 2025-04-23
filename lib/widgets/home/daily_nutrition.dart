@@ -94,7 +94,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
                   const Text(
                     'Diferencia calórica',
                     style: TextStyle(
-                      color: AppColors.textColor,
+                      color: AppColors.textMedium,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -132,7 +132,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
           child: Text(
             label,
             style: TextStyle(
-              color: enabled ? AppColors.mutedAdvertencia : AppColors.textColor.withOpacity(0.5),
+              color: enabled ? AppColors.mutedAdvertencia : AppColors.textMedium.withOpacity(0.5),
               fontSize: 14,
             ),
           ),

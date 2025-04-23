@@ -115,19 +115,19 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
-        title: const Text('Nuevo Plan', style: TextStyle(color: AppColors.whiteText)),
+        title: const Text('Nuevo Plan', style: TextStyle(color: AppColors.textNormal)),
         content: TextField(
           decoration: const InputDecoration(
             labelText: 'Título de la rutina',
-            labelStyle: TextStyle(color: AppColors.whiteText),
+            labelStyle: TextStyle(color: AppColors.textNormal),
           ),
-          style: const TextStyle(color: AppColors.whiteText),
+          style: const TextStyle(color: AppColors.textNormal),
           onChanged: (v) => nuevoTitulo = v,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
+            child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -176,7 +176,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
       builder: (context) => StatefulBuilder(
         builder: (context, setStateSB) => AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: const Text('Editar Plan', style: TextStyle(color: AppColors.whiteText)),
+          title: const Text('Editar Plan', style: TextStyle(color: AppColors.textNormal)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -184,16 +184,16 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 controller: TextEditingController(text: nuevoTitulo),
                 decoration: const InputDecoration(
                   labelText: 'Título de la rutina',
-                  labelStyle: TextStyle(color: AppColors.whiteText),
+                  labelStyle: TextStyle(color: AppColors.textNormal),
                 ),
-                style: const TextStyle(color: AppColors.whiteText),
+                style: const TextStyle(color: AppColors.textNormal),
                 onChanged: (v) => nuevoTitulo = v,
               ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Rutina actual', style: TextStyle(color: AppColors.whiteText)),
+                  const Text('Rutina actual', style: TextStyle(color: AppColors.textNormal)),
                   Switch(
                     value: esActual,
                     onChanged: (v) {
@@ -215,10 +215,10 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                   context: context,
                   builder: (c) => AlertDialog(
                     backgroundColor: AppColors.cardBackground,
-                    title: const Text('Eliminar Plan', style: TextStyle(color: AppColors.whiteText)),
-                    content: const Text('¿Seguro que quieres eliminar la rutina?', style: TextStyle(color: AppColors.whiteText)),
+                    title: const Text('Eliminar Plan', style: TextStyle(color: AppColors.textNormal)),
+                    content: const Text('¿Seguro que quieres eliminar la rutina?', style: TextStyle(color: AppColors.textNormal)),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText))),
+                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
                       ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Eliminar')),
                     ],
                   ),
@@ -226,7 +226,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 if (confirma == true) await _eliminarRutina(rutina.id.toString());
               },
             ),
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText))),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
             ElevatedButton(
               onPressed: () async {
                 if (nuevoTitulo.isNotEmpty) {
@@ -288,7 +288,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
                             grupo.titulo,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.whiteText),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textNormal),
                           ),
                         ),
                         ClipRRect(
@@ -387,7 +387,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: esActual ? AppColors.background : AppColors.whiteText,
+                    color: esActual ? AppColors.background : AppColors.textNormal,
                   ),
                 ),
                 if (esActual)
@@ -412,7 +412,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
           child: IconButton(
             icon: Icon(
               Icons.edit,
-              color: esActual ? AppColors.background : AppColors.textColor,
+              color: esActual ? AppColors.background : AppColors.textMedium,
             ),
             onPressed: () => _mostrarDialogoEditarPlan(rutina),
           ),

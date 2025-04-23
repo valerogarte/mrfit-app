@@ -39,7 +39,7 @@ class EntrenamientoSeries extends StatefulWidget {
 
 class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTickerProviderStateMixin {
   bool isEditing = false;
-  Color _selectedEmojiColor = AppColors.textColor;
+  Color _selectedEmojiColor = AppColors.textMedium;
   List<Map<String, dynamic>>? _avgRerLabel;
 
   @override
@@ -65,7 +65,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
         final int rerValue = detalle['rer'] as int;
         final option = rerValue > 0 ? ModeloDatos.getDifficultyOptions(value: rerValue) : null;
         final label = option?['label'] ?? "";
-        final iconColor = option?['iconColor'] ?? AppColors.textColor;
+        final iconColor = option?['iconColor'] ?? AppColors.textMedium;
         return {"label": label, "iconColor": iconColor};
       }).toList();
       setState(() {
@@ -118,7 +118,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.whiteText,
+                      color: AppColors.textNormal,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -146,13 +146,13 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
       title: Text(
         label,
         style: const TextStyle(
-          color: AppColors.whiteText,
+          color: AppColors.textNormal,
           fontWeight: FontWeight.bold,
         ),
       ),
       subtitle: Text(
         description,
-        style: const TextStyle(color: Colors.white70),
+        style: const TextStyle(color: AppColors.textNormal),
       ),
       onTap: () {
         setState(() {
@@ -181,7 +181,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
             Text(
               label,
               style: const TextStyle(
-                color: AppColors.whiteText,
+                color: AppColors.textNormal,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -192,10 +192,10 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                   icon: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.whiteText),
+                      border: Border.all(color: AppColors.textNormal),
                     ),
                     padding: const EdgeInsets.all(4.0),
-                    child: const Icon(Icons.remove, color: AppColors.whiteText),
+                    child: const Icon(Icons.remove, color: AppColors.textNormal),
                   ),
                   onPressed: onDecrement,
                 ),
@@ -204,7 +204,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                     controller: controller,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.whiteText),
+                    style: const TextStyle(color: AppColors.textNormal),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
@@ -223,10 +223,10 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                   icon: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.whiteText),
+                      border: Border.all(color: AppColors.textNormal),
                     ),
                     padding: const EdgeInsets.all(4.0),
-                    child: const Icon(Icons.add, color: AppColors.whiteText),
+                    child: const Icon(Icons.add, color: AppColors.textNormal),
                   ),
                   onPressed: onIncrement,
                 ),
@@ -265,7 +265,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                               child: Text(
                                 widget.setIndex,
                                 style: const TextStyle(
-                                  color: AppColors.whiteText,
+                                  color: AppColors.textNormal,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -275,7 +275,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                           Text(
                             '${widget.set.repeticiones} reps, ${widget.set.peso} kg',
                             style: const TextStyle(
-                              color: AppColors.whiteText,
+                              color: AppColors.textNormal,
                             ),
                           ),
                         ],
@@ -294,7 +294,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                               child: Text(
                                 widget.setIndex,
                                 style: const TextStyle(
-                                  color: AppColors.whiteText,
+                                  color: AppColors.textNormal,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -307,14 +307,14 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                                 const TextSpan(
                                   text: 'Serie ',
                                   style: TextStyle(
-                                    color: AppColors.whiteText,
+                                    color: AppColors.textNormal,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 TextSpan(
                                   text: widget.setIndex,
                                   style: const TextStyle(
-                                    color: AppColors.whiteText,
+                                    color: AppColors.textNormal,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -322,7 +322,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                                   const TextSpan(
                                     text: ' - Sueles ir ',
                                     style: TextStyle(
-                                      color: AppColors.whiteText,
+                                      color: AppColors.textNormal,
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ),
@@ -350,7 +350,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                     onPressed: _showDifficultySheet,
                   ),
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: AppColors.textColor),
+                  icon: const Icon(Icons.more_vert, color: AppColors.textMedium),
                   onSelected: (String result) {
                     if (result == 'editar') {
                       widget.onExpand();
@@ -436,7 +436,7 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
                         ),
                         child: Text(
                           isEditing ? 'Actualizar Set' : 'Set completo',
-                          style: const TextStyle(color: AppColors.whiteText),
+                          style: const TextStyle(color: AppColors.textNormal),
                         ),
                       ),
                     ],

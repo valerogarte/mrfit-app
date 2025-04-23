@@ -33,23 +33,23 @@ class MyApp extends StatelessWidget {
         fontFamily: 'MadeTommy', // Añadido para usar la fuente personalizada
         appBarTheme: AppBarTheme(
           color: AppColors.appBarBackground,
-          iconTheme: IconThemeData(color: AppColors.whiteText),
+          iconTheme: IconThemeData(color: AppColors.textNormal),
           titleTextStyle: TextStyle(
-            color: AppColors.whiteText,
+            color: AppColors.textNormal,
             fontFamily: 'MadeTommy', // Aplica la fuente al título del AppBar
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         textTheme: TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textColor),
-          bodyMedium: TextStyle(color: AppColors.textColor),
+          bodyLarge: TextStyle(color: AppColors.textMedium),
+          bodyMedium: TextStyle(color: AppColors.textMedium),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.cardBackground,
-          labelStyle: TextStyle(color: AppColors.whiteText),
-          hintStyle: TextStyle(color: AppColors.textColor),
+          labelStyle: TextStyle(color: AppColors.textNormal),
+          hintStyle: TextStyle(color: AppColors.textMedium),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: AppColors.secondaryColor),
             borderRadius: BorderRadius.circular(8),
@@ -62,13 +62,13 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.accentColor, // Cambiado de 'primary'
-            foregroundColor: AppColors.whiteText, // Cambiado de 'onPrimary'
+            foregroundColor: AppColors.textNormal, // Cambiado de 'onPrimary'
           ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: AppColors.secondaryColor,
           selectedItemColor: AppColors.accentColor,
-          unselectedItemColor: AppColors.textColor,
+          unselectedItemColor: AppColors.textMedium,
         ),
       ),
       home: const MyHomePage(), // Cambiado de InicioPage a MyHomePage
@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: Theme.of(context).appBarTheme.titleTextStyle,
             children: [
               TextSpan(text: 'Mr', style: const TextStyle(color: AppColors.mutedAdvertencia)),
-              TextSpan(text: 'Fit', style: const TextStyle(color: AppColors.whiteText)),
+              TextSpan(text: 'Fit', style: const TextStyle(color: AppColors.textNormal)),
             ],
           ),
         ),

@@ -53,7 +53,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -63,7 +63,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
           const SizedBox(width: 12),
           Text(
             timeInfo,
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppColors.textMedium),
           ),
         ],
       ),
@@ -182,8 +182,8 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  icon: const Icon(Icons.list_alt, color: Colors.white, size: 18),
-                  label: const Text("Rutinas", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.list_alt, color: AppColors.textNormal, size: 18),
+                  label: const Text("Rutinas", style: TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -228,7 +228,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
         const SizedBox(width: 12),
         Text(
           text,
-          style: const TextStyle(color: AppColors.textColor, fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: AppColors.textMedium, fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
     );

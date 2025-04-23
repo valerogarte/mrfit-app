@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mrfit/utils/colors.dart';
 
 class BlinkingBar extends StatefulWidget {
   final double width;
@@ -34,7 +35,7 @@ class _BlinkingBarState extends State<BlinkingBar> with SingleTickerProviderStat
       child: Container(
         width: widget.width,
         height: widget.height,
-        color: Colors.white54,
+        color: AppColors.textNormal,
       ),
     );
   }

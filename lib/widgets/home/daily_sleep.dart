@@ -79,7 +79,7 @@ Widget _sleepPermission() {
             const SizedBox(width: 12),
             const Text(
               'Sueño',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(color: AppColors.textNormal, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -131,12 +131,12 @@ Widget _sleepBase({required String mainText, required String subText}) {
           children: [
             Text(
               mainText,
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               subText,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: AppColors.textNormal, fontSize: 14),
             ),
           ],
         ),

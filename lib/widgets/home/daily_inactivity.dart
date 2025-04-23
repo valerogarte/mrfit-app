@@ -92,7 +92,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                   const Text(
                     'Sueño',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textNormal,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -104,7 +104,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                 padding: const EdgeInsets.only(left: 44),
                 child: const Text(
                   'Estimamos tus horas de sueño basándonos en el uso del dispositivo.',
-                  style: TextStyle(color: AppColors.textColor),
+                  style: TextStyle(color: AppColors.textMedium),
                 ),
               ),
               const SizedBox(height: 12),
@@ -121,7 +121,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                   icon: const Icon(Icons.settings, color: AppColors.mutedAdvertencia), // Icono cambiado a advertencia
                   label: const Text(
                     'Conceder permisos',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textNormal),
                   ),
                 ),
               ),
@@ -157,7 +157,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                           const SizedBox(width: 12),
                           const Text(
                             "0 min",
-                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -182,7 +182,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                           const SizedBox(width: 12),
                           Text(
                             '${sleepData.totalSleepMinutes} min',
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -198,7 +198,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                           final endMinute = (slot.end % 60).toString().padLeft(2, '0');
                           return Text(
                             'De $startHour:$startMinute a $endHour:$endMinute',
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                            style: const TextStyle(color: AppColors.textNormal, fontSize: 14),
                           );
                         }).toList(),
                       ),

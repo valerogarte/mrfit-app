@@ -191,7 +191,7 @@ class _PieChartPainter extends CustomPainter {
             ),
             TextSpan(
               text: '\n${item.musculo.titulo}',
-              style: const TextStyle(fontSize: 14, color: Colors.white),
+              style: const TextStyle(fontSize: 14, color: AppColors.textNormal),
             ),
           ],
         );
@@ -224,7 +224,7 @@ class _PieChartPainter extends CustomPainter {
               text: '\n${item.musculo.titulo}',
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.whiteText,
+                color: AppColors.textNormal,
               ),
             ),
           ],
@@ -248,7 +248,7 @@ class _PieChartPainter extends CustomPainter {
         }
         final Offset arrowEndpoint = textCenter + v * (factor * 0.9);
         final arrowPaint = Paint()
-          ..color = Colors.white
+          ..color = AppColors.textNormal
           ..strokeWidth = 1.0;
         canvas.drawLine(arrowEndpoint, arrowStart, arrowPaint);
       }

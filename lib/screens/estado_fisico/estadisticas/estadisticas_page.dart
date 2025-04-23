@@ -127,7 +127,7 @@ class _EstadisticasPageState extends ConsumerState<EstadisticasPage> {
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: AppColors.textColor,
+          color: AppColors.textMedium,
         ),
       ),
     );

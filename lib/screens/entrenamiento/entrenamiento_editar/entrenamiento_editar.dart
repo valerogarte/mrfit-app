@@ -67,7 +67,7 @@ class _EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.whiteText,
+                          color: AppColors.textNormal,
                         ),
                       ),
                     ),

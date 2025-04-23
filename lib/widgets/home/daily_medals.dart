@@ -43,7 +43,7 @@ class _MedalsWidgetState extends State<MedalsWidget> {
               const Text(
                 "Medallas",
                 style: TextStyle(
-                  color: AppColors.textColor,
+                  color: AppColors.textMedium,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -66,7 +66,7 @@ class _MedalsWidgetState extends State<MedalsWidget> {
           Text(
             record['title'],
             style: const TextStyle(
-              color: AppColors.textColor,
+              color: AppColors.textMedium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),

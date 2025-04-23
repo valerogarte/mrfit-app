@@ -56,7 +56,7 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
         widget.ejercicio.imagenMovimiento,
         width: widget.width,
         height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.whiteText),
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
       );
     }
 
@@ -68,7 +68,7 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
         widget.ejercicio.imagenUno,
         width: widget.width,
         height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.whiteText),
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
       );
     }
 
@@ -77,7 +77,7 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
         widget.ejercicio.imagenDos,
         width: widget.width,
         height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.whiteText),
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
       );
     }
 
@@ -85,7 +85,7 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
       showFirstImage ? widget.ejercicio.imagenUno : widget.ejercicio.imagenDos,
       width: widget.width,
       height: widget.height,
-      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.whiteText),
+      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
     );
   }
 }

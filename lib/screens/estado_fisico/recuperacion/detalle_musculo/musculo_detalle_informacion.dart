@@ -41,21 +41,21 @@ class DetalleMusculoInformacion extends StatelessWidget {
             "Pecho Superior",
             Text(
               "Descripción y función del pecho superior.",
-              style: TextStyle(color: AppColors.textColor),
+              style: TextStyle(color: AppColors.textMedium),
             ),
           ),
           buildSection(
             "Pecho Medio",
             Text(
               "Descripción y función del pecho medio.",
-              style: TextStyle(color: AppColors.textColor),
+              style: TextStyle(color: AppColors.textMedium),
             ),
           ),
           buildSection(
             "Pecho Inferior",
             Text(
               "Descripción y función del pecho inferior.",
-              style: TextStyle(color: AppColors.textColor),
+              style: TextStyle(color: AppColors.textMedium),
             ),
           ),
         ],
@@ -65,7 +65,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
         "Anatomía",
         Text(
           "Descripción anatómica general del músculo.",
-          style: TextStyle(color: AppColors.textColor),
+          style: TextStyle(color: AppColors.textMedium),
         ),
       );
     }
@@ -97,7 +97,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
+                color: AppColors.textMedium,
               ),
             ),
             const SizedBox(height: 20),
@@ -111,7 +111,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
                 children: entrenamientos
                     .map((ent) => Text(
                           "- Entrenamiento",
-                          style: TextStyle(color: AppColors.textColor),
+                          style: TextStyle(color: AppColors.textMedium),
                         ))
                     .toList(),
               ),
@@ -121,7 +121,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
               "Consejos",
               Text(
                 "Recomendaciones para mejorar la técnica y optimizar el entrenamiento.",
-                style: TextStyle(color: AppColors.textColor),
+                style: TextStyle(color: AppColors.textMedium),
               ),
             ),
             // Sección Prevención de Lesiones
@@ -129,7 +129,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
               "Prevención de Lesiones",
               Text(
                 "Sugerencias para evitar sobrecargas y cuidar la salud muscular.",
-                style: TextStyle(color: AppColors.textColor),
+                style: TextStyle(color: AppColors.textMedium),
               ),
             ),
             // Sección Recursos
@@ -137,7 +137,7 @@ class DetalleMusculoInformacion extends StatelessWidget {
               "Recursos",
               Text(
                 "Enlaces y lecturas adicionales para profundizar en el tema.",
-                style: TextStyle(color: AppColors.textColor),
+                style: TextStyle(color: AppColors.textMedium),
               ),
             ),
           ],

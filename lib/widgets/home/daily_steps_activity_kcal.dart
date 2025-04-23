@@ -117,7 +117,7 @@ Widget infoItem({
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Colors.white,
+                color: AppColors.textNormal,
               ),
             ),
             TextSpan(

@@ -167,7 +167,7 @@ class MusclesListWidget extends StatelessWidget {
                 Text(
                   '${porcentaje.toStringAsFixed(0)}%',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textNormal,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),

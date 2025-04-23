@@ -59,7 +59,7 @@ class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.timer, color: AppColors.textColor, size: 40),
+                      Icon(Icons.timer, color: AppColors.textMedium, size: 40),
                       const SizedBox(height: 4),
                       Text(
                         "${ejercicio.tiempos.faseConcentrica + ejercicio.tiempos.faseExcentrica + ejercicio.tiempos.faseIsometrica}s",

@@ -37,7 +37,7 @@ class WeeklyStatsWidget extends StatelessWidget {
                   'últimos 30 días.',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textColor,
+                    color: AppColors.textMedium,
                   ),
                 ),
               ],
@@ -65,7 +65,7 @@ class WeeklyStatsWidget extends StatelessWidget {
                   'últimos 7 días.',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textColor,
+                    color: AppColors.textMedium,
                   ),
                 ),
               ],

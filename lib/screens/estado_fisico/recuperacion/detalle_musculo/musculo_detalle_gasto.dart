@@ -113,7 +113,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
                 children: [
                   Text(
                     fechaStr,
-                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textColor, fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textMedium, fontSize: 18),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -123,14 +123,14 @@ class DetalleMusculoGasto extends ConsumerWidget {
                         children: [
                           Icon(Icons.fitness_center, color: AppColors.accentColor, size: 24),
                           const SizedBox(width: 5),
-                          Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textColor, fontSize: 16)),
+                          Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
                         ],
                       ),
                       Row(
                         children: [
                           Icon(Icons.restore, color: AppColors.accentColor, size: 24),
                           const SizedBox(width: 5),
-                          Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textColor, fontSize: 16)),
+                          Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
                         ],
                       ),
                       Row(
@@ -162,7 +162,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
       children: [
         Icon(icon, color: AppColors.accentColor, size: 24),
         const SizedBox(width: 5),
-        Text(text, style: TextStyle(color: AppColors.textColor, fontSize: 16)),
+        Text(text, style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
       ],
     );
   }
@@ -240,10 +240,10 @@ class DetalleMusculoGasto extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Text(
                     '$porcentajeImplicacion%',
-                    style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  Text('implicación', style: TextStyle(color: AppColors.textColor, fontSize: 12)),
-                  Text('(${tipoMusculo.toLowerCase()})', style: TextStyle(color: AppColors.textColor, fontSize: 12)),
+                  Text('implicación', style: TextStyle(color: AppColors.textMedium, fontSize: 12)),
+                  Text('(${tipoMusculo.toLowerCase()})', style: TextStyle(color: AppColors.textMedium, fontSize: 12)),
                 ],
               ),
               const SizedBox(width: 10),
@@ -252,19 +252,19 @@ class DetalleMusculoGasto extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nombre, style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(nombre, style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(Icons.flash_on, color: AppColors.accentColor),
-                        Text('${gastoActual.toStringAsFixed(1)}%', style: TextStyle(color: AppColors.textColor)),
+                        Text('${gastoActual.toStringAsFixed(1)}%', style: TextStyle(color: AppColors.textMedium)),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Wrap(
                             spacing: 2,
                             children: seriesRealizadas.map((serie) {
                               final matchingOption = difficultyOptions.where((option) => option['value'] == serie.rer).toList();
-                              final Color iconColor = matchingOption.isNotEmpty ? matchingOption.first['iconColor'] : AppColors.textColor;
+                              final Color iconColor = matchingOption.isNotEmpty ? matchingOption.first['iconColor'] : AppColors.textMedium;
 
                               return Icon(
                                 Icons.emoji_emotions,
@@ -281,7 +281,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
                       children: [
                         Icon(Icons.fitness_center, color: AppColors.accentColor),
                         const SizedBox(width: 5),
-                        Text('${volumenMusculo.toStringAsFixed(1)}kg en $musculo', style: TextStyle(color: AppColors.textColor)),
+                        Text('${volumenMusculo.toStringAsFixed(1)}kg en $musculo', style: TextStyle(color: AppColors.textMedium)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -321,7 +321,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
       ),
       child: Text(
         '$percentage%',
-        style: TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold),
+        style: TextStyle(color: AppColors.textMedium, fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

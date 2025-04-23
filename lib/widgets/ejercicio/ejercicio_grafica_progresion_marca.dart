@@ -82,7 +82,7 @@ class _EjercicioGraficaProgresionMarcaState extends State<EjercicioGraficaProgre
                         label: Text(
                           charts[i]['title'] as String,
                           style: TextStyle(
-                            color: selectedIndex == i ? null : AppColors.textColor,
+                            color: selectedIndex == i ? null : AppColors.textMedium,
                           ),
                         ),
                         selected: selectedIndex == i,

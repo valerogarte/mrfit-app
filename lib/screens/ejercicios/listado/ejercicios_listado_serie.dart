@@ -21,7 +21,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
         } else if (snapshot.hasError) {
           return const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text('Error al cargar promedio', style: TextStyle(color: AppColors.whiteText)),
+            child: Text('Error al cargar promedio', style: TextStyle(color: AppColors.textNormal)),
           );
         } else {
           final data = snapshot.data!;
@@ -49,7 +49,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
               children: [
                 Text(
                   'Sueles ir a $seriesText',
-                  style: const TextStyle(fontSize: 16, color: AppColors.textColor),
+                  style: const TextStyle(fontSize: 16, color: AppColors.textMedium),
                 ),
                 if (detalles.isNotEmpty) ...[
                   const SizedBox(height: 8),
@@ -66,7 +66,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           decoration: BoxDecoration(
-                            color: AppColors.textColor.withAlpha(150),
+                            color: AppColors.textMedium.withAlpha(150),
                             borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: Row(
@@ -142,7 +142,7 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
   Widget _buildSeriesControls(EjercicioPersonalizado ejercicioPersonalizado, void Function(void Function()) localSetState) {
     return Column(
       children: [
-        Divider(color: AppColors.textColor), // Visual separator added
+        Divider(color: AppColors.textMedium), // Visual separator added
         Padding(
           padding: const EdgeInsets.only(top: 25.0, bottom: 15.0),
           child: Row(
@@ -150,8 +150,8 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
             children: [
               ElevatedButton.icon(
                 onPressed: () => _confirmDeleteExercise(ejercicioPersonalizado),
-                icon: const Icon(Icons.delete, color: Colors.white),
-                label: const Text('Eliminar Ejercicio', style: TextStyle(color: Colors.white)),
+                icon: const Icon(Icons.delete, color: AppColors.textNormal),
+                label: const Text('Eliminar Ejercicio', style: TextStyle(color: AppColors.textNormal)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.mutedRed,
                 ),
@@ -163,10 +163,10 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
                   setState(() {}); // Actualiza la vista en ejercicios_listado.dart
                   localSetState(() {}); // Actualiza la vista del bottom sheet
                 },
-                icon: const Icon(Icons.add, color: AppColors.textColor, size: 18),
-                label: const Text('Añadir Serie', style: TextStyle(color: AppColors.textColor)),
+                icon: const Icon(Icons.add, color: AppColors.textMedium, size: 18),
+                label: const Text('Añadir Serie', style: TextStyle(color: AppColors.textMedium)),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.textColor, width: 1.0),
+                  side: const BorderSide(color: AppColors.textMedium, width: 1.0),
                 ),
               ),
             ],
@@ -183,11 +183,11 @@ extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
         backgroundColor: AppColors.cardBackground,
         title: const Text(
           'Eliminar Ejercicio',
-          style: TextStyle(color: AppColors.whiteText),
+          style: TextStyle(color: AppColors.textNormal),
         ),
         content: const Text(
           '¿Estás seguro de que deseas eliminar este ejercicio?',
-          style: TextStyle(color: AppColors.whiteText),
+          style: TextStyle(color: AppColors.textNormal),
         ),
         actions: [
           TextButton(

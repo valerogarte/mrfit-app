@@ -56,7 +56,7 @@ class _NotesWidgetState extends State<NotesWidget> {
               const Text(
                 "Notas",
                 style: TextStyle(
-                  color: AppColors.textColor,
+                  color: AppColors.textMedium,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,7 +69,7 @@ class _NotesWidgetState extends State<NotesWidget> {
             maxLines: 5,
             decoration: InputDecoration(
               hintText: "Escribe tus notas aquí...",
-              hintStyle: TextStyle(color: AppColors.textColor.withOpacity(0.5)),
+              hintStyle: TextStyle(color: AppColors.textMedium.withOpacity(0.5)),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(
@@ -77,7 +77,7 @@ class _NotesWidgetState extends State<NotesWidget> {
                 borderSide: BorderSide.none,
               ),
             ),
-            style: const TextStyle(color: AppColors.textColor),
+            style: const TextStyle(color: AppColors.textMedium),
           ),
           const SizedBox(height: 10),
           Align(
@@ -98,7 +98,7 @@ class _NotesWidgetState extends State<NotesWidget> {
           if (_savedNote.isNotEmpty)
             Text(
               "Nota guardada: $_savedNote",
-              style: const TextStyle(color: AppColors.textColor, fontSize: 14),
+              style: const TextStyle(color: AppColors.textMedium, fontSize: 14),
             ),
         ],
       ),

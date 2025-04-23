@@ -56,7 +56,7 @@ class ResumenSerie extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               '$peso kg x $repeticiones repeticiones',
-              style: TextStyle(color: extra ? AppColors.mutedAdvertencia : AppColors.textColor),
+              style: TextStyle(color: extra ? AppColors.mutedAdvertencia : AppColors.textMedium),
             ),
             const SizedBox(width: 8),
             if (extra)

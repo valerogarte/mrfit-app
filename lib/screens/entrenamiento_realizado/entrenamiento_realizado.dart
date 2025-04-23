@@ -105,7 +105,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                       children: [
                         Text(
                           ejercicio.ejercicio.nombre,
-                          style: const TextStyle(color: AppColors.whiteText, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 5),
                       ],

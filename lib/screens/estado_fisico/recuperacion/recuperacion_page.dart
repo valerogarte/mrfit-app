@@ -155,7 +155,7 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
                                 color: AppColors.accentColor.withAlpha(180),
                                 child: IconButton(
                                   onPressed: _toggleImage,
-                                  icon: const Icon(Icons.refresh, color: Colors.white),
+                                  icon: const Icon(Icons.refresh, color: AppColors.textNormal),
                                 ),
                               ),
                             ),
@@ -279,7 +279,7 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
                                               Text(
                                                 '${pct.toStringAsFixed(0)}%',
                                                 style: const TextStyle(
-                                                  color: Colors.white,
+                                                  color: AppColors.textNormal,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.bold,
                                                 ),

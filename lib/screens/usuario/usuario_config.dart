@@ -112,18 +112,18 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           // Datos Personales
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Datos Personales', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
+            child: Text('Datos Personales', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.person, color: AppColors.accentColor),
-            title: Text(currentUser.username.isNotEmpty ? currentUser.username : 'Alias', style: TextStyle(color: AppColors.textColor)),
+            title: Text(currentUser.username.isNotEmpty ? currentUser.username : 'Alias', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Alias', 'Editar Alias'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.cake, color: AppColors.accentColor),
-            title: Text('${calculateAge(currentUser.fechaNacimiento)} años', style: TextStyle(color: AppColors.textColor)),
+            title: Text('${calculateAge(currentUser.fechaNacimiento)} años', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Fecha de Nacimiento', 'Editar Fecha de Nacimiento'),
           ),
           ListTile(
@@ -133,12 +133,12 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
               future: currentUser.getCurrentHeight(9999),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text('...', style: TextStyle(color: AppColors.textColor));
+                  return Text('...', style: TextStyle(color: AppColors.textMedium));
                 } else if (snapshot.hasError) {
-                  return Text('Sin acceso a Health Connect.', style: TextStyle(color: AppColors.textColor));
+                  return Text('Sin acceso a Health Connect.', style: TextStyle(color: AppColors.textMedium));
                 }
                 final altura = snapshot.data;
-                return Text(altura != null ? '$altura cm' : 'Altura', style: TextStyle(color: AppColors.textColor));
+                return Text(altura != null ? '$altura cm' : 'Altura', style: TextStyle(color: AppColors.textMedium));
               },
             ),
             onTap: () => _showPersonalDialog('Altura', 'Editar Altura'),
@@ -146,76 +146,76 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.transgender, color: AppColors.accentColor),
-            title: Text(currentUser.genero.isNotEmpty ? currentUser.genero : 'Género', style: TextStyle(color: AppColors.textColor)),
+            title: Text(currentUser.genero.isNotEmpty ? currentUser.genero : 'Género', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Género', 'Editar Género'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.star, color: AppColors.accentColor),
-            title: Text(currentUser.experiencia.isNotEmpty ? currentUser.experiencia : 'Experiencia', style: TextStyle(color: AppColors.textColor)),
+            title: Text(currentUser.experiencia.isNotEmpty ? currentUser.experiencia : 'Experiencia', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Experiencia', 'Editar Experiencia'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.trending_up, color: AppColors.accentColor),
-            title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Volumen Máximo', 'Volumen Máximo'),
           ),
           // Ajustes de la App
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Ajustes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
+            child: Text('Ajustes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.speaker_notes, color: AppColors.accentColor),
-            title: Text('Entrenador', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Entrenador', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showAjustesDialog('Entrenador', 'Editar Entrenador'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.record_voice_over, color: AppColors.accentColor),
-            title: Text('Voz del Entrenador', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Voz del Entrenador', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showAjustesDialog('Voz del Entrenador', 'Editar Voz del Entrenador'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.volume_up, color: AppColors.accentColor),
-            title: Text('Volumen del Entrenador', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Volumen del Entrenador', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showAjustesDialog('Volumen del Entrenador', 'Editar Volumen del Entrenador'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.straighten, color: AppColors.accentColor),
-            title: Text('Unidades', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Unidades', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showAjustesDialog('Unidades', 'Editar Unidades'),
           ),
           // Datos y respaldos
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Datos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
+            child: Text('Datos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.restore, color: AppColors.accentColor),
-            title: Text('Restaurar Datos', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Restaurar Datos', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => ConfiguracionApp.selectFileFromServer(context),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.cloud_upload, color: AppColors.accentColor),
-            title: Text('Respaldo sFTP', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Respaldo sFTP', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => ConfiguracionApp.openFTPConfig(context),
           ),
           // Integraciones
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Integraciones', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
+            child: Text('Integraciones', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.watch, color: AppColors.accentColor),
-            title: Text('Smartwatch', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Smartwatch', style: TextStyle(color: AppColors.textMedium)),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vinculación con Smartwatch")));
             },
@@ -225,7 +225,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
             title: Text(
               _isGoogleFitLinked ? 'Desvincular Google Fit' : 'Vincular con Google Fit',
-              style: TextStyle(color: AppColors.textColor),
+              style: TextStyle(color: AppColors.textMedium),
             ),
             onTap: () {
               final usuario = ref.read(usuarioProvider);
@@ -249,7 +249,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             leading: Icon(Icons.favorite, color: AppColors.accentColor),
             title: Text(
               _isHealthConnctLinked ? 'Health Connect vinculado' : 'Vincular con Health Connect',
-              style: TextStyle(color: AppColors.textColor),
+              style: TextStyle(color: AppColors.textMedium),
             ),
             onTap: () async {
               if (!_isHealthConnctLinked) {
@@ -264,24 +264,24 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           // Créditos
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Créditos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
+            child: Text('Créditos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.code, color: AppColors.accentColor),
-            title: Text('Mejoras en la app', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Mejoras en la app', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showCreditosDialog('Mejoras en la app', 'Mejoras en la app'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.feed_rounded, color: AppColors.accentColor),
-            title: Text('OpenSource', style: TextStyle(color: AppColors.textColor)),
+            title: Text('OpenSource', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showCreditosDialog('OpenSource', 'OpenSource'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.info, color: AppColors.accentColor),
-            title: Text('Daniel Valero González', style: TextStyle(color: AppColors.textColor)),
+            title: Text('Daniel Valero González', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showCreditosDialog('Daniel Valero González', 'Acerca del desarrollador'),
           ),
           const SizedBox(height: 45, child: DecoratedBox(decoration: BoxDecoration(color: AppColors.cardBackground))),

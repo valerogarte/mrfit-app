@@ -17,7 +17,7 @@ class ConfigBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: const TextStyle(color: AppColors.whiteText, fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(title, style: const TextStyle(color: AppColors.textNormal, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           child,
         ],

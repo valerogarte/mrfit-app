@@ -133,10 +133,10 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                     Expanded(
                       child: TextField(
                         controller: _nombreController,
-                        style: const TextStyle(color: AppColors.whiteText),
+                        style: const TextStyle(color: AppColors.textNormal),
                         decoration: const InputDecoration(
                           labelText: 'Nombre',
-                          labelStyle: TextStyle(color: AppColors.whiteText),
+                          labelStyle: TextStyle(color: AppColors.textNormal),
                         ),
                         onChanged: _onFilterChanged,
                       ),
@@ -253,7 +253,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                                                   child: Text(
                                                     ejercicio.nombre,
                                                     style: TextStyle(
-                                                      color: isSelected ? AppColors.background : AppColors.whiteText,
+                                                      color: isSelected ? AppColors.background : AppColors.textNormal,
                                                       fontSize: 15,
                                                       fontWeight: FontWeight.bold,
                                                     ),
@@ -272,7 +272,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                                             Text(
                                               primaryMuscles.isNotEmpty ? primaryMuscles : 'Sin músculos principales',
                                               style: TextStyle(
-                                                color: isSelected ? AppColors.background : AppColors.textColor,
+                                                color: isSelected ? AppColors.background : AppColors.textMedium,
                                                 fontSize: 13,
                                               ),
                                             ),

@@ -87,12 +87,12 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                   const SizedBox(height: 20),
                   const Text(
                     '¡Entrenamiento completado!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.whiteText),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textNormal),
                   ),
                   const SizedBox(height: 25),
                   const Text(
                     '¿Cómo ha ido el entrenamiento?',
-                    style: TextStyle(fontSize: 16, color: AppColors.whiteText),
+                    style: TextStyle(fontSize: 16, color: AppColors.textNormal),
                   ),
                   const SizedBox(height: 10),
                   Column(
@@ -102,9 +102,9 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: const [
-                            Text('Desastre', style: TextStyle(color: AppColors.whiteText, fontSize: 12)),
-                            Text('Normal', style: TextStyle(color: AppColors.whiteText, fontSize: 12)),
-                            Text('Increíble', style: TextStyle(color: AppColors.whiteText, fontSize: 12)),
+                            Text('Desastre', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
+                            Text('Normal', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
+                            Text('Increíble', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -150,7 +150,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                           children: [
                             Text(
                               ejercicio.ejercicio.nombre,
-                              style: const TextStyle(color: AppColors.whiteText, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 5),
                           ],
@@ -191,7 +191,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                 AppColors.appBarBackground,
                 AppColors.mutedRed,
                 AppColors.mutedAdvertencia,
-                AppColors.textColor,
+                AppColors.textMedium,
               ],
             ),
           ),
@@ -216,7 +216,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                 AppColors.appBarBackground,
                 AppColors.accentColor,
                 AppColors.mutedAdvertencia,
-                AppColors.textColor,
+                AppColors.textMedium,
               ],
             ),
           ),

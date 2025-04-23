@@ -24,13 +24,13 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppColors.background,
-              child: const Icon(Icons.monitor_heart, color: AppColors.textColor, size: 18),
+              child: const Icon(Icons.monitor_heart, color: AppColors.textMedium, size: 18),
             ),
             const SizedBox(width: 12),
             const Text(
               "Vital Signs",
               style: TextStyle(
-                color: AppColors.textColor,
+                color: AppColors.textMedium,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -42,7 +42,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("SpO2:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
+            const Text("SpO2:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
             Text("$spo2%", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -51,7 +51,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Estrés:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
+            const Text("Estrés:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
             Text("$stress%", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -60,7 +60,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("VO2 máx:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
+            const Text("VO2 máx:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
             Text("$vo2Max ml/kg/min", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -69,7 +69,7 @@ Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Escaleras subidas:", style: TextStyle(fontSize: 16, color: AppColors.textColor)),
+            const Text("Escaleras subidas:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
             Text("$stairsClimbed", style: const TextStyle(fontSize: 16, color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold)),
           ],
         ),

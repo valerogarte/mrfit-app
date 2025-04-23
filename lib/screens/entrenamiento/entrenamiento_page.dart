@@ -327,7 +327,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                 // Muestra restart si restartEntrenadora es true
                 icon: Icon(
                   restartEntrenadora ? Icons.restart_alt : (_entrenadora.isPaused ? Icons.play_arrow : Icons.pause),
-                  color: restartEntrenadora ? AppColors.background : (_entrenadora.isPaused ? AppColors.whiteText : AppColors.textColor),
+                  color: restartEntrenadora ? AppColors.background : (_entrenadora.isPaused ? AppColors.textNormal : AppColors.textMedium),
                 ),
                 onPressed: () {
                   setState(() {
@@ -368,13 +368,13 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                       // Determinar el color del bullet
                       Color bulletColor;
                       if (index == _currentIndex) {
-                        bulletColor = AppColors.whiteText; // Ejercicio actual
+                        bulletColor = AppColors.textNormal; // Ejercicio actual
                       } else if (allSeriesCompleted) {
                         bulletColor = AppColors.accentColor; // Ejercicio completado
                       } else if (index < _currentIndex && !allSeriesCompleted) {
                         bulletColor = AppColors.mutedAdvertencia; // Ejercicio anterior incompleto
                       } else {
-                        bulletColor = AppColors.textColor; // Ejercicio pendiente
+                        bulletColor = AppColors.textMedium; // Ejercicio pendiente
                       }
 
                       return AnimatedContainer(
@@ -481,7 +481,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.appBarBackground,
                     ),
-                    icon: const Icon(Icons.add, color: AppColors.textColor),
+                    icon: const Icon(Icons.add, color: AppColors.textMedium),
                     label: const Text("Serie"),
                     onPressed: () async {
                       final currentEjercicio = widget.entrenamiento.ejercicios[_currentIndex];

@@ -227,11 +227,11 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
       child: ListTile(
         title: Text(
           title,
-          style: const TextStyle(color: AppColors.whiteText),
+          style: const TextStyle(color: AppColors.textNormal),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(color: AppColors.textColor),
+          style: const TextStyle(color: AppColors.textMedium),
         ),
         trailing: imageUrl.isNotEmpty
             ? SizedBox(
@@ -245,7 +245,7 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
                   },
                 ),
               )
-            : const Icon(Icons.arrow_drop_down, color: AppColors.whiteText),
+            : const Icon(Icons.arrow_drop_down, color: AppColors.textNormal),
         onTap: onTap,
       ),
     );
