@@ -83,10 +83,10 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
                 children: [
                   CircleAvatar(
                     radius: 16,
-                    backgroundColor: AppColors.mutedAdvertencia,
-                    child: const Icon(
+                    backgroundColor: AppColors.background,
+                    child: Icon(
                       Icons.restaurant,
-                      color: AppColors.background,
+                      color: AppColors.mutedGreen,
                       size: 18,
                     ),
                   ),

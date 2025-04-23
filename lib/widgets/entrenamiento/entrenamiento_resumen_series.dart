@@ -19,7 +19,7 @@ class ResumenSerie extends StatelessWidget {
     final rer = serie.rer;
     final kcal = serie.calcularKcal(pesoUsuario);
     String rerLabel = "";
-    Color iconColor = AppColors.intermediateAccentColor;
+    Color iconColor = AppColors.accentColor;
     if (rer > 0) {
       final dificultadRer = ModeloDatos.getDifficultyOptions(value: rer);
       rerLabel = dificultadRer != null ? dificultadRer['label'] : '';
@@ -68,7 +68,7 @@ class ResumenSerie extends StatelessWidget {
               Text(
                 '(${(diferenciaPesoObjetivo >= 0 ? '+' : '')}${diferenciaPesoObjetivo} kg, ${(diferenciaRepeticionesObjetivo >= 0 ? '+' : '')}${diferenciaRepeticionesObjetivo} repes)',
                 style: TextStyle(
-                  color: (diferenciaPesoObjetivo >= 0 && diferenciaRepeticionesObjetivo >= 0) ? AppColors.intermediateAccentColor : AppColors.mutedRed,
+                  color: (diferenciaPesoObjetivo >= 0 && diferenciaRepeticionesObjetivo >= 0) ? AppColors.accentColor : AppColors.mutedRed,
                 ),
               ),
           ],

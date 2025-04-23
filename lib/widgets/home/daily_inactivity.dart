@@ -86,7 +86,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                   CircleAvatar(
                     radius: 16,
                     backgroundColor: AppColors.background, // Cambiado a background
-                    child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a mutedAdvertencia
+                    child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a advertencia
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -152,7 +152,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                           CircleAvatar(
                             radius: 16,
                             backgroundColor: AppColors.background, // Cambiado a background
-                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a mutedAdvertencia
+                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a advertencia
                           ),
                           const SizedBox(width: 12),
                           const Text(
@@ -177,7 +177,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
                           CircleAvatar(
                             radius: 16,
                             backgroundColor: AppColors.background, // Cambiado a background
-                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a mutedAdvertencia
+                            child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18), // Cambiado a advertencia
                           ),
                           const SizedBox(width: 12),
                           Text(

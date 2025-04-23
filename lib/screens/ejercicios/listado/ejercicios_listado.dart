@@ -278,7 +278,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           right: 16,
           child: FloatingActionButton(
             onPressed: _mostrarBusquedaEjercicios,
-            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.secondaryColor,
+            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.accentColor,
             child: const Icon(Icons.add, color: AppColors.background),
           ),
         ),

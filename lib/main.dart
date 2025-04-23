@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mr Fit',
       theme: ThemeData(
-        primaryColor: AppColors.secondaryColor,
+        primaryColor: AppColors.accentColor,
         scaffoldBackgroundColor: AppColors.background,
         fontFamily: 'MadeTommy', // Añadido para usar la fuente personalizada
         appBarTheme: AppBarTheme(
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           labelStyle: TextStyle(color: AppColors.textNormal),
           hintStyle: TextStyle(color: AppColors.textMedium),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.secondaryColor),
+            borderSide: BorderSide(color: AppColors.accentColor),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedBorder: OutlineInputBorder(
@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: AppColors.secondaryColor,
+          backgroundColor: AppColors.accentColor,
           selectedItemColor: AppColors.accentColor,
           unselectedItemColor: AppColors.textMedium,
         ),

@@ -200,7 +200,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                       setStateSB(() => esActual = v);
                       _establecerRutinaActual(rutina);
                     },
-                    activeColor: AppColors.secondaryColor,
+                    activeColor: AppColors.accentColor,
                   ),
                 ],
               ),
@@ -366,7 +366,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarDialogoNuevoPlan,
-        backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.secondaryColor,
+        backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.accentColor,
         child: const Icon(Icons.add, color: AppColors.background),
       ),
     );
