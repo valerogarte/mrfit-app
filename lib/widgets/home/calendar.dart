@@ -3,28 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-
-import '../../utils/colors.dart';
-import '../../models/usuario/usuario.dart';
-import '../../providers/usuario_provider.dart';
+import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 
 // ---------------------------------------------
 // Extensions
 // ---------------------------------------------
 extension DateTimeUtils on DateTime {
-  bool get isToday {
-    final now = DateTime.now();
-    return year == now.year && month == now.month && day == now.day;
-  }
+  bool get isToday => year == DateTime.now().year && month == DateTime.now().month && day == DateTime.now().day;
 
-  bool get isYesterday {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
-  }
+  bool get isYesterday => year == DateTime.now().subtract(const Duration(days: 1)).year && month == DateTime.now().subtract(const Duration(days: 1)).month && day == DateTime.now().subtract(const Duration(days: 1)).day;
 
-  DateTime get startOfWeek {
-    return subtract(Duration(days: weekday - DateTime.monday));
-  }
+  DateTime get startOfWeek => subtract(Duration(days: weekday - DateTime.monday));
 
   String formattedCalendarHeader(String locale) {
     if (isToday) return 'Hoy';
@@ -39,22 +31,13 @@ extension DateTimeUtils on DateTime {
 // ---------------------------------------------
 class CustomPageScrollPhysics extends PageScrollPhysics {
   final double dragThreshold;
-
-  const CustomPageScrollPhysics({
-    ScrollPhysics? parent,
-    this.dragThreshold = 80.0,
-  }) : super(parent: parent);
+  const CustomPageScrollPhysics({ScrollPhysics? parent, this.dragThreshold = 80}) : super(parent: parent);
 
   @override
   double get dragStartDistanceMotionThreshold => dragThreshold;
 
   @override
-  CustomPageScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return CustomPageScrollPhysics(
-      parent: buildParent(ancestor),
-      dragThreshold: dragThreshold,
-    );
-  }
+  CustomPageScrollPhysics applyTo(ScrollPhysics? ancestor) => CustomPageScrollPhysics(parent: buildParent(ancestor), dragThreshold: dragThreshold);
 }
 
 // ---------------------------------------------
@@ -68,18 +51,18 @@ class CalendarHeaderWidget extends StatelessWidget {
   final DateChangedCallback onDateChanged;
 
   const CalendarHeaderWidget({
-    Key? key,
+    super.key,
     required this.selectedDate,
     required this.calendarKey,
     required this.onDateChanged,
-  }) : super(key: key);
+  });
 
   bool get _showGoToToday => !selectedDate.isToday && !CalendarWidget.isDateInCurrentWeek(selectedDate);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -95,7 +78,10 @@ class CalendarHeaderWidget extends StatelessWidget {
           ),
           if (_showGoToToday)
             TextButton(
-              onPressed: _goToToday,
+              onPressed: () {
+                CalendarWidget.jumpToToday(calendarKey);
+                onDateChanged(DateTime.now());
+              },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -113,11 +99,6 @@ class CalendarHeaderWidget extends StatelessWidget {
       ),
     );
   }
-
-  void _goToToday() {
-    CalendarWidget.jumpToToday(calendarKey);
-    onDateChanged(DateTime.now());
-  }
 }
 
 // ---------------------------------------------
@@ -129,16 +110,13 @@ class CalendarWidget extends ConsumerStatefulWidget {
   final Set<DateTime> diasEntrenados;
 
   const CalendarWidget({
-    Key? key,
+    super.key,
     required this.selectedDate,
     required this.onDateSelected,
     required this.diasEntrenados,
-  }) : super(key: key);
+  });
 
-  static void jumpToToday(GlobalKey<State<CalendarWidget>> key) {
-    final state = key.currentState as _CalendarWidgetState?;
-    state?.jumpToToday();
-  }
+  static void jumpToToday(GlobalKey key) => (key.currentState as _CalendarWidgetState?)?.jumpToToday();
 
   static bool isDateInCurrentWeek(DateTime date) {
     final start = DateTime.now().startOfWeek;
@@ -153,8 +131,8 @@ class CalendarWidget extends ConsumerStatefulWidget {
 class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   static const int _basePage = 10000;
 
-  late final PageController _pageController;
-  late DateTime _baseDate;
+  final PageController _pageController = PageController(initialPage: _basePage);
+  DateTime _baseDate = DateTime.now().startOfWeek;
   int _currentPage = _basePage;
 
   bool _hasStepsPermission = false;
@@ -162,7 +140,9 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
 
   Map<DateTime, int> _stepsByDay = {};
   Map<DateTime, double> _kcalBurned = {};
+  Map<DateTime, int> _activityMinutes = {};
 
+  final int _targetActivityMinutes = 60;
   int _targetSteps = 0;
   int _targetKcal = 0;
 
@@ -170,14 +150,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   void initState() {
     super.initState();
     _baseDate = widget.selectedDate.startOfWeek;
-    _pageController = PageController(initialPage: _basePage);
     _loadData();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadData([DateTime? weekStart]) async {
@@ -202,23 +175,20 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     _targetKcal = usuario.getTargetKcalBurned();
 
     if (stepsPerm) {
-      print("Cargando PASOS para la fecha: $start");
-      final stepsMapString = await usuario.getStepsByDateMap(start.toIso8601String(), nDays: 7);
-      final Map<DateTime, int> steps = {};
-      stepsMapString.forEach((key, value) {
-        steps[DateTime.parse(key)] = value;
-      });
-      setState(() => _stepsByDay = steps);
+      final raw = await usuario.getStepsByDateMap(start.toIso8601String(), nDays: 7);
+      setState(() => _stepsByDay = {for (final e in raw.entries) DateTime.parse(e.key): e.value});
     }
     if (kcalPerm) {
-      print("Cargando KCAL para la fecha: $start");
-      final kcals = await usuario.getTotalCaloriesBurnedByDayMap(start.toIso8601String(), nDays: 7);
-      final Map<DateTime, double> kcalsMap = {};
-      kcals.forEach((key, value) {
-        kcalsMap[DateTime.parse(key)] = value;
-      });
-      setState(() => _kcalBurned = kcalsMap);
+      final raw = await usuario.getTotalCaloriesBurnedByDayMap(start.toIso8601String(), nDays: 7);
+      setState(() => _kcalBurned = {for (final e in raw.entries) DateTime.parse(e.key): e.value});
     }
+
+    final activity = await usuario.getActivityMap(start.toIso8601String(), nDays: 7);
+    setState(() {
+      _activityMinutes = {
+        for (final e in activity.entries) DateTime.parse(e.key): e.value.fold<int>(0, (p, a) => p + ((a['durationMin'] ?? 0) as num).toInt()),
+      };
+    });
   }
 
   void jumpToToday() {
@@ -235,54 +205,66 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     _loadData(_baseDate);
   }
 
-  double _progress(double value, int target) {
-    if (target == 0) return 0.0;
-    return (value / target).clamp(0.0, 1.0);
-  }
+  double _progress(double v, int t) => t == 0 ? 0 : (v / t).clamp(0, 1);
+  double _activityProgress(DateTime d) => ((_activityMinutes[DateTime(d.year, d.month, d.day)] ?? 0) / _targetActivityMinutes).clamp(0, 1);
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    return SizedBox(
-      height: 100,
-      child: PageView.builder(
-        controller: _pageController,
-        physics: const CustomPageScrollPhysics(),
-        dragStartBehavior: DragStartBehavior.down,
-        onPageChanged: (idx) {
-          final diff = idx - _currentPage;
-          setState(() {
-            _baseDate = _baseDate.add(Duration(days: diff * 7));
-            _currentPage = idx;
-          });
-          _loadData(_baseDate);
-        },
-        itemBuilder: (_, idx) {
-          final weekStart = _baseDate.add(Duration(days: (idx - _currentPage) * 7));
-          final days = List<DateTime>.generate(
-            7,
-            (i) => weekStart.add(Duration(days: i)),
-          );
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: days.map((date) {
-              final trained = widget.diasEntrenados.any((d) => d.year == date.year && d.month == date.month && d.day == date.day);
-              return _DayCell(
-                date: date,
-                isSelected: date.year == widget.selectedDate.year && date.month == widget.selectedDate.month && date.day == widget.selectedDate.day,
-                isToday: date.isToday,
-                isFuture: date.isAfter(today),
-                hasTrained: trained,
-                stepsProgress: _hasStepsPermission ? _progress((_stepsByDay[DateTime(date.year, date.month, date.day)] ?? 0).toDouble(), _targetSteps) : 0,
-                kcalProgress: _hasKcalPermission ? _progress(_kcalBurned[DateTime(date.year, date.month, date.day)] ?? 0, _targetKcal) : 0,
-                onTap: () => widget.onDateSelected(date),
-              );
-            }).toList(),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double topPad = 8; // separación con el appbar
+        final double cellWidth = constraints.maxWidth / 7;
+        final double computedHeight = cellWidth + 30 + topPad;
+        final double height = computedHeight > 110 ? 110 : computedHeight;
+
+        final today = DateTime.now();
+
+        return SizedBox(
+          height: height,
+          child: Padding(
+            padding: const EdgeInsets.only(top: topPad),
+            child: PageView.builder(
+              controller: _pageController,
+              physics: const CustomPageScrollPhysics(),
+              dragStartBehavior: DragStartBehavior.down,
+              onPageChanged: (idx) {
+                final diff = idx - _currentPage;
+                setState(() {
+                  _baseDate = _baseDate.add(Duration(days: diff * 7));
+                  _currentPage = idx;
+                });
+                _loadData(_baseDate);
+              },
+              itemBuilder: (_, idx) {
+                final weekStart = _baseDate.add(Duration(days: (idx - _currentPage) * 7));
+                final days = List<DateTime>.generate(7, (i) => weekStart.add(Duration(days: i)));
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: days.map((date) {
+                    final trained = widget.diasEntrenados.any((d) => d.year == date.year && d.month == date.month && d.day == date.day);
+                    return _DayCell(
+                      date: date,
+                      isSelected: _same(date, widget.selectedDate),
+                      isToday: date.isToday,
+                      isFuture: date.isAfter(today),
+                      hasTrained: trained,
+                      stepsProgress: _hasStepsPermission ? _progress((_stepsByDay[DateTime(date.year, date.month, date.day)] ?? 0).toDouble(), _targetSteps) : 0,
+                      minutosPercent: _activityProgress(date),
+                      kcalProgress: _hasKcalPermission ? _progress(_kcalBurned[DateTime(date.year, date.month, date.day)] ?? 0, _targetKcal) : 0,
+                      onTap: () => widget.onDateSelected(date),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
+
+  bool _same(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
 // ---------------------------------------------
@@ -295,24 +277,24 @@ class _DayCell extends StatelessWidget {
   final bool isFuture;
   final bool hasTrained;
   final double stepsProgress;
+  final double minutosPercent;
   final double kcalProgress;
   final VoidCallback onTap;
 
   const _DayCell({
-    Key? key,
     required this.date,
     required this.isSelected,
     required this.isToday,
     required this.isFuture,
     required this.hasTrained,
     required this.stepsProgress,
+    required this.minutosPercent,
     required this.kcalProgress,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dayName = DateFormat.E('es').format(date);
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -321,104 +303,47 @@ class _DayCell extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              dayName,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: _labelColor(),
+            LayoutBuilder(
+              builder: (context, c) => SizedBox(
+                width: c.maxWidth,
+                height: c.maxWidth,
+                child: Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.9,
+                    heightFactor: 0.9,
+                    child: CustomPaint(
+                      painter: TripleRingLoaderPainter(
+                        pasosPercent: stepsProgress,
+                        minutosPercent: minutosPercent,
+                        kcalPercent: kcalProgress,
+                        trainedToday: hasTrained,
+                        backgroundColorRing: AppColors.appBarBackground,
+                        showNumberLap: false,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 4),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                _statusCircle(),
-                if (!isFuture) _statusIcon(),
-                if (_showProgress)
-                  SizedBox(
-                    width: 36,
-                    height: 36,
-                    child: CircularProgressIndicator(
-                      value: stepsProgress,
-                      strokeWidth: 2,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation(
-                        isSelected || isToday ? AppColors.background : AppColors.accentColor,
-                      ),
-                    ),
-                  ),
-                if (_showProgress)
-                  SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(
-                      value: kcalProgress,
-                      strokeWidth: 2,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation(
-                        isSelected || isToday ? AppColors.background : AppColors.advertencia,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 0),
             Text(
               '${date.day}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isToday ? AppColors.advertencia : AppColors.textColor,
+                color: _labelColor(),
               ),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
     );
   }
 
-  bool get _showProgress => stepsProgress > 0 || kcalProgress > 0;
-
   Color _labelColor() {
-    if (isSelected) {
-      if (isFuture) return AppColors.accentColor.withOpacity(0.8);
-      return isToday ? AppColors.mutedAdvertencia : (hasTrained ? AppColors.accentColor : AppColors.textColor);
-    }
     if (isFuture) return AppColors.appBarBackground.withOpacity(0.5);
-    if (isToday) return AppColors.mutedAdvertencia;
-    return hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withOpacity(0.5);
-  }
-
-  Widget _statusCircle() {
-    final bgColor = isSelected || isToday
-        ? AppColors.mutedAdvertencia
-        : isFuture
-            ? AppColors.cardBackground
-            : (hasTrained ? AppColors.appBarBackground : AppColors.appBarBackground.withOpacity(0.5));
-    return Container(
-      width: 43,
-      height: 43,
-      decoration: BoxDecoration(
-        color: bgColor,
-        shape: BoxShape.circle,
-      ),
-    );
-  }
-
-  Widget _statusIcon() {
-    IconData icon;
-    Color color;
-    if (hasTrained) {
-      icon = Icons.check;
-      color = AppColors.whiteText;
-    } else if (isToday) {
-      icon = Icons.question_mark;
-      color = AppColors.background;
-    } else {
-      icon = Icons.close;
-      color = AppColors.mutedRed;
-    }
-    return Icon(icon, size: 16, color: color);
+    if (isSelected) return AppColors.mutedAdvertencia;
+    return AppColors.appBarBackground;
   }
 }

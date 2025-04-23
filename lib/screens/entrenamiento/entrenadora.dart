@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 part 'entrenadora/entrenadora_speaker.dart';
 part 'entrenadora/entrenadora_speaker_utils.dart';
 part 'entrenadora/entrenadora_botones.dart';

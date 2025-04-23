@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../utils/colors.dart';
-import '../../../models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'detalle_musculo/musculo_detalle_gasto.dart';
 import 'detalle_musculo/musculo_detalle_informacion.dart';
 

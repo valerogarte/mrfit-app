@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
-import '../../../widgets/pills_dificultad.dart';
-import '../../../widgets/animated_image.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../widgets/grafico_ejercicios_musculosinvolucrados.dart'; // Import nuevo widget
-import '../../../widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
+import 'package:mrfit/widgets/pills_dificultad.dart';
+import 'package:mrfit/widgets/animated_image.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/widgets/grafico_ejercicios_musculosinvolucrados.dart'; // Import nuevo widget
+import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
 
 class EjercicioResumen extends StatelessWidget {
   final Ejercicio ejercicio;

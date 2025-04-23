@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/usuario_provider.dart';
-import '../../../utils/colors.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/utils/colors.dart';
 import 'musculo_detalle.dart';
-import '../../../models/entrenamiento/entrenamiento.dart';
-import '../../../models/usuario/usuario.dart';
-import '../../../models/modelo_datos.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 
 class RecuperacionPage extends ConsumerStatefulWidget {
   const RecuperacionPage({super.key});

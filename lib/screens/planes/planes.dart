@@ -1,18 +1,16 @@
 // planes.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../entrenamiento/entrenamiento_dias.dart';
-import '../../utils/colors.dart';
-import '../../models/usuario/usuario.dart';
-import '../../models/rutina/rutina.dart';
-import '../../models/rutina/grupo.dart';
-import '../../providers/usuario_provider.dart';
-import '../../widgets/not_found/not_found.dart';
+import 'package:mrfit/screens/entrenamiento/entrenamiento_dias.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
+import 'package:mrfit/models/rutina/grupo.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/widgets/not_found/not_found.dart';
 
 class PlanesPage extends ConsumerStatefulWidget {
-  const PlanesPage({super.key});
-
+  const PlanesPage({Key? key}) : super(key: key);
   @override
   ConsumerState<PlanesPage> createState() => _PlanesPageState();
 }
@@ -51,8 +49,8 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
 
       final sortedMap = <Grupo, List<Rutina>>{};
       for (var g in gruposOrdenados) {
-        final lista = temp[g]!..sort((r1, r2) => (r2.peso ?? 0).compareTo(r1.peso ?? 0));
-        sortedMap[g] = lista;
+        temp[g]!..sort((r1, r2) => (r2.peso ?? 0).compareTo(r1.peso ?? 0));
+        sortedMap[g] = temp[g]!;
       }
 
       setState(() {
@@ -68,34 +66,24 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
   }
 
   void _onReorderRutinas(Grupo grupo, int oldIndex, int newIndex) {
-    // 1. Reordeno localmente
     final list = List<Rutina>.from(gruposConRutinas[grupo]!);
     if (newIndex > oldIndex) newIndex -= 1;
     final moved = list.removeAt(oldIndex);
     list.insert(newIndex, moved);
 
-    // 2. Calculo nuevos pesos y actualizo estado YA
     final length = list.length;
     final updated = <Rutina>[];
     for (var i = 0; i < length; i++) {
-      final peso = length - i;
-      final r = list[i];
       updated.add(Rutina(
-        id: r.id,
-        titulo: r.titulo,
-        imagen: r.imagen,
-        grupoId: r.grupoId,
-        peso: peso,
+        id: list[i].id,
+        titulo: list[i].titulo,
+        imagen: list[i].imagen,
+        grupoId: list[i].grupoId,
+        peso: length - i,
       ));
     }
-    setState(() {
-      gruposConRutinas[grupo] = updated;
-    });
-
-    // 3. En segundo plano, persisto en la BD
-    for (var r in updated) {
-      r.setPeso(r.peso!);
-    }
+    setState(() => gruposConRutinas[grupo] = updated);
+    for (var r in updated) r.setPeso(r.peso!);
   }
 
   Future<void> _establecerRutinaActual(Rutina rutina) async {
@@ -103,14 +91,20 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
     if (rutinaActualId == rutina.id) {
       await usuario.setRutinaActual(null);
       setState(() => rutinaActualId = null);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rutina actual deseleccionada.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rutina actual deseleccionada.')),
+      );
     } else {
-      final success = await usuario.setRutinaActual(rutina.id);
-      if (success) {
+      final ok = await usuario.setRutinaActual(rutina.id);
+      if (ok) {
         setState(() => rutinaActualId = rutina.id);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${rutina.titulo} establecida como rutina actual.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${rutina.titulo} establecida como rutina actual.')),
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al establecer la rutina actual.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al establecer la rutina actual.')),
+        );
       }
     }
   }
@@ -124,7 +118,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
         title: const Text('Nuevo Plan', style: TextStyle(color: AppColors.whiteText)),
         content: TextField(
           decoration: const InputDecoration(
-            labelText: 'Título del rutina',
+            labelText: 'Título de la rutina',
             labelStyle: TextStyle(color: AppColors.whiteText),
           ),
           style: const TextStyle(color: AppColors.whiteText),
@@ -157,17 +151,19 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
     );
   }
 
-  Future<void> _eliminarRutina(String rutinaId) async {
-    final rutina = gruposConRutinas.values.expand((l) => l).firstWhere((r) => r.id.toString() == rutinaId);
+  Future<void> _eliminarRutina(String id) async {
+    final rutina = gruposConRutinas.values.expand((l) => l).firstWhere((r) => r.id.toString() == id);
     final ok = await rutina.delete();
     if (ok) {
       setState(() {
-        final grupo = gruposConRutinas.keys.firstWhere((g) => gruposConRutinas[g]!.any((r) => r.id.toString() == rutinaId));
-        gruposConRutinas[grupo]!.removeWhere((r) => r.id.toString() == rutinaId);
+        final grupo = gruposConRutinas.keys.firstWhere((g) => gruposConRutinas[g]!.any((r) => r.id.toString() == id));
+        gruposConRutinas[grupo]!.removeWhere((r) => r.id.toString() == id);
         if (gruposConRutinas[grupo]!.isEmpty) gruposConRutinas.remove(grupo);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al eliminar la rutina.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al eliminar la rutina.')),
+      );
     }
   }
 
@@ -187,7 +183,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
               TextField(
                 controller: TextEditingController(text: nuevoTitulo),
                 decoration: const InputDecoration(
-                  labelText: 'Título del rutina',
+                  labelText: 'Título de la rutina',
                   labelStyle: TextStyle(color: AppColors.whiteText),
                 ),
                 style: const TextStyle(color: AppColors.whiteText),
@@ -200,8 +196,8 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                   const Text('Rutina actual', style: TextStyle(color: AppColors.whiteText)),
                   Switch(
                     value: esActual,
-                    onChanged: (valor) {
-                      setStateSB(() => esActual = valor);
+                    onChanged: (v) {
+                      setStateSB(() => esActual = v);
                       _establecerRutinaActual(rutina);
                     },
                     activeColor: AppColors.secondaryColor,
@@ -230,10 +226,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                 if (confirma == true) await _eliminarRutina(rutina.id.toString());
               },
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText)),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.whiteText))),
             ElevatedButton(
               onPressed: () async {
                 if (nuevoTitulo.isNotEmpty) {
@@ -295,100 +288,27 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
                             grupo.titulo,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.whiteText,
-                            ),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.whiteText),
                           ),
                         ),
-                        SizedBox(
-                          height: 120,
-                          child: grupo.id == 1
-                              ? ReorderableListView(
-                                  scrollDirection: Axis.horizontal,
-                                  onReorder: (oldIndex, newIndex) => _onReorderRutinas(grupo, oldIndex, newIndex),
-                                  children: rutinas.map((rutina) {
-                                    final esActual = rutina.id == rutinaActualId;
-                                    return Container(
-                                      key: ValueKey(rutina.id),
-                                      width: 200,
-                                      margin: const EdgeInsets.only(right: 10),
-                                      child: Card(
-                                        color: esActual ? AppColors.advertencia : AppColors.cardBackground,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                        ),
-                                        elevation: esActual ? 8 : 4,
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(15),
-                                          onTap: () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => EntrenamientoDiasPage(rutina: rutina),
-                                            ),
-                                          ),
-                                          // sin onLongPress aquí
-                                          child: Stack(
-                                            children: [
-                                              Center(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Text(
-                                                        rutina.titulo,
-                                                        textAlign: TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: esActual ? AppColors.background : Colors.white,
-                                                        ),
-                                                      ),
-                                                      if (esActual)
-                                                        const Padding(
-                                                          padding: EdgeInsets.only(top: 4),
-                                                          child: Text(
-                                                            "Rutina Actual",
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: AppColors.background,
-                                                              fontStyle: FontStyle.italic,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 0,
-                                                right: 0,
-                                                child: IconButton(
-                                                  icon: Icon(
-                                                    Icons.edit,
-                                                    color: esActual ? AppColors.background : AppColors.textColor,
-                                                  ),
-                                                  onPressed: () => _mostrarDialogoEditarPlan(rutina),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                )
-                              : SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Container(
+                            height: 120,
+                            child: grupo.id == 1
+                                ? ReorderableListView(
+                                    padding: EdgeInsets.zero, // <-- quitamos padding
+                                    scrollDirection: Axis.horizontal,
+                                    onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
                                     children: rutinas.map((rutina) {
                                       final esActual = rutina.id == rutinaActualId;
                                       return Container(
+                                        key: ValueKey(rutina.id),
                                         width: 200,
+                                        height: 120,
                                         margin: const EdgeInsets.only(right: 10),
                                         child: Card(
+                                          margin: EdgeInsets.zero, // <-- quitamos margen
                                           color: esActual ? AppColors.advertencia : AppColors.cardBackground,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(15),
@@ -398,63 +318,47 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                             borderRadius: BorderRadius.circular(15),
                                             onTap: () => Navigator.push(
                                               context,
-                                              MaterialPageRoute(
-                                                builder: (_) => EntrenamientoDiasPage(rutina: rutina),
-                                              ),
+                                              MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: rutina)),
                                             ),
-                                            // onLongPress: () => _establecerRutinaActual(rutina),
-                                            child: Stack(
-                                              children: [
-                                                Center(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Column(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        Text(
-                                                          rutina.titulo,
-                                                          textAlign: TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: esActual ? AppColors.background : Colors.white,
-                                                          ),
-                                                        ),
-                                                        if (esActual)
-                                                          const Padding(
-                                                            padding: EdgeInsets.only(top: 4),
-                                                            child: Text(
-                                                              "Rutina Actual",
-                                                              style: TextStyle(
-                                                                fontSize: 12,
-                                                                color: AppColors.background,
-                                                                fontStyle: FontStyle.italic,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  top: 0,
-                                                  right: 0,
-                                                  child: IconButton(
-                                                    icon: Icon(
-                                                      Icons.edit,
-                                                      color: esActual ? AppColors.background : AppColors.textColor,
-                                                    ),
-                                                    onPressed: () => _mostrarDialogoEditarPlan(rutina),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            child: _contenidoTarjeta(rutina, esActual),
                                           ),
                                         ),
                                       );
                                     }).toList(),
+                                  )
+                                : SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: rutinas.map((rutina) {
+                                        final esActual = rutina.id == rutinaActualId;
+                                        return Container(
+                                          width: 200,
+                                          height: 120,
+                                          margin: const EdgeInsets.only(right: 10),
+                                          child: Card(
+                                            margin: EdgeInsets.zero, // <-- quitamos margen
+                                            color: esActual ? AppColors.advertencia : AppColors.cardBackground,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15),
+                                            ),
+                                            elevation: esActual ? 8 : 4,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(15),
+                                              onTap: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => EntrenamientoDiasPage(rutina: rutina),
+                                                ),
+                                              ),
+                                              child: _contenidoTarjeta(rutina, esActual),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
-                                ),
+                          ),
                         ),
                       ],
                     );
@@ -465,6 +369,55 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
         backgroundColor: gruposConRutinas.isEmpty ? AppColors.advertencia : AppColors.secondaryColor,
         child: const Icon(Icons.add, color: AppColors.background),
       ),
+    );
+  }
+
+  Widget _contenidoTarjeta(Rutina rutina, bool esActual) {
+    return Stack(
+      children: [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  rutina.titulo,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: esActual ? AppColors.background : AppColors.whiteText,
+                  ),
+                ),
+                if (esActual)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(
+                      "Rutina Actual",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.background,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: esActual ? AppColors.background : AppColors.textColor,
+            ),
+            onPressed: () => _mostrarDialogoEditarPlan(rutina),
+          ),
+        ),
+      ],
     );
   }
 }

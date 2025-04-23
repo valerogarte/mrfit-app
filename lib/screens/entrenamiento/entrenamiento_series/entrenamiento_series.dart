@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
-import '../../../utils/colors.dart';
-import '../../../models/modelo_datos.dart';
-import '../../../models/entrenamiento/ejercicio_realizado.dart';
-import '../../../models/rutina/ejercicio_personalizado.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
+import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 
 class EntrenamientoSeries extends StatefulWidget {
   final String setIndex;

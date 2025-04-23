@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../utils/colors.dart';
-import '../../screens/entrenamiento_realizado/entrenamiento_realizado.dart';
-import '../../screens/entrenamiento_realizado/entrenamiento_realizado_google.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
+import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado_google.dart';
 
 class ListadoEntrenamientos extends StatelessWidget {
   final List<dynamic> resumenEntrenamientos;

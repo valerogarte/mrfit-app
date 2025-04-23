@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../utils/colors.dart';
-import '../../models/rutina/sesion.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/rutina/sesion.dart';
 
 class SesionMusculosInvolucradosPage extends ConsumerStatefulWidget {
   final Sesion sesion;

@@ -1,7 +1,7 @@
-import '../ejercicio/ejercicio.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'serie_realizada.dart';
-import '../usuario/usuario.dart';
-import '../../data/database_helper.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/data/database_helper.dart';
 
 class EjercicioRealizado {
   final int id;
@@ -40,7 +40,6 @@ class EjercicioRealizado {
       where: 'id = ?',
       whereArgs: [id],
     );
-    print('Actualizando el peso orden de $id a $peso');
     pesoOrden = peso;
   }
 
@@ -197,5 +196,27 @@ class EjercicioRealizado {
     series.add(nuevaSerie);
 
     return nuevaSerie;
+  }
+
+  Future<void> delete() async {
+    final db = await DatabaseHelper.instance.database;
+
+    // Borrar las series asociadas al ejercicio realizado
+    final List<int> serieIds = series.map((s) => s.id).toList();
+    if (serieIds.isNotEmpty) {
+      final placeholders = List.filled(serieIds.length, '?').join(',');
+      await db.delete(
+        'entrenamiento_serierealizada',
+        where: 'id IN ($placeholders)',
+        whereArgs: serieIds,
+      );
+    }
+
+    // Borrar el registro del ejercicio realizado
+    await db.delete(
+      'entrenamiento_ejerciciorealizado',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }

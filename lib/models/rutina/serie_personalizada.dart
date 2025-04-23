@@ -1,4 +1,4 @@
-import '../../data/database_helper.dart';
+import 'package:mrfit/data/database_helper.dart';
 
 class SeriePersonalizada {
   final int id;

@@ -2,12 +2,7 @@ part of '../usuario.dart';
 
 extension UsuarioActivityExtension on Usuario {
   Future<List<HealthDataPoint>> getStepsByDate(String date, {int nDays = 1}) async {
-    final hasPermission = await _health.hasPermissions(
-          [healthDataTypesString["STEPS"]!],
-          permissions: [healthDataPermissions["STEPS"]!],
-        ) ??
-        false;
-    if (!hasPermission) return [];
+    if (!await checkPermissionsFor("STEPS")) return [];
 
     final parsedDate = DateTime.parse(date);
     final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
@@ -39,12 +34,7 @@ extension UsuarioActivityExtension on Usuario {
   }
 
   Future<Map<String, List<HealthDataPoint>>> getDailyTrainingsByDate(String date, {int nDays = 1}) async {
-    final hasPermission = await _health.hasPermissions(
-          [healthDataTypesString["WORKOUT"]!],
-          permissions: [healthDataPermissions["WORKOUT"]!],
-        ) ??
-        false;
-    if (!hasPermission) return {};
+    if (!await checkPermissionsFor("WORKOUT")) return {};
 
     final parsedDate = DateTime.parse(date);
     final dateKey = DateFormat('yyyy-MM-dd').format(parsedDate);
@@ -70,12 +60,7 @@ extension UsuarioActivityExtension on Usuario {
   }
 
   Future<List<HealthDataPoint>> getTotalCaloriesBurnedByDay(String date, {int nDays = 1}) async {
-    final hasPermission = await _health.hasPermissions(
-          [healthDataTypesString["TOTAL_CALORIES_BURNED"]!],
-          permissions: [healthDataPermissions["TOTAL_CALORIES_BURNED"]!],
-        ) ??
-        false;
-    if (!hasPermission) return [];
+    if (!await checkPermissionsFor("TOTAL_CALORIES_BURNED")) return [];
 
     final parsedDate = DateTime.parse(date);
     final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
@@ -164,12 +149,7 @@ extension UsuarioActivityExtension on Usuario {
   }
 
   Future<Map<DateTime, int>> getReadDistanceByDate(String date) async {
-    final hasPermission = await _health.hasPermissions(
-          [healthDataTypesString["DISTANCE_DELTA"]!],
-          permissions: [healthDataPermissions["DISTANCE_DELTA"]!],
-        ) ??
-        false;
-    if (!hasPermission) return {};
+    if (!await checkPermissionsFor("DISTANCE_DELTA")) return {};
 
     final parsedDate = DateTime.parse(date);
     final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
@@ -281,9 +261,11 @@ extension UsuarioActivityExtension on Usuario {
     for (var entry in entrenamientos.entries) {
       for (var workout in entry.value) {
         activity.add({
+          'uuid': workout.uuid,
           'type': 'workout',
           'start': workout.dateFrom,
           'end': workout.dateTo,
+          'sourceName': workout.sourceName,
           'activityType': (workout.value as WorkoutHealthValue).workoutActivityType.toString(),
         });
       }
@@ -313,5 +295,54 @@ extension UsuarioActivityExtension on Usuario {
 
     activity.sort((a, b) => (b['start'] as DateTime).compareTo(a['start'] as DateTime));
     return activity;
+  }
+
+  // Nueva función getActivityMap similar a getTotalCaloriesBurnedByDayMap
+  Future<Map<String, List<Map<String, dynamic>>>> getActivityMap(String date, {int nDays = 1}) async {
+    final Map<String, List<Map<String, dynamic>>> activitiesByDay = {};
+    DateTime startDate = DateTime.parse(date);
+    for (int i = 0; i < nDays; i++) {
+      DateTime currentDay = startDate.add(Duration(days: i));
+      String dayKey = currentDay.toIso8601String().split('T').first;
+      final dayActivities = await getActivity(dayKey);
+      activitiesByDay[dayKey] = dayActivities;
+    }
+    return activitiesByDay;
+  }
+
+  Future<String> healthconnectRegistrarEntrenamiento(
+    String titulo,
+    DateTime inicio,
+    DateTime fin,
+    int kcalConsumidas,
+  ) async {
+    if (!await checkPermissionsFor("WORKOUT")) {
+      return "0";
+    }
+
+    HealthWorkoutActivityType activityType = Platform.isIOS ? HealthWorkoutActivityType.TRADITIONAL_STRENGTH_TRAINING : HealthWorkoutActivityType.WEIGHTLIFTING;
+
+    await Health().writeWorkoutData(
+      activityType: activityType,
+      start: inicio,
+      end: fin,
+      totalEnergyBurned: kcalConsumidas,
+      title: titulo,
+    );
+
+    final List<HealthDataPoint> workoutDataPoint = await _health.getHealthDataFromTypes(
+      startTime: inicio,
+      endTime: fin,
+      types: [healthDataTypesString["WORKOUT"]!],
+    );
+
+    if (workoutDataPoint.isEmpty) {
+      return "0";
+    }
+
+    final workout = workoutDataPoint.first;
+    final workoutId = workout.uuid;
+
+    return workoutId;
   }
 }

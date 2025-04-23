@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/usuario_provider.dart';
-import '../../../models/usuario/usuario.dart';
-import '../../../widgets/chart/grafica.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/widgets/chart/grafica.dart';
 
 class MedidasPage extends ConsumerWidget {
   const MedidasPage({Key? key}) : super(key: key);

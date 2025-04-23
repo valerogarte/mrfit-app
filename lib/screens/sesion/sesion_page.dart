@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/rutina/sesion.dart';
-import '../../utils/colors.dart';
-import '../ejercicios/listado/ejercicios_listado.dart';
+import 'package:mrfit/models/rutina/sesion.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/ejercicios/listado/ejercicios_listado.dart';
 import 'sesion_detalle.dart';
 import 'sesion_musculos_involucrados.dart';
 

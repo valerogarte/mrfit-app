@@ -1,5 +1,5 @@
 import 'package:logger/logger.dart';
-import '../../data/database_helper.dart';
+import 'package:mrfit/data/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'dart:convert';

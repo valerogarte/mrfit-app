@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
-import '../../models/modelo_datos.dart';
-import '../../widgets/entrenamiento/entrenamiento_resumen_series.dart';
-import '../../widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
+import 'package:mrfit/main.dart';
 
 class EntrenamientoRealizadoPage extends StatelessWidget {
-  final dynamic id;
-  const EntrenamientoRealizadoPage({super.key, required this.id});
+  final dynamic idHealthConnect;
+  const EntrenamientoRealizadoPage({super.key, required this.idHealthConnect});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Entrenamiento?>(
-      future: Entrenamiento.loadById(id),
+      future: Entrenamiento.loadByUuid(idHealthConnect),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -47,7 +48,30 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
         }
         final entrenamiento = snapshot.data!;
         return Scaffold(
-          appBar: AppBar(title: Text(entrenamiento.titulo)),
+          appBar: AppBar(
+            title: Text(entrenamiento.titulo),
+            actions: [
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                onSelected: (value) async {
+                  if (value == 'Borrar') {
+                    await entrenamiento.delete();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MyHomePage()),
+                      (route) => false,
+                    );
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'Borrar',
+                    child: Text('Borrar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -56,8 +80,9 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                 Text(entrenamiento.formatTimeAgo(), style: const TextStyle(fontSize: 18)),
                 ResumenPastilla(entrenamiento: entrenamiento),
                 const SizedBox(height: 20),
+                // Sensación del entrenamiento
                 Container(
-                  width: double.infinity, // Make it occupy 100% width
+                  width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   decoration: BoxDecoration(
                     color: AppColors.background,
@@ -71,6 +96,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // Resumen de ejercicios
                 ...entrenamiento.ejercicios.map((ejercicio) {
                   if (ejercicio.countSeriesRealizadas() == 0) return const SizedBox.shrink();
                   return ListTile(
@@ -89,7 +115,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                       children: ejercicio.series.asMap().entries.map((entry) {
                         final index = entry.key;
                         final serie = entry.value;
-                        return ResumenSerie(index: index, serie: serie);
+                        return ResumenSerie(index: index, serie: serie, pesoUsuario: entrenamiento.pesoUsuario);
                       }).toList(),
                     ),
                   );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../models/entrenamiento/entrenamiento.dart';
-import '../../../utils/colors.dart';
-import '../entrenamiento_page.dart';
-import '../../../widgets/animated_image.dart'; // Agregado para mostrar imagen
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/animated_image.dart';
 
 class EditarEntrenamientoPage extends StatefulWidget {
   final Entrenamiento entrenamiento;

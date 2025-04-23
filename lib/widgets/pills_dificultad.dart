@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utils/colors.dart';
-import '../models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
 
 Widget buildDificultadPills(Ejercicio ejercicio, double width, double height) {
   final dificultad = int.tryParse(ejercicio.dificultad.titulo) ?? 0;

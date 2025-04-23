@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../utils/colors.dart';
+import 'package:mrfit/utils/colors.dart';
 import 'estadisticas/estadisticas_page.dart';
 import 'peso/medidas_page.dart';
 import 'recuperacion/recuperacion_page.dart'; // Nueva importación

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../widgets/animated_image.dart';
-import '../../../widgets/series_item.dart';
-import '../../entrenamiento/entrenamiento_page.dart';
-import '../../../utils/colors.dart';
-import '../detalle/ejercicio_detalle.dart';
-import '../buscar/ejercicios_buscar.dart';
-import '../../entrenamiento/entrenadora.dart';
-import '../../../models/rutina/sesion.dart';
-import '../../../models/entrenamiento/entrenamiento.dart';
-import '../../../widgets/pills_dificultad.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/widgets/animated_image.dart';
+import 'package:mrfit/widgets/series_item.dart';
+import 'package:mrfit/screens/entrenamiento/entrenamiento_page.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
+import 'package:mrfit/screens/ejercicios/buscar/ejercicios_buscar.dart';
+import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
+import 'package:mrfit/models/rutina/sesion.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/widgets/pills_dificultad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../providers/usuario_provider.dart';
-import '../../../widgets/not_found/not_found.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/widgets/not_found/not_found.dart';
 
 part 'ejercicios_listado_serie.dart';
 

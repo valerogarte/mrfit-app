@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/models/modelo_datos.dart';
-import '../../../../providers/usuario_provider.dart';
-import '../../../../utils/colors.dart';
-import '../../../../models/entrenamiento/entrenamiento.dart';
-import '../../../../models/ejercicio/ejercicio.dart';
-import '../../../ejercicios/detalle/ejercicio_detalle.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
 
 class DetalleMusculoGasto extends ConsumerWidget {
   final String musculo;

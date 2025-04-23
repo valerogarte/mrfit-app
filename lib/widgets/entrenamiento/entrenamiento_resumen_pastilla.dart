@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../utils/colors.dart';
-import '../../../models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 
 class ResumenPastilla extends StatelessWidget {
   final Entrenamiento entrenamiento;
@@ -50,7 +50,7 @@ class ResumenPastilla extends StatelessWidget {
               ),
               _buildInfoItem(
                 icon: Icons.local_fire_department,
-                value: entrenamiento.calcularKcal().toString(),
+                value: entrenamiento.kcalConsumidas.toString(),
                 iconSize: iconSize,
                 textSize: textSize,
               ),

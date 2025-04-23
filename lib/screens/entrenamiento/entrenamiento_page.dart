@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:vibration/vibration.dart';
-import '../../widgets/animated_image.dart';
-import '../../utils/colors.dart';
-import '../ejercicios/detalle/ejercicio_detalle.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mrfit/widgets/animated_image.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
 import 'finalizar.dart';
 import 'entrenamiento_series/entrenamiento_series.dart';
 import 'entrenadora.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'entrenamiento_editar/entrenamiento_editar.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 
 class EntrenamientoPage extends StatefulWidget {
   final Entrenamiento entrenamiento;
@@ -427,7 +429,9 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                     label: const Text("Finalizar"),
                     onPressed: () async {
                       await _entrenadora.detener();
-                      await widget.entrenamiento.finalizar();
+                      // Obtener el usuario desde el provider
+                      final usuario = ProviderScope.containerOf(context).read(usuarioProvider);
+                      await widget.entrenamiento.finalizar(usuario);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

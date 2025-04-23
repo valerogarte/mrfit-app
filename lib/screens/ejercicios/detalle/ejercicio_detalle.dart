@@ -3,8 +3,8 @@ import 'ejercicio_detalle_resumen.dart';
 import 'ejercicio_detalle_marcas.dart';
 import 'ejercicio_detalle_historia.dart';
 import 'ejercicio_detalle_indicaciones.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../utils/colors.dart'; // Import colors
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart'; // Import colors
 
 class EjercicioDetallePage extends StatelessWidget {
   final Ejercicio ejercicio;

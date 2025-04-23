@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
-import '../../../utils/colors.dart';
-import '../../../models/modelo_datos.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 
 class ResumenSerie extends StatelessWidget {
   final int index;
   final SerieRealizada serie;
+  final double pesoUsuario;
 
-  const ResumenSerie({Key? key, required this.index, required this.serie}) : super(key: key);
+  const ResumenSerie({Key? key, required this.index, required this.serie, required this.pesoUsuario}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +17,7 @@ class ResumenSerie extends StatelessWidget {
     final pesoObjetivo = serie.pesoObjetivo;
     final repeticionesObjetivo = serie.repeticionesObjetivo;
     final rer = serie.rer;
+    final kcal = serie.calcularKcal(pesoUsuario);
     String rerLabel = "";
     Color iconColor = AppColors.intermediateAccentColor;
     if (rer > 0) {
@@ -71,13 +73,29 @@ class ResumenSerie extends StatelessWidget {
               ),
           ],
         ),
-        if (rer > 0) ...[
-          const SizedBox(height: 4),
-          Text(
-            rerLabel,
-            style: TextStyle(color: iconColor),
-          ),
-        ],
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            if (rer > 0) ...[
+              Text(
+                rerLabel,
+                style: TextStyle(color: iconColor),
+              ),
+              const SizedBox(width: 16),
+            ],
+            Spacer(),
+            Icon(
+              Icons.local_fire_department,
+              size: 16,
+              color: iconColor,
+            ),
+            const SizedBox(width: 2),
+            Text(
+              '$kcal kcal',
+              style: TextStyle(color: iconColor),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
       ],
     );

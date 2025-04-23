@@ -1,7 +1,8 @@
 import 'package:logger/logger.dart';
-import '../data/database_helper.dart';
+import 'package:mrfit/data/database_helper.dart';
 import 'ejercicio/ejercicio.dart';
 import 'package:flutter/material.dart';
+import 'package:health/health.dart';
 
 class ModeloDatos {
   Future<Map<String, dynamic>?> getDatosFiltrosEjercicios() async {
@@ -128,37 +129,43 @@ class ModeloDatos {
         'value': 1,
         'label': 'A mínimos',
         'description': 'Mínimo esfuerzo',
-        'iconColor': const Color.fromARGB(255, 145, 231, 148),
+        'iconColor': Color.fromARGB(255, 145, 231, 148),
+        'met': 2.5,
       },
       {
         'value': 2,
         'label': 'Ligero',
         'description': 'Pude haber hecho entre 4-6 repeticiones más',
         'iconColor': Colors.lightGreen,
+        'met': 3.0,
       },
       {
         'value': 3,
         'label': 'Moderado',
         'description': 'Podría haber hecho 3 repeticiones más',
         'iconColor': Colors.yellow,
+        'met': 3.5,
       },
       {
         'value': 4,
         'label': 'Intenso',
         'description': 'Podría haber hecho 2 repeticiones más',
         'iconColor': Colors.orange,
+        'met': 4.5,
       },
       {
         'value': 5,
         'label': 'Al límite',
         'description': 'Podría haber hecho 1 repetición más',
         'iconColor': Colors.red,
+        'met': 5.0,
       },
       {
         'value': 6,
         'label': 'Al fallo',
         'description': 'No pude hacer más repeticiones',
         'iconColor': Colors.purple.shade500,
+        'met': 6.0,
       },
     ];
 
@@ -183,7 +190,6 @@ class ModeloDatos {
 
   // Función para matchear workoutActivityType
   Map<String, dynamic> getActivityTypeDetails(String activityType) {
-    print(activityType);
     switch (activityType) {
       case "HealthWorkoutActivityType.OTHER":
         return {
@@ -200,6 +206,11 @@ class ModeloDatos {
           'icon': Icons.directions_walk,
           'nombre': "Caminar",
         };
+      case "HealthWorkoutActivityType.WEIGHTLIFTING":
+        return {
+          'icon': Icons.fitness_center,
+          'nombre': "Pesas",
+        };
       default:
         return {
           'icon': Icons.fitness_center,
@@ -207,4 +218,79 @@ class ModeloDatos {
         };
     }
   }
+
+  // Map de tipos compatibles para Health Connect
+  Map<String, HealthDataType> get healthDataTypesString => {
+        "ACTIVE_ENERGY_BURNED": HealthDataType.ACTIVE_ENERGY_BURNED,
+        "BLOOD_GLUCOSE": HealthDataType.BLOOD_GLUCOSE,
+        "BLOOD_OXYGEN": HealthDataType.BLOOD_OXYGEN,
+        "BLOOD_PRESSURE_DIASTOLIC": HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+        "BLOOD_PRESSURE_SYSTOLIC": HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+        "BODY_FAT_PERCENTAGE": HealthDataType.BODY_FAT_PERCENTAGE,
+        "LEAN_BODY_MASS": HealthDataType.LEAN_BODY_MASS,
+        "BODY_MASS_INDEX": HealthDataType.BODY_MASS_INDEX,
+        "BODY_TEMPERATURE": HealthDataType.BODY_TEMPERATURE,
+        "BODY_WATER_MASS": HealthDataType.BODY_WATER_MASS,
+        "HEART_RATE": HealthDataType.HEART_RATE,
+        "HEART_RATE_VARIABILITY_RMSSD": HealthDataType.HEART_RATE_VARIABILITY_RMSSD,
+        "HEIGHT": HealthDataType.HEIGHT,
+        "STEPS": HealthDataType.STEPS,
+        "WEIGHT": HealthDataType.WEIGHT,
+        "DISTANCE_DELTA": HealthDataType.DISTANCE_DELTA,
+        "SLEEP_ASLEEP": HealthDataType.SLEEP_ASLEEP,
+        "SLEEP_AWAKE_IN_BED": HealthDataType.SLEEP_AWAKE_IN_BED,
+        "SLEEP_AWAKE": HealthDataType.SLEEP_AWAKE,
+        "SLEEP_DEEP": HealthDataType.SLEEP_DEEP,
+        "SLEEP_LIGHT": HealthDataType.SLEEP_LIGHT,
+        "SLEEP_OUT_OF_BED": HealthDataType.SLEEP_OUT_OF_BED,
+        "SLEEP_REM": HealthDataType.SLEEP_REM,
+        "SLEEP_SESSION": HealthDataType.SLEEP_SESSION,
+        "SLEEP_UNKNOWN": HealthDataType.SLEEP_UNKNOWN,
+        "WATER": HealthDataType.WATER,
+        "WORKOUT": HealthDataType.WORKOUT,
+        "RESTING_HEART_RATE": HealthDataType.RESTING_HEART_RATE,
+        "FLIGHTS_CLIMBED": HealthDataType.FLIGHTS_CLIMBED,
+        "BASAL_ENERGY_BURNED": HealthDataType.BASAL_ENERGY_BURNED,
+        "RESPIRATORY_RATE": HealthDataType.RESPIRATORY_RATE,
+        "NUTRITION": HealthDataType.NUTRITION,
+        "TOTAL_CALORIES_BURNED": HealthDataType.TOTAL_CALORIES_BURNED,
+        "MENSTRUATION_FLOW": HealthDataType.MENSTRUATION_FLOW,
+      };
+
+  Map<String, HealthDataAccess> get healthDataPermissions => {
+        "ACTIVE_ENERGY_BURNED": HealthDataAccess.READ_WRITE,
+        "BLOOD_GLUCOSE": HealthDataAccess.READ_WRITE,
+        "BLOOD_OXYGEN": HealthDataAccess.READ_WRITE,
+        "BLOOD_PRESSURE_DIASTOLIC": HealthDataAccess.READ_WRITE,
+        "BLOOD_PRESSURE_SYSTOLIC": HealthDataAccess.READ_WRITE,
+        "BODY_FAT_PERCENTAGE": HealthDataAccess.READ_WRITE,
+        "LEAN_BODY_MASS": HealthDataAccess.READ_WRITE,
+        "BODY_MASS_INDEX": HealthDataAccess.READ_WRITE,
+        "BODY_TEMPERATURE": HealthDataAccess.READ_WRITE,
+        "BODY_WATER_MASS": HealthDataAccess.READ_WRITE,
+        "HEART_RATE": HealthDataAccess.READ_WRITE,
+        "HEART_RATE_VARIABILITY_RMSSD": HealthDataAccess.READ_WRITE,
+        "HEIGHT": HealthDataAccess.READ_WRITE,
+        "STEPS": HealthDataAccess.READ_WRITE,
+        "WEIGHT": HealthDataAccess.READ_WRITE,
+        "DISTANCE_DELTA": HealthDataAccess.READ_WRITE,
+        "SLEEP_ASLEEP": HealthDataAccess.READ_WRITE,
+        "SLEEP_AWAKE_IN_BED": HealthDataAccess.READ_WRITE,
+        "SLEEP_AWAKE": HealthDataAccess.READ_WRITE,
+        "SLEEP_DEEP": HealthDataAccess.READ_WRITE,
+        "SLEEP_LIGHT": HealthDataAccess.READ_WRITE,
+        "SLEEP_OUT_OF_BED": HealthDataAccess.READ_WRITE,
+        "SLEEP_REM": HealthDataAccess.READ_WRITE,
+        "SLEEP_SESSION": HealthDataAccess.READ_WRITE,
+        "SLEEP_UNKNOWN": HealthDataAccess.READ_WRITE,
+        "WATER": HealthDataAccess.READ_WRITE,
+        "WORKOUT": HealthDataAccess.READ_WRITE,
+        "RESTING_HEART_RATE": HealthDataAccess.READ_WRITE,
+        "FLIGHTS_CLIMBED": HealthDataAccess.READ_WRITE,
+        "BASAL_ENERGY_BURNED": HealthDataAccess.READ_WRITE,
+        "RESPIRATORY_RATE": HealthDataAccess.READ_WRITE,
+        "NUTRITION": HealthDataAccess.READ_WRITE,
+        "TOTAL_CALORIES_BURNED": HealthDataAccess.READ_WRITE,
+        "MENSTRUATION_FLOW": HealthDataAccess.READ_WRITE,
+      };
 }

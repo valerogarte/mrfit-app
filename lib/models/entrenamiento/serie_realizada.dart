@@ -1,7 +1,8 @@
-import '../ejercicio/ejercicio.dart';
-import '../usuario/usuario.dart';
 import 'dart:math';
-import '../../data/database_helper.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/data/database_helper.dart';
 
 class SerieRealizada {
   final int id;
@@ -24,9 +25,9 @@ class SerieRealizada {
     required this.id,
     required this.ejercicioRealizado,
     required this.repeticiones,
-    required this.repeticionesObjetivo, // agregado
+    required this.repeticionesObjetivo,
     required this.peso,
-    required this.pesoObjetivo, // agregado
+    required this.pesoObjetivo,
     required this.velocidadRepeticion,
     required this.descanso,
     required this.rer,
@@ -119,9 +120,21 @@ class SerieRealizada {
     return totalVolumen;
   }
 
-  int calcularKcal() {
+  double calcularDuracionEjercicioSerie() {
+    double duracion = velocidadRepeticion * repeticiones;
+    return duracion;
+  }
+
+  double calcularKcal(double pesoUsuario) {
     if (realizada == false) return 0;
-    kcal = 25;
+    if (rer == 0) rer = 2;
+    // Kcal = MET × peso (kg) × duración (h)
+    final duracion = calcularDuracionEjercicioSerie();
+    final opcion = ModeloDatos.getDifficultyOptions(value: rer);
+    final met = opcion != null ? opcion['met'] : 3.0;
+    final duracionHoras = duracion / 3600;
+    double kcal = met * pesoUsuario * duracionHoras;
+    kcal = double.parse(kcal.toStringAsFixed(2));
     return kcal;
   }
 

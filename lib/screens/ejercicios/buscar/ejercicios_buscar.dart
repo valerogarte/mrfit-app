@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../utils/colors.dart';
-import '../../../widgets/animated_image.dart';
-import '../detalle/ejercicio_detalle.dart';
-import '../../../models/modelo_datos.dart';
-import '../../../models/rutina/sesion.dart';
-import '../../../widgets/pills_dificultad.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/animated_image.dart';
+import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/rutina/sesion.dart';
+import 'package:mrfit/widgets/pills_dificultad.dart';
 
 part 'ejercicios_buscar_logic.dart';
 

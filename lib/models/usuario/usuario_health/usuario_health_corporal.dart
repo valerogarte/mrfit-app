@@ -9,7 +9,9 @@ extension UsuarioHealthCorporalExtension on Usuario {
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
-    await _health.requestAuthorization([type], permissions: [permission]);
+    if (!await checkPermissionsFor("HEART_RATE")) {
+      return false;
+    }
 
     bool success = await _health.writeHealthData(
       value: heartRate,
@@ -32,7 +34,9 @@ extension UsuarioHealthCorporalExtension on Usuario {
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
-    await _health.requestAuthorization([type], permissions: [permission]);
+    if (!await checkPermissionsFor("HEIGHT")) {
+      return false;
+    }
 
     bool success = await _health.writeHealthData(
       value: heightMeter,
@@ -53,7 +57,9 @@ extension UsuarioHealthCorporalExtension on Usuario {
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
-    await _health.requestAuthorization([type], permissions: [permission]);
+    if (!await checkPermissionsFor("WEIGHT")) {
+      return false;
+    }
 
     bool success = await _health.writeHealthData(
       value: weight,
@@ -72,8 +78,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<Map<DateTime, dynamic>> getReadHeight(int nDays) async {
-    final hasPermission = await _health.hasPermissions([healthDataTypesString["HEIGHT"]!], permissions: [healthDataPermissions["HEIGHT"]!]) ?? false;
-    if (!hasPermission) return {};
+    if (!await checkPermissionsFor("HEIGHT")) return {};
 
     final dataPoints = await _readHealthData(healthDataTypesString["HEIGHT"]!, nDays);
     final Map<DateTime, dynamic> tempMap = {};
@@ -100,8 +105,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<Map<DateTime, double>> getReadWeight(int nDays) async {
-    final hasPermission = await _health.hasPermissions([healthDataTypesString["WEIGHT"]!], permissions: [healthDataPermissions["WEIGHT"]!]) ?? false;
-    if (!hasPermission) return {};
+    if (!await checkPermissionsFor("WEIGHT")) return {};
 
     final dataPoints = await _readHealthData(healthDataTypesString["WEIGHT"]!, nDays);
     final Map<DateTime, double> tempMap = {};
@@ -116,9 +120,16 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<double> getCurrentWeight() async {
-    if (weight == 0.0) return weight;
+    final defaultWeight = 72.0;
+    if (weight > 0.0) return weight;
     final weights = await getReadWeight(9999);
+    if (weights.entries.isEmpty) {
+      return defaultWeight;
+    }
     weight = weights.entries.last.value;
+    if (weight == 0.0) {
+      weight = defaultWeight;
+    }
     return weight;
   }
 }

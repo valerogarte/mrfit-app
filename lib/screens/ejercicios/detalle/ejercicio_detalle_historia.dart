@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../utils/colors.dart';
-import '../../../widgets/entrenamiento/entrenamiento_resumen_series.dart';
-import '../../../widgets/not_found/not_found.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
+import 'package:mrfit/widgets/not_found/not_found.dart';
 
 class EjercicioHistoria extends StatelessWidget {
   final Ejercicio ejercicio;
@@ -37,6 +37,7 @@ class EjercicioHistoria extends StatelessWidget {
               ...seriesGrouped.entries.toList().reversed.take(50).map((entry) {
                 final inicio = entry.value['inicio'];
                 final series = entry.value['series'] as List<SerieRealizada>;
+                final pesoUsuario = entry.value['peso_usuario'] as double;
                 // Nuevo bloque para calcular y formatear la diferencia de tiempo
                 final inicioDate = DateTime.parse(inicio);
                 final now = DateTime.now();
@@ -68,7 +69,7 @@ class EjercicioHistoria extends StatelessWidget {
                       ...series.asMap().entries.map<Widget>((entry) {
                         final index = entry.key;
                         final serie = entry.value;
-                        return ResumenSerie(index: index, serie: serie);
+                        return ResumenSerie(index: index, serie: serie, pesoUsuario: pesoUsuario);
                       }).toList(),
                     ],
                   ),

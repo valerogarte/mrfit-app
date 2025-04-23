@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../utils/colors.dart';
-import '../../../models/usuario/usuario.dart';
-import '../../../providers/usuario_provider.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 
 class ConfiguracionPersonalDialog extends ConsumerStatefulWidget {
   final String campo;
@@ -50,9 +50,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
         break;
       case 'Experiencia':
         currentValue = user.experiencia;
-        break;
-      case 'Historial de Peso':
-        currentValue = user.historialPesos.join(", ");
         break;
       default:
         break;
@@ -285,9 +282,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           break;
         case 'Experiencia':
           success = await user.setExperiencia(value);
-          break;
-        case 'Historial de Peso':
-          success = await user.setHistorialPesos([value]);
           break;
         case 'Volumen Máximo':
           success = true;

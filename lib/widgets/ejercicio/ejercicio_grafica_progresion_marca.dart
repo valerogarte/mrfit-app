@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/ejercicio/ejercicio.dart';
-import '../../utils/colors.dart';
-import '../chart/grafica.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/chart/grafica.dart';
 
 class EjercicioGraficaProgresionMarca extends StatefulWidget {
   final Ejercicio ejercicio;

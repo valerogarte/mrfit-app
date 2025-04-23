@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
-import '../../data/database_helper.dart';
+import 'package:mrfit/data/database_helper.dart';
 import 'ejercicio_personalizado.dart';
-import '../ejercicio/ejercicio.dart';
-import '../usuario/usuario.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 
 class Sesion {
   final int id;

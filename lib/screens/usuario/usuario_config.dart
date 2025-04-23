@@ -1,14 +1,14 @@
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../utils/colors.dart';
-import '../../models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'configuracion/config_app.dart';
 import 'configuracion/config_personal.dart';
 import 'configuracion/config_ajustes.dart';
 import 'configuracion/config_creditos.dart';
-import '../../widgets/custom_bottom_sheet.dart';
-import '../../providers/usuario_provider.dart'; // added import
+import 'package:mrfit/widgets/custom_bottom_sheet.dart';
+import 'package:mrfit/providers/usuario_provider.dart'; // added import
 
 class UsuarioConfigPage extends ConsumerStatefulWidget {
   const UsuarioConfigPage({super.key});

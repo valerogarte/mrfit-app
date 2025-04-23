@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../utils/colors.dart';
+import 'package:mrfit/utils/colors.dart';
 
 class MedalsWidget extends StatefulWidget {
   const MedalsWidget({Key? key}) : super(key: key);

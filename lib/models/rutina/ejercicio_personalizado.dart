@@ -1,7 +1,7 @@
 import 'package:logger/logger.dart';
-import '../../data/database_helper.dart';
-import '../ejercicio/ejercicio.dart';
-import '../rutina/serie_personalizada.dart';
+import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/rutina/serie_personalizada.dart';
 
 class EjercicioPersonalizado {
   final int id;

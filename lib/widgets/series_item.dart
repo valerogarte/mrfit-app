@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 import 'package:mrfit/models/rutina/serie_personalizada.dart';
-import '../widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
-import '../utils/colors.dart';
+import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
+import 'package:mrfit/utils/colors.dart';
 
 class SeriesItem extends StatefulWidget {
   final int setIndex;

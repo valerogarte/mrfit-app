@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/utils/colors.dart';
 
 class EjercicioIndicaciones extends StatelessWidget {

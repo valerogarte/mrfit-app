@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import '../../models/usuario/usuario.dart';
-import '../../utils/colors.dart';
-import '../chart/triple_ring_loader.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
 
 class DailyStats {
   final int steps;
@@ -249,6 +249,8 @@ class AnimatedTripleRingLoader extends StatelessWidget {
             minutosPercent: minutosPercent * animationValue,
             kcalPercent: kcalPercent * animationValue,
             trainedToday: trainedToday,
+            backgroundColorRing: AppColors.background,
+            showNumberLap: true,
           ),
         );
       },
@@ -269,6 +271,8 @@ class _StaticTripleRingLoader extends StatelessWidget {
         minutosPercent: 0,
         kcalPercent: 0,
         trainedToday: trainedToday,
+        backgroundColorRing: AppColors.background,
+        showNumberLap: true,
       ),
     );
   }

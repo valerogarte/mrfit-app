@@ -1,8 +1,8 @@
 // ./lib/widgets/animated_image.dart
 
 import 'package:flutter/material.dart';
-import '../utils/colors.dart';
-import '../models/ejercicio/ejercicio.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
 
 class AnimatedImage extends StatefulWidget {
   final Ejercicio ejercicio;

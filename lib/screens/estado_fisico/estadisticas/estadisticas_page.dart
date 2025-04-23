@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/usuario_provider.dart';
-import '../../../models/usuario/usuario.dart';
-import '../../../utils/colors.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
 import 'package:intl/intl.dart';
 
 /// Widget reutilizable para pintar cada tarjeta de estadística.

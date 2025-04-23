@@ -1,6 +1,6 @@
-import '../../data/database_helper.dart';
-import '../../utils/constants.dart';
-import '../entrenamiento/serie_realizada.dart';
+import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/utils/constants.dart';
+import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 
 part 'ejercicio_query.dart';
 part 'ejercicio_campos.dart';

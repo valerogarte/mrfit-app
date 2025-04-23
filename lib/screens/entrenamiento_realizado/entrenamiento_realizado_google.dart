@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
-import '../../models/usuario/usuario.dart';
-import '../../providers/usuario_provider.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 
 class EntrenamientoRealizadoGooglePage extends ConsumerWidget {
   final dynamic entrenamientoJson;

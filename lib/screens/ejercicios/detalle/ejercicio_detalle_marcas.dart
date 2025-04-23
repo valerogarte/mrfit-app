@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../models/ejercicio/ejercicio.dart';
-import '../../../widgets/ejercicio/ejercicio_tabla_mejor_marca.dart';
-import '../../../widgets/ejercicio/ejercicio_grafica_progresion_marca.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/widgets/ejercicio/ejercicio_tabla_mejor_marca.dart';
+import 'package:mrfit/widgets/ejercicio/ejercicio_grafica_progresion_marca.dart';
 
 class EjercicioMarcas extends StatelessWidget {
   final Ejercicio ejercicio;

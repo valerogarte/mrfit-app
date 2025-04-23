@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'screens/planes/planes.dart';
-import 'screens/home.dart';
-import 'screens/estado_fisico/estado_fisico_page.dart';
-import 'utils/colors.dart';
-import 'screens/usuario/usuario_config.dart'; // importación agregada
+import 'package:mrfit/screens/home.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/usuario/usuario_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'providers/usuario_provider.dart';
-import 'models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

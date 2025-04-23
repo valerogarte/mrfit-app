@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../main.dart';
-import '../../utils/colors.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
-import '../../models/modelo_datos.dart';
-import '../../widgets/entrenamiento/entrenamiento_resumen_series.dart';
-import '../../widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
+import 'package:mrfit/main.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:async';
-import '../../providers/usuario_provider.dart';
-import '../../models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
 class FinalizarPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
@@ -160,7 +160,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                           children: ejercicio.series.asMap().entries.map((entry) {
                             final index = entry.key;
                             final serie = entry.value;
-                            return ResumenSerie(index: index, serie: serie);
+                            return ResumenSerie(index: index, serie: serie, pesoUsuario: widget.entrenamiento.pesoUsuario);
                           }).toList(),
                         ),
                       );

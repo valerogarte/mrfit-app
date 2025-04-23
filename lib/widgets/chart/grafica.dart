@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
-import '../../utils/colors.dart';
-import '../not_found/not_found.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/not_found/not_found.dart';
 
 class ChartWidget extends StatelessWidget {
   final String title;

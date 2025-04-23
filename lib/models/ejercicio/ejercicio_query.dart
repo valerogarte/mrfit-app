@@ -136,7 +136,7 @@ extension EjercicioQuery on Ejercicio {
   Future<Map<int, Map<String, dynamic>>> getSeriesByEjercicio() async {
     final db = await DatabaseHelper.instance.database;
     final seriesResult = await db.rawQuery('''
-      SELECT et.id AS entrenamiento_id, et.inicio AS entrenamiento_inicio, ser.*
+      SELECT et.id AS entrenamiento_id, et.inicio AS entrenamiento_inicio, ser.*, et.peso_usuario as peso_usuario	
       FROM entrenamiento_serierealizada ser
       JOIN entrenamiento_ejerciciorealizado ee ON ser.ejercicio_realizado_id = ee.id
       JOIN entrenamiento_entrenamiento et ON ee.entrenamiento_id = et.id
@@ -155,6 +155,7 @@ extension EjercicioQuery on Ejercicio {
         grouped[trainingId] = {
           'inicio': inicioEntrenamiento,
           'series': [serieR],
+          'peso_usuario': row['peso_usuario'],
         };
       } else {
         grouped[trainingId]!['series'].add(serieR);

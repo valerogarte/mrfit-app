@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:logger/logger.dart';
-import '../../data/database_helper.dart';
-import '../ejercicio/ejercicio.dart';
+import 'package:health/health.dart';
+import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'ejercicio_realizado.dart';
 import 'serie_realizada.dart';
-import '../usuario/usuario.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
 class Entrenamiento {
   final int id;
@@ -19,7 +20,8 @@ class Entrenamiento {
   double entrenamientoVolumenActual = 0.0;
   bool _recoveryCalculated = false;
   int sensacion;
-  int kcal;
+  int kcalConsumidas;
+  String? idHealthConnect;
 
   Entrenamiento({
     required this.id,
@@ -33,7 +35,8 @@ class Entrenamiento {
     this.entrenamientoVolumen = 0.0,
     this.entrenamientoVolumenActual = 0.0,
     this.sensacion = 0,
-    this.kcal = 0,
+    this.kcalConsumidas = 0,
+    this.idHealthConnect,
   });
 
   factory Entrenamiento.fromJson(Map<String, dynamic> json) {
@@ -48,6 +51,8 @@ class Entrenamiento {
       factorRec: json['factorRec'] ?? 0.0,
       entrenamientoVolumen: json['entrenamientoVolumen'] ?? 0.0,
       entrenamientoVolumenActual: json['entrenamientoVolumenActual'] ?? 0.0,
+      kcalConsumidas: json['kcal_consumidas'] ?? 0,
+      idHealthConnect: json['id_health_connect'],
     );
   }
 
@@ -68,6 +73,8 @@ class Entrenamiento {
       'factorRec': factorRec,
       'entrenamientoVolumen': entrenamientoVolumen,
       'entrenamientoVolumenActual': entrenamientoVolumenActual,
+      'kcal_consumidas': kcalConsumidas,
+      'id_health_connect': idHealthConnect,
     };
   }
 
@@ -97,10 +104,6 @@ class Entrenamiento {
     factorRec = factorExpo * (1 - r);
   }
 
-  static List<dynamic>? obtenerEjerciciosEntrenamiento(Map<String, dynamic> entrenamiento) {
-    return entrenamiento['ejercicios'] as List<dynamic>?;
-  }
-
   Future<int> setSensacion(int sensacionId) async {
     sensacion = sensacionId;
     final db = await DatabaseHelper.instance.database;
@@ -115,11 +118,11 @@ class Entrenamiento {
     return sensacion;
   }
 
-  int calcularKcal() {
+  Future<int> calcularKcal() async {
     double kcal = 0;
     for (final ejercicioRealizado in ejercicios) {
       for (final serie in ejercicioRealizado.series) {
-        final kcalSerie = serie.calcularKcal();
+        final kcalSerie = serie.calcularKcal(pesoUsuario);
         kcal += kcalSerie;
       }
     }
@@ -232,88 +235,164 @@ class Entrenamiento {
     return dificultadMedia;
   }
 
-  static Future<Entrenamiento?> loadById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final res = await db.query('entrenamiento_entrenamiento', where: 'id = ?', whereArgs: [id], limit: 1);
-    if (res.isEmpty) return null;
-    final row = res.first;
-    final inicio = row['inicio'] != null ? DateTime.parse(row['inicio'] as String) : DateTime.now();
-    final fin = row['fin'] != null ? DateTime.parse(row['fin'] as String) : DateTime.now();
-    final sesionId = row['sesion_id'];
-    final sesionData = await db.query('rutinas_sesion', where: 'id = ?', whereArgs: [sesionId], limit: 1);
-    final String sesionNombre = sesionData.first["titulo"] as String? ?? '';
-    final double pesoUsuario = (row['peso_usuario'] == null) ? 0.0 : (row['peso_usuario'] as num).toDouble();
-    final ejerciciosData = await db.query(
-      'entrenamiento_ejerciciorealizado',
-      where: 'entrenamiento_id = ?',
-      whereArgs: [id],
-      orderBy: 'peso_orden ASC',
-    );
-    final List<EjercicioRealizado> ejerciciosRealizados = [];
-    for (final eRow in ejerciciosData) {
-      final int ejercicioId = eRow['ejercicio_id'] as int;
-      final ejercicio = await Ejercicio.loadById(ejercicioId);
-      final seriesData = await db.query(
-        'entrenamiento_serierealizada',
-        where: 'ejercicio_realizado_id = ?',
-        whereArgs: [eRow['id']],
-      );
-      final List<SerieRealizada> series = seriesData.map((sRow) {
-        return SerieRealizada.fromJson({
-          'id': sRow['id'],
-          'ejercicio_realizado_id': sRow['ejercicio_realizado_id'],
-          'repeticiones': sRow['repeticiones'],
-          'peso': sRow['peso'],
-          'velocidad_repeticion': sRow['velocidad_repeticion'],
-          'descanso': sRow['descanso'],
-          'rer': sRow['rer'],
-          'inicio': sRow['inicio'],
-          'fin': sRow['fin'],
-          'realizada': sRow['realizada'],
-          'extra': sRow['extra'],
-          'deleted': sRow['deleted'],
-        });
-      }).toList();
-      ejerciciosRealizados.add(
-        EjercicioRealizado(
-          id: eRow['id'] as int,
-          ejercicio: ejercicio,
-          series: series,
-          pesoOrden: eRow['peso_orden'] as int,
-        ),
-      );
+  static Future<Entrenamiento?> loadByUuid(String idHealthConnect) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final res = await db.query('entrenamiento_entrenamiento', where: 'id_health_connect = ?', whereArgs: [idHealthConnect], limit: 1);
+      if (res.isEmpty) return null;
+      final row = res.first;
+      final idRow = (row["id"] as num).toInt();
+      return loadById(idRow);
+    } catch (e, st) {
+      final logger = Logger();
+      logger.e('Error loading entrenamiento by UUID $idHealthConnect: $e');
+      logger.e('Stack trace: $st');
+      return null;
     }
-    return Entrenamiento(
-      id: row['id'] as int,
-      titulo: sesionNombre,
-      inicio: inicio,
-      fin: fin,
-      pesoUsuario: pesoUsuario,
-      sesion: sesionId as int,
-      ejercicios: ejerciciosRealizados,
-      sensacion: row['sensacion'] != null ? (row['sensacion'] as int) : 0,
-    );
   }
 
-  Future<void> finalizar() async {
+  static Future<Entrenamiento?> loadById(int id) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final res = await db.query('entrenamiento_entrenamiento', where: 'id = ?', whereArgs: [id], limit: 1);
+      if (res.isEmpty) return null;
+      final row = res.first;
+      final inicio = row['inicio'] != null ? DateTime.parse(row['inicio'] as String) : DateTime.now();
+      final fin = row['fin'] != null ? DateTime.parse(row['fin'] as String) : DateTime.now();
+      final sesionId = row['sesion_id'];
+      final sesionData = await db.query('rutinas_sesion', where: 'id = ?', whereArgs: [sesionId], limit: 1);
+      final String sesionNombre = sesionData.first["titulo"] as String? ?? '';
+      // Updated to handle null or zero
+      final double pesoUsuario = (row['peso_usuario'] != null && (row['peso_usuario'] as num) != 0) ? (row['peso_usuario'] as num).toDouble() : 72.0;
+      final ejerciciosData = await db.query(
+        'entrenamiento_ejerciciorealizado',
+        where: 'entrenamiento_id = ?',
+        whereArgs: [id],
+        orderBy: 'peso_orden ASC',
+      );
+      final List<EjercicioRealizado> ejerciciosRealizados = [];
+      for (final eRow in ejerciciosData) {
+        final int ejercicioId = eRow['ejercicio_id'] as int;
+        final ejercicio = await Ejercicio.loadById(ejercicioId);
+        final seriesData = await db.query(
+          'entrenamiento_serierealizada',
+          where: 'ejercicio_realizado_id = ?',
+          whereArgs: [eRow['id']],
+        );
+        final List<SerieRealizada> series = seriesData.map((sRow) {
+          return SerieRealizada.fromJson({
+            'id': sRow['id'],
+            'ejercicio_realizado_id': sRow['ejercicio_realizado_id'],
+            'repeticiones': sRow['repeticiones'],
+            'peso': sRow['peso'],
+            'velocidad_repeticion': sRow['velocidad_repeticion'],
+            'descanso': sRow['descanso'],
+            'rer': sRow['rer'],
+            'inicio': sRow['inicio'],
+            'fin': sRow['fin'],
+            'realizada': sRow['realizada'],
+            'extra': sRow['extra'],
+            'deleted': sRow['deleted'],
+          });
+        }).toList();
+        ejerciciosRealizados.add(
+          EjercicioRealizado(
+            id: eRow['id'] as int,
+            ejercicio: ejercicio,
+            series: series,
+            pesoOrden: eRow['peso_orden'] as int,
+          ),
+        );
+      }
+      return Entrenamiento(
+        id: (row['id'] as num).toInt(),
+        titulo: sesionNombre,
+        inicio: inicio,
+        fin: fin,
+        pesoUsuario: pesoUsuario,
+        sesion: (sesionId as num).toInt(),
+        ejercicios: ejerciciosRealizados,
+        sensacion: row['sensacion'] != null ? (row['sensacion'] as num).toInt() : 0,
+        kcalConsumidas: row['kcal_consumidas'] != null ? (row['kcal_consumidas'] as num).toInt() : 0,
+        idHealthConnect: row['id_health_connect'] != null ? (row['id_health_connect'] as String?) : null,
+      );
+    } catch (e, st) {
+      final logger = Logger();
+      logger.e('Error loading entrenamiento by ID $id: $e');
+      logger.e('Stack trace: $st');
+      return null;
+    }
+  }
+
+  Future<void> finalizar(Usuario usuario) async {
     fin = DateTime.now();
     try {
+      kcalConsumidas = await calcularKcal();
+      String idHealthConnect = await usuario.healthconnectRegistrarEntrenamiento(
+        titulo,
+        inicio,
+        fin ?? DateTime.now(),
+        kcalConsumidas,
+      );
+
       final db = await DatabaseHelper.instance.database;
       await db.update(
         'entrenamiento_entrenamiento',
-        {'fin': fin!.toIso8601String()},
+        {
+          'fin': fin!.toIso8601String(),
+          'kcal_consumidas': kcalConsumidas,
+          'id_health_connect': idHealthConnect,
+        },
         where: 'id = ?',
         whereArgs: [id],
       );
     } catch (e, st) {
       final logger = Logger();
-      logger.i('Error al finalizar entrenamiento $id: $e');
-      logger.i('Stack trace: $st');
+      logger.e('Error al finalizar entrenamiento $id: $e');
+      logger.e('Stack trace: $st');
     }
   }
 
   Future<void> delete() async {
+    // Borrar registro en Health Connect si existe
+    if (idHealthConnect != null && idHealthConnect != "0") {
+      try {
+        final success = await Health().deleteByUUID(uuid: idHealthConnect!, type: HealthDataType.WORKOUT);
+        if (!success) {
+          final logger = Logger();
+          logger.e('Error deleting Health Connect record $idHealthConnect: Record not found or already deleted.');
+        } else {
+          final logger = Logger();
+          logger.i('Health Connect record $idHealthConnect deleted successfully.');
+        }
+      } catch (e, st) {
+        final logger = Logger();
+        logger.e('Error deleting Health Connect record $idHealthConnect: $e');
+        logger.e('Stack trace: $st');
+      }
+    }
+
     final db = await DatabaseHelper.instance.database;
+
+    // Borrar las series de cada ejercicio realizado del entrenamiento
+    final List<int> ejercicioIds = ejercicios.map((e) => e.id).toList();
+    if (ejercicioIds.isNotEmpty) {
+      final placeholders = List.filled(ejercicioIds.length, '?').join(',');
+      await db.delete(
+        'entrenamiento_serierealizada',
+        where: 'ejercicio_realizado_id IN ($placeholders)',
+        whereArgs: ejercicioIds,
+      );
+    }
+
+    // Borrar los ejercicios realizados asociados al entrenamiento
+    await db.delete(
+      'entrenamiento_ejerciciorealizado',
+      where: 'entrenamiento_id = ?',
+      whereArgs: [id],
+    );
+
+    // Borrar el entrenamiento
     await db.delete(
       'entrenamiento_entrenamiento',
       where: 'id = ?',

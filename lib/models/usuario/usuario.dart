@@ -1,20 +1,19 @@
-// usuario.dart
-
-import 'package:flutter/material.dart';
-
-import '../ejercicio/ejercicio.dart';
-import '../../data/database_helper.dart';
-import 'usuario_backup.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'dart:io' show Platform;
 import 'dart:convert';
-import 'package:logger/logger.dart';
-import 'package:health/health.dart';
 import 'package:intl/intl.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'usuario_backup.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../rutina/rutina.dart';
-import '../../models/entrenamiento/entrenamiento.dart';
-import '../../utils/usage_stats_helper.dart';
+import 'package:health/health.dart';
+
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/usage_stats_helper.dart';
 
 part 'usuario_health.dart';
 part 'usuario_google.dart';
@@ -37,7 +36,6 @@ class Usuario {
   int objetivoEntrenamientoSemanal;
   DateTime fechaNacimiento;
   String genero;
-  List<dynamic> historialPesos;
   List<dynamic> historiaLesiones;
   List<Equipamiento> equipoEnCasa;
   String experiencia;
@@ -45,9 +43,12 @@ class Usuario {
   String sonido;
   int tiempoDescanso;
   double weight;
-  int? rutinaActualId; // Nuevo campo para la rutina actual
+  int? rutinaActualId;
   Map<String, double>? _cachedMrPoints;
   final Health _health = Health();
+
+  final healthDataTypesString = ModeloDatos().healthDataTypesString;
+  final healthDataPermissions = ModeloDatos().healthDataPermissions;
 
   static void saveUsuario(Usuario usuario) {}
 
@@ -63,7 +64,6 @@ class Usuario {
     required this.objetivoEntrenamientoSemanal,
     required this.fechaNacimiento,
     required this.genero,
-    required this.historialPesos,
     required this.historiaLesiones,
     required this.equipoEnCasa,
     required this.experiencia,
@@ -89,7 +89,6 @@ class Usuario {
       objetivoEntrenamientoSemanal: json['objetivo_entrenamiento_semanal'] ?? 0,
       fechaNacimiento: DateTime.parse(json['fecha_nacimiento']),
       genero: json['genero'] ?? '',
-      historialPesos: json['historial_pesos'] ?? [],
       historiaLesiones: json['historia_lesiones'] ?? [],
       equipoEnCasa: (json['equipo_en_casa'] as List?)?.map((e) => Equipamiento.fromJson(e)).toList() ?? [],
       experiencia: json['experiencia'] ?? '',
@@ -113,7 +112,6 @@ class Usuario {
       'objetivo_entrenamiento_semanal': objetivoEntrenamientoSemanal,
       'fecha_nacimiento': fechaNacimiento.toIso8601String(),
       'genero': genero,
-      'historial_pesos': historialPesos,
       'historia_lesiones': historiaLesiones,
       'equipo_en_casa': equipoEnCasa.map((e) => e.toJson()).toList(),
       'experiencia': experiencia,
@@ -171,12 +169,6 @@ class Usuario {
   Future<bool> setGenero(String genero) async {
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'genero': genero}, where: 'id = ?', whereArgs: [1]);
-    return count > 0;
-  }
-
-  Future<bool> setHistorialPesos(List<dynamic> historialPesos) async {
-    final db = await DatabaseHelper.instance.database;
-    int count = await db.update('auth_user', {'historial_pesos': historialPesos}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
@@ -251,7 +243,6 @@ class Usuario {
       final results = await db.rawQuery('SELECT * FROM auth_user WHERE id = ?', [1]);
       if (results.isEmpty) throw Exception('User not found');
       final row = results.first;
-      final historialPesos = row['historial_pesos'] is String ? jsonDecode(row['historial_pesos'].toString()) : (row['historial_pesos'] ?? []);
       final historiaLesiones = row['historia_lesiones'] is String ? jsonDecode(row['historia_lesiones'].toString()) : (row['historia_lesiones'] ?? []);
 
       final usuario = Usuario(
@@ -265,7 +256,6 @@ class Usuario {
         objetivoEntrenamientoSemanal: row['objetivo_entrenamiento_semanal'] is int ? row['objetivo_entrenamiento_semanal'] as int : (int.tryParse(row['objetivo_entrenamiento_semanal']?.toString() ?? '') ?? 0),
         fechaNacimiento: row['fecha_nacimiento'] != null ? DateTime.parse(row['fecha_nacimiento'].toString()) : DateTime.now().subtract(const Duration(days: 365 * 30)),
         genero: row['genero']?.toString() ?? '',
-        historialPesos: historialPesos,
         historiaLesiones: historiaLesiones,
         equipoEnCasa: [], // default empty list
         experiencia: row['experiencia']?.toString() ?? '',

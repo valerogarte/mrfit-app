@@ -95,7 +95,6 @@ extension UsuarioGoogleExtension on Usuario {
       return Future.error("No se pudo obtener el token de acceso.");
     }
 
-    // Eliminado: print(entrenamientoJson);
     final id = entrenamientoJson["id"];
     final encodedId = Uri.encodeComponent(id.toString());
     final url = Uri.parse('https://www.googleapis.com/fitness/v1/users/me/sessions/$encodedId');

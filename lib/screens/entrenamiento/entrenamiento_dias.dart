@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../../utils/colors.dart';
-import '../../models/rutina/rutina.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
 import 'entrenadora.dart';
-import '../../models/rutina/sesion.dart';
-import '../sesion/sesion_page.dart';
-import '../../widgets/blink_bar.dart';
-import '../../widgets/not_found/not_found.dart';
+import 'package:mrfit/models/rutina/sesion.dart';
+import 'package:mrfit/screens/sesion/sesion_page.dart';
+import 'package:mrfit/widgets/blink_bar.dart';
+import 'package:mrfit/widgets/not_found/not_found.dart';
 
 class EntrenamientoDiasPage extends StatefulWidget {
   final Rutina rutina;

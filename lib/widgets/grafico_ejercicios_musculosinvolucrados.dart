@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
-import '../models/ejercicio/ejercicio.dart';
-import '../screens/estado_fisico/recuperacion/musculo_detalle.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/screens/estado_fisico/recuperacion/musculo_detalle.dart';
 
 class GraficoCircularMusculosInvolucrados extends StatelessWidget {
   final Ejercicio ejercicio;

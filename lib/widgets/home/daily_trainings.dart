@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:health/health.dart'; // Add this import for HealthDataPoint and WorkoutHealthValue
-import '../../screens/planes/planes.dart';
-import '../../screens/entrenamiento/entrenamiento_dias.dart';
-import '../../models/usuario/usuario.dart';
-import '../../models/modelo_datos.dart';
-import '../../utils/colors.dart';
+import 'package:mrfit/screens/planes/planes.dart';
+import 'package:mrfit/screens/entrenamiento/entrenamiento_dias.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
 
 class DailyTrainingsWidget extends StatefulWidget {
   final DateTime day;
@@ -17,32 +18,49 @@ class DailyTrainingsWidget extends StatefulWidget {
 }
 
 class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
-  Widget _buildActivityRow({
+  // Se elimina el Padding interno y se retorna directamente el Row
+  Future<Widget> _buildActivityRow({
+    required String uuid,
     required String title,
     required IconData icon,
     required Color iconColor,
     required Color iconBackgroundColor,
     required String timeInfo,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+    String? sourceName,
+  }) async {
+    if (sourceName != null && sourceName == "com.example.vagfit") {
+      final entrenamiento = await Entrenamiento.loadByUuid(uuid);
+      if (entrenamiento != null) {
+        title = entrenamiento.titulo;
+      }
+    }
+    return InkWell(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => EntrenamientoRealizadoPage(idHealthConnect: uuid)));
+      },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: iconBackgroundColor,
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ],
+          Expanded(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: iconBackgroundColor,
+                  child: Icon(icon, color: iconColor, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12),
           Text(
             timeInfo,
             style: const TextStyle(color: Colors.white70),
@@ -72,24 +90,47 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
             dynamicContent = _buildPlaceholder("Sin actividad", Icons.fitness_center);
           } else {
             dynamicContent = Column(
-              children: activities.map((activity) {
+              children: activities.asMap().entries.map((entry) {
+                final index = entry.key;
+                final activity = entry.value;
                 if (activity['type'] == 'steps') {
-                  return _buildActivityRow(
-                    title: "Caminar (automático)",
-                    icon: Icons.directions_walk,
-                    iconColor: AppColors.advertencia,
-                    iconBackgroundColor: AppColors.appBarBackground,
-                    timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${activity['durationMin']} min)",
+                  return FutureBuilder<Widget>(
+                    future: _buildActivityRow(
+                      uuid: "automatic",
+                      title: "Caminar (automático)",
+                      icon: Icons.directions_walk,
+                      iconColor: AppColors.advertencia,
+                      iconBackgroundColor: AppColors.appBarBackground,
+                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${activity['durationMin']} min)",
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        final rowWidget = snapshot.data!;
+                        return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+                      }
+                      return const SizedBox(height: 50);
+                    },
                   );
                 } else if (activity['type'] == 'workout') {
                   final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
                   final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
-                  return _buildActivityRow(
-                    title: info["nombre"],
-                    icon: info["icon"],
-                    iconColor: AppColors.advertencia,
-                    iconBackgroundColor: AppColors.appBarBackground,
-                    timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${duration} min)",
+                  return FutureBuilder<Widget>(
+                    future: _buildActivityRow(
+                      uuid: activity['uuid'],
+                      title: info["nombre"],
+                      icon: info["icon"],
+                      iconColor: AppColors.advertencia,
+                      iconBackgroundColor: AppColors.appBarBackground,
+                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${duration} min)",
+                      sourceName: activity['sourceName'],
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        final rowWidget = snapshot.data!;
+                        return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+                      }
+                      return const SizedBox(height: 50);
+                    },
                   );
                 }
                 return const SizedBox.shrink();
@@ -145,29 +186,30 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   label: const Text("Rutinas", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),
-              if (hasRutina) const SizedBox(width: 10),
-              if (hasRutina)
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      if (!mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: snapshot.data)),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.mutedAdvertencia,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    icon: const Icon(Icons.fitness_center, color: AppColors.background, size: 18),
-                    label: Text(
-                      snapshot.data.titulo,
-                      style: const TextStyle(color: AppColors.background, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: hasRutina
+                    ? ElevatedButton.icon(
+                        onPressed: () {
+                          if (!mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: snapshot.data)),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.mutedAdvertencia,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(Icons.fitness_center, color: AppColors.background, size: 18),
+                        label: Text(
+                          snapshot.data.titulo,
+                          style: const TextStyle(color: AppColors.background, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : Container(),
+              ),
             ],
           ),
         );

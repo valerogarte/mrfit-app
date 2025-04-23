@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
-import '../utils/colors.dart';
-import '../models/usuario/usuario.dart';
-import '../data/database_helper.dart';
-import '../widgets/home/calendar.dart';
-import '../widgets/home/daily_steps_activity_kcal.dart';
-import '../widgets/home/daily_sleep.dart';
-import '../widgets/home/daily_weekly.dart';
-import '../widgets/home/daily_trainings.dart';
-import '../widgets/home/daily_physical.dart';
-import '../widgets/home/daily_nutrition.dart';
-import '../widgets/home/daily_hearth.dart';
-import '../providers/usuario_provider.dart';
-import '../widgets/home/daily_medals.dart';
-import '../widgets/home/daily_notes.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/widgets/home/calendar.dart';
+import 'package:mrfit/widgets/home/daily_steps_activity_kcal.dart';
+import 'package:mrfit/widgets/home/daily_sleep.dart';
+import 'package:mrfit/widgets/home/daily_weekly.dart';
+import 'package:mrfit/widgets/home/daily_trainings.dart';
+import 'package:mrfit/widgets/home/daily_physical.dart';
+import 'package:mrfit/widgets/home/daily_nutrition.dart';
+import 'package:mrfit/widgets/home/daily_hearth.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/widgets/home/daily_medals.dart';
+import 'package:mrfit/widgets/home/daily_notes.dart';
+import 'package:mrfit/widgets/home/daily_vitals.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
   const InicioPage({super.key});
@@ -128,7 +128,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               },
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -159,6 +159,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         dailyPhysicalWidget(),
                         const SizedBox(height: 15),
                         dailyHearthWidget(heartRate: 72), // Example heart rate value
+                        const SizedBox(height: 15),
+                        dailyVitalsWidget(day: _selectedDate, usuario: usuario), // Example heart rate value
                         const SizedBox(height: 15),
                         MedalsWidget(),
                         const SizedBox(height: 15),

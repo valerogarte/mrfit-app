@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/usuario/usuario.dart';
-import '../../utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
 
 class DailyNutritionWidget extends StatefulWidget {
   final DateTime day;

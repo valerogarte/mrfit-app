@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added import
-import '../../../utils/colors.dart';
-import '../../../models/usuario/usuario.dart';
-import '../../../providers/usuario_provider.dart'; // Added import
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart'; // Added import
 
 class ConfiguracionAjustesPage extends ConsumerStatefulWidget {
   // Changed to ConsumerStatefulWidget

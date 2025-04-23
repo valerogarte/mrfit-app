@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../models/usuario/usuario.dart';
-import '../../utils/colors.dart';
-import '../../utils/usage_stats_helper.dart'; // Contendrá los métodos hasUsageStatsPermission(), openUsageStatsSettings() y getInactivitySlots()
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/utils/usage_stats_helper.dart';
 
 /// Representa un slot de inactividad
 class SleepSlot {

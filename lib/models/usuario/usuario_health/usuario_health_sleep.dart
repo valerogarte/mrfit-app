@@ -70,11 +70,8 @@ extension UsuarioSleepExtension on Usuario {
     int totalSleep = 0;
     final sleepKeys = ["SLEEP_DEEP", "SLEEP_LIGHT", "SLEEP_REM", "SLEEP_ASLEEP"];
     for (var key in sleepKeys) {
-      if (await _health.hasPermissions(
-            [healthDataTypesString[key]!],
-            permissions: [healthDataPermissions[key]!],
-          ) ??
-          false) {
+      // Reemplazamos la llamada a _health.hasPermissions por checkPermissionsFor
+      if (await checkPermissionsFor(key)) {
         final dataPoints = await _health.getHealthDataFromTypes(
           startTime: start,
           endTime: end,
@@ -126,22 +123,9 @@ extension UsuarioSleepExtension on Usuario {
     }
 
     try {
-      // Check if we have permissions to write sleep data
-      final hasPermission = await _health.hasPermissions(
-        [sleepType],
-        permissions: [HealthDataAccess.WRITE],
-      );
-
-      // Request permissions if we don't have them
-      if (hasPermission == null || !hasPermission) {
-        final permissionGranted = await _health.requestAuthorization(
-          [sleepType],
-          permissions: [HealthDataAccess.WRITE],
-        );
-
-        if (!permissionGranted) {
-          return false;
-        }
+      // Se reemplaza la comprobación de permisos por checkPermissionsFor
+      if (!await checkPermissionsFor("SLEEP_SESSION")) {
+        return false;
       }
 
       // Write sleep data
@@ -155,7 +139,7 @@ extension UsuarioSleepExtension on Usuario {
 
       return result;
     } catch (e) {
-      print('Error writing sleep data: $e');
+      Logger().e('Error writing sleep data: $e');
       return false;
     }
   }

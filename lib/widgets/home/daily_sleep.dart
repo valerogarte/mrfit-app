@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:health/health.dart';
-import '../../models/usuario/usuario.dart';
-import '../../utils/colors.dart';
-import '../../utils/usage_stats_helper.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/utils/usage_stats_helper.dart';
 
 Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
   return FutureBuilder<Map<String, int>>(

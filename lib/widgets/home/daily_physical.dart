@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../screens/estado_fisico/recuperacion/recuperacion_page.dart';
-import '../../screens/estado_fisico/peso/medidas_page.dart';
-import '../../utils/colors.dart';
+import 'package:mrfit/screens/estado_fisico/recuperacion/recuperacion_page.dart';
+import 'package:mrfit/screens/estado_fisico/peso/medidas_page.dart';
+import 'package:mrfit/utils/colors.dart';
 
 Widget dailyPhysicalWidget() {
   return Builder(
