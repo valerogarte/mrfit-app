@@ -132,7 +132,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
           child: Text(
             label,
             style: TextStyle(
-              color: enabled ? AppColors.mutedAdvertencia : AppColors.textMedium.withOpacity(0.5),
+              color: enabled ? AppColors.mutedGreen : AppColors.textMedium.withOpacity(0.5),
               fontSize: 14,
             ),
           ),
@@ -152,7 +152,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
               Text(
                 '$_currentCalories',
                 style: const TextStyle(
-                  color: AppColors.mutedAdvertencia,
+                  color: AppColors.mutedGreen,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -160,7 +160,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
               const Text(
                 'kcal',
                 style: TextStyle(
-                  color: AppColors.mutedAdvertencia,
+                  color: AppColors.mutedGreen,
                   fontSize: 12,
                 ),
               ),

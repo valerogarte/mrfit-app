@@ -1,5 +1,3 @@
-// colors.dart
-
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -28,6 +26,5 @@ class AppColors {
   static const Color mutedRed = Color.from(alpha: 1, red: 0.827, green: 0.329, blue: 0);
 
   // Verde alternativo
-  static Color mutedGreen =
-      HSLColor.fromColor(Color.lerp(AppColors.accentColor, AppColors.mutedAdvertencia, 0.4)!).withSaturation((HSLColor.fromColor(Color.lerp(AppColors.accentColor, AppColors.mutedAdvertencia, 0.4)!).saturation * 1.25).clamp(0.0, 1.0)).toColor();
+  static const Color mutedGreen = Color.from(alpha: 1, red: 0.514, green: 0.749, blue: 0.588);
 }
