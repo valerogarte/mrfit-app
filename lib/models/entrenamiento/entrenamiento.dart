@@ -263,7 +263,8 @@ class Entrenamiento {
       final sesionData = await db.query('rutinas_sesion', where: 'id = ?', whereArgs: [sesionId], limit: 1);
       final String sesionNombre = sesionData.first["titulo"] as String? ?? '';
       // Updated to handle null or zero
-      final double pesoUsuario = (row['peso_usuario'] != null && (row['peso_usuario'] as num) != 0) ? (row['peso_usuario'] as num).toDouble() : 72.0;
+      final double pesoUsuarioDefault = Usuario.getDefaultWeight();
+      final double pesoUsuario = (row['peso_usuario'] != null && (row['peso_usuario'] as num) != 0) ? (row['peso_usuario'] as num).toDouble() : pesoUsuarioDefault;
       final ejerciciosData = await db.query(
         'entrenamiento_ejerciciorealizado',
         where: 'entrenamiento_id = ?',

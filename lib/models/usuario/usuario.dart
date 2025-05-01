@@ -8,6 +8,7 @@ import 'usuario_backup.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:health/health.dart';
+import 'package:flutter/material.dart';
 
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/data/database_helper.dart';
@@ -296,6 +297,10 @@ class Usuario {
       throw Exception('Rutina not found for id: $idRutina');
     }
     return rutina;
+  }
+
+  static double getDefaultWeight() {
+    return 72;
   }
 
   int getTargetSteps() {

@@ -75,7 +75,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -134,7 +134,7 @@ Widget sleepStatsWidget({required DateTime day, required Usuario usuario}) {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
             color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),

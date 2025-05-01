@@ -19,13 +19,18 @@ class _EstadoFisicoPageState extends State<EstadoFisicoPage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: AppColors.background, // Set scroll/background color
+        backgroundColor: AppColors.background,
         appBar: AppBar(
+          elevation: 0,
+          backgroundColor: AppColors.background,
           toolbarHeight: 0,
           bottom: TabBar(
-            indicatorColor: AppColors.mutedAdvertencia, // Indicator in advertencia
+            dividerColor: Colors.transparent,
+            indicatorWeight: 0,
+            indicator: BoxDecoration(),
+            indicatorColor: Colors.transparent,
             labelColor: AppColors.mutedAdvertencia,
-            unselectedLabelColor: AppColors.background,
+            unselectedLabelColor: AppColors.accentColor,
             tabs: const [
               Tab(text: 'Recuperación'),
               Tab(text: 'Estadísticas'),
@@ -35,7 +40,7 @@ class _EstadoFisicoPageState extends State<EstadoFisicoPage> {
         ),
         body: const TabBarView(
           children: [
-            RecuperacionPage(), // Se utiliza el nuevo widget
+            RecuperacionPage(),
             EstadisticasPage(),
             MedidasPage(),
           ],

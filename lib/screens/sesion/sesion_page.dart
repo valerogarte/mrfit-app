@@ -24,12 +24,16 @@ class _SesionPageState extends State<SesionPage> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
           title: Text(widget.sesion.titulo),
-          backgroundColor: AppColors.appBarBackground,
+          backgroundColor: AppColors.background,
           bottom: TabBar(
-            indicatorColor: AppColors.mutedAdvertencia,
+            dividerColor: Colors.transparent,
+            indicatorWeight: 0,
+            indicator: BoxDecoration(),
+            indicatorColor: Colors.transparent,
             labelColor: AppColors.mutedAdvertencia,
-            unselectedLabelColor: AppColors.background,
+            unselectedLabelColor: AppColors.accentColor,
             tabs: const [
               Tab(text: 'Ejercicios'),
               Tab(text: 'Músculos invol.'),

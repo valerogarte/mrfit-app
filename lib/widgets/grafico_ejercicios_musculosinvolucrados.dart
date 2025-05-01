@@ -4,112 +4,128 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/screens/estado_fisico/recuperacion/musculo_detalle.dart';
 
-class GraficoCircularMusculosInvolucrados extends StatelessWidget {
+/// Gráfico circular + acordeón de músculos, solo un panel abierto.
+class GraficoCircularMusculosInvolucrados extends StatefulWidget {
   final Ejercicio ejercicio;
+  const GraficoCircularMusculosInvolucrados({Key? key, required this.ejercicio})
+      : super(key: key);
 
-  const GraficoCircularMusculosInvolucrados({
-    Key? key,
-    required this.ejercicio,
-  }) : super(key: key);
+  @override
+  State<GraficoCircularMusculosInvolucrados> createState() =>
+      _GraficoCircularMusculosInvolucradosState();
+}
+
+class _GraficoCircularMusculosInvolucradosState
+    extends State<GraficoCircularMusculosInvolucrados> {
+  late final Map<String, List<MusculoInvolucrado>> _groups;
+  String? _openPanel;
+
+  @override
+  void initState() {
+    super.initState();
+    _groups = _groupByType(widget.ejercicio.musculosInvolucrados);
+  }
+
+  Map<String, List<MusculoInvolucrado>> _groupByType(
+      List<MusculoInvolucrado> list) {
+    final map = <String, List<MusculoInvolucrado>>{};
+    for (var mi in list) {
+      map.putIfAbsent(mi.tipoString, () => []).add(mi);
+    }
+    return map;
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Agrupar músculos por tipo
-    final Map<String, List<MusculoInvolucrado>> muscleGroups = {};
-    for (var mi in ejercicio.musculosInvolucrados) {
-      muscleGroups[mi.tipoString] = (muscleGroups[mi.tipoString] ?? [])..add(mi);
-    }
-
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Gráfico circular con padding
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 8.0,
-                right: 8.0,
-                top: 50.0,
-                bottom: 8.0,
-              ),
-              child: CustomPaint(
-                size: const Size(200, 200),
-                painter: _PieChartPainter(ejercicio.musculosInvolucrados),
-              ),
+          const SizedBox(height: 50),
+          SizedBox(
+            width: 200,
+            height: 200,
+            child: CustomPaint(
+              painter: _PieChartPainter(widget.ejercicio.musculosInvolucrados),
             ),
           ),
           const SizedBox(height: 16),
-          // Mostrar grupos de músculos en ExpansionTile
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: muscleGroups.entries.map((entry) {
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: ExpansionTile(
-                  collapsedBackgroundColor: AppColors.accentColor,
-                  backgroundColor: AppColors.mutedAdvertencia,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  collapsedShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  title: Text(
-                    entry.key,
-                    style: const TextStyle(
-                      color: AppColors.cardBackground,
-                      fontWeight: FontWeight.bold,
+          ExpansionPanelList.radio(
+            elevation: 0,
+            initialOpenPanelValue: _openPanel,
+            expandedHeaderPadding: EdgeInsets.zero,
+            dividerColor: Colors.transparent,
+            materialGapSize: 0, // elimina el “hueco” blanco
+            children: _groups.entries.map((entry) {
+              final bool isExpanded = _openPanel == entry.key;
+              return ExpansionPanelRadio(
+                value: entry.key,
+                backgroundColor: isExpanded
+                    ? AppColors.mutedAdvertencia
+                    : AppColors.appBarBackground, // pinta toda la fila
+                headerBuilder: (context, _) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: isExpanded ? 0 : 8),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    // solo bordes superiores cuando está expandido,
+                    // todos los bordes cuando está cerrado.
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    child: Text(
+                      entry.key,
+                      style: TextStyle(
+                        color: isExpanded
+                            ? AppColors.background
+                            : AppColors.textMedium,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+                body: Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.mutedAdvertencia,
+                    borderRadius:
+                        BorderRadius.vertical(bottom: Radius.circular(20)),
                   ),
-                  children: entry.value.map((mi) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                  child: Column(
+                    children: entry.value.map((mi) {
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 16),
+                        title: Text(
+                          mi.musculo.titulo,
+                          style: const TextStyle(
+                              color: AppColors.cardBackground,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(mi.descripcionImplicacion,
+                            style: const TextStyle(
+                                color: AppColors.cardBackground)),
+                        onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => MusculoDetallePage(
-                              musculo: mi.musculo.titulo,
-                              entrenamientos: [],
-                            ),
+                                musculo: mi.musculo.titulo,
+                                entrenamientos: const []),
                           ),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: AppColors.mutedAdvertencia,
-                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              mi.musculo.titulo,
-                              style: const TextStyle(
-                                color: AppColors.cardBackground,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              mi.descripcionImplicacion,
-                              style: const TextStyle(
-                                color: AppColors.cardBackground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
+                canTapOnHeader: true,
               );
             }).toList(),
+            expansionCallback: (index, isOpen) {
+              setState(() {
+                final key = _groups.keys.elementAt(index);
+                _openPanel = isOpen ? null : key;
+              });
+            },
           ),
         ],
       ),
@@ -119,141 +135,101 @@ class GraficoCircularMusculosInvolucrados extends StatelessWidget {
 
 class _PieChartPainter extends CustomPainter {
   final List<MusculoInvolucrado> datos;
+  static const _palette = [
+    AppColors.accentColor,
+    AppColors.appBarBackground,
+    AppColors.cardBackground,
+  ];
+
   _PieChartPainter(this.datos);
 
   @override
   void paint(Canvas canvas, Size size) {
     final double total = datos.fold(
-      0.0,
-      (sum, item) => sum + item.porcentajeImplicacion.toDouble(),
-    );
+        0.0, (double sum, item) => sum + item.porcentajeImplicacion.toDouble());
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2;
-    final double strokeWidth = radius * 0.7;
+    final strokeWidth = radius * 0.7;
     double startAngle = -pi / 2;
 
-    final colors = [
-      AppColors.accentColor,
-      AppColors.appBarBackground,
-      AppColors.cardBackground,
-    ];
-    // Si hay número par de datos, quitamos el último color
-    final List<Color> arcColors = List.from(colors);
-    if (datos.length % 2 == 0) {
-      arcColors.removeLast();
-    }
+    final List<Color> colors = List<Color>.from(_palette);
+    if (datos.length.isEven) colors.removeLast();
 
-    final arcPaint = Paint()
+    final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
-    for (int i = 0; i < datos.length; i++) {
+    for (var i = 0; i < datos.length; i++) {
       final item = datos[i];
-      final double sweepAngle = total > 0 ? (item.porcentajeImplicacion.toDouble() / total) * 2 * pi : 0;
-      arcPaint.color = arcColors[i % arcColors.length];
+      final double sweep = total > 0
+          ? (item.porcentajeImplicacion.toDouble() / total) * 2 * pi
+          : 0.0;
+      paint.color = colors[i % colors.length];
 
-      // Dibujar el segmento
       canvas.drawArc(
-        Rect.fromCircle(
-          center: center,
-          radius: radius - strokeWidth / 2,
-        ),
-        startAngle,
-        sweepAngle,
-        false,
-        arcPaint,
-      );
+          Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+          startAngle,
+          sweep,
+          false,
+          paint);
+      _drawLabel(
+          canvas, center, radius, strokeWidth, startAngle, sweep, item);
+      startAngle += sweep;
+    }
+  }
 
-      // Calcular ángulo medio
-      final double midAngle = startAngle + sweepAngle / 2;
-      // Posición del texto dentro del donut
-      final double labelRadius = radius - strokeWidth / 2;
-      final labelOffset = Offset(
-        center.dx + labelRadius * cos(midAngle),
-        center.dy + labelRadius * sin(midAngle),
-      );
+  void _drawLabel(
+      Canvas canvas,
+      Offset center,
+      double radius,
+      double strokeWidth,
+      double startAngle,
+      double sweepAngle,
+      MusculoInvolucrado item) {
+    final double midAngle = startAngle + sweepAngle / 2;
+    final double labelRadius = radius - strokeWidth / 2;
+    final Offset labelPos = Offset(center.dx + labelRadius * cos(midAngle),
+        center.dy + labelRadius * sin(midAngle));
 
-      final String labelText = '${item.porcentajeImplicacion}%\n${item.musculo.titulo}';
-      final double availableArcLength = sweepAngle * labelRadius;
-      const double margin = 4;
+    const double minArcLength = 50.0;
+    final double arcLength = sweepAngle * labelRadius;
+    final bool inside = arcLength >= minArcLength;
 
-      if (availableArcLength >= margin * 2 + 50) {
-        // Texto dentro
-        final textSpan = TextSpan(
-          children: [
-            TextSpan(
-              text: '${item.porcentajeImplicacion}%',
-              style: const TextStyle(
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+            text: '${item.porcentajeImplicacion}%',
+            style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.mutedAdvertencia,
-              ),
-            ),
-            TextSpan(
-              text: '\n${item.musculo.titulo}',
-              style: const TextStyle(fontSize: 14, color: AppColors.textNormal),
-            ),
-          ],
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        final Offset textPosition = labelOffset - Offset(textPainter.width / 2, textPainter.height / 2);
-        textPainter.paint(canvas, textPosition);
-      } else {
-        // Texto fuera con flecha
-        const double offsetExtra = 30;
-        final arrowStart = labelOffset;
-        final textCenterPos = Offset(
-          center.dx + (radius + offsetExtra) * cos(midAngle),
-          center.dy + (radius + offsetExtra) * sin(midAngle),
-        );
-        final textSpan = TextSpan(
-          children: [
-            TextSpan(
-              text: '${item.porcentajeImplicacion}%',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.mutedAdvertencia,
-              ),
-            ),
-            TextSpan(
-              text: '\n${item.musculo.titulo}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textNormal,
-              ),
-            ),
-          ],
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        final adjustedTextPos = textCenterPos - Offset(textPainter.width / 2, textPainter.height / 2);
-        textPainter.paint(canvas, adjustedTextPos);
+                color: AppColors.mutedAdvertencia)),
+        TextSpan(
+            text: '\n${item.musculo.titulo}',
+            style:
+                const TextStyle(fontSize: 14, color: AppColors.textNormal)),
+      ],
+    );
+    final textPainter =
+        TextPainter(text: textSpan, textDirection: TextDirection.ltr)
+          ..layout();
 
-        // Línea desde el donut al texto
-        final Offset textCenter = adjustedTextPos + Offset(textPainter.width / 2, textPainter.height / 2);
-        final Offset v = arrowStart - textCenter;
-        double factor = 1.0;
-        if (v.dx != 0 && v.dy != 0) {
-          final double tx = (textPainter.width / 2) / v.dx.abs();
-          final double ty = (textPainter.height / 2) / v.dy.abs();
-          factor = min(tx, ty);
-        }
-        final Offset arrowEndpoint = textCenter + v * (factor * 0.9);
-        final arrowPaint = Paint()
-          ..color = AppColors.textNormal
-          ..strokeWidth = 1.0;
-        canvas.drawLine(arrowEndpoint, arrowStart, arrowPaint);
-      }
-
-      startAngle += sweepAngle;
+    if (inside) {
+      final offset =
+          labelPos - Offset(textPainter.width / 2, textPainter.height / 2);
+      textPainter.paint(canvas, offset);
+    } else {
+      const double extra = 30.0;
+      final Offset outside = Offset(
+          center.dx + (radius + extra) * cos(midAngle),
+          center.dy + (radius + extra) * sin(midAngle));
+      final offset =
+          outside - Offset(textPainter.width / 2, textPainter.height / 2);
+      textPainter.paint(canvas, offset);
+      final Paint linePaint = Paint()
+        ..strokeWidth = 1.0
+        ..color = AppColors.textNormal;
+      canvas.drawLine(offset + Offset(textPainter.width / 2,
+          textPainter.height / 2), labelPos, linePaint);
     }
   }
 

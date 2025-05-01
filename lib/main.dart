@@ -30,13 +30,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: AppColors.accentColor,
         scaffoldBackgroundColor: AppColors.background,
-        fontFamily: 'MadeTommy', // Añadido para usar la fuente personalizada
+        fontFamily: 'MadeTommy',
         appBarTheme: AppBarTheme(
-          color: AppColors.appBarBackground,
+          color: AppColors.background,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0, // Ensure the background remains consistent
           iconTheme: IconThemeData(color: AppColors.textNormal),
           titleTextStyle: TextStyle(
             color: AppColors.textNormal,
-            fontFamily: 'MadeTommy', // Aplica la fuente al título del AppBar
+            fontFamily: 'MadeTommy',
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),

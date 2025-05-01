@@ -27,7 +27,7 @@ class _MedalsWidgetState extends State<MedalsWidget> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
         color: AppColors.appBarBackground.withAlpha(75),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +37,7 @@ class _MedalsWidgetState extends State<MedalsWidget> {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: AppColors.background,
-                child: const Icon(Icons.emoji_events, color: AppColors.accentColor, size: 18),
+                child: const Icon(Icons.emoji_events, color: AppColors.mutedAdvertencia, size: 18),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -58,6 +58,7 @@ class _MedalsWidgetState extends State<MedalsWidget> {
   }
 
   Widget _buildRecordItem(Map<String, dynamic> record) {
+    // TODO: Meter las medallas en columnas y con scroll horizontal
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

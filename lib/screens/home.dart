@@ -99,7 +99,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
         children: [
           // Fixed CalendarWidget at the top with padding
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: CalendarWidget(
               key: _calendarKey,
               selectedDate: _selectedDate,
@@ -135,15 +135,15 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                  borderRadius: BorderRadius.circular(20), // Rounded corners
                 ),
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
                   child: SingleChildScrollView(
-                    // padding: const EdgeInsets.all(16), // Padding inside the scrollable area
+                    // padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
                         dailyStatsWidget(day: _selectedDate, usuario: usuario),
@@ -158,14 +158,14 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         const SizedBox(height: 15),
                         dailyPhysicalWidget(),
                         const SizedBox(height: 15),
-                        dailyHearthWidget(heartRate: 72), // Example heart rate value
+                        dailyHearthWidget(heartRate: 72),
                         const SizedBox(height: 15),
-                        dailyVitalsWidget(day: _selectedDate, usuario: usuario), // Example heart rate value
+                        dailyVitalsWidget(day: _selectedDate, usuario: usuario),
                         const SizedBox(height: 15),
                         MedalsWidget(),
                         const SizedBox(height: 15),
-                        NotesWidget(initialNote: ""), // Pass an empty string or a default note
-                        const SizedBox(height: 15),
+                        // NotesWidget(initialNote: ""),
+                        // const SizedBox(height: 15),
                         // Expanded(
                         //   flex: 2,
                         //   child: ListadoEntrenamientos(

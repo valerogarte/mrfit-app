@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
@@ -28,6 +29,8 @@ class EjercicioHistoria extends StatelessWidget {
             ),
           );
         }
+        double pesoUsuarioDefault = Usuario.getDefaultWeight();
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +40,7 @@ class EjercicioHistoria extends StatelessWidget {
               ...seriesGrouped.entries.toList().reversed.take(50).map((entry) {
                 final inicio = entry.value['inicio'];
                 final series = entry.value['series'] as List<SerieRealizada>;
-                final pesoUsuario = entry.value['peso_usuario'] as double;
+                final pesoUsuario = (entry.value['peso_usuario'] as double? ?? 0.0) == 0.0 ? pesoUsuarioDefault : entry.value['peso_usuario'] as double;
                 // Nuevo bloque para calcular y formatear la diferencia de tiempo
                 final inicioDate = DateTime.parse(inicio);
                 final now = DateTime.now();

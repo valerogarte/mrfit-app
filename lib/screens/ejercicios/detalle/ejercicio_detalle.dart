@@ -18,11 +18,16 @@ class EjercicioDetallePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.background, // Set scroll/background color
         appBar: AppBar(
-          title: Text(ejercicio.nombre), // Add title to AppBar
+          elevation: 0,
+          backgroundColor: AppColors.background,
+          title: Text(ejercicio.nombre),
           bottom: TabBar(
-            indicatorColor: AppColors.mutedAdvertencia, // Indicator in advertencia
+            dividerColor: Colors.transparent,
+            indicatorWeight: 0,
+            indicator: BoxDecoration(),
+            indicatorColor: Colors.transparent,
             labelColor: AppColors.mutedAdvertencia,
-            unselectedLabelColor: AppColors.background,
+            unselectedLabelColor: AppColors.accentColor,
             tabs: const [
               Tab(text: 'Resumen'),
               Tab(text: 'Marcas'),

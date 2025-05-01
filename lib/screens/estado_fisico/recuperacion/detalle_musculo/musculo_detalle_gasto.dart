@@ -55,7 +55,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
     });
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: cards,
@@ -65,12 +65,12 @@ class DetalleMusculoGasto extends ConsumerWidget {
 
   Widget _buildMensajeMusculoListo() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
       child: Card(
         color: AppColors.mutedAdvertencia,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
           child: Row(
             children: [
               Icon(Icons.check_circle, color: AppColors.background, size: 32),
@@ -94,7 +94,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
 
   Widget _buildTrainingCard(String fechaStr, double volumen, double factorRec, double trainingImpact, Widget exerciseListWidget) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       child: Card(
         color: AppColors.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

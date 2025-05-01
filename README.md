@@ -26,6 +26,10 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
    ```
    flutter pub get
    ```
+4. Ejecuta el siguiente comando para confirmar que tienes todo:
+   ```
+   flutter doctor
+   ```
 
 ## Ejecución
 1. Conecta un dispositivo o emulador.
@@ -53,9 +57,12 @@ Para más herramientas y configuración avanzada, consulta la documentación ofi
 - Aún pendiente de ajustar.
 
 ## Contribuciones
-1. Haz un fork de este repositorio.
-2. Crea una rama con tu funcionalidad.
-3. Envía un pull request con la descripción de tus cambios.
+¡Las contribuciones a MrFit son bienvenidas! Si encuentras algún problema o tienes sugerencias para nuevas funcionalidades, por favor abre un issue o envía un pull request. Asegúrate de seguir el estilo de código y las directrices del proyecto.
+
+## Disclaimer
+MrFit no es una aplicación con propósitos médicos. No podemos confirmar que todos los datos hayan sido validados y deberían usarse con precaución.
+Por favor, mantén un estilo de vida saludable y consulta a un profesional si tienes algún problema. No se recomienda su uso durante enfermedades, embarazo o lactancia.
+La aplicación aún está en construcción. Pueden ocurrir errores, fallos y cierres inesperados.
 
 ## Agradecimientos
 Se agradece a toda la comunidad de Flutter y a los desarrolladores de paquetes de terceros que hicieron posible crear una experiencia más completa.
@@ -63,3 +70,51 @@ Se agradece a toda la comunidad de Flutter y a los desarrolladores de paquetes d
 ## Licencia
 Este proyecto está disponible bajo los términos de la licencia que se especifica en el repositorio. Revisa el archivo LICENSE para más detalles.
 Imagen modelo basada en: https://www.artstation.com/artwork/rVqBe
+
+## TODO:
+
+Django:
+- Altura
+- Entrenador activo
+- Voz del entrenador
+- Aviso 10 segundos
+- Aviso cuenta atrás
+- Objetivo kcal
+- Primer día de la semana
+Usuario:
+- Montar todo nuevamente
+Cache:
+- Establecer caché para elementos de la home
+Frecuencia cardiaca:
+- Funcionalidad
+Sueño:
+- Debe aparecer después de que el tiempo de inactividad haya sido superior a 2 horas.
+Escaleras subidas:
+* Funcionalidad
+Mejoras:
+- Al dejar pulsado el botón de - o + debería subir o bajar mucho
+- Revisar entrenamiento "Pierna" el ejercicio de sentadillas
+Editar entrenamiento:
+- Poder añadir un ejercicio
+- Esconder por las esquinas los bloques
+Actualización:
+- Al hacer scroll down en la home arriba del todo, debe recargar la página al completo
+Rings:
+- Se deben pintar los datos bien en el calendario
+- Pintar bien los números cuando da más de una vuelta
+-----
+TRAS SUBIR A PLAYSTORE
+Alarmas:
+* En la página de la sesión, arriba a la derecha poner alarmas a modo recordatorio
+Medallas:
+* Mayor número de pasos.
+Notas Diario:
+* Funcionalidad
+Maps:
+* Funcionalidad
+Mejoras:
+- Si elimino la última serie del último ejercicio borro el ejercicio
+* Iconos nuevos de caritas
+Yoga:
+- https://github.com/rebeccaestes/yoga_api/blob/master/yoga_api.json
+- https://thenounproject.com/icon/yoga-81538/

@@ -11,7 +11,7 @@ import 'package:mrfit/screens/ejercicios/buscar/ejercicios_buscar.dart';
 import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'package:mrfit/widgets/pills_dificultad.dart';
+import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
@@ -237,37 +237,43 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           Column(
             children: [
               Expanded(
-                child: ReorderableListView(
-                  onReorder: _onReorder,
-                  proxyDecorator: (child, index, animation) {
-                    return Material(
-                      color: AppColors.mutedAdvertencia,
-                      child: child,
-                    );
-                  },
-                  padding: const EdgeInsets.only(bottom: 80),
-                  children: List.generate(_ejercicios.length, (index) {
-                    final ejercicio = _ejercicios[index];
-                    return Container(
-                      key: ValueKey(ejercicio.id),
-                      margin: EdgeInsets.only(
-                        top: index == 0 ? 10.0 : 6.0,
-                        bottom: 4.0,
-                        left: 12.0,
-                        right: 12.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardBackground,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildExerciseHeader(index, ejercicio),
-                        ],
-                      ),
-                    );
-                  }),
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: ReorderableListView(
+                    onReorder: _onReorder,
+                    proxyDecorator: (child, index, animation) {
+                      return Material(
+                        color: AppColors.mutedAdvertencia,
+                        child: child,
+                      );
+                    },
+                    padding: const EdgeInsets.only(bottom: 80),
+                    children: List.generate(_ejercicios.length, (index) {
+                      final ejercicio = _ejercicios[index];
+                      return Container(
+                        key: ValueKey(ejercicio.id),
+                        margin: EdgeInsets.only(
+                          top: index == 0 ? 0.0 : 6.0,
+                          bottom: 4.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildExerciseHeader(index, ejercicio),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
                 ),
               ),
               _buildTrainingButton(),
@@ -297,7 +303,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           child: Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(6.0),
+                borderRadius: BorderRadius.circular(20.0),
                 child: AnimatedImage(
                   ejercicio: ejercicioPersonalizado.ejercicio,
                   width: 105,
@@ -427,7 +433,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
           padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.mutedAdvertencia.withOpacity(0.5)),
           ),
           child: Row(
@@ -445,6 +451,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
         ),
       );
     }
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ElevatedButton(

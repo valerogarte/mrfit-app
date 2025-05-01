@@ -91,16 +91,10 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
     if (rutinaActualId == rutina.id) {
       await usuario.setRutinaActual(null);
       setState(() => rutinaActualId = null);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rutina actual deseleccionada.')),
-      );
     } else {
       final ok = await usuario.setRutinaActual(rutina.id);
       if (ok) {
         setState(() => rutinaActualId = rutina.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${rutina.titulo} establecida como rutina actual.')),
-        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al establecer la rutina actual.')),
@@ -280,7 +274,6 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                   itemBuilder: (ctx, i) {
                     final grupo = gruposConRutinas.keys.elementAt(i);
                     final rutinas = gruposConRutinas[grupo]!;
-
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -292,7 +285,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                           ),
                         ),
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(20),
                           child: Container(
                             height: 120,
                             child: grupo.id == 1
@@ -311,11 +304,12 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                           margin: EdgeInsets.zero, // <-- quitamos margen
                                           color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(15),
+                                            borderRadius: BorderRadius.circular(20),
                                           ),
+                                          shadowColor: Colors.transparent,
                                           elevation: esActual ? 8 : 4,
                                           child: InkWell(
-                                            borderRadius: BorderRadius.circular(15),
+                                            borderRadius: BorderRadius.circular(20),
                                             onTap: () => Navigator.push(
                                               context,
                                               MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: rutina)),
@@ -337,14 +331,15 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                           height: 120,
                                           margin: const EdgeInsets.only(right: 10),
                                           child: Card(
-                                            margin: EdgeInsets.zero, // <-- quitamos margen
+                                            shadowColor: Colors.transparent,
+                                            margin: EdgeInsets.zero,
                                             color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(15),
+                                              borderRadius: BorderRadius.circular(20),
                                             ),
                                             elevation: esActual ? 8 : 4,
                                             child: InkWell(
-                                              borderRadius: BorderRadius.circular(15),
+                                              borderRadius: BorderRadius.circular(20),
                                               onTap: () => Navigator.push(
                                                 context,
                                                 MaterialPageRoute(

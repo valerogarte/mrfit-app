@@ -101,7 +101,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                       icon: Icons.directions_walk,
                       iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
-                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${activity['durationMin']} min)",
+                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
@@ -121,7 +121,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                       icon: info["icon"],
                       iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
-                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first} (${duration} min)",
+                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
                       sourceName: activity['sourceName'],
                     ),
                     builder: (context, snapshot) {
@@ -144,7 +144,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
             color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,0 +1,2 @@
+/home/dan/proyectos/mrfit/app/android/app/.cxx/RelWithDebInfo/6s1u1x1r/x86/CMakeFiles/edit_cache.dir
+/home/dan/proyectos/mrfit/app/android/app/.cxx/RelWithDebInfo/6s1u1x1r/x86/CMakeFiles/rebuild_cache.dir

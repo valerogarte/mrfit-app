@@ -35,14 +35,18 @@ class _MusculoDetallePageState extends State<MusculoDetallePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
+          backgroundColor: AppColors.background,
           title: Text(
             '${widget.musculo[0].toUpperCase()}${widget.musculo.substring(1)} al ${globalRecoveryPercentage.toStringAsFixed(1)}%',
           ),
-          backgroundColor: AppColors.appBarBackground,
           bottom: TabBar(
-            indicatorColor: AppColors.mutedAdvertencia,
+            dividerColor: Colors.transparent,
+            indicatorWeight: 0,
+            indicator: BoxDecoration(),
+            indicatorColor: Colors.transparent,
             labelColor: AppColors.mutedAdvertencia,
-            unselectedLabelColor: AppColors.background,
+            unselectedLabelColor: AppColors.accentColor,
             tabs: const [
               Tab(text: 'Gasto'),
               Tab(text: 'Información'),

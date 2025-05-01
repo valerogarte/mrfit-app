@@ -6,7 +6,7 @@ import 'package:mrfit/widgets/animated_image.dart';
 import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
-import 'package:mrfit/widgets/pills_dificultad.dart';
+import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 
 part 'ejercicios_buscar_logic.dart';
 

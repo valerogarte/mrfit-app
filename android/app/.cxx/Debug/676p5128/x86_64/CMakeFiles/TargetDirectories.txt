@@ -1,0 +1,2 @@
+/home/dan/proyectos/mrfit/app/android/app/.cxx/Debug/676p5128/x86_64/CMakeFiles/edit_cache.dir
+/home/dan/proyectos/mrfit/app/android/app/.cxx/Debug/676p5128/x86_64/CMakeFiles/rebuild_cache.dir

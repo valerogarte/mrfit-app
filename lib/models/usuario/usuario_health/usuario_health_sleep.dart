@@ -62,28 +62,35 @@ extension UsuarioSleepExtension on Usuario {
     return slots.fold(0, (sum, s) => sum + s.duration);
   }
 
-  Future<Map<String, int>> getSleepByDate(String date) async {
-    final parsedDate = DateTime.parse(date);
-    final formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
-    final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+  Future<List<SleepSlot>> getSleepByDate(DateTime day) async {
+    final start = DateTime(day.year, day.month, day.day);
     final end = start.add(const Duration(days: 1));
-    int totalSleep = 0;
-    final sleepKeys = ["SLEEP_DEEP", "SLEEP_LIGHT", "SLEEP_REM", "SLEEP_ASLEEP"];
+    List<SleepSlot> sleepSlots = [];
+    final sleepKeys = ["SLEEP_SESSION", "SLEEP_DEEP", "SLEEP_LIGHT", "SLEEP_REM", "SLEEP_ASLEEP"];
+
     for (var key in sleepKeys) {
-      // Reemplazamos la llamada a _health.hasPermissions por checkPermissionsFor
       if (await checkPermissionsFor(key)) {
         final dataPoints = await _health.getHealthDataFromTypes(
-          startTime: start,
+          startTime: start.subtract(const Duration(days: 1)), // Include the previous day
           endTime: end,
           types: [healthDataTypesString[key]!],
         );
+
         for (var dp in dataPoints) {
-          final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
-          totalSleep += value;
+          // Include slots that start on the previous day but end today
+          if (DateUtils.isSameDay(dp.dateTo, day) || 
+              (dp.dateFrom.isBefore(start) && dp.dateTo.isAfter(start))) {
+            sleepSlots.add(
+              SleepSlot(
+                start: dp.dateFrom,
+                end: dp.dateTo,
+              ),
+            );
+          }
         }
       }
     }
-    return {formattedDate: totalSleep};
+    return sleepSlots;
   }
 
   Future<List<SleepSlot>> getSleepSlotsForDay(DateTime day) async {

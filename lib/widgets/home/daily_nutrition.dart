@@ -74,7 +74,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
             color: AppColors.appBarBackground.withAlpha(75),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

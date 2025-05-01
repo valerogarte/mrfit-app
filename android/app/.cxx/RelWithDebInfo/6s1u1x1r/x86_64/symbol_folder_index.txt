@@ -1,0 +1,1 @@
+/home/dan/proyectos/mrfit/app/build/app/intermediates/cxx/RelWithDebInfo/6s1u1x1r/obj/x86_64

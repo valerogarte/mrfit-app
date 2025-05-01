@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/widgets/pills_dificultad.dart';
+import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/widgets/animated_image.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/widgets/grafico_ejercicios_musculosinvolucrados.dart'; // Import nuevo widget

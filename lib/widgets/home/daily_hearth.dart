@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
 
 Widget dailyHearthWidget({required int heartRate}) {
+  // TODO: Llamar a getReadHeartRate y pintarlo correctamente
   return Container(
     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
     decoration: BoxDecoration(
       color: AppColors.appBarBackground.withAlpha(75),
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(20),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,7 +17,7 @@ Widget dailyHearthWidget({required int heartRate}) {
             CircleAvatar(
               radius: 16,
               backgroundColor: AppColors.background,
-              child: const Icon(Icons.favorite, color: AppColors.mutedAdvertencia, size: 18),
+              child: const Icon(Icons.favorite, color: AppColors.mutedRed, size: 18),
             ),
             const SizedBox(width: 12),
             const Text(

@@ -355,7 +355,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
               // Bullets
               Container(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                color: AppColors.appBarBackground,
+                color: AppColors.background,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(

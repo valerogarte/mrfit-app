@@ -178,17 +178,22 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       final raw = await usuario.getStepsByDateMap(start.toIso8601String(), nDays: 7);
       setState(() => _stepsByDay = {for (final e in raw.entries) DateTime.parse(e.key): e.value});
     }
+    final activity = await usuario.getActivityMap(start.toIso8601String(), nDays: 7);
+    setState(() {
+      _activityMinutes = {
+      for (final e in activity.entries)
+        DateTime.parse(e.key): e.value.fold<int>(0, (p, a) {
+        final start = DateTime.parse(a['start']);
+        final end = DateTime.parse(a['end']);
+        final duration = end.difference(start).inMinutes;
+        return p + duration;
+        }),
+      };
+    });
     if (kcalPerm) {
       final raw = await usuario.getTotalCaloriesBurnedByDayMap(start.toIso8601String(), nDays: 7);
       setState(() => _kcalBurned = {for (final e in raw.entries) DateTime.parse(e.key): e.value});
     }
-
-    final activity = await usuario.getActivityMap(start.toIso8601String(), nDays: 7);
-    setState(() {
-      _activityMinutes = {
-        for (final e in activity.entries) DateTime.parse(e.key): e.value.fold<int>(0, (p, a) => p + ((a['durationMin'] ?? 0) as num).toInt()),
-      };
-    });
   }
 
   void jumpToToday() {
@@ -212,10 +217,12 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double topPad = 8; // separación con el appbar
+        const double topPad = 0; // Antes 8
         final double cellWidth = constraints.maxWidth / 7;
-        final double computedHeight = cellWidth + 30 + topPad;
-        final double height = computedHeight > 110 ? 110 : computedHeight;
+        final double aditionalHeight = 20; // Tamaño que añado por el texto
+        final double computedHeight = cellWidth + aditionalHeight + topPad;
+        final double maxHeight = 85;
+        final double height = computedHeight > maxHeight ? maxHeight : computedHeight;
 
         final today = DateTime.now();
 
@@ -295,13 +302,14 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             LayoutBuilder(
               builder: (context, c) => SizedBox(
@@ -309,8 +317,8 @@ class _DayCell extends StatelessWidget {
                 height: c.maxWidth,
                 child: Center(
                   child: FractionallySizedBox(
-                    widthFactor: 0.9,
-                    heightFactor: 0.9,
+                    widthFactor: 0.95,
+                    heightFactor: 0.95,
                     child: CustomPaint(
                       painter: TripleRingLoaderPainter(
                         pasosPercent: stepsProgress,
@@ -325,7 +333,6 @@ class _DayCell extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 0),
             Text(
               '${date.day}',
               style: TextStyle(
@@ -334,7 +341,6 @@ class _DayCell extends StatelessWidget {
                 color: _labelColor(),
               ),
             ),
-            const SizedBox(height: 10),
           ],
         ),
       ),

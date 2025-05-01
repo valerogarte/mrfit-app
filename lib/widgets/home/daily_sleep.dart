@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:health/health.dart';
+import 'package:logger/logger.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/utils/usage_stats_helper.dart';
 
+Widget _bedtimeIcon() {
+  return CircleAvatar(
+    radius: 16,
+    backgroundColor: AppColors.background,
+    child: Icon(Icons.bedtime, color: AppColors.accentColor, size: 18),
+  );
+}
+
 Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
-  return FutureBuilder<Map<String, int>>(
-    future: usuario.getSleepByDate(DateFormat('yyyy-MM-dd').format(day)),
+  return FutureBuilder<List<SleepSlot>>(
+    future: usuario.getSleepByDate(day),
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return _sleepPlaceholder();
       }
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-        final firstEntry = snapshot.data!.entries.first;
-        if (firstEntry.value > 0) {
-          final totalMinutes = snapshot.data!.values.first;
-          return _sleepStats(totalMinutes, null);
+        if(snapshot.data!.isNotEmpty) {
+          final firstSlot = snapshot.data!.first;
+          final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
+          return _sleepStats(totalMinutes, firstSlot, "HealthConnect", allSlots: snapshot.data);
         }
       }
       return FutureBuilder<List<SleepSlot>>(
@@ -36,6 +45,8 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           if (slots.isNotEmpty) {
             final mainSleepSlot = slots.first;
 
+            Logger().w("Insertando sueño en HealthConnect");
+
             // Write the sleep data with SLEEP_SESSION type
             usuario.writeSleepData(
               timeInicio: mainSleepSlot.start,
@@ -45,7 +56,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           }
 
           final firstSlot = slots.isNotEmpty ? slots.first : null;
-          return _sleepStats(totalMinutes, firstSlot);
+          return _sleepStats(totalMinutes, firstSlot, "UsageStatsHelper", allSlots: slots);
         },
       );
     },
@@ -55,7 +66,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
 Widget _sleepPlaceholder() {
   return _sleepBase(
     mainText: '0h 0m',
-    subText: '00:00 - 00:00',
+    slots: [], // Pass an empty list for placeholder
   );
 }
 
@@ -64,18 +75,14 @@ Widget _sleepPermission() {
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: AppColors.appBarBackground.withAlpha(75),
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(20),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.background,
-              child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-            ),
+            _bedtimeIcon(),
             const SizedBox(width: 12),
             const Text(
               'Sueño',
@@ -105,47 +112,79 @@ Widget _sleepPermission() {
   );
 }
 
-Widget _sleepStats(int totalMinutes, SleepSlot? slot) {
+Widget _sleepStats(int totalMinutes, SleepSlot? slot, String fromWhere, {List<SleepSlot>? allSlots}) {
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
-  final startTime = slot != null ? DateFormat.Hm().format(slot.start) : '00:00';
-  final endTime = slot != null ? DateFormat.Hm().format(slot.end) : '00:00';
   return _sleepBase(
     mainText: '${hours}h ${minutes}m',
-    subText: '$startTime - $endTime',
+    fromWhere: fromWhere,
+    slots: allSlots ?? [],
   );
 }
 
-Widget _sleepBase({required String mainText, required String subText}) {
+Widget _sleepBase({
+  required String mainText,
+  String fromWhere = '',
+  required List<SleepSlot> slots,
+}) {
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
     decoration: BoxDecoration(
       color: AppColors.appBarBackground.withAlpha(75),
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(20),
     ),
-    child: Row(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: AppColors.background,
-          child: const Icon(Icons.bedtime, color: AppColors.mutedAdvertencia, size: 18),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
           children: [
+            _bedtimeIcon(),
+            const SizedBox(width: 12),
             Text(
               mainText,
               style: const TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subText,
-              style: const TextStyle(color: AppColors.textNormal, fontSize: 14),
-            ),
           ],
         ),
+        const SizedBox(height: 12),
+        slots.isEmpty
+            ? Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Sin sueño registrado',
+                  style: TextStyle(color: AppColors.accentColor, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              )
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: slots.map((slot) {
+                    return Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${DateFormat.Hm().format(slot.start)} - ${DateFormat.Hm().format(slot.end)}',
+                            style: const TextStyle(color: AppColors.accentColor, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
       ],
     ),
   );
