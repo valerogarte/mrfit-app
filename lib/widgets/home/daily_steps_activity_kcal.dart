@@ -8,8 +8,14 @@ class DailyStats {
   final int steps;
   final int minutes;
   final int kcal;
+  final Map<String, bool> permissions;
 
-  DailyStats({required this.steps, required this.minutes, required this.kcal});
+  DailyStats({
+    required this.steps,
+    required this.minutes,
+    required this.kcal,
+    required this.permissions,
+  });
 }
 
 Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
@@ -40,7 +46,35 @@ Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
     kcal = kcalMap[parsedDate]?.round() ?? 0;
   }
 
-  return DailyStats(steps: steps, minutes: minutes, kcal: kcal);
+  return DailyStats(steps: steps, minutes: minutes, kcal: kcal, permissions: grantedPermissions);
+}
+
+Widget permissionButton({
+  required Color color,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return Row(
+    children: [
+      CircleAvatar(
+        radius: 16,
+        backgroundColor: color,
+        child: Icon(icon, color: AppColors.background, size: 18),
+      ),
+      const SizedBox(width: 12),
+      ElevatedButton.icon(
+        onPressed: onTap,
+        icon: const Icon(Icons.settings, size: 16),
+        label: const Text('Permisos'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color.withOpacity(0.2),
+          foregroundColor: color,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          minimumSize: const Size(0, 32),
+        ),
+      ),
+    ],
+  );
 }
 
 Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
@@ -69,18 +103,104 @@ Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
         content = const SizedBox(key: ValueKey('error'));
       } else {
         final stats = snapshot.data!;
-        final items = [
-          (AppColors.accentColor, Icons.directions_walk, stats.steps, 'pasos', targetSteps),
-          (AppColors.mutedAdvertencia, Icons.access_time, stats.minutes, 'min', targetMinActividad),
-          (AppColors.mutedGreen, Icons.local_fire_department, stats.kcal, 'kcal', targetKcalBurned),
-        ];
+
+        final hasStepsPermission = stats.permissions['STEPS'] == true;
+        final hasActivityPermission = stats.permissions['STEPS'] == true && stats.permissions['WORKOUT'] == true;
+        final hasCaloriesPermission = stats.permissions['TOTAL_CALORIES_BURNED'] == true;
+
+        final List<Widget> statWidgets = [];
+
+        // Steps widget
+        if (hasStepsPermission) {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: AnimatedInfoItem(
+                color: AppColors.accentColor,
+                icon: Icons.directions_walk,
+                finalValue: stats.steps,
+                label: 'pasos',
+                duration: const Duration(milliseconds: 500),
+              ),
+            ),
+          );
+        } else {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 0),
+              child: permissionButton(
+                color: AppColors.accentColor,
+                icon: Icons.directions_walk,
+                onTap: () => usuario.requestPermissions(),
+              ),
+            ),
+          );
+        }
+
+        // Activity minutes widget
+        if (hasActivityPermission) {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: AnimatedInfoItem(
+                color: AppColors.mutedAdvertencia,
+                icon: Icons.access_time,
+                finalValue: stats.minutes,
+                label: 'min',
+                duration: const Duration(milliseconds: 500),
+              ),
+            ),
+          );
+        } else {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 0),
+              child: permissionButton(
+                color: AppColors.mutedAdvertencia,
+                icon: Icons.access_time,
+                onTap: () async {
+                  await usuario.requestPermissions();
+                  await usuario.requestPermissions();
+                },
+              ),
+            ),
+          );
+        }
+
+        // Calories widget
+        if (hasCaloriesPermission) {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: AnimatedInfoItem(
+                color: AppColors.mutedGreen,
+                icon: Icons.local_fire_department,
+                finalValue: stats.kcal,
+                label: 'kcal',
+                duration: const Duration(milliseconds: 500),
+              ),
+            ),
+          );
+        } else {
+          statWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 0),
+              child: permissionButton(
+                color: AppColors.mutedGreen,
+                icon: Icons.local_fire_department,
+                onTap: () => usuario.requestPermissions(),
+              ),
+            ),
+          );
+        }
+
         content = _buildStatsContainer(
-          children: buildInfoItems(items: items, isAnimated: true),
+          children: statWidgets,
           loader: AnimatedTripleRingLoader(
-            pasosPercent: targetSteps > 0 ? stats.steps / targetSteps : 0,
-            minutosPercent: targetMinActividad > 0 ? stats.minutes / targetMinActividad : 0,
-            kcalPercent: targetKcalBurned > 0 ? stats.kcal / targetKcalBurned : 0,
-            trainedToday: true,
+            pasosPercent: hasStepsPermission && targetSteps > 0 ? stats.steps / targetSteps : 0,
+            minutosPercent: hasActivityPermission && targetMinActividad > 0 ? stats.minutes / targetMinActividad : 0,
+            kcalPercent: hasCaloriesPermission && targetKcalBurned > 0 ? stats.kcal / targetKcalBurned : 0,
+            trainedToday: hasStepsPermission || hasActivityPermission || hasCaloriesPermission,
           ),
           key: const ValueKey('loaded'),
         );

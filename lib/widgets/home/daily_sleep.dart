@@ -87,11 +87,17 @@ Widget _sleepPermission() {
         const Text('Activa permisos para estimar tu sueño.'),
         const SizedBox(height: 12),
         Padding(
-          padding: const EdgeInsets.only(left: 44),
+          padding: const EdgeInsets.only(left: 0),
           child: ElevatedButton.icon(
             onPressed: UsageStatsHelper.openUsageStatsSettings,
-            icon: const Icon(Icons.settings),
-            label: const Text('Permisos'),
+            icon: const Icon(Icons.settings, color: AppColors.background),
+            label: const Text(
+              'Permisos',
+              style: TextStyle(color: AppColors.background),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mutedAdvertencia,
+            ),
           ),
         ),
       ],
