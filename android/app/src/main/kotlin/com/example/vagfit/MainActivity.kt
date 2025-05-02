@@ -7,8 +7,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Process
 import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -21,6 +24,8 @@ class MainActivity : FlutterFragmentActivity() {
 
     private val SCREEN_CHANNEL = "com.vagfit/screen_state"
     private val USAGE_CHANNEL = "com.vagfit/usage_stats"
+    private val HEALTH_CHANNEL = "com.vagfit/health"
+    private val REQUEST_CODE = 1001
     private var screenStateReceiver: BroadcastReceiver? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -39,13 +44,12 @@ class MainActivity : FlutterFragmentActivity() {
                     startActivity(intent)
                     result.success(null)
                 }
-                "getInactivitySlots" -> {  // Se renombra a getInactivitySlots
-                    val day = call.argument<String>("day")  // Formato: "yyyy-MM-dd"
+                "getInactivitySlots" -> {
+                    val day = call.argument<String>("day")
                     if (day != null) {
                         try {
                             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                             val date = sdf.parse(day)
-                            // Llamamos a la función renombrada
                             val slots = getInactivitySlots(this, date!!.time)
                             result.success(slots)
                         } catch (e: Exception) {
@@ -56,6 +60,42 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
                 else -> result.notImplemented()
+            }
+        }
+
+        // Canal para permisos de Health Data History
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, HEALTH_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "hasHealthDataPermission" -> {
+                    val permissionGranted = ContextCompat.checkSelfPermission(
+                        this,
+                        "android.permission.health.READ_HEALTH_DATA_HISTORY"
+                    ) == PackageManager.PERMISSION_GRANTED
+                    android.util.Log.d("HEALTH_CHANNEL", "hasHealthDataPermission: $permissionGranted")
+                    result.success(permissionGranted)
+                }
+                "requestHealthDataPermission" -> {
+                    if (ContextCompat.checkSelfPermission(
+                            this,
+                            "android.permission.health.READ_HEALTH_DATA_HISTORY"
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        android.util.Log.d("HEALTH_CHANNEL", "Permission already granted")
+                        result.success(true)
+                    } else {
+                        android.util.Log.d("HEALTH_CHANNEL", "Requesting permission")
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf("android.permission.health.READ_HEALTH_DATA_HISTORY"),
+                            REQUEST_CODE
+                        )
+                        result.success(false)
+                    }
+                }
+                else -> {
+                    android.util.Log.d("HEALTH_CHANNEL", "Method not implemented: ${call.method}")
+                    result.notImplemented()
+                }
             }
         }
 
@@ -79,11 +119,28 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                     registerReceiver(screenStateReceiver, filter)
                 }
+
                 override fun onCancel(arguments: Any?) {
                     unregisterReceiver(screenStateReceiver)
                 }
             }
         )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE) {
+            val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            android.util.Log.d("HEALTH_CHANNEL", "onRequestPermissionsResult: granted=$granted")
+            flutterEngine?.let { engine ->
+                MethodChannel(engine.dartExecutor.binaryMessenger, HEALTH_CHANNEL)
+                    .invokeMethod("onPermissionResult", granted)
+            }
+        }
     }
 
     /**

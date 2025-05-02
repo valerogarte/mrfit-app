@@ -19,15 +19,14 @@ extension UsuarioActivityExtension on Usuario {
     return dataPointsClean;
   }
 
-  Future<Map<String, int>> getStepsByDateMap(String date, {int nDays = 1}) async {
+  Future<int> getTotalStepsByDate(String date, {int nDays = 1}) async {
     final dataPoints = await getStepsByDate(date, nDays: nDays);
-    final Map<String, int> stepsByDay = {};
+    int stepsByDay = 0;
 
     for (var dp in dataPoints) {
-      final dayKey = dp.dateFrom.toIso8601String().split('T').first;
       final steps = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
 
-      stepsByDay[dayKey] = (stepsByDay[dayKey] ?? 0) + steps;
+      stepsByDay = stepsByDay + steps;
     }
 
     return stepsByDay;
@@ -59,7 +58,7 @@ extension UsuarioActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<List<HealthDataPoint>> getTotalCaloriesBurnedByDay(String date, {int nDays = 1}) async {
+  Future<List<HealthDataPoint>> getCaloriesBurnedByDay(String date, {int nDays = 1}) async {
     if (!await checkPermissionsFor("TOTAL_CALORIES_BURNED")) return [];
 
     final parsedDate = DateTime.parse(date);
@@ -96,15 +95,14 @@ extension UsuarioActivityExtension on Usuario {
     return filteredDataPoints;
   }
 
-  Future<Map<String, double>> getTotalCaloriesBurnedByDayMap(String date, {int nDays = 1}) async {
-    final dataPoints = await getTotalCaloriesBurnedByDay(date, nDays: nDays);
-    final Map<String, double> caloriesByDay = {};
+  Future<double> getTotalCaloriesBurnedByDay(String date, {int nDays = 1}) async {
+    final dataPoints = await getCaloriesBurnedByDay(date, nDays: nDays);
+    double caloriesByDay = 0.0;
 
     for (var dp in dataPoints) {
-      final dayKey = dp.dateFrom.toIso8601String().split('T').first;
       final calories = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0.0;
 
-      caloriesByDay[dayKey] = (caloriesByDay[dayKey] ?? 0.0) + calories;
+      caloriesByDay = caloriesByDay + calories;
     }
 
     return caloriesByDay;
@@ -124,7 +122,7 @@ extension UsuarioActivityExtension on Usuario {
     final parsedDate = date != null ? DateTime.parse(date) : startDate!;
     final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
 
-    final dataPoints = await getTotalCaloriesBurnedByDay(start.toIso8601String(), nDays: nDays);
+    final dataPoints = await getCaloriesBurnedByDay(start.toIso8601String(), nDays: nDays);
 
     Map<DateTime, double> tempMap = {parsedDate: 0.0};
     for (var dp in dataPoints) {
@@ -295,19 +293,6 @@ extension UsuarioActivityExtension on Usuario {
 
     activity.sort((a, b) => (b['start'] as DateTime).compareTo(a['start'] as DateTime));
     return activity;
-  }
-
-  // Nueva función getActivityMap similar a getTotalCaloriesBurnedByDayMap
-  Future<Map<String, List<Map<String, dynamic>>>> getActivityMap(String date, {int nDays = 1}) async {
-    final Map<String, List<Map<String, dynamic>>> activitiesByDay = {};
-    DateTime startDate = DateTime.parse(date);
-    for (int i = 0; i < nDays; i++) {
-      DateTime currentDay = startDate.add(Duration(days: i));
-      String dayKey = currentDay.toIso8601String().split('T').first;
-      final dayActivities = await getActivity(dayKey);
-      activitiesByDay[dayKey] = dayActivities;
-    }
-    return activitiesByDay;
   }
 
   Future<String> healthconnectRegistrarEntrenamiento(

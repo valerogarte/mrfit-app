@@ -14,7 +14,8 @@ import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'package:mrfit/utils/usage_stats_helper.dart';
+import 'package:mrfit/channel/channel_inactividad.dart';
+import 'package:mrfit/utils/constants.dart';
 
 part 'usuario_health.dart';
 part 'usuario_google.dart';

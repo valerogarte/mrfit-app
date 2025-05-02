@@ -83,12 +83,11 @@ class TripleRingLoaderPainter extends CustomPainter {
       if (showNumberLap) {
         final vueltas = percentages[i].floor();
         if (vueltas > 0) {
-          final fontSizeNumber = ringWidths[i] * 0.8;
           final textPainter = TextPainter(
             text: TextSpan(
               text: '$vueltas',
               style: TextStyle(
-                fontSize: fontSizeNumber,
+                fontSize: ringWidths[i] * 0.8,
                 color: AppColors.background,
                 fontWeight: FontWeight.bold,
               ),
@@ -97,7 +96,7 @@ class TripleRingLoaderPainter extends CustomPainter {
           )..layout();
 
           final dxText = center.dx - textPainter.width / 2;
-          final dyText = center.dy - radii[i] - (fontSizeNumber / 2);
+          final dyText = center.dy - radii[i] + ringWidths[i] * 0.05;
           textPainter.paint(canvas, Offset(dxText, dyText));
         }
       }

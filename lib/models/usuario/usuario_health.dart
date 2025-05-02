@@ -29,15 +29,16 @@ extension UsuarioHealthExtension on Usuario {
     await _health.configure();
     final type = healthDataTypesString[name];
     if (type == null) {
-      Logger().e('Error: Tipo de dato no reconocido en código ($name)');
+      // Logger().e('Error: Tipo de dato no reconocido en código ($name)');
       return false;
     }
     final permission = healthDataPermissions[name];
     if (permission == null) {
-      Logger().e('Error: Permiso no configurado en código para el tipo ($name)');
+      // Logger().e('Error: Permiso no configurado en código para el tipo ($name)');
       return false;
     }
     bool granted = await _health.hasPermissions([type], permissions: [permission]) ?? false;
+    // Logger().d("UsuarioHealthExtension: checkPermissionsFor $name: $granted");
     return granted;
   }
 

@@ -20,7 +20,7 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDB() async {
-    final newVersion = 21;
+    final newVersion = 22;
     final fileName = getDatabaseName();
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);

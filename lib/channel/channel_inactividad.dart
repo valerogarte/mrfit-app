@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class UsageStatsHelper {
+class UsageStats {
   static const MethodChannel _channel = MethodChannel('com.vagfit/usage_stats');
 
   static Future<bool> hasUsageStatsPermission() async {

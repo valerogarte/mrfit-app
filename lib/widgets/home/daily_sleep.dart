@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/utils/usage_stats_helper.dart';
+import 'package:mrfit/channel/channel_inactividad.dart';
+import 'package:mrfit/widgets/chart/sleep_bar.dart';
 
 Widget _bedtimeIcon() {
   return CircleAvatar(
@@ -15,14 +15,18 @@ Widget _bedtimeIcon() {
 }
 
 Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
+  // Si la hora es anterior a las 6 de la mañana, no se muestra nada
+  if (day.hour < 6) {
+    return _sleepPlaceholder();
+  }
   return FutureBuilder<List<SleepSlot>>(
-    future: usuario.getSleepByDate(day),
+    future: usuario.getSleepSessionByDate(day),
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return _sleepPlaceholder();
       }
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-        if(snapshot.data!.isNotEmpty) {
+        if (snapshot.data!.isNotEmpty) {
           final firstSlot = snapshot.data!.first;
           final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
           return _sleepStats(totalMinutes, firstSlot, "HealthConnect", allSlots: snapshot.data);
@@ -38,7 +42,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
             return _sleepPermission();
           }
 
-          final slots = usuario.filterAndMergeSlots(slotSnapshot.data!, day);
+          final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
           final totalMinutes = usuario.calculateTotalMinutes(slots);
 
           // If we have valid slots, write the sleep data to the health store
@@ -56,7 +60,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           }
 
           final firstSlot = slots.isNotEmpty ? slots.first : null;
-          return _sleepStats(totalMinutes, firstSlot, "UsageStatsHelper", allSlots: slots);
+          return _sleepStats(totalMinutes, firstSlot, "UsageStats", allSlots: slots);
         },
       );
     },
@@ -96,7 +100,7 @@ Widget _sleepPermission() {
         Padding(
           padding: const EdgeInsets.only(left: 0),
           child: ElevatedButton.icon(
-            onPressed: UsageStatsHelper.openUsageStatsSettings,
+            onPressed: UsageStats.openUsageStatsSettings,
             icon: const Icon(Icons.settings, color: AppColors.background),
             label: const Text(
               'Permisos',
@@ -161,29 +165,9 @@ Widget _sleepBase({
                   style: TextStyle(color: AppColors.accentColor, fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               )
-            : SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: slots.map((slot) {
-                    return Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${DateFormat.Hm().format(slot.start)} - ${DateFormat.Hm().format(slot.end)}',
-                            style: const TextStyle(color: AppColors.accentColor, fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
+            : SleepBar(
+                realStart: slots.first.start,
+                realEnd: slots.first.end,
               ),
       ],
     ),
