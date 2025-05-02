@@ -181,13 +181,13 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     final activity = await usuario.getActivityMap(start.toIso8601String(), nDays: 7);
     setState(() {
       _activityMinutes = {
-      for (final e in activity.entries)
-        DateTime.parse(e.key): e.value.fold<int>(0, (p, a) {
-        final start = DateTime.parse(a['start']);
-        final end = DateTime.parse(a['end']);
-        final duration = end.difference(start).inMinutes;
-        return p + duration;
-        }),
+        for (final e in activity.entries)
+          DateTime.parse(e.key): e.value.fold<int>(0, (int p, a) {
+            final start = a['start'] is DateTime ? a['start'] : DateTime.parse(a['start'].toString());
+            final end = a['end'] is DateTime ? a['end'] : DateTime.parse(a['end'].toString());
+            final duration = end.difference(start).inMinutes;
+            return (p + duration).toInt();
+          }),
       };
     });
     if (kcalPerm) {
@@ -302,7 +302,6 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Expanded(
       child: InkWell(
         onTap: onTap,

@@ -1,1 +1,0 @@
-/home/dan/proyectos/mrfit/app/build/app/intermediates/cxx/Debug/676p5128/obj/arm64-v8a
