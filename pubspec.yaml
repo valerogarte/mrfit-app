@@ -88,6 +88,9 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/mrfit.db
+    - assets/icono_app.png
+    - assets/logo.png
+    - assets/dvg.png
     - assets/images/cuerpohumano/cuerpohumano-frontal.png
     - assets/images/cuerpohumano/cuerpohumano-back.png
     - assets/images/rrss/google.webp

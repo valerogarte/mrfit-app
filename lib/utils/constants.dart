@@ -1,4 +1,6 @@
 class AppConstants {
+  static const String version = '1.0.22';
+
   static const String hostImages = 'https://valerogarte.synology.me/MrFit/media/';
 
   static const String appName = 'MrFit';

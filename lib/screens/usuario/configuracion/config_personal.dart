@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
@@ -12,6 +11,21 @@ class ConfiguracionPersonalDialog extends ConsumerStatefulWidget {
 
   @override
   _ConfiguracionPersonalDialogState createState() => _ConfiguracionPersonalDialogState();
+
+  static Future<void> selectBirthDate(BuildContext context, WidgetRef ref) async {
+    final usuario = ref.read(usuarioProvider);
+    DateTime initialDate = usuario.fechaNacimiento;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != initialDate) {
+      await usuario.setFechaNacimiento(picked);
+      ref.refresh(usuarioProvider);
+    }
+  }
 }
 
 class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPersonalDialog> {
@@ -30,12 +44,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
     final user = ref.read(usuarioProvider);
     String currentValue = "";
     switch (widget.campo) {
-      case 'Alias':
-        currentValue = user.username;
-        break;
-      case 'Fecha de Nacimiento':
-        currentValue = DateFormat('yyyy-MM-dd').format(user.fechaNacimiento);
-        break;
       case 'Altura':
         currentValue = (await user.getCurrentHeight(1)).toString();
         break;
@@ -51,33 +59,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
       case 'Experiencia':
         currentValue = user.experiencia;
         break;
-      case 'Aviso 10 Segundos':
-        currentValue = user.aviso10Segundos ? 'true' : 'false';
-        break;
-      case 'Aviso Cuenta Atrás':
-        currentValue = user.avisoCuentaAtras ? 'true' : 'false';
-        break;
-      case 'Objetivo Kcal':
-        currentValue = user.objetivoKcal.toString();
-        break;
-      case 'Primer Día Semana':
-        currentValue = user.primerDiaSemana.toString();
-        break;
-      case 'Unidad Distancia':
-        currentValue = user.unidadDistancia;
-        break;
-      case 'Unidad Tamaño':
-        currentValue = user.unidadTamano;
-        break;
-      case 'Unidades Peso':
-        currentValue = user.unidadesPeso;
-        break;
-      case 'Voz Entrenador':
-        currentValue = user.vozEntrenador.toString();
-        break;
-      case 'Entrenador Activo':
-        currentValue = user.entrenadorActivo ? 'true' : 'false';
-        break;
       default:
         break;
     }
@@ -86,43 +67,8 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
     });
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _controller.text.isNotEmpty ? DateFormat('yyyy-MM-dd').parse(_controller.text) : DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.cardBackground,
-              onPrimary: AppColors.mutedAdvertencia,
-              onSurface: AppColors.cardBackground,
-            ),
-            dialogBackgroundColor: AppColors.cardBackground,
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _controller.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
   Widget buildInputField() {
     switch (widget.campo) {
-      case 'Fecha de Nacimiento':
-        return TextFormField(
-          controller: _controller,
-          readOnly: true,
-          decoration: InputDecoration(labelText: widget.campo),
-          onTap: _pickDate,
-          validator: (value) => (value == null || value.isEmpty) ? 'Seleccione una fecha' : null,
-        );
       case 'Altura':
         return TextFormField(
           controller: _controller,
@@ -286,18 +232,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
       final String value = _controller.text.trim();
       bool success = false;
       switch (widget.campo) {
-        case 'Alias':
-          success = await user.setUsername(value);
-          break;
-        case 'Fecha de Nacimiento':
-          try {
-            final fecha = DateTime.parse(value);
-            success = await user.setFechaNacimiento(fecha);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Formato de fecha inválido")));
-            return;
-          }
-          break;
         case 'Altura':
           success = await user.setAltura(double.tryParse(value));
           break;
@@ -309,33 +243,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           break;
         case 'Volumen Máximo':
           success = true;
-          break;
-        case 'Aviso 10 Segundos':
-          success = await user.setAviso10Segundos(value.toLowerCase() == 'true');
-          break;
-        case 'Aviso Cuenta Atrás':
-          success = await user.setAvisoCuentaAtras(value.toLowerCase() == 'true');
-          break;
-        case 'Objetivo Kcal':
-          success = await user.setObjetivoKcal(int.tryParse(value) ?? 0);
-          break;
-        case 'Primer Día Semana':
-          success = await user.setPrimerDiaSemana(int.tryParse(value) ?? 1);
-          break;
-        case 'Unidad Distancia':
-          success = await user.setUnidadDistancia(value);
-          break;
-        case 'Unidad Tamaño':
-          success = await user.setUnidadTamano(value);
-          break;
-        case 'Unidades Peso':
-          success = await user.setUnidadesPeso(value);
-          break;
-        case 'Voz Entrenador':
-          success = await user.setVozEntrenador(int.tryParse(value) ?? 0);
-          break;
-        case 'Entrenador Activo':
-          success = await user.setEntrenadorActivo(value.toLowerCase() == 'true');
           break;
         default:
           break;

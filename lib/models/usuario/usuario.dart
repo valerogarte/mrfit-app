@@ -36,6 +36,7 @@ class Usuario {
   Map<String, double> volumenMaximo;
   int objetivoPasosDiarios;
   int objetivoEntrenamientoSemanal;
+  int objetivoTiempoEntrenamiento;
   DateTime fechaNacimiento;
   String genero;
   List<dynamic> historiaLesiones;
@@ -74,6 +75,7 @@ class Usuario {
     this.volumenMaximo = const {},
     required this.objetivoPasosDiarios,
     required this.objetivoEntrenamientoSemanal,
+    this.objetivoTiempoEntrenamiento = 0, // Provide a default value
     required this.fechaNacimiento,
     required this.genero,
     required this.historiaLesiones,
@@ -109,6 +111,7 @@ class Usuario {
       volumenMaximo: Map<String, double>.from(json['volumen_maximo'] ?? {}),
       objetivoPasosDiarios: json['objetivo_pasos_diarios'] ?? 0,
       objetivoEntrenamientoSemanal: json['objetivo_entrenamiento_semanal'] ?? 0,
+      objetivoTiempoEntrenamiento: json['objetivo_tiempo_entrenamiento'] ?? 0, // Default to 0 if null
       fechaNacimiento: DateTime.parse(json['fecha_nacimiento']),
       genero: json['genero'] ?? '',
       historiaLesiones: json['historia_lesiones'] ?? [],
@@ -142,6 +145,7 @@ class Usuario {
       'volumen_maximo': volumenMaximo,
       'objetivo_pasos_diarios': objetivoPasosDiarios,
       'objetivo_entrenamiento_semanal': objetivoEntrenamientoSemanal,
+      'objetivo_tiempo_entrenamiento': objetivoTiempoEntrenamiento,
       'fecha_nacimiento': fechaNacimiento.toIso8601String(),
       'genero': genero,
       'historia_lesiones': historiaLesiones,
@@ -314,6 +318,10 @@ class Usuario {
   }
 
   Future<bool> setSonido(String sonido) async {
+    const allowedValues = ['bajo', 'medio', 'alto'];
+    if (!allowedValues.contains(sonido)) {
+      throw ArgumentError('Invalid value for sonido. Allowed values are: $allowedValues');
+    }
     this.sonido = sonido;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'sonido': sonido}, where: 'id = ?', whereArgs: [1]);
@@ -363,6 +371,18 @@ class Usuario {
     }
   }
 
+  Future<bool> setObjetivoTiempoEntrenamiento(int objetivoTiempoEntrenamiento) async {
+    this.objetivoTiempoEntrenamiento = objetivoTiempoEntrenamiento;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update(
+      'auth_user',
+      {'objetivo_tiempo_entrenamiento': objetivoTiempoEntrenamiento},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+    return count > 0;
+  }
+
   static Future<Usuario> load() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -380,6 +400,7 @@ class Usuario {
         lastLogin: row['last_login'] != null ? DateTime.parse(row['last_login'].toString()) : null,
         objetivoPasosDiarios: row['objetivo_pasos_diarios'] is int ? row['objetivo_pasos_diarios'] as int : (int.tryParse(row['objetivo_pasos_diarios']?.toString() ?? '') ?? 0),
         objetivoEntrenamientoSemanal: row['objetivo_entrenamiento_semanal'] is int ? row['objetivo_entrenamiento_semanal'] as int : (int.tryParse(row['objetivo_entrenamiento_semanal']?.toString() ?? '') ?? 0),
+        objetivoTiempoEntrenamiento: row['objetivo_tiempo_entrenamiento'] is int ? row['objetivo_tiempo_entrenamiento'] as int : (int.tryParse(row['objetivo_tiempo_entrenamiento']?.toString() ?? '') ?? 0),
         fechaNacimiento: row['fecha_nacimiento'] != null ? DateTime.parse(row['fecha_nacimiento'].toString()) : DateTime.now().subtract(const Duration(days: 365 * 30)),
         genero: row['genero']?.toString() ?? '',
         historiaLesiones: historiaLesiones,
