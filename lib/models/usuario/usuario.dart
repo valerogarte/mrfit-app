@@ -27,12 +27,12 @@ part 'usuario_health/usuario_health_sleep.dart';
 part 'usuario_health/usuario_health_nutrition.dart';
 
 class Usuario {
-  final int id;
-  final String username;
-  final bool isStaff;
-  final bool isActive;
-  final DateTime dateJoined;
-  final DateTime? lastLogin;
+  int id;
+  String username;
+  bool isStaff;
+  bool isActive;
+  DateTime dateJoined;
+  DateTime? lastLogin;
   Map<String, double> volumenMaximo;
   int objetivoPasosDiarios;
   int objetivoEntrenamientoSemanal;
@@ -48,6 +48,16 @@ class Usuario {
   int? rutinaActualId;
   Map<String, double>? _cachedMrPoints;
   final Health _health = Health();
+  double? altura;
+  bool aviso10Segundos;
+  bool avisoCuentaAtras;
+  int objetivoKcal;
+  int primerDiaSemana;
+  String unidadDistancia;
+  String unidadTamano;
+  String unidadesPeso;
+  int vozEntrenador;
+  bool entrenadorActivo;
 
   final healthDataTypesString = ModeloDatos().healthDataTypesString;
   final healthDataPermissions = ModeloDatos().healthDataPermissions;
@@ -74,6 +84,16 @@ class Usuario {
     required this.tiempoDescanso,
     this.weight = 0.0,
     this.rutinaActualId, // Incluir el nuevo campo en el constructor
+    this.altura,
+    this.aviso10Segundos = false,
+    this.avisoCuentaAtras = false,
+    this.objetivoKcal = 0,
+    this.primerDiaSemana = 1,
+    this.unidadDistancia = '',
+    this.unidadTamano = '',
+    this.unidadesPeso = '',
+    this.vozEntrenador = 0,
+    this.entrenadorActivo = false,
   });
 
   static final backup = UsuarioBackup();
@@ -98,6 +118,16 @@ class Usuario {
       sonido: json['sonido'] ?? '',
       tiempoDescanso: json['tiempo_descanso'] ?? 0,
       rutinaActualId: json['rutina_actual_id'], // Mapear el nuevo campo
+      altura: json['altura']?.toDouble(),
+      aviso10Segundos: json['aviso_10_segundos'] ?? false,
+      avisoCuentaAtras: json['aviso_cuenta_atras'] ?? false,
+      objetivoKcal: json['objetivo_kcal'] ?? 0,
+      primerDiaSemana: json['primer_dia_semana'] ?? 1,
+      unidadDistancia: json['unidad_distancia'] ?? '',
+      unidadTamano: json['unidad_tamano'] ?? '',
+      unidadesPeso: json['unidades_peso'] ?? '',
+      vozEntrenador: json['voz_entrenador'] ?? 0,
+      entrenadorActivo: json['entrenador_activo'] ?? false,
     );
   }
 
@@ -121,90 +151,184 @@ class Usuario {
       'sonido': sonido,
       'tiempo_descanso': tiempoDescanso,
       'rutina_actual_id': rutinaActualId, // Incluir el nuevo campo en el JSON
+      'altura': altura,
+      'aviso_10_segundos': aviso10Segundos,
+      'aviso_cuenta_atras': avisoCuentaAtras,
+      'objetivo_kcal': objetivoKcal,
+      'primer_dia_semana': primerDiaSemana,
+      'unidad_distancia': unidadDistancia,
+      'unidad_tamano': unidadTamano,
+      'unidades_peso': unidadesPeso,
+      'voz_entrenador': vozEntrenador,
+      'entrenador_activo': entrenadorActivo,
     };
   }
 
   // Métodos set para actualizar campos en la tabla auth_user
 
+  Future<bool> setAltura(double? altura) async {
+    this.altura = altura;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'altura': altura}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setAviso10Segundos(bool aviso10Segundos) async {
+    this.aviso10Segundos = aviso10Segundos;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'aviso_10_segundos': aviso10Segundos ? 1 : 0}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setAvisoCuentaAtras(bool avisoCuentaAtras) async {
+    this.avisoCuentaAtras = avisoCuentaAtras;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'aviso_cuenta_atras': avisoCuentaAtras ? 1 : 0}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setObjetivoKcal(int objetivoKcal) async {
+    this.objetivoKcal = objetivoKcal;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'objetivo_kcal': objetivoKcal}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setPrimerDiaSemana(int primerDiaSemana) async {
+    this.primerDiaSemana = primerDiaSemana;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'primer_dia_semana': primerDiaSemana}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setUnidadDistancia(String unidadDistancia) async {
+    this.unidadDistancia = unidadDistancia;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'unidad_distancia': unidadDistancia}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setUnidadTamano(String unidadTamano) async {
+    this.unidadTamano = unidadTamano;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'unidad_tamano': unidadTamano}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setUnidadesPeso(String unidadesPeso) async {
+    this.unidadesPeso = unidadesPeso;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'unidades_peso': unidadesPeso}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setVozEntrenador(int vozEntrenador) async {
+    this.vozEntrenador = vozEntrenador;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'voz_entrenador': vozEntrenador}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
+  Future<bool> setEntrenadorActivo(bool entrenadorActivo) async {
+    this.entrenadorActivo = entrenadorActivo;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update('auth_user', {'entrenador_activo': entrenadorActivo ? 1 : 0}, where: 'id = ?', whereArgs: [1]);
+    return count > 0;
+  }
+
   Future<bool> setUsername(String username) async {
+    this.username = username;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'username': username}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setIsStaff(bool isStaff) async {
+    this.isStaff = isStaff;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'is_staff': isStaff ? 1 : 0}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setIsActive(bool isActive) async {
+    this.isActive = isActive;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'is_active': isActive ? 1 : 0}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setDateJoined(DateTime dateJoined) async {
+    this.dateJoined = dateJoined;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'date_joined': dateJoined.toIso8601String()}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setLastLogin(DateTime? lastLogin) async {
+    this.lastLogin = lastLogin;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'last_login': lastLogin?.toIso8601String()}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setExperiencia(String experiencia) async {
+    this.experiencia = experiencia;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'experiencia': experiencia}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setFechaNacimiento(DateTime fechaNacimiento) async {
+    this.fechaNacimiento = fechaNacimiento;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'fecha_nacimiento': fechaNacimiento.toIso8601String()}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setGenero(String genero) async {
+    this.genero = genero;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'genero': genero}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setHistoriaLesiones(List<dynamic> historiaLesiones) async {
+    this.historiaLesiones = historiaLesiones;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'historia_lesiones': historiaLesiones}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setObjetivoEntrenamientoSemanal(int objetivoEntrenamientoSemanal) async {
+    this.objetivoEntrenamientoSemanal = objetivoEntrenamientoSemanal;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'objetivo_entrenamiento_semanal': objetivoEntrenamientoSemanal}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setObjetivoPasosDiarios(int objetivoPasosDiarios) async {
+    this.objetivoPasosDiarios = objetivoPasosDiarios;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'objetivo_pasos_diarios': objetivoPasosDiarios}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setSonido(String sonido) async {
+    this.sonido = sonido;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'sonido': sonido}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setTiempoDescanso(int tiempoDescanso) async {
+    this.tiempoDescanso = tiempoDescanso;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'tiempo_descanso': tiempoDescanso}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
   Future<bool> setUnidades(String unidades) async {
+    this.unidades = unidades;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'unidades': unidades}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
@@ -265,6 +389,16 @@ class Usuario {
         sonido: row['sonido']?.toString() ?? '',
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
         rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '') ?? null), // Cargar rutina_actual_id
+        altura: row['altura'] != null ? (row['altura'] as num).toDouble() : null,
+        aviso10Segundos: row['aviso_10_segundos'] == 1,
+        avisoCuentaAtras: row['aviso_cuenta_atras'] == 1,
+        objetivoKcal: row['objetivo_kcal'] is int ? row['objetivo_kcal'] as int : 0,
+        primerDiaSemana: row['primer_dia_semana'] is int ? row['primer_dia_semana'] as int : 1,
+        unidadDistancia: row['unidad_distancia']?.toString() ?? '',
+        unidadTamano: row['unidad_tamano']?.toString() ?? '',
+        unidadesPeso: row['unidades_peso']?.toString() ?? '',
+        vozEntrenador: row['voz_entrenador'] is int ? row['voz_entrenador'] as int : 0,
+        entrenadorActivo: row['entrenador_activo'] == 1,
       );
 
       await usuario.getCurrentMrPoints();
