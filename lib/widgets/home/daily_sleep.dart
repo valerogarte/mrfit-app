@@ -16,7 +16,7 @@ Widget _bedtimeIcon() {
 
 Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
   // Si la hora es anterior a las 6 de la mañana, no se muestra nada
-  if (day.hour < 6) {
+  if (day.hour < 6 && day.day == DateTime.now().day) {
     return _sleepPlaceholder();
   }
   return FutureBuilder<List<SleepSlot>>(
