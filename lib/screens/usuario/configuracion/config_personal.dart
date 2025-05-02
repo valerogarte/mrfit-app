@@ -51,6 +51,33 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
       case 'Experiencia':
         currentValue = user.experiencia;
         break;
+      case 'Aviso 10 Segundos':
+        currentValue = user.aviso10Segundos ? 'true' : 'false';
+        break;
+      case 'Aviso Cuenta Atrás':
+        currentValue = user.avisoCuentaAtras ? 'true' : 'false';
+        break;
+      case 'Objetivo Kcal':
+        currentValue = user.objetivoKcal.toString();
+        break;
+      case 'Primer Día Semana':
+        currentValue = user.primerDiaSemana.toString();
+        break;
+      case 'Unidad Distancia':
+        currentValue = user.unidadDistancia;
+        break;
+      case 'Unidad Tamaño':
+        currentValue = user.unidadTamano;
+        break;
+      case 'Unidades Peso':
+        currentValue = user.unidadesPeso;
+        break;
+      case 'Voz Entrenador':
+        currentValue = user.vozEntrenador.toString();
+        break;
+      case 'Entrenador Activo':
+        currentValue = user.entrenadorActivo ? 'true' : 'false';
+        break;
       default:
         break;
     }
@@ -272,10 +299,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           }
           break;
         case 'Altura':
-          int? altura = int.tryParse(value);
-          if (altura != null) {
-            success = await user.setHeight(altura);
-          }
+          success = await user.setAltura(double.tryParse(value));
           break;
         case 'Género':
           success = await user.setGenero(value);
@@ -285,6 +309,33 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           break;
         case 'Volumen Máximo':
           success = true;
+          break;
+        case 'Aviso 10 Segundos':
+          success = await user.setAviso10Segundos(value.toLowerCase() == 'true');
+          break;
+        case 'Aviso Cuenta Atrás':
+          success = await user.setAvisoCuentaAtras(value.toLowerCase() == 'true');
+          break;
+        case 'Objetivo Kcal':
+          success = await user.setObjetivoKcal(int.tryParse(value) ?? 0);
+          break;
+        case 'Primer Día Semana':
+          success = await user.setPrimerDiaSemana(int.tryParse(value) ?? 1);
+          break;
+        case 'Unidad Distancia':
+          success = await user.setUnidadDistancia(value);
+          break;
+        case 'Unidad Tamaño':
+          success = await user.setUnidadTamano(value);
+          break;
+        case 'Unidades Peso':
+          success = await user.setUnidadesPeso(value);
+          break;
+        case 'Voz Entrenador':
+          success = await user.setVozEntrenador(int.tryParse(value) ?? 0);
+          break;
+        case 'Entrenador Activo':
+          success = await user.setEntrenadorActivo(value.toLowerCase() == 'true');
           break;
         default:
           break;

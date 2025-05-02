@@ -161,6 +161,60 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Volumen Máximo', 'Volumen Máximo'),
           ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.timer, color: AppColors.accentColor),
+            title: Text('Aviso 10 Segundos', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Aviso 10 Segundos', 'Editar Aviso 10 Segundos'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.timer_off, color: AppColors.accentColor),
+            title: Text('Aviso Cuenta Atrás', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Aviso Cuenta Atrás', 'Editar Aviso Cuenta Atrás'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.local_fire_department, color: AppColors.accentColor),
+            title: Text('Objetivo Kcal', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Objetivo Kcal', 'Editar Objetivo Kcal'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.calendar_today, color: AppColors.accentColor),
+            title: Text('Primer Día Semana', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Primer Día Semana', 'Editar Primer Día Semana'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.straighten, color: AppColors.accentColor),
+            title: Text('Unidad Distancia', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Unidad Distancia', 'Editar Unidad Distancia'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.aspect_ratio, color: AppColors.accentColor),
+            title: Text('Unidad Tamaño', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Unidad Tamaño', 'Editar Unidad Tamaño'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
+            title: Text('Unidades Peso', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Unidades Peso', 'Editar Unidades Peso'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.record_voice_over, color: AppColors.accentColor),
+            title: Text('Voz Entrenador', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Voz Entrenador', 'Editar Voz Entrenador'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
+            title: Text('Entrenador Activo', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Entrenador Activo', 'Editar Entrenador Activo'),
+          ),
           // Ajustes de la App
           Padding(
             padding: const EdgeInsets.all(16.0),
