@@ -21,6 +21,7 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDB() async {
+    // Versionado
     final newVersion = int.parse(AppConstants.version.replaceAll('.', ''));
     final fileName = getDatabaseName();
     final dbPath = await getDatabasesPath();
