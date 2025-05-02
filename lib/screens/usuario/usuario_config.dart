@@ -116,12 +116,6 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.person, color: AppColors.accentColor),
-            title: Text(currentUser.username.isNotEmpty ? currentUser.username : 'Alias', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showPersonalDialog('Alias', 'Editar Alias'),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
             leading: Icon(Icons.cake, color: AppColors.accentColor),
             title: Text('${calculateAge(currentUser.fechaNacimiento)} años', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Fecha de Nacimiento', 'Editar Fecha de Nacimiento'),
@@ -161,17 +155,22 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Volumen Máximo', 'Volumen Máximo'),
           ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.timer, color: AppColors.accentColor),
-            title: Text('Aviso 10 Segundos', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showPersonalDialog('Aviso 10 Segundos', 'Editar Aviso 10 Segundos'),
+          // Objetivos
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Objetivos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.timer_off, color: AppColors.accentColor),
-            title: Text('Aviso Cuenta Atrás', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showPersonalDialog('Aviso Cuenta Atrás', 'Editar Aviso Cuenta Atrás'),
+            leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
+            title: Text('Objetivo Pasos', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Objetivo Pasos', 'Editar Objetivo Pasos'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.accessibility_new, color: AppColors.accentColor),
+            title: Text('Objetivo Actividad', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Objetivo Actividad', 'Editar Objetivo Actividad'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
@@ -179,11 +178,10 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text('Objetivo Kcal', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Objetivo Kcal', 'Editar Objetivo Kcal'),
           ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.calendar_today, color: AppColors.accentColor),
-            title: Text('Primer Día Semana', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showPersonalDialog('Primer Día Semana', 'Editar Primer Día Semana'),
+          // Medidas
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Unidades', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
@@ -205,26 +203,20 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.record_voice_over, color: AppColors.accentColor),
-            title: Text('Voz Entrenador', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showPersonalDialog('Voz Entrenador', 'Editar Voz Entrenador'),
+            leading: Icon(Icons.calendar_today, color: AppColors.accentColor),
+            title: Text('Primer Día Semana', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Primer Día Semana', 'Editar Primer Día Semana'),
+          ),
+          // Ajustes de la App
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Entrenador', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
             title: Text('Entrenador Activo', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showPersonalDialog('Entrenador Activo', 'Editar Entrenador Activo'),
-          ),
-          // Ajustes de la App
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('Ajustes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.speaker_notes, color: AppColors.accentColor),
-            title: Text('Entrenador', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showAjustesDialog('Entrenador', 'Editar Entrenador'),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
@@ -240,9 +232,15 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.straighten, color: AppColors.accentColor),
-            title: Text('Unidades', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showAjustesDialog('Unidades', 'Editar Unidades'),
+            leading: Icon(Icons.timer, color: AppColors.accentColor),
+            title: Text('Aviso 10 Segundos', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Aviso 10 Segundos', 'Editar Aviso 10 Segundos'),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.timer_off, color: AppColors.accentColor),
+            title: Text('Aviso Cuenta Atrás', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showPersonalDialog('Aviso Cuenta Atrás', 'Editar Aviso Cuenta Atrás'),
           ),
           // Datos y respaldos
           Padding(
