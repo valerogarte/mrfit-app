@@ -1,79 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
-// Se modificó la función para aceptar day y usuario y definir valores demo.
-Widget dailyVitalsWidget({required DateTime day, required dynamic usuario}) {
-  // Valores demo
-  int spo2 = 98;
-  int stress = 20;
-  double vo2Max = 35.5;
-  int stairsClimbed = 12;
+Widget dailyVitalsWidget({required DateTime day, required Usuario usuario}) {
+  return FutureBuilder<List<dynamic>>(
+    future: Future.wait([
+      usuario.getDailySpo2(day),
+      usuario.getDailyStress(day),
+      usuario.getDailyStairsClimbed(day),
+    ]),
+    builder: (context, snap) {
+      if (snap.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      final spo2 = snap.data![0] as int;
+      final stress = snap.data![1] as int;
+      final stairs = snap.data![2] as int;
 
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-    decoration: BoxDecoration(
-      color: AppColors.appBarBackground.withAlpha(75),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Nueva cabecera con ícono similar a dailyHearthWidget
-        Row(
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: AppColors.appBarBackground.withAlpha(75),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.appBarBackground,
-              child: const Icon(Icons.monitor_heart, color: AppColors.mutedGreen, size: 18),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppColors.appBarBackground,
+                  child: const Icon(
+                    Icons.monitor_heart,
+                    color: AppColors.mutedGreen,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Constantes Vitales",
+                  style: TextStyle(
+                    color: AppColors.textMedium,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            const Text(
-              "Constantes Vitales",
-              style: TextStyle(
-                color: AppColors.textMedium,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const SizedBox(height: 10),
+            _buildRow("SpO₂:", "$spo2%"),
+            const SizedBox(height: 8),
+            _buildRow("Estrés:", "$stress%"),
+            const SizedBox(height: 8),
+            _buildRow("Escaleras subidas:", "$stairs"),
           ],
         ),
-        const SizedBox(height: 10),
-        // SpO2
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("SpO2:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
-            Text("$spo2%", style: const TextStyle(fontSize: 16, color: AppColors.mutedGreen, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // Estrés
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Estrés:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
-            Text("$stress%", style: const TextStyle(fontSize: 16, color: AppColors.mutedGreen, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // VO2 máx
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("VO2 máx:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
-            Text("$vo2Max ml/kg/min", style: const TextStyle(fontSize: 16, color: AppColors.mutedGreen, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // Escaleras subidas
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Escaleras subidas:", style: TextStyle(fontSize: 16, color: AppColors.textMedium)),
-            Text("$stairsClimbed", style: const TextStyle(fontSize: 16, color: AppColors.mutedGreen, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ],
-    ),
+      );
+    },
+  );
+}
+
+Widget _buildRow(String label, String value) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(label, style: const TextStyle(fontSize: 16, color: AppColors.textMedium)),
+      Text(value,
+          style: const TextStyle(
+            fontSize: 16,
+            color: AppColors.mutedGreen,
+            fontWeight: FontWeight.bold,
+          )),
+    ],
   );
 }

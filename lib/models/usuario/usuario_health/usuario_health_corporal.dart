@@ -77,6 +77,68 @@ extension UsuarioHealthCorporalExtension on Usuario {
     return _readHealthData(healthDataTypesString["HEART_RATE"]!, nDays);
   }
 
+  Future<Map<DateTime, double>> getReadHeartRateByDate(DateTime date) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("HEART_RATE")) return {};
+
+    final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+    // 1) Leer y limpiar duplicados
+    var dataPoints = await _health.getHealthDataFromTypes(
+      types: [HealthDataType.HEART_RATE],
+      startTime: startOfDay,
+      endTime: endOfDay,
+    );
+    dataPoints = _health.removeDuplicates(dataPoints);
+
+    // 2) Ordenar cronológicamente
+    dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    final result = <DateTime, double>{};
+
+    for (var dp in dataPoints) {
+      final localTime = dp.dateFrom.toLocal();
+      final double value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0;
+
+      // 3) Si ya hay lectura en esa hora, hacemos promedio
+      result.update(
+        localTime,
+        (old) => (old + value) / 2,
+        ifAbsent: () => value,
+      );
+    }
+
+    return result;
+  }
+
+  Future<int> getDailySpo2(DateTime date) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("BLOOD_OXYGEN")) return 0;
+    // lee últimas 24 h
+    final raw = await _readHealthData(healthDataTypesString["BLOOD_OXYGEN"]!, 1);
+    if (raw.isEmpty) return 0;
+    final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
+    return avg.round();
+  }
+
+  Future<int> getDailyStress(DateTime date) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("HEART_RATE_VARIABILITY_RMSSD")) return 0;
+    final raw = await _readHealthData(healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!, 1);
+    if (raw.isEmpty) return 0;
+    final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
+    return avg.round(); // RMSSD en ms, pero lo usas como “estrés”
+  }
+
+  Future<int> getDailyStairsClimbed(DateTime date) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("FLIGHTS_CLIMBED")) return 0;
+    final raw = await _readHealthData(healthDataTypesString["FLIGHTS_CLIMBED"]!, 1);
+    if (raw.isEmpty) return 0;
+    return raw.map((dp) => (dp.value as NumericHealthValue).numericValue.toInt()).reduce((a, b) => a + b);
+  }
+
   Future<Map<DateTime, dynamic>> getReadHeight(int nDays) async {
     if (!await checkPermissionsFor("HEIGHT")) return {};
 

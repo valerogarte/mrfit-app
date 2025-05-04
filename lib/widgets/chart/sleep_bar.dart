@@ -1,139 +1,200 @@
-// sleep_bar.dart
+// lib/widgets/chart/sleep_bar.dart
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 
-const int kRoutineBedHour = 23;
-const int kRoutineBedMinute = 30;
-const int kRoutineWakeHour = 8;
-const int kRoutineWakeMinute = 15;
+const int _kRoutineBedHour = 23;
+const int _kRoutineBedMinute = 30;
+const int _kRoutineWakeHour = 8;
+const int _kRoutineWakeMinute = 15;
 
-const Color kRoutineColor = AppColors.background; // zona de rutina
-const Color kSuenoRealColor = AppColors.accentColor; // barra sueño real
+const Color _kRoutineColor = AppColors.background;
+const Color _kSuenoRealColor = AppColors.accentColor;
 
-const double kBarHeight = 28.0;
-const double kActualFactor = .60;
-const double kLabelH = 16.0;
+const double _kBarHeight = 28.0; // altura total de la zona de barras
+const double _kActualFactor = .60; // proporción de la 'barrita' real
+const double _kLabelH = 16.0; // espacio para etiquetas arriba/abajo
+
+// valores 0–5 para cada tipo de sueño
+const Map<String, int> _kTypeValue = {
+  'SLEEP_DEEP': 5,
+  'SLEEP_REM': 4,
+  'SLEEP_LIGHT': 3,
+  'SLEEP_ASLEEP': 2,
+  'SLEEP_IN_BED': 2,
+  'SLEEP_AWAKE_IN_BED': 1,
+  'SLEEP_AWAKE': 1,
+  'SLEEP_OUT_OF_BED': 0,
+  'SLEEP_UNKNOWN': 0,
+};
 
 class SleepBar extends StatelessWidget {
   const SleepBar({
     Key? key,
     required this.realStart,
     required this.realEnd,
+    this.typeSlots = const [],
   }) : super(key: key);
 
   final DateTime realStart;
   final DateTime realEnd;
+  final List<SleepSlot> typeSlots;
 
   @override
   Widget build(BuildContext context) {
-    final double fullWidth = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
+    final accentHeight = _kBarHeight * _kActualFactor;
 
-    // límites de rutina
-    final DateTime today = DateTime(realEnd.year, realEnd.month, realEnd.day);
-    final DateTime routineStart = today.subtract(const Duration(days: 1)).add(const Duration(hours: kRoutineBedHour, minutes: kRoutineBedMinute));
-    final DateTime routineEnd = today.add(const Duration(
-      hours: kRoutineWakeHour,
-      minutes: kRoutineWakeMinute,
-    ));
+    final today = DateTime(realEnd.year, realEnd.month, realEnd.day);
+    final routineStart = today.subtract(const Duration(days: 1)).add(const Duration(hours: _kRoutineBedHour, minutes: _kRoutineBedMinute));
+    final routineEnd = today.add(
+      const Duration(hours: _kRoutineWakeHour, minutes: _kRoutineWakeMinute),
+    );
 
-    // inicio/fin del gráfico (sin redondeos)
-    final DateTime graphStart = realStart.isBefore(routineStart) ? realStart : routineStart;
-    final DateTime graphEnd = realEnd.isAfter(routineEnd) ? realEnd : routineEnd;
+    final graphStart = realStart.isBefore(routineStart) ? realStart : routineStart;
+    final graphEnd = realEnd.isAfter(routineEnd) ? realEnd : routineEnd;
+    final totalMinutes = graphEnd.difference(graphStart).inMinutes;
+    if (totalMinutes <= 0) return const SizedBox.shrink();
 
-    final int totalMin = graphEnd.difference(graphStart).inMinutes;
-    if (totalMin <= 0) return const SizedBox.shrink();
+    final spots = typeSlots.where((s) => _kTypeValue.containsKey(s.type)).map((s) {
+      final x = s.start.difference(graphStart).inMinutes.toDouble();
+      final y = (_kTypeValue[s.type] ?? 0).toDouble();
+      return FlSpot(x, y);
+    }).toList()
+      ..sort((a, b) => a.x.compareTo(b.x));
 
-    int _left(DateTime t) => t.difference(graphStart).inMinutes;
-    int _width(DateTime a, DateTime b) => b.difference(a).inMinutes;
-
-    final int routineLeft = _left(routineStart);
-    final int routineWidth = _width(routineStart, routineEnd);
-    final int realLeft = _left(realStart);
-    final int realWidth = _width(realStart, realEnd);
-
-    return Container(
-      width: fullWidth,
-      height: kBarHeight + kLabelH * 2,
+    return SizedBox(
+      width: width,
+      height: _kBarHeight + _kLabelH * 2,
       child: LayoutBuilder(
-        builder: (context, constraints) {
-          final double pxPerMin = constraints.maxWidth / totalMin;
-          final double rStartX = routineLeft * pxPerMin; // debería ser 0
-          final double rWidthPx = routineWidth * pxPerMin;
-          final double sStartX = realLeft * pxPerMin;
-          final double sWidthPx = realWidth * pxPerMin;
-          final double graphWidth = constraints.maxWidth;
-          final double realEndRight = graphWidth - (sStartX + sWidthPx); // debería ser 0
+        builder: (ctx, cons) {
+          final pxPerMin = cons.maxWidth / totalMinutes;
 
-          return Stack(
-            children: [
-              // etiqueta inicio rutina
-              Positioned(
-                top: 0,
-                left: rStartX,
-                child: Text(
-                  DateFormat.Hm().format(routineStart),
-                  style: const TextStyle(fontSize: 12, color: AppColors.mutedGreen),
-                ),
-              ),
-              // etiqueta fin rutina
-              Positioned(
-                top: 0,
-                right: graphWidth - (rStartX + rWidthPx),
-                child: Text(
-                  DateFormat.Hm().format(routineEnd),
-                  style: const TextStyle(fontSize: 12, color: AppColors.mutedGreen),
-                ),
-              ),
-              // zona rutina
-              Positioned(
-                top: kLabelH,
-                left: rStartX,
-                width: rWidthPx,
-                height: kBarHeight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: kRoutineColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
+          final realLeft = realStart.difference(graphStart).inMinutes * pxPerMin;
+          final realWidthPx = realEnd.difference(realStart).inMinutes * pxPerMin;
+          final routineLeft = routineStart.difference(graphStart).inMinutes * pxPerMin;
+          final routineWidthPx = routineEnd.difference(routineStart).inMinutes * pxPerMin;
+          final realRightOffset = cons.maxWidth - (realLeft + realWidthPx);
 
-              // barra sueño real
-              Positioned(
-                top: kLabelH + (kBarHeight * (1 - kActualFactor)) / 2,
-                left: sStartX,
-                width: sWidthPx,
-                height: kBarHeight * kActualFactor,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: kSuenoRealColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-
-              // etiqueta inicio sueño real
-              Positioned(
-                bottom: 0,
-                left: sStartX,
-                child: Text(
-                  DateFormat.Hm().format(realStart),
-                  style: const TextStyle(fontSize: 12, color: AppColors.accentColor),
-                ),
-              ),
-              // etiqueta fin sueño real (10:00)
-              Positioned(
-                bottom: 0,
-                right: realEndRight,
-                child: Text(
-                  DateFormat.Hm().format(realEnd),
-                  style: const TextStyle(fontSize: 12, color: AppColors.accentColor),
-                ),
-              ),
-            ],
-          );
+          return Stack(children: [
+            _buildRoutineLabels(routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
+            _buildRoutineZone(routineLeft, routineWidthPx),
+            _buildSessionBar(realLeft, realWidthPx, accentHeight),
+            _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
+            _buildSleepLine(spots, totalMinutes, accentHeight),
+          ]);
         },
+      ),
+    );
+  }
+
+  Widget _buildRoutineLabels(DateTime start, DateTime end, double left, double width, double maxWidth) {
+    return Stack(children: [
+      Positioned(
+        top: 0,
+        left: left,
+        child: Text(
+          DateFormat.Hm().format(start),
+          style: const TextStyle(fontSize: 12, color: AppColors.mutedGreen),
+        ),
+      ),
+      Positioned(
+        top: 0,
+        right: maxWidth - (left + width),
+        child: Text(
+          DateFormat.Hm().format(end),
+          style: const TextStyle(fontSize: 12, color: AppColors.mutedGreen),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildRoutineZone(double left, double width) {
+    return Positioned(
+      top: _kLabelH,
+      left: left,
+      width: width,
+      height: _kBarHeight,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _kRoutineColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionBar(double left, double width, double height) {
+    return Positioned(
+      top: _kLabelH + (_kBarHeight - height) / 2,
+      left: left,
+      width: width,
+      height: height,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _kSuenoRealColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionLabels(DateTime start, DateTime end, double left, double rightOffset) {
+    return Stack(children: [
+      Positioned(
+        bottom: 0,
+        left: left,
+        child: Text(
+          DateFormat.Hm().format(start),
+          style: const TextStyle(fontSize: 12, color: AppColors.accentColor),
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        right: rightOffset,
+        child: Text(
+          DateFormat.Hm().format(end),
+          style: const TextStyle(fontSize: 12, color: AppColors.accentColor),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildSleepLine(List<FlSpot> spots, int maxX, double height) {
+    // Lo último para quedar encima de la barrita, usa left+right para ocupar todo el ancho
+    return Positioned(
+      top: _kLabelH + (_kBarHeight - height) / 2 + 2,
+      left: 0,
+      right: 0,
+      height: height,
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: maxX.toDouble(),
+          minY: 0,
+          maxY: 5,
+          gridData: FlGridData(show: false),
+          titlesData: FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: false,
+              color: AppColors.mutedAdvertencia,
+              isStrokeCapRound: true,
+              barWidth: 2,
+              dotData: FlDotData(show: false),
+              shadow: const Shadow(
+                color: AppColors.background,
+                blurRadius: 4,
+                offset: Offset(2, 2),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

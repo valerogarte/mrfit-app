@@ -241,9 +241,6 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
         case 'Experiencia':
           success = await user.setExperiencia(value);
           break;
-        case 'Volumen Máximo':
-          success = true;
-          break;
         default:
           break;
       }

@@ -59,6 +59,8 @@ class Usuario {
   String unidadesPeso;
   int vozEntrenador;
   bool entrenadorActivo;
+  TimeOfDay? horaFinSueno;
+  TimeOfDay? horaInicioSueno;
 
   final healthDataTypesString = ModeloDatos().healthDataTypesString;
   final healthDataPermissions = ModeloDatos().healthDataPermissions;
@@ -96,6 +98,8 @@ class Usuario {
     this.unidadesPeso = '',
     this.vozEntrenador = 0,
     this.entrenadorActivo = false,
+    this.horaFinSueno,
+    this.horaInicioSueno,
   });
 
   static final backup = UsuarioBackup();
@@ -131,6 +135,18 @@ class Usuario {
       unidadesPeso: json['unidades_peso'] ?? '',
       vozEntrenador: json['voz_entrenador'] ?? 0,
       entrenadorActivo: json['entrenador_activo'] ?? false,
+      horaFinSueno: json['hora_fin_sueno'] != null
+          ? TimeOfDay(
+              hour: int.parse((json['hora_fin_sueno'] as String).split(':')[0]),
+              minute: int.parse((json['hora_fin_sueno'] as String).split(':')[1]),
+            )
+          : null,
+      horaInicioSueno: json['hora_inicio_sueno'] != null
+          ? TimeOfDay(
+              hour: int.parse((json['hora_inicio_sueno'] as String).split(':')[0]),
+              minute: int.parse((json['hora_inicio_sueno'] as String).split(':')[1]),
+            )
+          : null,
     );
   }
 
@@ -165,6 +181,8 @@ class Usuario {
       'unidades_peso': unidadesPeso,
       'voz_entrenador': vozEntrenador,
       'entrenador_activo': entrenadorActivo,
+      'hora_fin_sueno': horaFinSueno != null ? '${horaFinSueno!.hour.toString().padLeft(2, '0')}:${horaFinSueno!.minute.toString().padLeft(2, '0')}' : null,
+      'hora_inicio_sueno': horaInicioSueno != null ? '${horaInicioSueno!.hour.toString().padLeft(2, '0')}:${horaInicioSueno!.minute.toString().padLeft(2, '0')}' : null,
     };
   }
 
@@ -420,6 +438,18 @@ class Usuario {
         unidadesPeso: row['unidades_peso']?.toString() ?? '',
         vozEntrenador: row['voz_entrenador'] is int ? row['voz_entrenador'] as int : 0,
         entrenadorActivo: row['entrenador_activo'] == 1,
+        horaFinSueno: row['hora_fin_sueno'] != null
+            ? TimeOfDay(
+                hour: int.parse((row['hora_fin_sueno'] as String).split(':')[0]),
+                minute: int.parse((row['hora_fin_sueno'] as String).split(':')[1]),
+              )
+            : null,
+        horaInicioSueno: row['hora_inicio_sueno'] != null
+            ? TimeOfDay(
+                hour: int.parse((row['hora_inicio_sueno'] as String).split(':')[0]),
+                minute: int.parse((row['hora_inicio_sueno'] as String).split(':')[1]),
+              )
+            : null,
       );
 
       await usuario.getCurrentMrPoints();
@@ -501,4 +531,28 @@ class Usuario {
       "https://www.googleapis.com/auth/fitness.sleep.write"
     ],
   );
+
+  Future<bool> setHoraInicioSueno(TimeOfDay time) async {
+    this.horaInicioSueno = time;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update(
+      'auth_user',
+      {'hora_inicio_sueno': '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+    return count > 0;
+  }
+
+  Future<bool> setHoraFinSueno(TimeOfDay time) async {
+    this.horaFinSueno = time;
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update(
+      'auth_user',
+      {'hora_fin_sueno': '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+    return count > 0;
+  }
 }

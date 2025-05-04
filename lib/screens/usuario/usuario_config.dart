@@ -144,6 +144,30 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text(user.objetivoKcal != null ? '${user.objetivoKcal} kcal diarias' : 'Objetivo Kcal', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showConfigDialog('Objetivo Kcal', 'Editar Objetivo Kcal', ConfiguracionObjetivosPage(campo: 'Objetivo Kcal')),
           ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.calendar_view_week, color: AppColors.accentColor),
+            title: Text(user.objetivoEntrenamientoSemanal > 0 ? '${user.objetivoEntrenamientoSemanal} entrenamientos semanales' : 'Objetivo Entrenamiento Semanal', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => _showConfigDialog('Objetivo Entrenamiento Semanal', 'Editar Objetivo Entrenamiento Semanal', ConfiguracionObjetivosPage(campo: 'Objetivo Entrenamiento Semanal')),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.bedtime, color: AppColors.accentColor),
+            title: Text(
+              user.horaInicioSueno != null ? 'Hora Inicio Sueño: ${user.horaInicioSueno!.format(context)}' : 'Hora Inicio Sueño',
+              style: TextStyle(color: AppColors.textMedium),
+            ),
+            onTap: () => _showConfigDialog('Hora Inicio Sueño', 'Editar Hora Inicio Sueño', ConfiguracionObjetivosPage(campo: 'Hora Inicio Sueño')),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.bedtime_outlined, color: AppColors.accentColor),
+            title: Text(
+              user.horaFinSueno != null ? 'Hora Fin Sueño: ${user.horaFinSueno!.format(context)}' : 'Hora Fin Sueño',
+              style: TextStyle(color: AppColors.textMedium),
+            ),
+            onTap: () => _showConfigDialog('Hora Fin Sueño', 'Editar Hora Fin Sueño', ConfiguracionObjetivosPage(campo: 'Hora Fin Sueño')),
+          ),
 
           // Unidades
           const SectionHeader('Unidades'),

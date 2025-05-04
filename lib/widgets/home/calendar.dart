@@ -225,12 +225,19 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
         if (activityPerm) {
           activityLocal[currentDate] = await usuario.getTimeActivityByDate(iso);
         }
-        if (currentDate.year == today.year) {
-          newCacheEntries[iso] = {
-            'steps': stepsLocal[currentDate]!.toString(),
-            'kcal': kcalLocal[currentDate]!.toString(),
-            'minAct': activityLocal[currentDate]!.toString(),
-          };
+        // No cachear el día de hoy
+        if (currentDate.year == today.year && currentDate.month == today.month && currentDate.day == today.day) {
+          continue;
+        }
+        // Solo cachear datos pasados y si alguno de los valores > 0
+        if (currentDate.isBefore(today)) {
+          if ((stepsLocal[currentDate] ?? 0) > 0 || (kcalLocal[currentDate] ?? 0) > 0 || (activityLocal[currentDate] ?? 0) > 0) {
+            newCacheEntries[iso] = {
+              'steps': stepsLocal[currentDate]!.toString(),
+              'kcal': kcalLocal[currentDate]!.toString(),
+              'minAct': activityLocal[currentDate]!.toString(),
+            };
+          }
         }
       }
     }
@@ -277,7 +284,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
         final double cellWidth = constraints.maxWidth / 7;
         final double aditionalHeight = 20;
         final double computedHeight = cellWidth + aditionalHeight + topPad;
-        final double maxHeight = 85;
+        const double maxHeight = 85;
         final double height = computedHeight > maxHeight ? maxHeight : computedHeight;
         final today = DateTime.now();
 

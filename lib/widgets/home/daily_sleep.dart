@@ -1,3 +1,5 @@
+// daily_sleep.dart
+
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
 import 'package:logger/logger.dart';
@@ -26,12 +28,27 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
         return _sleepPlaceholder();
       }
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-        if (snapshot.data!.isNotEmpty) {
-          final firstSlot = snapshot.data!.first;
-          final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
-          return _sleepStats(totalMinutes, firstSlot, "HealthConnect", allSlots: snapshot.data);
-        }
+        final firstSlot = snapshot.data!.first;
+        final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
+        // NUEVO: llamamos a getTypeSleepByDate para obtener los slots tipados
+        return FutureBuilder<List<SleepSlot>>(
+          future: usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
+          builder: (ctx2, typeSnap) {
+            if (typeSnap.connectionState != ConnectionState.done) {
+              return _sleepStats(totalMinutes, firstSlot, "HealthConnect");
+            }
+            final typeSlots = typeSnap.data ?? [];
+            return _sleepStats(
+              totalMinutes,
+              firstSlot,
+              "HealthConnect",
+              allSlots: snapshot.data,
+              typeSlots: typeSlots,
+            );
+          },
+        );
       }
+      // rama original de UsageStats
       return FutureBuilder<List<SleepSlot>>(
         future: usuario.getSleepSlotsForDay(day),
         builder: (context, slotSnapshot) {
@@ -45,22 +62,22 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
           final totalMinutes = usuario.calculateTotalMinutes(slots);
 
-          // If we have valid slots, write the sleep data to the health store
           if (slots.isNotEmpty) {
             final mainSleepSlot = slots.first;
-
             Logger().w("Insertando sueño en HealthConnect");
-
-            // Write the sleep data with SLEEP_SESSION type
             usuario.writeSleepData(
               timeInicio: mainSleepSlot.start,
               timeFin: mainSleepSlot.end,
               sleepType: HealthDataType.SLEEP_SESSION,
             );
           }
-
           final firstSlot = slots.isNotEmpty ? slots.first : null;
-          return _sleepStats(totalMinutes, firstSlot, "UsageStats", allSlots: slots);
+          return _sleepStats(
+            totalMinutes,
+            firstSlot,
+            "UsageStats",
+            allSlots: slots,
+          );
         },
       );
     },
@@ -70,7 +87,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
 Widget _sleepPlaceholder() {
   return _sleepBase(
     mainText: '0h 0m',
-    slots: [], // Pass an empty list for placeholder
+    slots: [],
   );
 }
 
@@ -116,13 +133,20 @@ Widget _sleepPermission() {
   );
 }
 
-Widget _sleepStats(int totalMinutes, SleepSlot? slot, String fromWhere, {List<SleepSlot>? allSlots}) {
+Widget _sleepStats(
+  int totalMinutes,
+  SleepSlot? slot,
+  String fromWhere, {
+  List<SleepSlot>? allSlots,
+  List<SleepSlot>? typeSlots, // NUEVO parámetro
+}) {
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
   return _sleepBase(
     mainText: '${hours}h ${minutes}m',
     fromWhere: fromWhere,
     slots: allSlots ?? [],
+    typeSlots: typeSlots ?? [], // lo pasamos al base
   );
 }
 
@@ -130,6 +154,7 @@ Widget _sleepBase({
   required String mainText,
   String fromWhere = '',
   required List<SleepSlot> slots,
+  List<SleepSlot>? typeSlots, // NUEVO
 }) {
   return Container(
     width: double.infinity,
@@ -168,6 +193,7 @@ Widget _sleepBase({
             : SleepBar(
                 realStart: slots.first.start,
                 realEnd: slots.first.end,
+                typeSlots: typeSlots ?? [],
               ),
       ],
     ),

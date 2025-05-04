@@ -3,15 +3,26 @@ part of '../usuario.dart';
 class SleepSlot {
   final DateTime start;
   final DateTime end;
+  final String type; // NUEVO
   final String sourceName;
   int get duration => end.difference(start).inMinutes;
 
-  SleepSlot({required this.start, required this.end, this.sourceName = ""});
+  SleepSlot({
+    required this.start,
+    required this.end,
+    this.type = "",
+    this.sourceName = "",
+  });
 
   factory SleepSlot.fromMap(Map<dynamic, dynamic> map) {
-    final s = DateTime.fromMillisecondsSinceEpoch(map['start'] ?? 0);
-    final e = DateTime.fromMillisecondsSinceEpoch(map['end'] ?? 0);
-    return SleepSlot(start: s, end: e, sourceName: map['sourceName']);
+    final start = map['start'];
+    final end = map['end'];
+    if (start == null || end == null) {
+      throw ArgumentError('Invalid SleepSlot data: $map');
+    }
+    final s = DateTime.fromMillisecondsSinceEpoch(start);
+    final e = DateTime.fromMillisecondsSinceEpoch(end);
+    return SleepSlot(start: s, end: e, sourceName: map['sourceName'] ?? '');
   }
 }
 
@@ -63,38 +74,43 @@ extension UsuarioSleepExtension on Usuario {
       }
     }
 
-    return [principal]..sort((a, b) => a.start.compareTo(b.start));
+    final result = [principal]..sort((a, b) => a.start.compareTo(b.start));
+    return result;
   }
 
   int calculateTotalMinutes(List<SleepSlot> slots) {
     return slots.fold(0, (sum, s) => sum + s.duration);
   }
 
-  Future<List<SleepSlot>> getSleepByDate(DateTime day) async {
-    final start = DateTime(day.year, day.month, day.day);
-    final end = start.add(const Duration(days: 1));
+  Future<List<SleepSlot>> getTypeSleepByDate(DateTime start, DateTime end) async {
     List<SleepSlot> sleepSlots = [];
-    final sleepKeys = ["SLEEP_SESSION", "SLEEP_DEEP", "SLEEP_LIGHT", "SLEEP_REM", "SLEEP_ASLEEP"];
-
+    final sleepKeys = [
+      "SLEEP_DEEP",
+      "SLEEP_LIGHT",
+      "SLEEP_REM",
+      "SLEEP_ASLEEP",
+      "SLEEP_AWAKE_IN_BED",
+      "SLEEP_AWAKE",
+      "SLEEP_IN_BED",
+      "SLEEP_OUT_OF_BED",
+      "SLEEP_UNKNOWN",
+    ];
     for (var key in sleepKeys) {
       if (await checkPermissionsFor(key)) {
         final dataPoints = await _health.getHealthDataFromTypes(
-          startTime: start.subtract(const Duration(days: 1)), // Include the previous day
+          startTime: start.subtract(const Duration(days: 1)),
           endTime: end,
           types: [healthDataTypesString[key]!],
         );
-
         for (var dp in dataPoints) {
-          // Include slots that start on the previous day but end today
-          if (DateUtils.isSameDay(dp.dateTo, day) || (dp.dateFrom.isBefore(start) && dp.dateTo.isAfter(start))) {
-            sleepSlots.add(
-              SleepSlot(
-                start: dp.dateFrom,
-                end: dp.dateTo,
-                sourceName: dp.sourceName,
-              ),
-            );
-          }
+          sleepSlots.add(
+            SleepSlot(
+              start: dp.dateFrom,
+              end: dp.dateTo,
+              type: key,
+              sourceName: dp.sourceName,
+            ),
+          );
         }
       }
     }

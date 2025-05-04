@@ -33,8 +33,17 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
       case 'Objetivo Actividad':
         current = user.objetivoTiempoEntrenamiento > 0 ? user.objetivoTiempoEntrenamiento.toString() : '';
         break;
+      case 'Objetivo Entrenamiento Semanal':
+        current = user.objetivoEntrenamientoSemanal > 0 ? user.objetivoEntrenamientoSemanal.toString() : '';
+        break;
       case 'Objetivo Kcal':
         current = user.objetivoKcal?.toString() ?? '';
+        break;
+      case 'Hora Inicio Sueño':
+        current = user.horaInicioSueno != null ? user.horaInicioSueno!.format(context) : '';
+        break;
+      case 'Hora Fin Sueño':
+        current = user.horaFinSueno != null ? user.horaFinSueno!.format(context) : '';
         break;
       default:
         current = '';
@@ -43,31 +52,79 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
   }
 
   Widget _buildInput() {
-    return TextFormField(
-      controller: _controller,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: widget.campo,
-        border: const OutlineInputBorder(),
-      ),
-      validator: (v) => v == null || v.isEmpty ? 'Ingrese un valor' : null,
-    );
+    switch (widget.campo) {
+      case 'Hora Inicio Sueño':
+      case 'Hora Fin Sueño':
+        return TextFormField(
+          controller: _controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            labelText: widget.campo,
+            border: const OutlineInputBorder(),
+          ),
+          onTap: () async {
+            final time = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay.now(),
+            );
+            if (time != null) {
+              setState(() {
+                _controller.text = time.format(context);
+              });
+            }
+          },
+          validator: (v) => v == null || v.isEmpty ? 'Seleccione una hora' : null,
+        );
+      default:
+        return TextFormField(
+          controller: _controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: widget.campo,
+            border: const OutlineInputBorder(),
+          ),
+          validator: (v) => v == null || v.isEmpty ? 'Ingrese un valor' : null,
+        );
+    }
   }
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     final user = ref.read(usuarioProvider);
-    final val = int.tryParse(_controller.text.trim()) ?? 0;
+    final val = _controller.text.trim();
     bool ok = false;
     switch (widget.campo) {
       case 'Objetivo Pasos':
-        ok = await user.setObjetivoPasosDiarios(val);
+        final intVal = int.tryParse(val) ?? 0;
+        ok = await user.setObjetivoPasosDiarios(intVal);
         break;
       case 'Objetivo Actividad':
-        ok = await user.setObjetivoTiempoEntrenamiento(val);
+        final intVal = int.tryParse(val) ?? 0;
+        ok = await user.setObjetivoTiempoEntrenamiento(intVal);
+        break;
+      case 'Objetivo Entrenamiento Semanal':
+        final intVal = int.tryParse(val) ?? 0;
+        ok = await user.setObjetivoEntrenamientoSemanal(intVal);
         break;
       case 'Objetivo Kcal':
-        ok = await user.setObjetivoKcal(val);
+        final intVal = int.tryParse(val) ?? 0;
+        ok = await user.setObjetivoKcal(intVal);
+        break;
+      case 'Hora Inicio Sueño':
+        final timeParts = val.split(':');
+        final time = TimeOfDay(
+          hour: int.parse(timeParts[0]),
+          minute: int.parse(timeParts[1]),
+        );
+        ok = await user.setHoraInicioSueno(time);
+        break;
+      case 'Hora Fin Sueño':
+        final timeParts = val.split(':');
+        final time = TimeOfDay(
+          hour: int.parse(timeParts[0]),
+          minute: int.parse(timeParts[1]),
+        );
+        ok = await user.setHoraFinSueno(time);
         break;
     }
     if (ok) {
