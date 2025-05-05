@@ -2,7 +2,6 @@ import 'package:mrfit/models/modelo_datos.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'usuario_backup.dart';
 import 'package:logger/logger.dart';
@@ -18,7 +17,6 @@ import 'package:mrfit/channel/channel_inactividad.dart';
 import 'package:mrfit/utils/constants.dart';
 
 part 'usuario_health.dart';
-part 'usuario_google.dart';
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';
 part 'usuario_health/usuario_health_activity.dart';
@@ -49,7 +47,7 @@ class Usuario {
   int? rutinaActualId;
   Map<String, double>? _cachedMrPoints;
   final Health _health = Health();
-  double? altura;
+  int? altura;
   bool aviso10Segundos;
   bool avisoCuentaAtras;
   int objetivoKcal;
@@ -114,8 +112,9 @@ class Usuario {
       lastLogin: json['last_login'] != null ? DateTime.parse(json['last_login']) : null,
       volumenMaximo: Map<String, double>.from(json['volumen_maximo'] ?? {}),
       objetivoPasosDiarios: json['objetivo_pasos_diarios'] ?? 0,
+      objetivoTiempoEntrenamiento: json['objetivo_tiempo_entrenamiento'] ?? 0,
+      objetivoKcal: json['objetivo_kcal'] ?? 0,
       objetivoEntrenamientoSemanal: json['objetivo_entrenamiento_semanal'] ?? 0,
-      objetivoTiempoEntrenamiento: json['objetivo_tiempo_entrenamiento'] ?? 0, // Default to 0 if null
       fechaNacimiento: DateTime.parse(json['fecha_nacimiento']),
       genero: json['genero'] ?? '',
       historiaLesiones: json['historia_lesiones'] ?? [],
@@ -124,11 +123,10 @@ class Usuario {
       unidades: json['unidades'] ?? '',
       sonido: json['sonido'] ?? '',
       tiempoDescanso: json['tiempo_descanso'] ?? 0,
-      rutinaActualId: json['rutina_actual_id'], // Mapear el nuevo campo
-      altura: json['altura']?.toDouble(),
+      rutinaActualId: json['rutina_actual_id'],
+      altura: json['altura']?.toInt(),
       aviso10Segundos: json['aviso_10_segundos'] ?? false,
       avisoCuentaAtras: json['aviso_cuenta_atras'] ?? false,
-      objetivoKcal: json['objetivo_kcal'] ?? 0,
       primerDiaSemana: json['primer_dia_semana'] ?? 1,
       unidadDistancia: json['unidad_distancia'] ?? '',
       unidadTamano: json['unidad_tamano'] ?? '',
@@ -188,11 +186,13 @@ class Usuario {
 
   // Métodos set para actualizar campos en la tabla auth_user
 
-  Future<bool> setAltura(double? altura) async {
+  Future<bool> setAltura(int altura) async {
     this.altura = altura;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'altura': altura}, where: 'id = ?', whereArgs: [1]);
-    return count > 0;
+    // Lo meto en HC
+    bool success = await setHeight(altura);
+    return count > 0 && success;
   }
 
   Future<bool> setAviso10Segundos(bool aviso10Segundos) async {
@@ -428,7 +428,7 @@ class Usuario {
         sonido: row['sonido']?.toString() ?? '',
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
         rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '') ?? null), // Cargar rutina_actual_id
-        altura: row['altura'] != null ? (row['altura'] as num).toDouble() : null,
+        altura: row['altura'] != null ? (row['altura'] as num).toInt() : null,
         aviso10Segundos: row['aviso_10_segundos'] == 1,
         avisoCuentaAtras: row['aviso_cuenta_atras'] == 1,
         objetivoKcal: row['objetivo_kcal'] is int ? row['objetivo_kcal'] as int : 0,
@@ -488,49 +488,6 @@ class Usuario {
   static double getDefaultWeight() {
     return 72;
   }
-
-  int getTargetSteps() {
-    return 7500;
-  }
-
-  int getTargetMinActividad() {
-    return 75;
-  }
-
-  int getTargetKcalBurned() {
-    return 2500;
-  }
-
-  int getTargetSleepMinutes() {
-    return 480;
-  }
-
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: <String>[
-      "https://www.googleapis.com/auth/fitness.activity.read",
-      "https://www.googleapis.com/auth/fitness.activity.write",
-      "https://www.googleapis.com/auth/fitness.blood_glucose.read",
-      "https://www.googleapis.com/auth/fitness.blood_glucose.write",
-      "https://www.googleapis.com/auth/fitness.blood_pressure.read",
-      "https://www.googleapis.com/auth/fitness.blood_pressure.write",
-      "https://www.googleapis.com/auth/fitness.body.read",
-      "https://www.googleapis.com/auth/fitness.body.write",
-      "https://www.googleapis.com/auth/fitness.body_temperature.read",
-      "https://www.googleapis.com/auth/fitness.body_temperature.write",
-      "https://www.googleapis.com/auth/fitness.heart_rate.read",
-      "https://www.googleapis.com/auth/fitness.heart_rate.write",
-      "https://www.googleapis.com/auth/fitness.location.read",
-      "https://www.googleapis.com/auth/fitness.location.write",
-      "https://www.googleapis.com/auth/fitness.nutrition.read",
-      "https://www.googleapis.com/auth/fitness.nutrition.write",
-      "https://www.googleapis.com/auth/fitness.oxygen_saturation.read",
-      "https://www.googleapis.com/auth/fitness.oxygen_saturation.write",
-      "https://www.googleapis.com/auth/fitness.reproductive_health.read",
-      "https://www.googleapis.com/auth/fitness.reproductive_health.write",
-      "https://www.googleapis.com/auth/fitness.sleep.read",
-      "https://www.googleapis.com/auth/fitness.sleep.write"
-    ],
-  );
 
   Future<bool> setHoraInicioSueno(TimeOfDay time) async {
     this.horaInicioSueno = time;

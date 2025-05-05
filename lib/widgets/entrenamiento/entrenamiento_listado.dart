@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
-import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado_google.dart';
 
 class ListadoEntrenamientos extends StatelessWidget {
   final List<dynamic> resumenEntrenamientos;
@@ -77,15 +76,6 @@ class ListadoEntrenamientos extends StatelessWidget {
                     entrenamiento['titulo'],
                     style: const TextStyle(color: AppColors.textNormal),
                   ),
-                  if (entrenamiento['isGoogleFit'] == true)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Image.asset(
-                        'assets/images/rrss/google-fit.png',
-                        width: 20,
-                        height: 20,
-                      ),
-                    ),
                 ],
               ),
               subtitle: Column(
@@ -137,21 +127,12 @@ class ListadoEntrenamientos extends StatelessWidget {
                 ],
               ),
               onTap: () {
-                if (entrenamiento['isGoogleFit'] == true) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EntrenamientoRealizadoGooglePage(entrenamientoJson: entrenamiento),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EntrenamientoRealizadoPage(id: entrenamiento['id']),
-                    ),
-                  );
-                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EntrenamientoRealizadoPage(idHealthConnect: entrenamiento['id']),
+                  ),
+                );
               },
             ),
           ),

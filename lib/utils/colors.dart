@@ -27,4 +27,10 @@ class AppColors {
 
   // Verde alternativo
   static const Color mutedGreen = Color.from(alpha: 1, red: 0.514, green: 0.749, blue: 0.588);
+
+  // Color plata
+  static const Color mutedSilver = Color.from(alpha: 1, red: 0.8, green: 0.8, blue: 0.8);
+
+  // Color bronce
+  static const Color mutedBronze = Color.from(alpha: 1, red: 0.804, green: 0.498, blue: 0.196);
 }

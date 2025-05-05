@@ -78,9 +78,9 @@ Widget permissionButton({
 }
 
 Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
-  final int targetSteps = usuario.getTargetSteps();
-  final int targetMinActividad = usuario.getTargetMinActividad();
-  final int targetKcalBurned = usuario.getTargetKcalBurned();
+  final int targetSteps = usuario.objetivoPasosDiarios;
+  final int targetMinActividad = usuario.objetivoTiempoEntrenamiento;
+  final int targetKcalBurned = usuario.objetivoKcal;
 
   return FutureBuilder<DailyStats>(
     future: _loadDailyStats(usuario, day),

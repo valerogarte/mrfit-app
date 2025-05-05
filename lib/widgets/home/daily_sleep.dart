@@ -17,15 +17,15 @@ Widget _bedtimeIcon() {
 }
 
 Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
-  // Si la hora es anterior a las 6 de la mañana, no se muestra nada
-  if (day.hour < 6 && day.day == DateTime.now().day) {
-    return _sleepPlaceholder();
+  int horaLevantarse = usuario.horaFinSueno?.hour ?? 0;
+  if (day.hour < horaLevantarse && day.day == DateTime.now().day) {
+    return _sleepPlaceholder(usuario);
   }
   return FutureBuilder<List<SleepSlot>>(
     future: usuario.getSleepSessionByDate(day),
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
-        return _sleepPlaceholder();
+        return _sleepPlaceholder(usuario);
       }
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
         final firstSlot = snapshot.data!.first;
@@ -35,7 +35,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           future: usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
           builder: (ctx2, typeSnap) {
             if (typeSnap.connectionState != ConnectionState.done) {
-              return _sleepStats(totalMinutes, firstSlot, "HealthConnect");
+              return _sleepStats(totalMinutes, firstSlot, "HealthConnect", usuario: usuario);
             }
             final typeSlots = typeSnap.data ?? [];
             return _sleepStats(
@@ -44,6 +44,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
               "HealthConnect",
               allSlots: snapshot.data,
               typeSlots: typeSlots,
+              usuario: usuario, // Pass usuario here
             );
           },
         );
@@ -53,7 +54,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
         future: usuario.getSleepSlotsForDay(day),
         builder: (context, slotSnapshot) {
           if (slotSnapshot.connectionState != ConnectionState.done) {
-            return _sleepPlaceholder();
+            return _sleepPlaceholder(usuario);
           }
           if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
             return _sleepPermission();
@@ -77,6 +78,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
             firstSlot,
             "UsageStats",
             allSlots: slots,
+            usuario: usuario, // Pass usuario here
           );
         },
       );
@@ -84,10 +86,11 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
   );
 }
 
-Widget _sleepPlaceholder() {
+Widget _sleepPlaceholder(Usuario usuario) {
   return _sleepBase(
     mainText: '0h 0m',
     slots: [],
+    usuario: usuario,
   );
 }
 
@@ -139,6 +142,7 @@ Widget _sleepStats(
   String fromWhere, {
   List<SleepSlot>? allSlots,
   List<SleepSlot>? typeSlots, // NUEVO parámetro
+  required Usuario usuario, // Add usuario parameter
 }) {
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
@@ -146,7 +150,8 @@ Widget _sleepStats(
     mainText: '${hours}h ${minutes}m',
     fromWhere: fromWhere,
     slots: allSlots ?? [],
-    typeSlots: typeSlots ?? [], // lo pasamos al base
+    typeSlots: typeSlots ?? [],
+    usuario: usuario, // Pass usuario here
   );
 }
 
@@ -154,7 +159,8 @@ Widget _sleepBase({
   required String mainText,
   String fromWhere = '',
   required List<SleepSlot> slots,
-  List<SleepSlot>? typeSlots, // NUEVO
+  List<SleepSlot>? typeSlots,
+  required Usuario usuario,
 }) {
   return Container(
     width: double.infinity,
@@ -194,6 +200,8 @@ Widget _sleepBase({
                 realStart: slots.first.start,
                 realEnd: slots.first.end,
                 typeSlots: typeSlots ?? [],
+                horaInicioRutina: usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0),
+                horaFinRutina: usuario.horaFinSueno ?? const TimeOfDay(hour: 0, minute: 0),
               ),
       ],
     ),

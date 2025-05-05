@@ -251,9 +251,9 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       _hasStepsPermission = stepsPerm;
       _hasKcalPermission = kcalPerm;
       _hasActivityPermission = activityPerm;
-      _targetSteps = usuario.getTargetSteps();
-      _targetKcal = usuario.getTargetKcalBurned();
-      _targetActivityMinutes = usuario.getTargetMinActividad();
+      _targetSteps = usuario.objetivoPasosDiarios;
+      _targetKcal = usuario.objetivoKcal;
+      _targetActivityMinutes = usuario.objetivoTiempoEntrenamiento;
       _stepsByDay = stepsLocal;
       _kcalBurned = kcalLocal;
       _activityMinutes = activityLocal;

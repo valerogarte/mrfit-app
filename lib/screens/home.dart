@@ -13,7 +13,7 @@ import 'package:mrfit/widgets/home/daily_physical.dart';
 import 'package:mrfit/widgets/home/daily_nutrition.dart';
 import 'package:mrfit/widgets/home/daily_hearth.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
-import 'package:mrfit/widgets/home/daily_medals.dart';
+import 'package:mrfit/widgets/home/daily_statistics.dart';
 import 'package:mrfit/widgets/home/daily_notes.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
 
@@ -41,32 +41,11 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
   void _cargarResumenEntrenamientos() async {
     final usuario = ref.read(usuarioProvider);
-    await usuario.googleSignInSilently();
 
     final data = await usuario.getResumenEntrenamientos();
     List<dynamic> resumen = [];
     if (data != null) {
       resumen = data;
-    }
-    if (usuario.googleIsLoggedIn()) {
-      final dataGoogleFit = await usuario.googleGetEntrenamientos30Dias();
-      if (dataGoogleFit != null) {
-        List<dynamic> googleTrainings = dataGoogleFit.map((session) {
-          final startMillis = session['startTimeMillis'];
-          final endMillis = session['endTimeMillis'];
-          DateTime inicio = DateTime.fromMillisecondsSinceEpoch(int.parse(startMillis));
-          DateTime fin = DateTime.fromMillisecondsSinceEpoch(int.parse(endMillis));
-          Duration duracion = fin.difference(inicio);
-          return {
-            "id": session["id"],
-            "titulo": (session["description"] != null && session["description"].isNotEmpty) ? session["description"] : usuario.getActivityTypeTitle(session["activityType"]),
-            "inicio": inicio.toIso8601String(),
-            "duracion": "${duracion.inMinutes} minutos",
-            "isGoogleFit": true,
-          };
-        }).toList();
-        resumen.addAll(googleTrainings);
-      }
     }
     resumen.sort((a, b) => DateTime.parse(b['inicio']).compareTo(DateTime.parse(a['inicio'])));
     if (mounted) {
@@ -162,29 +141,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         const SizedBox(height: 15),
                         dailyVitalsWidget(day: _selectedDate, usuario: usuario),
                         const SizedBox(height: 15),
-                        MedalsWidget(usuario: usuario),
+                        StatisticsWidget(usuario: usuario),
                         const SizedBox(height: 15),
-                        // NotesWidget(initialNote: ""),
-                        // const SizedBox(height: 15),
-                        // Expanded(
-                        //   flex: 2,
-                        //   child: ListadoEntrenamientos(
-                        //     resumenEntrenamientos: _resumenEntrenamientos,
-                        //     onDismissed: (context, index, removedTraining) async {
-                        //       setState(() {
-                        //         _resumenEntrenamientos.removeAt(index);
-                        //       });
-                        //       if (removedTraining['isGoogleFit'] != true) {
-                        //         final entrenamientoObj = await Entrenamiento.loadById(removedTraining['id']);
-                        //         if (entrenamientoObj != null) {
-                        //           await entrenamientoObj.delete();
-                        //         }
-                        //       }
-                        //       _refreshCalendar();
-                        //     },
-                        //     onTrainingDeleted: _refreshCalendar,
-                        //   ),
-                        // ),
                         const SizedBox(height: 30),
                       ],
                     ),

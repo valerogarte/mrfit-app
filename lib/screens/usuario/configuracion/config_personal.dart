@@ -45,7 +45,8 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
     String currentValue = "";
     switch (widget.campo) {
       case 'Altura':
-        currentValue = (await user.getCurrentHeight(1)).toString();
+        final altura = await user.getCurrentHeight(); // Cambia el valor predeterminado si es necesario
+        currentValue = altura > 0 ? altura.toString() : ""; // Asegúrate de que no sea 0
         break;
       case 'Género':
         currentValue = user.genero;
@@ -233,7 +234,12 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
       bool success = false;
       switch (widget.campo) {
         case 'Altura':
-          success = await user.setAltura(double.tryParse(value));
+          final int? altura = int.tryParse(value);
+          if (altura != null) {
+            success = await user.setAltura(altura);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ingrese un valor válido para la altura")));
+          }
           break;
         case 'Género':
           success = await user.setGenero(value);

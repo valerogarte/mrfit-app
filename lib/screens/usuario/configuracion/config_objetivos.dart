@@ -15,12 +15,37 @@ class ConfiguracionObjetivosPage extends ConsumerStatefulWidget {
 class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjetivosPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _controller;
+  late FocusNode _timeFieldFocusNode; // Add a FocusNode for time fields
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _fetchInitialValue();
+    _timeFieldFocusNode = FocusNode(); // Initialize the FocusNode
+    _timeFieldFocusNode.addListener(() async {
+      if (_timeFieldFocusNode.hasFocus) {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+        );
+        if (time != null) {
+          setState(() {
+            _controller.text = time.format(context);
+          });
+        }
+        _timeFieldFocusNode.unfocus(); // Unfocus after selecting time
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _fetchInitialValue();
+      _isInitialized = true;
+    }
   }
 
   void _fetchInitialValue() {
@@ -39,12 +64,6 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
       case 'Objetivo Kcal':
         current = user.objetivoKcal?.toString() ?? '';
         break;
-      case 'Hora Inicio Sueño':
-        current = user.horaInicioSueno != null ? user.horaInicioSueno!.format(context) : '';
-        break;
-      case 'Hora Fin Sueño':
-        current = user.horaFinSueno != null ? user.horaFinSueno!.format(context) : '';
-        break;
       default:
         current = '';
     }
@@ -53,28 +72,6 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
 
   Widget _buildInput() {
     switch (widget.campo) {
-      case 'Hora Inicio Sueño':
-      case 'Hora Fin Sueño':
-        return TextFormField(
-          controller: _controller,
-          readOnly: true,
-          decoration: InputDecoration(
-            labelText: widget.campo,
-            border: const OutlineInputBorder(),
-          ),
-          onTap: () async {
-            final time = await showTimePicker(
-              context: context,
-              initialTime: TimeOfDay.now(),
-            );
-            if (time != null) {
-              setState(() {
-                _controller.text = time.format(context);
-              });
-            }
-          },
-          validator: (v) => v == null || v.isEmpty ? 'Seleccione una hora' : null,
-        );
       default:
         return TextFormField(
           controller: _controller,
@@ -110,22 +107,6 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
         final intVal = int.tryParse(val) ?? 0;
         ok = await user.setObjetivoKcal(intVal);
         break;
-      case 'Hora Inicio Sueño':
-        final timeParts = val.split(':');
-        final time = TimeOfDay(
-          hour: int.parse(timeParts[0]),
-          minute: int.parse(timeParts[1]),
-        );
-        ok = await user.setHoraInicioSueno(time);
-        break;
-      case 'Hora Fin Sueño':
-        final timeParts = val.split(':');
-        final time = TimeOfDay(
-          hour: int.parse(timeParts[0]),
-          minute: int.parse(timeParts[1]),
-        );
-        ok = await user.setHoraFinSueno(time);
-        break;
     }
     if (ok) {
       ref.refresh(usuarioProvider);
@@ -135,6 +116,13 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
         const SnackBar(content: Text('Error al guardar')),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _timeFieldFocusNode.dispose(); // Dispose the FocusNode
+    _controller.dispose();
+    super.dispose();
   }
 
   @override

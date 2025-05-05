@@ -6,11 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 
-const int _kRoutineBedHour = 23;
-const int _kRoutineBedMinute = 30;
-const int _kRoutineWakeHour = 8;
-const int _kRoutineWakeMinute = 15;
-
 const Color _kRoutineColor = AppColors.background;
 const Color _kSuenoRealColor = AppColors.accentColor;
 
@@ -36,11 +31,15 @@ class SleepBar extends StatelessWidget {
     Key? key,
     required this.realStart,
     required this.realEnd,
+    required this.horaInicioRutina,
+    required this.horaFinRutina,
     this.typeSlots = const [],
   }) : super(key: key);
 
   final DateTime realStart;
   final DateTime realEnd;
+  final TimeOfDay horaInicioRutina;
+  final TimeOfDay horaFinRutina;
   final List<SleepSlot> typeSlots;
 
   @override
@@ -49,9 +48,13 @@ class SleepBar extends StatelessWidget {
     final accentHeight = _kBarHeight * _kActualFactor;
 
     final today = DateTime(realEnd.year, realEnd.month, realEnd.day);
-    final routineStart = today.subtract(const Duration(days: 1)).add(const Duration(hours: _kRoutineBedHour, minutes: _kRoutineBedMinute));
+    final routineStart = horaInicioRutina.hour > horaFinRutina.hour
+        ? today.subtract(const Duration(days: 1)).add(
+              Duration(hours: horaInicioRutina.hour, minutes: horaInicioRutina.minute),
+            )
+        : today.add(Duration(hours: horaInicioRutina.hour, minutes: horaInicioRutina.minute));
     final routineEnd = today.add(
-      const Duration(hours: _kRoutineWakeHour, minutes: _kRoutineWakeMinute),
+      Duration(hours: horaFinRutina.hour, minutes: horaFinRutina.minute),
     );
 
     final graphStart = realStart.isBefore(routineStart) ? realStart : routineStart;

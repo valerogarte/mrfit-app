@@ -22,27 +22,14 @@ class UsuarioConfigPage extends ConsumerStatefulWidget {
 
 class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
   static const List<String> semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-  bool _isGoogleFitLinked = false;
   bool _isHealthConnctLinked = false;
 
   @override
   void initState() {
     super.initState();
-    _checkGoogleSignIn();
     ref.read(usuarioProvider).checkPermissions().then((granted) {
       setState(() => _isHealthConnctLinked = granted);
     });
-  }
-
-  Future<void> _checkGoogleSignIn() async {
-    final account = await ref.read(usuarioProvider).googleSignInSilently();
-    setState(() => _isGoogleFitLinked = account != null);
-  }
-
-  Future<void> _logout() async {
-    Logger().i('Cerrando sesión...');
-    await ref.read(usuarioProvider).logout();
-    setState(() => _isGoogleFitLinked = false);
   }
 
   int calculateAge(DateTime birthDate) {
@@ -53,6 +40,22 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
   }
 
   Future<void> _showConfigDialog(String campo, String title, Widget content) async {
+    if (campo == 'Hora de acostarse' || campo == 'Hora de levantarse') {
+      final user = ref.read(usuarioProvider);
+      final initialTime = (campo == 'Hora de acostarse' ? user.horaInicioSueno : user.horaFinSueno) ?? TimeOfDay.now();
+
+      final time = await showTimePicker(
+        context: context,
+        initialTime: initialTime,
+      );
+
+      if (time != null) {
+        final success = campo == 'Hora de acostarse' ? await user.setHoraInicioSueno(time) : await user.setHoraFinSueno(time);
+        if (success) setState(() => ref.refresh(usuarioProvider));
+      }
+      return;
+    }
+
     final newValue = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -96,7 +99,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.height, color: AppColors.accentColor),
             title: FutureBuilder<int>(
-              future: user.getCurrentHeight(9999),
+              future: user.getCurrentHeight(),
               builder: (_, snap) {
                 if (snap.connectionState == ConnectionState.waiting) return Text('...', style: TextStyle(color: AppColors.textMedium));
                 if (snap.hasError) return Text('Sin acceso a Health Connect.', style: TextStyle(color: AppColors.textMedium));
@@ -154,19 +157,19 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.bedtime, color: AppColors.accentColor),
             title: Text(
-              user.horaInicioSueno != null ? 'Hora Inicio Sueño: ${user.horaInicioSueno!.format(context)}' : 'Hora Inicio Sueño',
+              user.horaInicioSueno != null ? 'Hora de acostarse: ${user.horaInicioSueno!.format(context)}' : 'Hora de acostarse',
               style: TextStyle(color: AppColors.textMedium),
             ),
-            onTap: () => _showConfigDialog('Hora Inicio Sueño', 'Editar Hora Inicio Sueño', ConfiguracionObjetivosPage(campo: 'Hora Inicio Sueño')),
+            onTap: () => _showConfigDialog('Hora de acostarse', 'Editar Hora de acostarse', ConfiguracionObjetivosPage(campo: 'Hora de acostarse')),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.bedtime_outlined, color: AppColors.accentColor),
             title: Text(
-              user.horaFinSueno != null ? 'Hora Fin Sueño: ${user.horaFinSueno!.format(context)}' : 'Hora Fin Sueño',
+              user.horaFinSueno != null ? 'Hora de levantarse: ${user.horaFinSueno!.format(context)}' : 'Hora de levantarse',
               style: TextStyle(color: AppColors.textMedium),
             ),
-            onTap: () => _showConfigDialog('Hora Fin Sueño', 'Editar Hora Fin Sueño', ConfiguracionObjetivosPage(campo: 'Hora Fin Sueño')),
+            onTap: () => _showConfigDialog('Hora de levantarse', 'Editar Hora de levantarse', ConfiguracionObjetivosPage(campo: 'Hora de levantarse')),
           ),
 
           // Unidades
@@ -201,20 +204,39 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
-            title: Text('Entrenador Activo', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Entrenador Activo', 'Editar Entrenador Activo', ConfiguracionEntrenadorPage(campo: 'Entrenador Activo')),
+            title: const Text('Entrenador Activo', style: TextStyle(color: AppColors.textMedium)),
+            trailing: Switch(
+              value: user.entrenadorActivo,
+              activeColor: AppColors.mutedAdvertencia,
+              onChanged: (value) async {
+                final success = await user.setEntrenadorActivo(value);
+                if (success) setState(() {});
+              },
+            ),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.record_voice_over, color: AppColors.accentColor),
-            title: Text('Voz del Entrenador', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Voz del Entrenador', 'Editar Voz del Entrenador', ConfiguracionEntrenadorPage(campo: 'Voz del Entrenador')),
+            title: Text(
+              'Voz del Entrenador',
+              style: TextStyle(
+                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withOpacity(0.4),
+              ),
+            ),
+            enabled: user.entrenadorActivo,
+            onTap: user.entrenadorActivo ? () => _showConfigDialog('Voz del Entrenador', 'Editar Voz del Entrenador', ConfiguracionEntrenadorPage(campo: 'Voz del Entrenador')) : null,
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.volume_up, color: AppColors.accentColor),
-            title: Text('Volumen del Entrenador', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Volumen del Entrenador', 'Editar Volumen del Entrenador', ConfiguracionEntrenadorPage(campo: 'Volumen del Entrenador')),
+            title: Text(
+              'Volumen del Entrenador',
+              style: TextStyle(
+                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withOpacity(0.4),
+              ),
+            ),
+            enabled: user.entrenadorActivo,
+            onTap: user.entrenadorActivo ? () => _showConfigDialog('Volumen del Entrenador', 'Editar Volumen del Entrenador', ConfiguracionEntrenadorPage(campo: 'Volumen del Entrenador')) : null,
           ),
 
           // Avisos
@@ -222,14 +244,28 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.timer, color: AppColors.accentColor),
-            title: Text('Aviso 10 Segundos: ${user.aviso10Segundos ? 'Sí' : 'No'}', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Aviso 10 Segundos', 'Editar Aviso 10 Segundos', ConfiguracionAjustesPage(campo: 'Aviso 10 Segundos')),
+            title: const Text('Aviso 10 Segundos', style: TextStyle(color: AppColors.textMedium)),
+            trailing: Switch(
+              value: user.aviso10Segundos,
+              activeColor: AppColors.mutedAdvertencia,
+              onChanged: (value) async {
+                final success = await user.setAviso10Segundos(value);
+                if (success) setState(() {});
+              },
+            ),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.timer_off, color: AppColors.accentColor),
-            title: Text('Aviso Cuenta Atrás: ${user.avisoCuentaAtras ? 'Sí' : 'No'}', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Aviso Cuenta Atrás', 'Editar Aviso Cuenta Atrás', ConfiguracionAjustesPage(campo: 'Aviso Cuenta Atrás')),
+            title: const Text('Aviso Cuenta Atrás', style: TextStyle(color: AppColors.textMedium)),
+            trailing: Switch(
+              value: user.avisoCuentaAtras,
+              activeColor: AppColors.mutedAdvertencia,
+              onChanged: (value) async {
+                final success = await user.setAvisoCuentaAtras(value);
+                if (success) setState(() {});
+              },
+            ),
           ),
 
           // Datos y respaldos
@@ -254,18 +290,6 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             leading: Icon(Icons.watch, color: AppColors.accentColor),
             title: Text('Smartwatch', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vinculación con Smartwatch aún no disponible'))),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
-            title: Text(_isGoogleFitLinked ? 'Desvincular Google Fit' : 'Vincular con Google Fit', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () {
-              final u = ref.read(usuarioProvider);
-              if (_isGoogleFitLinked)
-                ConfiguracionApp.confirmUnlink(context, _logout);
-              else
-                ConfiguracionApp.loginWithGoogle(context, u, (s) => setState(() => _isGoogleFitLinked = s));
-            },
           ),
           ListTile(
             tileColor: AppColors.cardBackground,

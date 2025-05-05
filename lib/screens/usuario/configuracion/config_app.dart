@@ -8,59 +8,6 @@ import 'dart:convert';
 import 'package:mrfit/models/usuario/usuario_backup.dart';
 
 class ConfiguracionApp {
-  static Future<void> loginWithGoogle(
-    BuildContext context,
-    Usuario usuario,
-    Function(bool) onStatusChanged,
-  ) async {
-    try {
-      await usuario.googleSignOut();
-      final googleUser = await usuario.googleSignIn();
-      if (googleUser != null) {
-        onStatusChanged(true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al iniciar sesión con Google')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al iniciar sesión con Google')));
-    }
-  }
-
-  static Future<void> confirmUnlink(BuildContext context, Function() logoutCallback) async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: const Text(
-            'Confirmación',
-            style: TextStyle(color: AppColors.textNormal),
-          ),
-          content: const Text(
-            '¿Estás seguro de que quieres desvincular tu cuenta de Google Fit?',
-            style: TextStyle(color: AppColors.textNormal),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              child: const Text('Desvincular'),
-            ),
-          ],
-        );
-      },
-    );
-    if (confirm == true) {
-      logoutCallback();
-    }
-  }
-
   static Future<void> openFTPConfig(BuildContext context) async {
     final _formKey = GlobalKey<FormState>();
     final hostController = TextEditingController();

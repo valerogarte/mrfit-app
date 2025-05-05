@@ -1,6 +1,26 @@
 part of 'usuario.dart';
 
 extension UsuarioHealthExtension on Usuario {
+  Future<bool> isHealthConnectAvailable() async {
+    return await _health.isHealthConnectAvailable();
+  }
+
+  Future<void> installHealthConnect() async {
+    await _health.installHealthConnect();
+  }
+
+  Future<bool> isHealthDataHistoryAvailable() async {
+    return await _health.isHealthDataHistoryAvailable();
+  }
+
+  Future<bool> isHealthDataHistoryAuthorized() async {
+    return await _health.isHealthDataHistoryAuthorized();
+  }
+
+  Future<bool> requestHealthDataHistoryAuthorization() async {
+    return await _health.requestHealthDataHistoryAuthorization();
+  }
+
   Future<bool> requestPermissions() async {
     await _health.configure();
     final bool requested = await _health.requestAuthorization(

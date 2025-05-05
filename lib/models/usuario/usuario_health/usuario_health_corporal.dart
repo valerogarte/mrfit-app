@@ -25,7 +25,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
     return success;
   }
 
-  Future<bool> setHeight(int height, {DateTime? date}) async {
+  Future<bool> setHeight(int height) async {
     await _health.configure();
 
     double heightMeter = height / 100;
@@ -158,8 +158,9 @@ extension UsuarioHealthCorporalExtension on Usuario {
     return tempMap;
   }
 
-  Future<int> getCurrentHeight(int nDays) async {
-    final heights = await getReadHeight(nDays);
+  Future<int> getCurrentHeight() async {
+    final userYears = DateTime.now().difference(fechaNacimiento!).inDays ~/ 365;
+    final heights = await getReadHeight(userYears * 365);
     if (heights.entries.isEmpty) {
       return 0;
     }
