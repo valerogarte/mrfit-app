@@ -22,12 +22,17 @@ extension UsuarioHealthExtension on Usuario {
   }
 
   Future<bool> requestPermissions() async {
-    await _health.configure();
-    final bool requested = await _health.requestAuthorization(
-      healthDataTypesString.values.toList(),
-      permissions: healthDataPermissions.values.toList(),
-    );
-    return requested;
+    try {
+      await _health.configure();
+      final requested = await _health.requestAuthorization(
+        healthDataTypesString.values.toList(),
+        permissions: healthDataPermissions.values.toList(),
+      );
+      return requested;
+    } catch (e) {
+      Logger().e("Error al pedir permisos HC: $e");
+      return false;
+    }
   }
 
   Future<bool> checkPermissions() async {

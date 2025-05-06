@@ -95,6 +95,7 @@ flutter:
     - assets/images/cuerpohumano/cuerpohumano-back.png
     - assets/images/rrss/google.webp
     - assets/images/rrss/google-fit.png
+    - assets/images/rrss/hc.png
     - assets/fonts/made_tommy/
     - assets/sounds/countdown.wav
 

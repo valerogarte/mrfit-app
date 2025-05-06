@@ -14,7 +14,6 @@ import 'package:mrfit/widgets/home/daily_nutrition.dart';
 import 'package:mrfit/widgets/home/daily_hearth.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/home/daily_statistics.dart';
-import 'package:mrfit/widgets/home/daily_notes.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -25,58 +24,45 @@ class InicioPage extends ConsumerStatefulWidget {
 }
 
 class _InicioPageState extends ConsumerState<InicioPage> {
-  DateTime _selectedDate = DateTime.now(); // Por defecto, día de hoy.
-  List<dynamic> _resumenEntrenamientos = [];
+  DateTime _selectedDate = DateTime.now();
   Set<DateTime> _diasEntrenados = {};
   final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
+  final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
-    // Inicializa la base de datos si no existe
     DatabaseHelper.instance.database.then((db) {});
     initializeDateFormatting('es', null);
     _cargarResumenEntrenamientos();
   }
 
-  void _cargarResumenEntrenamientos() async {
+  Future<void> _cargarResumenEntrenamientos() async {
     final usuario = ref.read(usuarioProvider);
-
     final data = await usuario.getResumenEntrenamientos();
     List<dynamic> resumen = [];
-    if (data != null) {
-      resumen = data;
-    }
+    if (data != null) resumen = data;
     resumen.sort((a, b) => DateTime.parse(b['inicio']).compareTo(DateTime.parse(a['inicio'])));
-    if (mounted) {
-      setState(() {
-        _resumenEntrenamientos = resumen;
-        _diasEntrenados = _resumenEntrenamientos.where((entrenamiento) => entrenamiento['inicio'] != null).map((entrenamiento) {
-          DateTime dateTime = DateTime.parse(entrenamiento['inicio']).toLocal();
-          return DateTime(dateTime.year, dateTime.month, dateTime.day);
-        }).toSet();
-      });
-    }
-  }
-
-  void _refreshCalendar() {
+    if (!mounted) return;
     setState(() {
-      _cargarResumenEntrenamientos();
+      _diasEntrenados = resumen.where((e) => e['inicio'] != null).map((e) {
+        final dt = DateTime.parse(e['inicio']).toLocal();
+        return DateTime(dt.year, dt.month, dt.day);
+      }).toSet();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    DateTime today = DateTime.now();
-    int daysTrainedLast7Days = _diasEntrenados.where((date) => date.isAfter(today.subtract(Duration(days: 7)))).length;
-    int daysTrainedLast30Days = _diasEntrenados.where((date) => date.isAfter(today.subtract(Duration(days: 30)))).length;
+    final today = DateTime.now();
+    final days7 = _diasEntrenados.where((d) => d.isAfter(today.subtract(const Duration(days: 7)))).length;
+    final days30 = _diasEntrenados.where((d) => d.isAfter(today.subtract(const Duration(days: 30)))).length;
     final usuario = ref.read(usuarioProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // Fixed CalendarWidget at the top with padding
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: CalendarWidget(
@@ -84,27 +70,17 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               selectedDate: _selectedDate,
               diasEntrenados: _diasEntrenados,
               onDateSelected: (date) {
-                DateTime today = DateTime.now();
-                if (date.isAfter(today)) {
-                  return;
-                }
-                setState(() {
-                  _selectedDate = date;
-                });
+                if (date.isAfter(DateTime.now())) return;
+                setState(() => _selectedDate = date);
               },
             ),
           ),
-          // Use the new CalendarHeaderWidget instead of the custom Row
           Align(
             alignment: Alignment.centerLeft,
             child: CalendarHeaderWidget(
               selectedDate: _selectedDate,
               calendarKey: _calendarKey,
-              onDateChanged: (date) {
-                setState(() {
-                  _selectedDate = date;
-                });
-              },
+              onDateChanged: (date) => setState(() => _selectedDate = date),
             ),
           ),
           const SizedBox(height: 10),
@@ -114,37 +90,45 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
-                  child: SingleChildScrollView(
-                    // padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        dailyStatsWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        dailySleepWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        WeeklyStatsWidget(daysTrainedLast30Days: daysTrainedLast30Days, daysTrainedLast7Days: daysTrainedLast7Days),
-                        const SizedBox(height: 15),
-                        dailyPhysicalWidget(),
-                        const SizedBox(height: 15),
-                        dailyHearthWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        dailyVitalsWidget(day: _selectedDate, usuario: usuario),
-                        const SizedBox(height: 15),
-                        StatisticsWidget(usuario: usuario),
-                        const SizedBox(height: 15),
-                        const SizedBox(height: 30),
-                      ],
+                  child: RefreshIndicator(
+                    key: _refreshKey,
+                    onRefresh: () async {
+                      await _cargarResumenEntrenamientos();
+                      setState(() {});
+                    },
+                    child: NotificationListener<ScrollNotification>(
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          children: [
+                            dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            dailySleepWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            WeeklyStatsWidget(daysTrainedLast30Days: days30, daysTrainedLast7Days: days7),
+                            const SizedBox(height: 15),
+                            dailyPhysicalWidget(),
+                            const SizedBox(height: 15),
+                            dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                            const SizedBox(height: 15),
+                            StatisticsWidget(usuario: usuario),
+                            const SizedBox(height: 30),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

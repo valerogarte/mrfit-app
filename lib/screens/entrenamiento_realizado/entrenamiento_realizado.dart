@@ -42,8 +42,8 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
         }
         if (!snapshot.hasData || snapshot.data == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('No encontrado')),
-            body: const Center(child: Text('Entrenamiento no encontrado')),
+            appBar: AppBar(title: const Text('Danos tiempo')),
+            body: const Center(child: Text('Realizaremos esta funcionalidad pronto.')),
           );
         }
         final entrenamiento = snapshot.data!;
@@ -58,7 +58,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
                     await entrenamiento.delete();
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => const MyHomePage()),
+                      MaterialPageRoute(builder: (context) => const MyApp()),
                       (route) => false,
                     );
                   }

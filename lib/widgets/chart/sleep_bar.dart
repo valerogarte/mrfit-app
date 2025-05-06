@@ -62,7 +62,7 @@ class SleepBar extends StatelessWidget {
     final totalMinutes = graphEnd.difference(graphStart).inMinutes;
     if (totalMinutes <= 0) return const SizedBox.shrink();
 
-    final spots = typeSlots.where((s) => _kTypeValue.containsKey(s.type)).map((s) {
+    final spots = typeSlots.where((s) => _kTypeValue.containsKey(s.type) && !s.start.isBefore(realStart)).map((s) {
       final x = s.start.difference(graphStart).inMinutes.toDouble();
       final y = (_kTypeValue[s.type] ?? 0).toDouble();
       return FlSpot(x, y);

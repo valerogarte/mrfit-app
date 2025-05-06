@@ -235,7 +235,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                   await widget.entrenamiento.setSensacion(_ratingValue.toInt());
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyHomePage()),
+                    MaterialPageRoute(builder: (context) => const MyApp()),
                     (Route<dynamic> route) => false,
                   );
                 },

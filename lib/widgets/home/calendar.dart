@@ -192,7 +192,6 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     final activityPerm = await usuario.checkPermissionsFor('WORKOUT');
 
     if (!stepsPerm && !kcalPerm && !activityPerm) {
-      Logger().w('Permisos de Health Connect no concedidos.');
       setState(() {
         _hasStepsPermission = false;
         _hasKcalPermission = false;
@@ -282,7 +281,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       builder: (context, constraints) {
         const double topPad = 0;
         final double cellWidth = constraints.maxWidth / 7;
-        final double aditionalHeight = 20;
+        final double aditionalHeight = 26;
         final double computedHeight = cellWidth + aditionalHeight + topPad;
         const double maxHeight = 85;
         final double height = computedHeight > maxHeight ? maxHeight : computedHeight;

@@ -173,31 +173,31 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ),
 
           // Unidades
-          const SectionHeader('Unidades'),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.straighten, color: AppColors.accentColor),
-            title: Text(user.unidadDistancia == 'km' ? 'Kilómetros' : 'Millas', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Unidad Distancia', 'Editar Unidad Distancia', ConfiguracionUnidadesPage(campo: 'Unidad Distancia')),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.aspect_ratio, color: AppColors.accentColor),
-            title: Text(user.unidadTamano == 'cm' ? 'Centímetros' : 'Pulgadas', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Unidad Tamaño', 'Editar Unidad Tamaño', ConfiguracionUnidadesPage(campo: 'Unidad Tamaño')),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
-            title: Text(user.unidadesPeso == 'metrico' ? 'Métrico (kg)' : 'Imperial (lb)', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Unidades Peso', 'Editar Unidades Peso', ConfiguracionUnidadesPage(campo: 'Unidades Peso')),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.calendar_today, color: AppColors.accentColor),
-            title: Text('La semana empieza el ${semana[user.primerDiaSemana]}', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Primer Día Semana', 'Editar Primer Día Semana', ConfiguracionUnidadesPage(campo: 'Primer Día Semana')),
-          ),
+          // const SectionHeader('Unidades'),
+          // ListTile(
+          //   tileColor: AppColors.cardBackground,
+          //   leading: Icon(Icons.straighten, color: AppColors.accentColor),
+          //   title: Text(user.unidadDistancia == 'km' ? 'Kilómetros' : 'Millas', style: TextStyle(color: AppColors.textMedium)),
+          //   onTap: () => _showConfigDialog('Unidad Distancia', 'Editar Unidad Distancia', ConfiguracionUnidadesPage(campo: 'Unidad Distancia')),
+          // ),
+          // ListTile(
+          //   tileColor: AppColors.cardBackground,
+          //   leading: Icon(Icons.aspect_ratio, color: AppColors.accentColor),
+          //   title: Text(user.unidadTamano == 'cm' ? 'Centímetros' : 'Pulgadas', style: TextStyle(color: AppColors.textMedium)),
+          //   onTap: () => _showConfigDialog('Unidad Tamaño', 'Editar Unidad Tamaño', ConfiguracionUnidadesPage(campo: 'Unidad Tamaño')),
+          // ),
+          // ListTile(
+          //   tileColor: AppColors.cardBackground,
+          //   leading: Icon(Icons.fitness_center, color: AppColors.accentColor),
+          //   title: Text(user.unidadesPeso == 'metrico' ? 'Métrico (kg)' : 'Imperial (lb)', style: TextStyle(color: AppColors.textMedium)),
+          //   onTap: () => _showConfigDialog('Unidades Peso', 'Editar Unidades Peso', ConfiguracionUnidadesPage(campo: 'Unidades Peso')),
+          // ),
+          // ListTile(
+          //   tileColor: AppColors.cardBackground,
+          //   leading: Icon(Icons.calendar_today, color: AppColors.accentColor),
+          //   title: Text('La semana empieza el ${semana[user.primerDiaSemana]}', style: TextStyle(color: AppColors.textMedium)),
+          //   onTap: () => _showConfigDialog('Primer Día Semana', 'Editar Primer Día Semana', ConfiguracionUnidadesPage(campo: 'Primer Día Semana')),
+          // ),
 
           // Entrenador
           const SectionHeader('Entrenador'),

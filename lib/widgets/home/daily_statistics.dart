@@ -51,25 +51,28 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MedalsPage(
-                        usuario: widget.usuario, // Pass the required 'usuario' parameter
+              child: FractionallySizedBox(
+                widthFactor: 0.5,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MedalsPage(
+                          usuario: widget.usuario, // Pass the required 'usuario' parameter
+                        ),
                       ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.background,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                icon: const Icon(Icons.emoji_events, color: AppColors.textMedium, size: 18), // Trophy icon
-                label: const Text(
-                  "Medallas",
-                  style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.background,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                  icon: const Icon(Icons.emoji_events, color: AppColors.textMedium, size: 18), // Trophy icon
+                  label: const Text(
+                    "Medallas",
+                    style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),

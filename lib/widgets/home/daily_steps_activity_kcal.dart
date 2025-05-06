@@ -160,7 +160,6 @@ Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
                 icon: Icons.access_time,
                 onTap: () async {
                   await usuario.requestPermissions();
-                  await usuario.requestPermissions();
                 },
               ),
             ),

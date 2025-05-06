@@ -1,40 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:mrfit/screens/home.dart';
-import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/screens/usuario/usuario_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/screens/home_manage_hc.dart';
+import 'package:mrfit/screens/home.dart';
+import 'package:mrfit/screens/usuario/usuario_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final usuario = await Usuario.load();
   runApp(
     ProviderScope(
-      overrides: [
-        usuarioProvider.overrideWithValue(usuario),
-      ],
+      overrides: [usuarioProvider.overrideWithValue(usuario)],
       child: const MyApp(),
     ),
   );
 }
 
-// Clase principal de la aplicación
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class MyApp extends ConsumerWidget {
+  const MyApp({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usuario = ref.watch(usuarioProvider);
     return MaterialApp(
       title: 'Mr Fit',
-      theme: ThemeData(
+      theme: _buildTheme(),
+      home: FutureBuilder<bool>(
+        future: usuario.isHealthConnectAvailable(),
+        builder: (ctx, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          final child = snap.data == true
+              ? const InicioPage()
+              : HomeManageHCWidget(
+                  onInstallHealthConnect: () => usuario.installHealthConnect(),
+                  usuario: usuario,
+                );
+          return HomeShell(body: child);
+        },
+      ),
+    );
+  }
+
+  ThemeData _buildTheme() => ThemeData(
         primaryColor: AppColors.accentColor,
         scaffoldBackgroundColor: AppColors.background,
         fontFamily: 'MadeTommy',
         appBarTheme: AppBarTheme(
           color: AppColors.background,
           surfaceTintColor: Colors.transparent,
-          elevation: 0, // Ensure the background remains consistent
+          elevation: 0,
           iconTheme: IconThemeData(color: AppColors.textNormal),
           titleTextStyle: TextStyle(
             color: AppColors.textNormal,
@@ -63,8 +80,8 @@ class MyApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accentColor, // Cambiado de 'primary'
-            foregroundColor: AppColors.textNormal, // Cambiado de 'onPrimary'
+            backgroundColor: AppColors.accentColor,
+            foregroundColor: AppColors.textNormal,
           ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -72,21 +89,14 @@ class MyApp extends StatelessWidget {
           selectedItemColor: AppColors.accentColor,
           unselectedItemColor: AppColors.textMedium,
         ),
-      ),
-      home: const MyHomePage(), // Cambiado de InicioPage a MyHomePage
-    );
-  }
+      );
 }
 
-// Página principal después del inicio de sesión
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+/// Scaffold común con AppBar
+class HomeShell extends StatelessWidget {
+  final Widget body;
+  const HomeShell({Key? key, required this.body}) : super(key: key);
 
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,14 +116,15 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UsuarioConfigPage()),
-              );
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const UsuarioConfigPage(),
+                  ));
             },
           ),
         ],
       ),
-      body: const InicioPage(), // Directly load InicioPage
+      body: body,
     );
   }
 }

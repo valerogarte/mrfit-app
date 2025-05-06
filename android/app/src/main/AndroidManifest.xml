@@ -1,17 +1,24 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Permisos generales -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.vagfit">
+
+    <!-- Permiso para acceder a Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Permiso para recibir eventos de reinicio del dispositivo -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Permiso para mantener el dispositivo despierto mientras se ejecuta una tarea -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Permiso para programar alarmas exactas -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Permiso para acceder a los sensores corporales -->
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <!-- Permiso para reconocer actividades físicas del usuario -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <!-- Permiso para acceder a la ubicación precisa del dispositivo -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Acceso a uso del dispositvo -->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
-
-    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY"/>
     <!-- Permisos de Health Connect -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY"/>
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
     <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED"/>
     <uses-permission android:name="android.permission.health.READ_BASAL_BODY_TEMPERATURE"/>
@@ -36,8 +43,6 @@
     <uses-permission android:name="android.permission.health.WRITE_DISTANCE"/>
     <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED"/>
     <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED"/>
-    <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
-    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
     <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED"/>
     <uses-permission android:name="android.permission.health.WRITE_FLOORS_CLIMBED"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
@@ -48,8 +53,6 @@
     <uses-permission android:name="android.permission.health.WRITE_HYDRATION"/>
     <uses-permission android:name="android.permission.health.READ_LEAN_BODY_MASS"/>
     <uses-permission android:name="android.permission.health.WRITE_LEAN_BODY_MASS"/>
-    <uses-permission android:name="android.permission.health.READ_MENSTRUATION"/>
-    <uses-permission android:name="android.permission.health.WRITE_MENSTRUATION"/>
     <uses-permission android:name="android.permission.health.READ_MENSTRUATION"/>
     <uses-permission android:name="android.permission.health.WRITE_MENSTRUATION"/>
     <uses-permission android:name="android.permission.health.READ_NUTRITION"/>
@@ -68,12 +71,8 @@
     <uses-permission android:name="android.permission.health.WRITE_SEXUAL_ACTIVITY"/>
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>
     <uses-permission android:name="android.permission.health.WRITE_SLEEP"/>
-    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
-    <uses-permission android:name="android.permission.health.WRITE_SLEEP"/>
     <uses-permission android:name="android.permission.health.READ_SPEED"/>
     <uses-permission android:name="android.permission.health.WRITE_SPEED"/>
-    <uses-permission android:name="android.permission.health.READ_STEPS"/>
-    <uses-permission android:name="android.permission.health.WRITE_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.WRITE_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED"/>
@@ -88,6 +87,7 @@
     <uses-permission android:name="android.permission.health.WRITE_BODY_WATER_MASS"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY_RMSSD"/>
     <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY_RMSSD"/>
+
     <application
         android:label="mrfit"
         android:name="${applicationName}"
@@ -103,20 +103,23 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Intent-filter para el permission launcher de Health Connect -->
+
+            <!-- Para mostrar la pantalla de explicación de permisos -->
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
         </activity>
 
-        <!-- Alias de actividad para Android 14+ (permission launcher) -->
+        <!-- Alias para Android 14+ que lanza el diálogo de permisos -->
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"
@@ -134,7 +137,8 @@
             android:exported="true"
             android:permission="android.permission.BIND_HEALTH_CONNECT_SERVICE">
             <intent-filter>
-                <action android:name="androidx.health.ACTION_BIND_HEALTH_CONNECT_SERVICE"/>
+                <action android:name="androidx.health.ACTION_BIND_HEALTH_DATA_SERVICE" />
+                <!-- <action android:name="androidx.health.ACTION_BIND_HEALTH_CONNECT_SERVICE"/> -->
             </intent-filter>
         </service>
 
@@ -159,9 +163,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
     </application>
 
-    <!-- Consultas para verificar la instalación de Health Connect -->
+    <!-- Para verificar instalación de Health Connect -->
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
         <intent>
