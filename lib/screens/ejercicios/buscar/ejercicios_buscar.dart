@@ -7,13 +7,21 @@ import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
 
 part 'ejercicios_buscar_logic.dart';
 
 class EjerciciosBuscarPage extends StatefulWidget {
-  final Sesion sesion;
+  final Sesion? sesion;
+  final Entrenamiento? entrenamiento;
 
-  const EjerciciosBuscarPage({Key? key, required this.sesion}) : super(key: key);
+  const EjerciciosBuscarPage({
+    super.key,
+    this.sesion,
+    this.entrenamiento,
+  }) : assert(sesion != null || entrenamiento != null,
+            'Debe proporcionar session o entrenamiento');
 
   @override
   _EjerciciosBuscarPageState createState() => _EjerciciosBuscarPageState();
@@ -21,20 +29,32 @@ class EjerciciosBuscarPage extends StatefulWidget {
 
 class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with EjerciciosBuscarLogic {
   // Variables y controladores
+  @override
   List<Ejercicio> _ejercicios = [];
+  @override
   bool _isLoading = false;
+  @override
   final List<Ejercicio> _ejerciciosSeleccionados = [];
+  @override
   final TextEditingController _nombreController = TextEditingController();
   // Listas de datos para los selectores
+  @override
   List<Musculo> _musculos = [];
+  @override
   List<Equipamiento> _equipamientos = [];
+  @override
   List<Categoria> _categorias = [];
   // Variables para los valores seleccionados
+  @override
   Musculo? _musculoPrimarioSeleccionado;
+  @override
   Musculo? _musculoSecundarioSeleccionado;
+  @override
   Equipamiento? _equipamientoSeleccionado;
+  @override
   Categoria? _categoriaSeleccionada;
   bool _mostrarFiltrosAvanzados = false;
+  @override
   Timer? _debounce;
 
   @override

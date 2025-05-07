@@ -200,7 +200,7 @@ extension UsuarioActivityExtension on Usuario {
 
     void cerrarBloque() {
       if (start != null && streak >= minutosActivos) {
-        final periodStart = start!;
+        final periodStart = start;
         final periodEnd = periodStart.add(Duration(minutes: streak));
         final total = stepsPerMinute.entries.where((e) => !e.key.isBefore(periodStart) && e.key.isBefore(periodEnd)).fold<int>(0, (s, e) => s + e.value);
         walkingPeriods.add({

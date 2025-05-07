@@ -53,13 +53,19 @@ extension UsuarioQueryExtension on Usuario {
 
   Future<Rutina> crearRutina({required String titulo}) async {
     final db = await DatabaseHelper.instance.database;
+    final numberRutinas = await db.rawQuery('''
+      SELECT COUNT(*) as count FROM rutinas_rutina WHERE grupo_id = 1;
+    ''');
     final imagen = "";
     final int id = await db.insert('rutinas_rutina', {
       'titulo': titulo,
+      'descripcion': "",
       'imagen': imagen,
       'fecha_creacion': DateTime.now().toIso8601String(),
       'usuario_id': 1,
       'grupo_id': 1,
+      "peso": numberRutinas.first["count"],
+      "dificultad": 0,
     });
     return Rutina(id: id, titulo: titulo, imagen: imagen, grupoId: 1);
   }

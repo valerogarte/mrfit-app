@@ -88,11 +88,6 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
     setState(() {});
   }
 
-  Future<void> _agregarSerieAlEjercicioEnRutina(EjercicioPersonalizado ejercicioPersonalizado) async {
-    await ejercicioPersonalizado.insertSeriePersonalizada();
-    await ejercicioPersonalizado.getSeriesPersonalizadas();
-  }
-
   void _openActionSheet(EjercicioPersonalizado ejercicioPersonalizado) {
     showModalBottomSheet(
       context: context,
@@ -451,7 +446,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
         ),
       );
     }
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ElevatedButton(

@@ -53,16 +53,17 @@ class _ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntre
         break;
       case 'Voz del Entrenador':
         if (user.entrenadorVoz.isNotEmpty) {
-          final decoded = jsonDecode(user.entrenadorVoz);
-          late final Map<String, dynamic> data;
-          if (decoded is List) {
-            data = decoded.cast<Map<String, dynamic>>().first;
-          } else if (decoded is Map<String, dynamic>) {
-            data = decoded;
-          } else {
-            break;
+          try {
+            final decoded = jsonDecode(user.entrenadorVoz);
+            final Map<String, dynamic> data = decoded is List
+                ? decoded.cast<Map<String, dynamic>>().first
+                : decoded is Map<String, dynamic>
+                    ? decoded
+                    : <String, dynamic>{};
+            _selected = data['name'] as String? ?? user.entrenadorVoz;
+          } catch (_) {
+            _selected = user.entrenadorVoz;
           }
-          _selected = data['name'] as String;
         }
         break;
       case 'Volumen del Entrenador':

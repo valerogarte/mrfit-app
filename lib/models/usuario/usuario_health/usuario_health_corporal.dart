@@ -159,7 +159,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<int> getCurrentHeight() async {
-    final userYears = DateTime.now().difference(fechaNacimiento!).inDays ~/ 365;
+    final userYears = DateTime.now().difference(fechaNacimiento).inDays ~/ 365;
     final heights = await getReadHeight(userYears * 365);
     if (heights.entries.isEmpty) {
       return 0;

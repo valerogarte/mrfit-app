@@ -253,11 +253,22 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
 
   Future<void> _agregarEjerciciosSeleccionados() async {
     bool errorOcurrido = false;
-    for (final ejercicio in _ejerciciosSeleccionados) {
-      final nuevoEjercicio = await widget.sesion.insertarEjercicioPersonalizado(ejercicio);
-      if (nuevoEjercicio == null) {
-        errorOcurrido = true;
-        break;
+    if (widget.sesion != null) {
+      for (final ejercicio in _ejerciciosSeleccionados) {
+        final nuevoEjercicio = await widget.sesion!.insertarEjercicioPersonalizado(ejercicio);
+        if (nuevoEjercicio == 0) {
+          errorOcurrido = true;
+          break;
+        }
+      }
+    } else if (widget.entrenamiento != null) {
+      for (final ejercicio in _ejerciciosSeleccionados) {
+        final nuevo = await widget.entrenamiento!.insertarEjercicioRealizado(ejercicio);
+        if (nuevo == null) {
+          errorOcurrido = true;
+          break;
+        }
+        await nuevo.insertSerieRealizada();
       }
     }
     if (errorOcurrido) {

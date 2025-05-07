@@ -19,7 +19,7 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usuario = ref.watch(usuarioProvider);
@@ -95,7 +95,7 @@ class MyApp extends ConsumerWidget {
 /// Scaffold común con AppBar
 class HomeShell extends StatelessWidget {
   final Widget body;
-  const HomeShell({Key? key, required this.body}) : super(key: key);
+  const HomeShell({super.key, required this.body});
 
   @override
   Widget build(BuildContext context) {

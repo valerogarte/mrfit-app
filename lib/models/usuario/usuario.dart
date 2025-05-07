@@ -363,7 +363,7 @@ class Usuario {
       int count = await db.update('auth_user', {'rutina_actual_id': rutinaId}, where: 'id = ?', whereArgs: [1]);
 
       if (count > 0) {
-        this.rutinaActualId = rutinaId;
+        rutinaActualId = rutinaId;
         return true;
       }
       return false;
@@ -423,7 +423,7 @@ class Usuario {
         unidades: row['unidades']?.toString() ?? '',
         entrenadorVolumen: row['entrenador_volumen'] is int ? row['entrenador_volumen'] as int : (int.tryParse(row['entrenador_volumen']?.toString() ?? '') ?? 0),
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
-        rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '') ?? null), // Cargar rutina_actual_id
+        rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '')), // Cargar rutina_actual_id
         altura: row['altura'] != null ? (row['altura'] as num).toInt() : null,
         aviso10Segundos: row['aviso_10_segundos'] == 1,
         avisoCuentaAtras: row['aviso_cuenta_atras'] == 1,
@@ -486,7 +486,7 @@ class Usuario {
   }
 
   Future<bool> setHoraInicioSueno(TimeOfDay time) async {
-    this.horaInicioSueno = time;
+    horaInicioSueno = time;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update(
       'auth_user',
@@ -498,7 +498,7 @@ class Usuario {
   }
 
   Future<bool> setHoraFinSueno(TimeOfDay time) async {
-    this.horaFinSueno = time;
+    horaFinSueno = time;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update(
       'auth_user',

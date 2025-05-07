@@ -161,7 +161,26 @@ class EjercicioRealizado {
   // Nuevo método para añadir una nueva SerieRealizada
   Future<SerieRealizada> insertSerieRealizada() async {
     final db = await DatabaseHelper.instance.database;
-    final lastSerieRealizada = series.reversed.firstWhere((serie) => !serie.deleted, orElse: () => series.last);
+    final lastSerieRealizada = series.reversed.firstWhere(
+      (serie) => !serie.deleted,
+      orElse: () => SerieRealizada(
+        id: 0,
+        ejercicioRealizado: id,
+        repeticiones: 10,
+        repeticionesObjetivo: 10,
+        peso: 0.0,
+        pesoObjetivo: 0.0,
+        descanso: 60,
+        rer: 0,
+        velocidadRepeticion: ejercicio.sumaTiempos(),
+        inicio: DateTime.now(),
+        fin: null,
+        realizada: false,
+        extra: true,
+        deleted: false,
+      ),
+    );
+
     final data = {
       'repeticiones': lastSerieRealizada.repeticiones,
       'descanso': lastSerieRealizada.descanso,
@@ -174,7 +193,9 @@ class EjercicioRealizado {
       'deleted': 0,
       'realizada': 0,
     };
+
     final insertedId = await db.insert('entrenamiento_serierealizada', data);
+
     // Crea una instancia de SeriePersonalizada con el ID insertado
     final nuevaSerie = SerieRealizada(
       id: insertedId,

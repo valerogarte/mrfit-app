@@ -360,7 +360,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     IconButton(
                       icon: Icon(
                         restartEntrenadora ? Icons.restart_alt : (_entrenadora.isPaused ? Icons.play_arrow : Icons.pause),
-                        color: restartEntrenadora ? AppColors.background : (_entrenadora.isPaused ? AppColors.textNormal : AppColors.textMedium),
+                        color: restartEntrenadora ? AppColors.mutedAdvertencia : (_entrenadora.isPaused ? AppColors.textNormal : AppColors.textMedium),
                       ),
                       onPressed: () {
                         setState(() {

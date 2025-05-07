@@ -325,6 +325,26 @@ class Entrenamiento {
     }
   }
 
+  /// Inserta un nuevo EjercicioRealizado en BD y lo añade a este entrenamiento.
+  Future<EjercicioRealizado?> insertarEjercicioRealizado(Ejercicio ejercicio) async {
+    final db = await DatabaseHelper.instance.database;
+    final orden = ejercicios.length;
+    final insertedId = await db.insert('entrenamiento_ejerciciorealizado', {
+      'entrenamiento_id': id,
+      'ejercicio_id': ejercicio.id,
+      'peso_orden': orden,
+    });
+    if (insertedId == 0) return null;
+    final nuevo = EjercicioRealizado(
+      id: insertedId,
+      ejercicio: ejercicio,
+      series: <SerieRealizada>[],
+      pesoOrden: orden,
+    );
+    ejercicios.add(nuevo);
+    return nuevo;
+  }
+
   Future<void> finalizar(Usuario usuario) async {
     fin = DateTime.now();
     try {

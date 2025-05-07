@@ -128,14 +128,8 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
               if (nuevoTitulo.isNotEmpty) {
                 Navigator.pop(context);
                 final usuario = ref.read(usuarioProvider);
-                final nuevoPlan = await usuario.crearRutina(titulo: nuevoTitulo);
-                final grupo = await Grupo.loadById(nuevoPlan.grupoId!);
-                if (grupo != null) {
-                  setState(() {
-                    gruposConRutinas.putIfAbsent(grupo, () => []).add(nuevoPlan);
-                    fetchPlanes();
-                  });
-                }
+                await usuario.crearRutina(titulo: nuevoTitulo);
+                await fetchPlanes();
               }
             },
             child: const Text('Crear'),

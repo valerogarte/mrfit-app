@@ -34,7 +34,7 @@ class _ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesP
         currentValue = true;
         break;
       case 'Voz del Entrenador':
-        currentValue = 1;
+        currentValue = '{"name":"es-ES-SMTl01","locale":"spa-x-lvariant-l01"}';
         break;
       case 'Volumen del Entrenador':
         currentValue = 3;
