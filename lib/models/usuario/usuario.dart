@@ -41,7 +41,7 @@ class Usuario {
   List<Equipamiento> equipoEnCasa;
   String experiencia;
   String unidades;
-  String sonido;
+  int entrenadorVolumen;
   int tiempoDescanso;
   double weight;
   int? rutinaActualId;
@@ -55,7 +55,7 @@ class Usuario {
   String unidadDistancia;
   String unidadTamano;
   String unidadesPeso;
-  int vozEntrenador;
+  String entrenadorVoz;
   bool entrenadorActivo;
   TimeOfDay? horaFinSueno;
   TimeOfDay? horaInicioSueno;
@@ -82,7 +82,7 @@ class Usuario {
     required this.equipoEnCasa,
     required this.experiencia,
     required this.unidades,
-    required this.sonido,
+    required this.entrenadorVolumen,
     required this.tiempoDescanso,
     this.weight = 0.0,
     this.rutinaActualId, // Incluir el nuevo campo en el constructor
@@ -94,7 +94,7 @@ class Usuario {
     this.unidadDistancia = '',
     this.unidadTamano = '',
     this.unidadesPeso = '',
-    this.vozEntrenador = 0,
+    this.entrenadorVoz = '',
     this.entrenadorActivo = false,
     this.horaFinSueno,
     this.horaInicioSueno,
@@ -121,7 +121,7 @@ class Usuario {
       equipoEnCasa: (json['equipo_en_casa'] as List?)?.map((e) => Equipamiento.fromJson(e)).toList() ?? [],
       experiencia: json['experiencia'] ?? '',
       unidades: json['unidades'] ?? '',
-      sonido: json['sonido'] ?? '',
+      entrenadorVolumen: json['entrenador_volumen'] ?? '',
       tiempoDescanso: json['tiempo_descanso'] ?? 0,
       rutinaActualId: json['rutina_actual_id'],
       altura: json['altura']?.toInt(),
@@ -131,7 +131,7 @@ class Usuario {
       unidadDistancia: json['unidad_distancia'] ?? '',
       unidadTamano: json['unidad_tamano'] ?? '',
       unidadesPeso: json['unidades_peso'] ?? '',
-      vozEntrenador: json['voz_entrenador'] ?? 0,
+      entrenadorVoz: json['entrenador_voz']?.toString() ?? '',
       entrenadorActivo: json['entrenador_activo'] ?? false,
       horaFinSueno: json['hora_fin_sueno'] != null
           ? TimeOfDay(
@@ -166,7 +166,7 @@ class Usuario {
       'equipo_en_casa': equipoEnCasa.map((e) => e.toJson()).toList(),
       'experiencia': experiencia,
       'unidades': unidades,
-      'sonido': sonido,
+      'entrenador_volumen': entrenadorVolumen,
       'tiempo_descanso': tiempoDescanso,
       'rutina_actual_id': rutinaActualId, // Incluir el nuevo campo en el JSON
       'altura': altura,
@@ -177,7 +177,7 @@ class Usuario {
       'unidad_distancia': unidadDistancia,
       'unidad_tamano': unidadTamano,
       'unidades_peso': unidadesPeso,
-      'voz_entrenador': vozEntrenador,
+      'entrenador_voz': entrenadorVoz,
       'entrenador_activo': entrenadorActivo,
       'hora_fin_sueno': horaFinSueno != null ? '${horaFinSueno!.hour.toString().padLeft(2, '0')}:${horaFinSueno!.minute.toString().padLeft(2, '0')}' : null,
       'hora_inicio_sueno': horaInicioSueno != null ? '${horaInicioSueno!.hour.toString().padLeft(2, '0')}:${horaInicioSueno!.minute.toString().padLeft(2, '0')}' : null,
@@ -244,10 +244,10 @@ class Usuario {
     return count > 0;
   }
 
-  Future<bool> setVozEntrenador(int vozEntrenador) async {
-    this.vozEntrenador = vozEntrenador;
+  Future<bool> setEntrenadorVoz(String entrenadorVoz) async {
+    this.entrenadorVoz = entrenadorVoz;
     final db = await DatabaseHelper.instance.database;
-    int count = await db.update('auth_user', {'voz_entrenador': vozEntrenador}, where: 'id = ?', whereArgs: [1]);
+    int count = await db.update('auth_user', {'entrenador_voz': entrenadorVoz}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
@@ -335,14 +335,10 @@ class Usuario {
     return count > 0;
   }
 
-  Future<bool> setSonido(String sonido) async {
-    const allowedValues = ['bajo', 'medio', 'alto'];
-    if (!allowedValues.contains(sonido)) {
-      throw ArgumentError('Invalid value for sonido. Allowed values are: $allowedValues');
-    }
-    this.sonido = sonido;
+  Future<bool> setEntrenadorVolumen(int entrenadorVolumen) async {
+    this.entrenadorVolumen = entrenadorVolumen;
     final db = await DatabaseHelper.instance.database;
-    int count = await db.update('auth_user', {'sonido': sonido}, where: 'id = ?', whereArgs: [1]);
+    int count = await db.update('auth_user', {'entrenador_volumen': entrenadorVolumen}, where: 'id = ?', whereArgs: [1]);
     return count > 0;
   }
 
@@ -425,7 +421,7 @@ class Usuario {
         equipoEnCasa: [], // default empty list
         experiencia: row['experiencia']?.toString() ?? '',
         unidades: row['unidades']?.toString() ?? '',
-        sonido: row['sonido']?.toString() ?? '',
+        entrenadorVolumen: row['entrenador_volumen'] is int ? row['entrenador_volumen'] as int : (int.tryParse(row['entrenador_volumen']?.toString() ?? '') ?? 0),
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
         rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '') ?? null), // Cargar rutina_actual_id
         altura: row['altura'] != null ? (row['altura'] as num).toInt() : null,
@@ -436,7 +432,7 @@ class Usuario {
         unidadDistancia: row['unidad_distancia']?.toString() ?? '',
         unidadTamano: row['unidad_tamano']?.toString() ?? '',
         unidadesPeso: row['unidades_peso']?.toString() ?? '',
-        vozEntrenador: row['voz_entrenador'] is int ? row['voz_entrenador'] as int : 0,
+        entrenadorVoz: row['entrenador_voz']?.toString() ?? '',
         entrenadorActivo: row['entrenador_activo'] == 1,
         horaFinSueno: row['hora_fin_sueno'] != null
             ? TimeOfDay(

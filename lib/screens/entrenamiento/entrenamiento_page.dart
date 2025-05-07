@@ -13,17 +13,18 @@ import 'entrenadora.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'entrenamiento_editar/entrenamiento_editar.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
-class EntrenamientoPage extends StatefulWidget {
+class EntrenamientoPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
 
   const EntrenamientoPage({Key? key, required this.entrenamiento}) : super(key: key);
 
   @override
-  State<EntrenamientoPage> createState() => _EntrenamientoPageState();
+  ConsumerState<EntrenamientoPage> createState() => _EntrenamientoPageState();
 }
 
-class _EntrenamientoPageState extends State<EntrenamientoPage> {
+class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
   Entrenadora _entrenadora = Entrenadora(); // Use singleton instance
@@ -31,6 +32,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
   final Map<String, TextEditingController> _weightControllers = {};
   final Map<String, bool> _expandedStates = {};
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  late Usuario usuario; // Add a variable to hold the user instance
 
   // Variables para el temporizador
   DateTime? _inicio; // Fecha y hora de inicio del entrenamiento
@@ -46,14 +48,15 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
   void initState() {
     super.initState();
 
+    // initialize usuario early so build() can read it
+    usuario = ref.read(usuarioProvider);
+
     // Habilitar la lectura
     _entrenadora.reanudar();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Ir al primer ejercicio incompleto
       _animateToFirstIncompleteExercise();
-      // Leer el entrenamiento
-      _leerEntrenamiento();
     });
 
     // Parsear la fecha de inicio del entrenamiento
@@ -90,6 +93,19 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
         _expandedStates[expandedKey] = !(set.realizada == true);
       }
     }
+
+    // Load the user instance and configure Entrenadora
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _entrenadora.configure(
+        aviso10Segundos: usuario.aviso10Segundos,
+        avisoCuentaAtras: usuario.avisoCuentaAtras,
+        entrenadorVoz: usuario.entrenadorVoz,
+        entrenadorVolumen: usuario.entrenadorVolumen,
+      );
+      if (usuario.entrenadorActivo) {
+        _leerEntrenamiento();
+      }
+    });
   }
 
   Future<void> _animateToFirstIncompleteExercise({bool hasToAnimate = false}) async {
@@ -103,14 +119,31 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
           _currentIndex = index;
         });
 
-        if (hasToAnimate) {
-          await _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeInOut,
-          );
+        // only jump/animate when controller is attached
+        if (_pageController.hasClients) {
+          if (hasToAnimate) {
+            await _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            _pageController.jumpToPage(_currentIndex);
+          }
         } else {
-          _pageController.jumpToPage(_currentIndex);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController.hasClients) {
+              if (hasToAnimate) {
+                _pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeInOut,
+                );
+              } else {
+                _pageController.jumpToPage(_currentIndex);
+              }
+            }
+          });
         }
         break;
       }
@@ -322,33 +355,34 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
               ],
             ),
             title: Text(_formatDuration(_elapsedTime)),
-            actions: [
-              IconButton(
-                // Muestra restart si restartEntrenadora es true
-                icon: Icon(
-                  restartEntrenadora ? Icons.restart_alt : (_entrenadora.isPaused ? Icons.play_arrow : Icons.pause),
-                  color: restartEntrenadora ? AppColors.background : (_entrenadora.isPaused ? AppColors.textNormal : AppColors.textMedium),
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (restartEntrenadora) {
-                      _restTimer?.cancel();
-                      _isResting = false;
-                      restartEntrenadora = false;
-                      _entrenadora = Entrenadora();
-                      _entrenadora.reanudar();
-                      _leerEntrenamiento();
-                    } else {
-                      if (_entrenadora.isPaused) {
-                        _entrenadora.reanudar();
-                      } else {
-                        _entrenadora.pausar();
-                      }
-                    }
-                  });
-                },
-              ),
-            ],
+            actions: usuario.entrenadorActivo
+                ? [
+                    IconButton(
+                      icon: Icon(
+                        restartEntrenadora ? Icons.restart_alt : (_entrenadora.isPaused ? Icons.play_arrow : Icons.pause),
+                        color: restartEntrenadora ? AppColors.background : (_entrenadora.isPaused ? AppColors.textNormal : AppColors.textMedium),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (restartEntrenadora) {
+                            _restTimer?.cancel();
+                            _isResting = false;
+                            restartEntrenadora = false;
+                            _entrenadora = Entrenadora();
+                            _entrenadora.reanudar();
+                            _leerEntrenamiento();
+                          } else {
+                            if (_entrenadora.isPaused) {
+                              _entrenadora.reanudar();
+                            } else {
+                              _entrenadora.pausar();
+                            }
+                          }
+                        });
+                      },
+                    ),
+                  ]
+                : [], // Hide controls if entrenadorActivo is false
           ),
           body: Column(
             children: [
@@ -430,7 +464,7 @@ class _EntrenamientoPageState extends State<EntrenamientoPage> {
                     onPressed: () async {
                       await _entrenadora.detener();
                       // Obtener el usuario desde el provider
-                      final usuario = ProviderScope.containerOf(context).read(usuarioProvider);
+                      final usuario = ref.read(usuarioProvider);
                       await widget.entrenamiento.finalizar(usuario);
                       Navigator.pushReplacement(
                         context,

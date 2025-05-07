@@ -35,166 +35,144 @@ class ConfiguracionApp {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return Builder(builder: (innerContext) {
-          bool isTesting = false;
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return Scaffold(
-                backgroundColor: AppColors.cardBackground,
-                resizeToAvoidBottomInset: false,
-                body: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      top: 16,
-                      left: 16,
-                      right: 16,
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 30),
-                          Text(
-                            'Respaldo sFTP',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textNormal),
-                            textAlign: TextAlign.center,
+        bool doingTestConexion = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Scaffold(
+              backgroundColor: AppColors.cardBackground,
+              resizeToAvoidBottomInset: false,
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 30),
+                        Text(
+                          'Respaldo sFTP',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textNormal,
                           ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: hostController,
-                            decoration: const InputDecoration(labelText: 'Host'),
-                            validator: (value) => value == null || value.isEmpty ? 'Ingrese el host' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: portController,
-                            decoration: const InputDecoration(labelText: 'Port'),
-                            keyboardType: TextInputType.number,
-                            validator: (value) => value == null || value.isEmpty ? 'Ingrese el puerto' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: userController,
-                            decoration: const InputDecoration(labelText: 'User'),
-                            validator: (value) => value == null || value.isEmpty ? 'Ingrese el usuario' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: pwdController,
-                            decoration: const InputDecoration(labelText: 'Password'),
-                            obscureText: true,
-                            validator: (value) => value == null || value.isEmpty ? 'Ingrese la contraseña' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: remoteDirController,
-                            decoration: const InputDecoration(labelText: 'Directorio Remoto'),
-                            validator: (value) => value == null || value.isEmpty ? 'Ingrese el directorio remoto' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<String>(
-                            value: selectedFrequency,
-                            decoration: const InputDecoration(labelText: 'Frecuencia de sincronización'),
-                            style: const TextStyle(color: AppColors.textNormal),
-                            dropdownColor: AppColors.cardBackground,
-                            items: frequencyOptions.map((freq) {
-                              return DropdownMenuItem<String>(
-                                value: freq,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                  child: Text(freq, style: const TextStyle(color: AppColors.textNormal)),
-                                ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: hostController,
+                          decoration: const InputDecoration(labelText: 'Host'),
+                          validator: (v) => v == null || v.isEmpty ? 'Ingrese el host' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: portController,
+                          decoration: const InputDecoration(labelText: 'Port'),
+                          keyboardType: TextInputType.number,
+                          validator: (v) => v == null || v.isEmpty ? 'Ingrese el puerto' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: userController,
+                          decoration: const InputDecoration(labelText: 'User'),
+                          validator: (v) => v == null || v.isEmpty ? 'Ingrese el usuario' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: pwdController,
+                          decoration: const InputDecoration(labelText: 'Password'),
+                          obscureText: true,
+                          validator: (v) => v == null || v.isEmpty ? 'Ingrese la contraseña' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: remoteDirController,
+                          decoration: const InputDecoration(labelText: 'Directorio Remoto'),
+                          validator: (v) => v == null || v.isEmpty ? 'Ingrese el directorio remoto' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.background),
+                          onPressed: doingTestConexion
+                              ? null
+                              : () async {
+                                  setState(() => doingTestConexion = true);
+                                  await ConfiguracionApp.testSFTPConnectivity(
+                                    sheetContext,
+                                    host: hostController.text,
+                                    port: portController.text,
+                                    user: userController.text,
+                                    pwd: pwdController.text,
+                                  );
+                                  setState(() => doingTestConexion = false);
+                                },
+                          child: doingTestConexion
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.textNormal,
+                                  ),
+                                )
+                              : const Text('Test de conectividad'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              await UsuarioBackup.export();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Exportación realizada.')),
                               );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                selectedFrequency = value;
-                              }
-                            },
-                            validator: (value) => value == null ? 'Seleccione una frecuencia' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.background),
-                            onPressed: isTesting
-                                ? null
-                                : () async {
-                                    setState(() {
-                                      isTesting = true;
-                                    });
-                                    await ConfiguracionApp.testSFTPConnectivity(
-                                      sheetContext,
-                                      host: hostController.text,
-                                      port: portController.text,
-                                      user: userController.text,
-                                      pwd: pwdController.text,
-                                    );
-                                    setState(() {
-                                      isTesting = false;
-                                    });
-                                  },
-                            child: isTesting
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textNormal),
-                                  )
-                                : const Text('Test de conectividad'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              try {
-                                await UsuarioBackup.export();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Exportación realizada.')),
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Error durante la exportación.')),
-                                );
-                              }
-                            },
-                            child: const Text('Exportar ahora'),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () => Navigator.pop(sheetContext),
-                                  child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
-                                ),
+                            } catch (_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Error durante la exportación.')),
+                              );
+                            }
+                          },
+                          child: const Text('Exportar ahora'),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(sheetContext),
+                                child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
                               ),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      await prefs.setString('ftp_host', hostController.text.trim());
-                                      await prefs.setString('ftp_port', portController.text.trim());
-                                      await prefs.setString('ftp_user', userController.text.trim());
-                                      await prefs.setString('ftp_pwd', pwdController.text.trim());
-                                      await prefs.setString('ftp_frequency', selectedFrequency);
-                                      await prefs.setString('sftp_remoteDirPath', remoteDirController.text.trim());
-                                      Navigator.pop(sheetContext);
-                                    }
-                                  },
-                                  child: const Text('Guardar'),
-                                ),
+                            ),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    await prefs.setString('ftp_host', hostController.text.trim());
+                                    await prefs.setString('ftp_port', portController.text.trim());
+                                    await prefs.setString('ftp_user', userController.text.trim());
+                                    await prefs.setString('ftp_pwd', pwdController.text.trim());
+                                    await prefs.setString('ftp_frequency', selectedFrequency);
+                                    await prefs.setString('sftp_remoteDirPath', remoteDirController.text.trim());
+                                    Navigator.pop(sheetContext);
+                                  }
+                                },
+                                child: const Text('Guardar'),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              );
-            },
-          );
-        });
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -215,55 +193,41 @@ class ConfiguracionApp {
       return;
     }
     try {
-      final int portNumber = int.parse(port);
-      final socket = await SSHSocket.connect(host, portNumber);
+      final socket = await SSHSocket.connect(host, int.parse(port));
       final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
       final sftp = await client.sftp();
       final prefs = await SharedPreferences.getInstance();
       final remoteDirPath = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
-      final testFilePath = '$remoteDirPath/write_test.txt';
+      final testPath = '$remoteDirPath/write_test.txt';
       try {
-        final testFile = await sftp.open(
-          testFilePath,
+        final f = await sftp.open(
+          testPath,
           mode: SftpFileOpenMode.create | SftpFileOpenMode.write | SftpFileOpenMode.truncate,
         );
-        await testFile.write(Stream.value(utf8.encode('test')));
-        await testFile.close();
-        await sftp.remove(testFilePath);
+        await f.write(Stream.value(utf8.encode('test')));
+        await f.close();
+        await sftp.remove(testPath);
       } catch (e) {
-        if (e.toString().contains('No such file')) {
-          client.close();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('La carpeta remota no existe.')),
-            );
-          });
-        } else {
-          client.close();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Sin permisos de escritura sobre la carpeta remota.')),
-            );
-          });
-        }
+        client.close();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString().contains('No such file') ? 'La carpeta remota no existe.' : 'Sin permisos de escritura sobre la carpeta remota.',
+              ),
+            ),
+          );
+        });
         return;
       }
-      final result = await client.run('echo connected');
-      final decodedResult = utf8.decode(result);
-      if (decodedResult.trim() == 'connected') {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Conexión exitosa.')),
-          );
-        });
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error de conexión.')),
-          );
-        });
-      }
+      final res = await client.run('echo connected');
+      final ok = utf8.decode(res).trim() == 'connected';
       client.close();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(ok ? 'Conexión exitosa.' : 'Error de conexión.')),
+        );
+      });
     } catch (e) {
       Logger().e('Test connectivity error: $e');
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -275,6 +239,7 @@ class ConfiguracionApp {
   }
 
   static Future<void> selectFileFromServer(BuildContext context) async {
+    // Loader inicial
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -286,7 +251,7 @@ class ConfiguracionApp {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(AppColors.accentColor)),
             const SizedBox(height: 10),
-            Text("Cargando archivos de respaldo...", style: const TextStyle(color: AppColors.textNormal)),
+            Text("Cargando archivos de respaldo...", style: TextStyle(color: AppColors.textNormal)),
           ],
         ),
       ),
@@ -294,80 +259,117 @@ class ConfiguracionApp {
 
     final backupFiles = await UsuarioBackup.listBackupFiles();
     Navigator.pop(context);
+
     if (backupFiles.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se encontraron archivos de respaldo.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se encontraron archivos de respaldo.')),
+      );
       return;
     }
+
+    final deleting = <String, bool>{};
+
     final selectedFile = await showDialog<String>(
       context: context,
-      builder: (context) {
-        return SimpleDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: Text('Selecciona un archivo de respaldo', style: const TextStyle(color: AppColors.textNormal)),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: backupFiles.map((fileName) {
-                  if (fileName.toLowerCase().endsWith('.sql')) {
-                    return Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ActionChip(
-                        label: Text(
-                          fileName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textNormal),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return SimpleDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: Text('Archivos de respaldo', style: TextStyle(color: AppColors.textNormal)),
+            children: backupFiles.map((fileName) {
+              final isDeleting = deleting[fileName] == true;
+              return ListTile(
+                title: Text(fileName, style: TextStyle(color: AppColors.textNormal)),
+                trailing: isDeleting
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(AppColors.accentColor),
                         ),
-                        backgroundColor: AppColors.background,
-                        onPressed: () => Navigator.pop(context, fileName),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.delete, color: AppColors.mutedRed),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  backgroundColor: AppColors.cardBackground,
+                                  title: Text('Confirmar borrado', style: TextStyle(color: AppColors.textNormal)),
+                                  content: Text('¿Borrar $fileName?', style: TextStyle(color: AppColors.textNormal)),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, false),
+                                      child: Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
+                                      onPressed: () => Navigator.pop(context, true),
+                                      child: Text('Borrar'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirm != true) return;
+                              setState(() => deleting[fileName] = true);
+                              final ok = await UsuarioBackup.deleteBackupFile(fileName);
+                              setState(() => deleting[fileName] = false);
+                              if (ok) {
+                                setState(() => backupFiles.remove(fileName));
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    backgroundColor: AppColors.cardBackground,
+                                    title: Text('Error', style: TextStyle(color: AppColors.textNormal)),
+                                    content: Text('No se pudo borrar $fileName', style: TextStyle(color: AppColors.textNormal)),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context), child: Text('Ok')),
+                                    ],
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.upload_file, color: AppColors.accentColor),
+                            onPressed: () => Navigator.pop(context, fileName),
+                          ),
+                        ],
                       ),
-                    );
-                  }
-                  return Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: SimpleDialogOption(
-                      onPressed: () => Navigator.pop(context, fileName),
-                      child: Text(fileName, style: const TextStyle(color: AppColors.textNormal)),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.mutedRed)),
-            ),
-          ],
-        );
-      },
+              );
+            }).toList(),
+          );
+        },
+      ),
     );
+
     if (selectedFile == null) return;
+
+    // Confirmar importación
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: Text('Confirmación', style: const TextStyle(color: AppColors.textNormal)),
-          content: Text('¿Estás seguro de restaurar los datos desde el archivo $selectedFile?', style: const TextStyle(color: AppColors.textNormal)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Restaurar'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title: Text('Confirmación', style: TextStyle(color: AppColors.textNormal)),
+        content: Text('¿Estás seguro de restaurar los datos desde $selectedFile?', style: TextStyle(color: AppColors.textNormal)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mutedRed),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Restaurar'),
+          ),
+        ],
+      ),
     );
     if (confirm != true) return;
+
+    // Loader de importación
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -379,11 +381,12 @@ class ConfiguracionApp {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(AppColors.accentColor)),
             const SizedBox(height: 10),
-            Text("Esto puede tardar unos instantes", style: const TextStyle(color: AppColors.textNormal)),
+            Text("Esto puede tardar unos instantes", style: TextStyle(color: AppColors.textNormal)),
           ],
         ),
       ),
     );
+
     await UsuarioBackup.importSelectedBackup(context, selectedFile);
     Navigator.pop(context);
   }

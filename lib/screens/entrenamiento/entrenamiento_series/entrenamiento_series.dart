@@ -68,10 +68,12 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
         final iconColor = option?['iconColor'] ?? AppColors.textMedium;
         return {"label": label, "iconColor": iconColor};
       }).toList();
+      if (!mounted) return;
       setState(() {
         _avgRerLabel = labels;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _avgRerLabel = null;
       });

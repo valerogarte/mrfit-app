@@ -141,7 +141,9 @@ extension EntrenadoraHelpers on Entrenadora {
       for (int i = 3; i > 0; i--) {
         if (!await waitWhileInterrupted()) return;
         final stopwatch = Stopwatch()..start();
-        await _flutterTts!.speak('$i');
+        if (avisoCuentaAtras) {
+          await _flutterTts!.speak('$i');
+        }
         stopwatch.stop();
         final duracion = stopwatch.elapsed;
 
@@ -272,7 +274,7 @@ extension EntrenadoraHelpers on Entrenadora {
         } else {
           seriesRestantes = seriesRestantes - 1;
           final serieRestanteLiteral = seriesNumeroLiterales[indexSerie + 1];
-          final List<String> mensajesSeriesRestantes = ['Te queda esta serie y $seriesRestantes más.', 'Vamos con la $serieRestanteLiteral serie de $totalSeries.', 'Vamos a por la $serieRestanteLiteral serie, $totalSeries en total.'];
+          final List<String> mensajesSeriesRestantes = ['Te queda esta serie y $seriesRestantes más.', 'Vamos con la $serieRestanteLiteral serie de $totalSeries.', 'Vamos a por la $serieRestanteLiteral serie. $totalSeries en total.'];
           mensajeSeriesRestantes = mensajesSeriesRestantes[Random().nextInt(mensajesSeriesRestantes.length)];
         }
         if (!await waitWhileInterrupted()) return;
@@ -328,7 +330,7 @@ extension EntrenadoraHelpers on Entrenadora {
       final segundosRestantes = (tiempoTotalDescanso - stopwatch.elapsed.inSeconds) - 1;
 
       // Avisar de los 10 segundos restantes
-      if (segundosRestantes <= 10 && !avisoDiezSegundosHecho) {
+      if (segundosRestantes <= 10 && !avisoDiezSegundosHecho && aviso10Segundos) {
         avisoDiezSegundosHecho = true;
 
         // Medimos tiempo de hablar "10 segundos"

@@ -142,9 +142,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   bool _hasKcalPermission = false;
   bool _hasActivityPermission = false;
 
-  Map<DateTime, int> _stepsByDay = {};
-  Map<DateTime, double> _kcalBurned = {};
-  Map<DateTime, int> _activityMinutes = {};
+  Map<String, Map<String, dynamic>> _daysValues = {};
 
   int _targetSteps = 0;
   int _targetKcal = 0;
@@ -158,34 +156,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   }
 
   Future<void> _loadData([DateTime? weekStart]) async {
-    final start = weekStart ?? _baseDate;
-
-    // Check if the week is more than a month prior to the current date
-    final oneMonthAgo = DateTime.now().subtract(const Duration(days: 30));
-    if (start.isBefore(oneMonthAgo)) {
-      Logger().w("CalendarWidget: Checking Health Data History permission...");
-      final hasHealthDataHistoryPermission = await HealthConnectHelper.requestHealthDataPermission();
-      Logger().w("CalendarWidget: Health Data History permission granted: $hasHealthDataHistoryPermission");
-      if (!hasHealthDataHistoryPermission) {
-        Logger().w('Permiso de Health Data History no concedido.');
-        setState(() {
-          _hasStepsPermission = false;
-          _hasKcalPermission = false;
-          _hasActivityPermission = false;
-        });
-        return;
-      }
-    }
-
     final usuario = ref.read(usuarioProvider);
-
-    final cacheKey = 'diario_${start.year}';
-    final cachedData = await CustomCache.getByKey(cacheKey);
-    Map<String, dynamic> jsonData = {};
-
-    if (cachedData != null) {
-      jsonData = jsonDecode(cachedData.value);
-    }
 
     final stepsPerm = await usuario.checkPermissionsFor('STEPS');
     final kcalPerm = await usuario.checkPermissionsFor('TOTAL_CALORIES_BURNED');
@@ -200,52 +171,60 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       return;
     }
 
+    final start = weekStart ?? _baseDate;
     final today = DateTime.now();
-    final Map<DateTime, int> stepsLocal = {};
-    final Map<DateTime, double> kcalLocal = {};
-    final Map<DateTime, int> activityLocal = {};
-    final Map<String, Map<String, dynamic>> newCacheEntries = {};
 
+    // 1) Cargo cache existente
+    final cacheKey = 'diario_${start.year}';
+    final raw = await CustomCache.getByKey(cacheKey);
+    final Map<String, dynamic> cacheMap = raw != null ? jsonDecode(raw.value) as Map<String, dynamic> : {};
+
+    // 2) Recojo datos día a día (cache o HealthConnect) y construyo daysValues
+    final Map<String, Map<String, dynamic>> daysValues = {};
     for (int i = 0; i < 7; i++) {
-      final currentDate = start.add(Duration(days: i));
-      final iso = currentDate.toIso8601String().split('T').first;
-      if (jsonData.containsKey(iso)) {
-        final data = jsonData[iso]!;
-        stepsLocal[currentDate] = int.tryParse(data['steps'].toString()) ?? 0;
-        kcalLocal[currentDate] = double.tryParse(data['kcal'].toString()) ?? 0.0;
-        activityLocal[currentDate] = int.tryParse(data['minAct'].toString()) ?? 0;
+      final date = start.add(Duration(days: i));
+      // Si el día es futuro no devuelvo nada
+      if (date.isAfter(today)) continue;
+      final iso = date.toIso8601String().split('T').first;
+
+      int steps = 0;
+      double kcal = 0.0;
+      int minAct = 0;
+
+      if (cacheMap.containsKey(iso)) {
+        print('Cache hit: $iso');
+        final d = cacheMap[iso]!;
+        steps = int.tryParse(d['steps'].toString()) ?? 0;
+        kcal = double.tryParse(d['kcal'].toString()) ?? 0.0;
+        minAct = int.tryParse(d['minAct'].toString()) ?? 0;
       } else {
-        if (stepsPerm) {
-          stepsLocal[currentDate] = await usuario.getTotalStepsByDate(iso);
-        }
-        if (kcalPerm) {
-          kcalLocal[currentDate] = await usuario.getTotalCaloriesBurnedByDay(iso);
-        }
-        if (activityPerm) {
-          activityLocal[currentDate] = await usuario.getTimeActivityByDate(iso);
-        }
-        // No cachear el día de hoy
-        if (currentDate.year == today.year && currentDate.month == today.month && currentDate.day == today.day) {
-          continue;
-        }
-        // Solo cachear datos pasados y si alguno de los valores > 0
-        if (currentDate.isBefore(today)) {
-          if ((stepsLocal[currentDate] ?? 0) > 0 || (kcalLocal[currentDate] ?? 0) > 0 || (activityLocal[currentDate] ?? 0) > 0) {
-            newCacheEntries[iso] = {
-              'steps': stepsLocal[currentDate]!.toString(),
-              'kcal': kcalLocal[currentDate]!.toString(),
-              'minAct': activityLocal[currentDate]!.toString(),
-            };
-          }
+        if (stepsPerm) steps = await usuario.getTotalStepsByDate(iso);
+        if (kcalPerm) kcal = await usuario.getTotalCaloriesBurnedByDay(iso);
+        if (activityPerm) minAct = await usuario.getTimeActivityByDate(iso);
+
+        // cacheo solo días pasados con datos
+        if (!date.isToday && date.isBefore(today) && (steps > 0 || kcal > 0 || minAct > 0)) {
+          cacheMap[iso] = {
+            'steps': steps.toString(),
+            'kcal': kcal.toString(),
+            'minAct': minAct.toString(),
+          };
         }
       }
+
+      daysValues[iso] = {
+        'steps': steps,
+        'kcal': kcal,
+        'minAct': minAct,
+      };
     }
 
-    if (newCacheEntries.isNotEmpty) {
-      final updated = {...jsonData, ...newCacheEntries};
-      await CustomCache.set(cacheKey, jsonEncode(updated));
+    // 3) Actualizo cache si hay algo nuevo
+    if (cacheMap.isNotEmpty) {
+      await CustomCache.set(cacheKey, jsonEncode(cacheMap));
     }
 
+    // 4) Guardo en el state
     setState(() {
       _hasStepsPermission = stepsPerm;
       _hasKcalPermission = kcalPerm;
@@ -253,9 +232,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       _targetSteps = usuario.objetivoPasosDiarios;
       _targetKcal = usuario.objetivoKcal;
       _targetActivityMinutes = usuario.objetivoTiempoEntrenamiento;
-      _stepsByDay = stepsLocal;
-      _kcalBurned = kcalLocal;
-      _activityMinutes = activityLocal;
+      _daysValues = daysValues;
     });
   }
 
@@ -310,6 +287,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: days.map((date) {
+                    final dateString = date.toIso8601String().split('T').first;
                     final trained = widget.diasEntrenados.any((d) => d.year == date.year && d.month == date.month && d.day == date.day);
                     return _DayCell(
                       date: date,
@@ -317,9 +295,9 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                       isToday: date.isToday,
                       isFuture: date.isAfter(today),
                       hasTrained: trained,
-                      stepsProgress: _hasStepsPermission ? _progress((_stepsByDay[date] ?? 0).toDouble(), _targetSteps) : 0,
-                      minutosPercent: _hasActivityPermission ? _progress((_activityMinutes[date] ?? 0).toDouble(), _targetActivityMinutes) : 0,
-                      kcalProgress: _hasKcalPermission ? _progress(_kcalBurned[date] ?? 0, _targetKcal) : 0,
+                      stepsProgress: _hasStepsPermission ? _progress((_daysValues[dateString]?["steps"] as num? ?? 0).toDouble(), _targetSteps) : 0,
+                      minutosPercent: _hasActivityPermission ? _progress((_daysValues[dateString]?["minAct"] as num? ?? 0).toDouble(), _targetActivityMinutes) : 0,
+                      kcalProgress: _hasKcalPermission ? _progress((_daysValues[dateString]?["kcal"] as num? ?? 0).toDouble(), _targetKcal) : 0,
                       onTap: () => widget.onDateSelected(date),
                     );
                   }).toList(),

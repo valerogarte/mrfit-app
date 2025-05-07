@@ -81,13 +81,13 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
         Widget dynamicContent;
 
         if (snapshot.connectionState != ConnectionState.done) {
-          dynamicContent = _buildPlaceholder("Cargando actividad", Icons.fitness_center);
+          dynamicContent = _buildPlaceholder("Cargando actividad", Icons.blur_on_sharp);
         } else if (snapshot.hasError) {
           dynamicContent = _buildPlaceholder("Error al cargar", Icons.error);
         } else {
           final activities = snapshot.data ?? [];
           if (activities.isEmpty) {
-            dynamicContent = _buildPlaceholder("Sin actividad", Icons.fitness_center);
+            dynamicContent = _buildPlaceholder("Sin actividad", Icons.blur_on_sharp);
           } else {
             dynamicContent = Column(
               children: activities.asMap().entries.map((entry) {
@@ -113,6 +113,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   );
                 } else if (activity['type'] == 'workout') {
                   final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
+                  print(info);
                   final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(

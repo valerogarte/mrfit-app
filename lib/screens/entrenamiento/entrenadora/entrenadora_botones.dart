@@ -12,7 +12,6 @@ extension EntrenadoraBotones on Entrenadora {
   }
 
   void pausar() {
-    Logger().i("Pausando entrenadora");
     _isPaused = true;
     _borrarSpeaker = false;
   }
@@ -21,11 +20,7 @@ extension EntrenadoraBotones on Entrenadora {
     _isPaused = false;
     _borrarSpeaker = false;
     if (_flutterTts == null) {
-      _flutterTts = FlutterTts();
-      _flutterTts?.setLanguage("es-ES");
-      _flutterTts?.setSpeechRate(0.5);
-      _flutterTts?.setPitch(1.0);
-      _flutterTts?.awaitSpeakCompletion(true);
+      _initializeTts();
     }
   }
 

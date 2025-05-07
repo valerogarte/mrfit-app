@@ -69,7 +69,12 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           title: title,
           child: SingleChildScrollView(
             controller: controller,
-            child: content,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                content,
+              ],
+            ),
           ),
         ),
       ),

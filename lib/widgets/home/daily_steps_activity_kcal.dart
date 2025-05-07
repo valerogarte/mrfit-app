@@ -253,12 +253,15 @@ Widget infoItem({
   );
 }
 
-List<Widget> buildInfoItems({required List<(Color, IconData, int, String, int)> items, required bool isAnimated}) {
+List<Widget> buildInfoItems({
+  required List<(Color, IconData, int, String, int)> items,
+  required bool isAnimated,
+}) {
   const duration = Duration(milliseconds: 500);
   return items
       .map<Widget>(
         (item) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 10),
           child: isAnimated
               ? AnimatedInfoItem(
                   color: item.$1,
