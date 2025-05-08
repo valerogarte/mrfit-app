@@ -1,7 +1,7 @@
 // planes.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mrfit/screens/entrenamiento/entrenamiento_dias.dart';
+import 'package:mrfit/screens/sesion/sesion_listado_page.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
@@ -77,9 +77,13 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
       updated.add(Rutina(
         id: list[i].id,
         titulo: list[i].titulo,
+        descripcion: list[i].descripcion,
         imagen: list[i].imagen,
+        fechaCreacion: list[i].fechaCreacion,
+        usuarioId: list[i].usuarioId,
         grupoId: list[i].grupoId,
         peso: length - i,
+        dificultad: list[i].dificultad,
       ));
     }
     setState(() => gruposConRutinas[grupo] = updated);
@@ -135,108 +139,6 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
             child: const Text('Crear'),
           ),
         ],
-      ),
-    );
-  }
-
-  Future<void> _eliminarRutina(String id) async {
-    final rutina = gruposConRutinas.values.expand((l) => l).firstWhere((r) => r.id.toString() == id);
-    final ok = await rutina.delete();
-    if (ok) {
-      setState(() {
-        final grupo = gruposConRutinas.keys.firstWhere((g) => gruposConRutinas[g]!.any((r) => r.id.toString() == id));
-        gruposConRutinas[grupo]!.removeWhere((r) => r.id.toString() == id);
-        if (gruposConRutinas[grupo]!.isEmpty) gruposConRutinas.remove(grupo);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al eliminar la rutina.')),
-      );
-    }
-  }
-
-  Future<void> _mostrarDialogoEditarPlan(Rutina rutina) async {
-    String nuevoTitulo = rutina.titulo;
-    bool esActual = rutinaActualId == rutina.id;
-
-    await showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateSB) => AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: const Text('Editar Plan', style: TextStyle(color: AppColors.textNormal)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: TextEditingController(text: nuevoTitulo),
-                decoration: const InputDecoration(
-                  labelText: 'Título de la rutina',
-                  labelStyle: TextStyle(color: AppColors.textNormal),
-                ),
-                style: const TextStyle(color: AppColors.textNormal),
-                onChanged: (v) => nuevoTitulo = v,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Rutina actual', style: TextStyle(color: AppColors.textNormal)),
-                  Switch(
-                    value: esActual,
-                    onChanged: (v) {
-                      setStateSB(() => esActual = v);
-                      _establecerRutinaActual(rutina);
-                    },
-                    activeColor: AppColors.accentColor,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.delete, color: AppColors.background),
-              onPressed: () async {
-                Navigator.pop(context);
-                final confirma = await showDialog<bool>(
-                  context: context,
-                  builder: (c) => AlertDialog(
-                    backgroundColor: AppColors.cardBackground,
-                    title: const Text('Eliminar Plan', style: TextStyle(color: AppColors.textNormal)),
-                    content: const Text('¿Seguro que quieres eliminar la rutina?', style: TextStyle(color: AppColors.textNormal)),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
-                      ElevatedButton(onPressed: () => Navigator.pop(c, true), child: const Text('Eliminar')),
-                    ],
-                  ),
-                );
-                if (confirma == true) await _eliminarRutina(rutina.id.toString());
-              },
-            ),
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
-            ElevatedButton(
-              onPressed: () async {
-                if (nuevoTitulo.isNotEmpty) {
-                  Navigator.pop(context);
-                  await rutina.rename(nuevoTitulo);
-                  setState(() {
-                    final grupo = gruposConRutinas.keys.firstWhere((g) => gruposConRutinas[g]!.contains(rutina));
-                    final idx = gruposConRutinas[grupo]!.indexWhere((r) => r.id == rutina.id);
-                    gruposConRutinas[grupo]![idx] = Rutina(
-                      id: rutina.id,
-                      titulo: nuevoTitulo,
-                      imagen: rutina.imagen,
-                      grupoId: rutina.grupoId,
-                      peso: rutina.peso,
-                    );
-                  });
-                }
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -304,10 +206,15 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                           elevation: esActual ? 8 : 4,
                                           child: InkWell(
                                             borderRadius: BorderRadius.circular(20),
-                                            onTap: () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: rutina)),
-                                            ),
+                                            onTap: () async {
+                                              final result = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (_) => SesionListadoPage(rutina: rutina)),
+                                              );
+                                              if (result == true) {
+                                                await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
+                                              }
+                                            },
                                             child: _contenidoTarjeta(rutina, esActual),
                                           ),
                                         ),
@@ -334,12 +241,17 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                             elevation: esActual ? 8 : 4,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(20),
-                                              onTap: () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) => EntrenamientoDiasPage(rutina: rutina),
-                                                ),
-                                              ),
+                                              onTap: () async {
+                                                final result = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) => SesionListadoPage(rutina: rutina),
+                                                  ),
+                                                );
+                                                if (result == true) {
+                                                  await fetchPlanes();
+                                                }
+                                              },
                                               child: _contenidoTarjeta(rutina, esActual),
                                             ),
                                           ),
@@ -393,17 +305,6 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                   ),
               ],
             ),
-          ),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: esActual ? AppColors.background : AppColors.textMedium,
-            ),
-            onPressed: () => _mostrarDialogoEditarPlan(rutina),
           ),
         ),
       ],

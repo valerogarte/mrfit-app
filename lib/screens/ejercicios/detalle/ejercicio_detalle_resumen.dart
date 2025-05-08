@@ -63,7 +63,7 @@ class EjercicioResumen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          buildDificultadPills(ejercicio, 10, 20),
+                          buildDificultadPills(int.parse(ejercicio.dificultad.titulo), 10, 20),
                         ],
                       ),
                     ),

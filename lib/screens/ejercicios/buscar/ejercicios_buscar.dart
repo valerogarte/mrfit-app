@@ -20,8 +20,7 @@ class EjerciciosBuscarPage extends StatefulWidget {
     super.key,
     this.sesion,
     this.entrenamiento,
-  }) : assert(sesion != null || entrenamiento != null,
-            'Debe proporcionar session o entrenamiento');
+  }) : assert(sesion != null || entrenamiento != null, 'Debe proporcionar session o entrenamiento');
 
   @override
   _EjerciciosBuscarPageState createState() => _EjerciciosBuscarPageState();
@@ -283,7 +282,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                                                   alignment: Alignment.topRight,
                                                   child: Padding(
                                                     padding: const EdgeInsets.only(right: 8.0),
-                                                    child: buildDificultadPills(ejercicio, 6, 12),
+                                                    child: buildDificultadPills(int.parse(ejercicio.dificultad.titulo), 6, 12),
                                                   ),
                                                 ),
                                               ],

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/models/ejercicio/ejercicio.dart';
 
-Widget buildDificultadPills(Ejercicio ejercicio, double width, double height) {
-  final dificultad = int.tryParse(ejercicio.dificultad.titulo) ?? 0;
+Widget buildDificultadPills(int dificultad, double width, double height) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center, // added to center the pills
     children: List.generate(

@@ -45,11 +45,11 @@ class UsuarioBackup {
       if (table == 'rutinas_rutina') {
         rows = await db.query(
           table,
-          where: 'grupo_id = ?',
-          whereArgs: [1],
+          where: 'grupo_id IN (?, ?)',
+          whereArgs: [1, 2],
         );
         rutinaIds.addAll(rows.map((r) => r['id'] as int));
-        sqlToExecute.add("DELETE FROM $table WHERE grupo_id = 1;");
+        sqlToExecute.add("DELETE FROM $table WHERE grupo_id IN (1, 2);");
       } else if (table == 'rutinas_sesion') {
         if (rutinaIds.isNotEmpty) {
           final ph = List.filled(rutinaIds.length, '?').join(',');

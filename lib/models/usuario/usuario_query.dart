@@ -67,7 +67,17 @@ extension UsuarioQueryExtension on Usuario {
       "peso": numberRutinas.first["count"],
       "dificultad": 0,
     });
-    return Rutina(id: id, titulo: titulo, imagen: imagen, grupoId: 1);
+    return Rutina(
+      id: id,
+      titulo: titulo,
+      descripcion: "",
+      imagen: imagen,
+      fechaCreacion: DateTime.now(),
+      usuarioId: 1,
+      grupoId: 1,
+      peso: int.parse(numberRutinas.first["count"].toString()),
+      dificultad: 1,
+    );
   }
 
   // Nuevo método para obtener entrenamientos de los últimos 5 días.

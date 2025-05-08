@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/screens/planes/planes.dart';
-import 'package:mrfit/screens/entrenamiento/entrenamiento_dias.dart';
+import 'package:mrfit/screens/sesion/sesion_listado_page.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
@@ -195,7 +195,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                           if (!mounted) return;
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => EntrenamientoDiasPage(rutina: snapshot.data)),
+                            MaterialPageRoute(builder: (_) => SesionListadoPage(rutina: snapshot.data)),
                           );
                         },
                         style: ElevatedButton.styleFrom(

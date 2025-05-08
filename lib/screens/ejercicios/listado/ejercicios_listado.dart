@@ -355,7 +355,7 @@ class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> w
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          buildDificultadPills(ejercicio, 6, 12),
+                          buildDificultadPills(int.parse(ejercicio.dificultad.titulo), 6, 12),
                           const SizedBox(height: 8),
                           Stack(
                             alignment: Alignment.center,
