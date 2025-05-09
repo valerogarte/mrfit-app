@@ -16,21 +16,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 
-part 'ejercicios_listado_serie.dart';
+part 'sesion_listado_ejercicios_serie.dart';
 
-class EjerciciosListadoPage extends ConsumerStatefulWidget {
+class SesionListadoEjerciciosPage extends ConsumerStatefulWidget {
   final Sesion sesion;
 
-  const EjerciciosListadoPage({
+  const SesionListadoEjerciciosPage({
     Key? key,
     required this.sesion,
   }) : super(key: key);
 
   @override
-  ConsumerState<EjerciciosListadoPage> createState() => _EjerciciosListadoPageState();
+  ConsumerState<SesionListadoEjerciciosPage> createState() => _SesionListadoEjerciciosPageState();
 }
 
-class _EjerciciosListadoPageState extends ConsumerState<EjerciciosListadoPage> with TickerProviderStateMixin {
+class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerciciosPage> with TickerProviderStateMixin {
   late List<EjercicioPersonalizado> _ejercicios;
   dynamic idEntrenandoAhora;
 

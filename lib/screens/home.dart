@@ -52,6 +52,20 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     });
   }
 
+  void _onHorizontalDrag(DragEndDetails details) {
+    if (details.primaryVelocity == null) return;
+    if (details.primaryVelocity! < 0) {
+      // swipe left → día siguiente
+      final next = _selectedDate.add(const Duration(days: 1));
+      if (!next.isAfter(DateTime.now())) {
+        setState(() => _selectedDate = next);
+      }
+    } else if (details.primaryVelocity! > 0) {
+      // swipe right → día anterior
+      setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
@@ -103,30 +117,33 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                       await _cargarResumenEntrenamientos();
                       setState(() {});
                     },
-                    child: NotificationListener<ScrollNotification>(
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          children: [
-                            dailyStatsWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            dailySleepWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            WeeklyStatsWidget(daysTrainedLast30Days: days30, daysTrainedLast7Days: days7),
-                            const SizedBox(height: 15),
-                            dailyPhysicalWidget(),
-                            const SizedBox(height: 15),
-                            dailyHearthWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            dailyVitalsWidget(day: _selectedDate, usuario: usuario),
-                            const SizedBox(height: 15),
-                            StatisticsWidget(usuario: usuario),
-                            const SizedBox(height: 30),
-                          ],
+                    child: GestureDetector(
+                      onHorizontalDragEnd: _onHorizontalDrag,
+                      child: NotificationListener<ScrollNotification>(
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              dailySleepWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              WeeklyStatsWidget(daysTrainedLast30Days: days30, daysTrainedLast7Days: days7),
+                              const SizedBox(height: 15),
+                              dailyPhysicalWidget(),
+                              const SizedBox(height: 15),
+                              dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                              const SizedBox(height: 15),
+                              StatisticsWidget(usuario: usuario),
+                              const SizedBox(height: 30),
+                            ],
+                          ),
                         ),
                       ),
                     ),

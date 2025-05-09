@@ -1,6 +1,6 @@
-part of 'ejercicios_listado.dart';
+part of 'sesion_listado_ejercicios.dart';
 
-extension EjerciciosListadoSerie on _EjerciciosListadoPageState {
+extension SesionListadoEjerciciosSerie on _SesionListadoEjerciciosPageState {
   Future<void> _agregarSerieAlEjercicioEnRutina(EjercicioPersonalizado ejercicioPersonalizado) async {
     // Esperamos la inserción para que se agregue la serie.
     await ejercicioPersonalizado.insertSeriePersonalizada();

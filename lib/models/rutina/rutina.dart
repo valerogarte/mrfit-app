@@ -162,16 +162,33 @@ class Rutina {
     return result.map((json) => Sesion.fromJson(json)).toList();
   }
 
-  /// Total de entrenamientos realizados para esta rutina
-  Future<int> getTotalEntrenamientos() async {
+  /// Total de entrenamientos realizados para esta rutina y desglose por sesión
+  /// Devuelve: {'total': int, 'porSesion': [{'nombre': ..., 'cantidad': ...}, ...]}
+  Future<Map<String, dynamic>> getTotalEntrenamientos() async {
     final db = await DatabaseHelper.instance.database;
-    final res = await db.rawQuery('''
-      SELECT COUNT(e.id) AS total
+    // Consulta única: desglose por sesión
+    final porSesionRes = await db.rawQuery('''
+      SELECT s.titulo AS nombre, COUNT(e.id) AS cantidad
         FROM entrenamiento_entrenamiento e
         JOIN rutinas_sesion s ON e.sesion_id = s.id
        WHERE s.rutina_id = ?
+       GROUP BY s.id
+       ORDER BY s.orden ASC
     ''', [id]);
-    return Sqflite.firstIntValue(res) ?? 0;
+    final porSesion = porSesionRes
+        .map((row) => {
+              'nombre': row['nombre'],
+              'cantidad': row['cantidad'],
+            })
+        .toList();
+
+    // Sumar cantidades para el total
+    final total = porSesion.fold<int>(0, (sum, row) => sum + (row['cantidad'] as int? ?? 0));
+
+    return {
+      'total': total,
+      'porSesion': porSesion,
+    };
   }
 
   /// Suma de duración en segundos de todos los entrenamientos

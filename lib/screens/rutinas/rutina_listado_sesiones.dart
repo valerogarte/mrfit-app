@@ -4,19 +4,19 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
 import 'package:mrfit/screens/sesion/sesion_page.dart';
-import 'package:mrfit/widgets/blink_bar.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
-import '../entrenamiento/entrenadora.dart';
+import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
+import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 
-class SesionListadoListaPage extends StatefulWidget {
+class RutinaListadoSesionesPage extends StatefulWidget {
   final Rutina rutina;
-  const SesionListadoListaPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaListadoSesionesPage({Key? key, required this.rutina}) : super(key: key);
 
   @override
-  _SesionListadoListaPageState createState() => _SesionListadoListaPageState();
+  _RutinaListadoSesionesPageState createState() => _RutinaListadoSesionesPageState();
 }
 
-class _SesionListadoListaPageState extends State<SesionListadoListaPage> {
+class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
   List<Sesion> _listadoSesiones = [];
 
   @override
@@ -62,66 +62,6 @@ class _SesionListadoListaPageState extends State<SesionListadoListaPage> {
                 }
               },
               child: const Text('Crear'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _mostrarDialogoEditarSesion(Sesion sesion) async {
-    String nuevoTitulo = sesion.titulo;
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: const Text('Editar Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
-          content: TextField(
-            decoration: const InputDecoration(labelText: 'Título de la sesión', labelStyle: TextStyle(color: AppColors.textNormal)),
-            style: const TextStyle(color: AppColors.textNormal),
-            controller: TextEditingController(text: nuevoTitulo),
-            onChanged: (value) => nuevoTitulo = value,
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.delete, color: AppColors.background),
-              onPressed: () async {
-                Navigator.pop(context);
-                final confirmar = await showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      backgroundColor: AppColors.cardBackground,
-                      title: const Text('Eliminar Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
-                      content: const Text('¿Estás seguro de que deseas eliminar este día?', style: TextStyle(color: AppColors.textNormal)),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
-                        ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
-                      ],
-                    );
-                  },
-                );
-                if (confirmar == true) {
-                  await sesion.delete();
-                  setState(() => _listadoSesiones.removeWhere((s) => s.id == sesion.id));
-                }
-              },
-            ),
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
-            ElevatedButton(
-              onPressed: () async {
-                if (nuevoTitulo.isNotEmpty) {
-                  Navigator.pop(context);
-                  try {
-                    await sesion.rename(nuevoTitulo);
-                    setState(() => sesion.titulo = nuevoTitulo);
-                  } catch (_) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al actualizar el día de entrenamiento.')));
-                  }
-                }
-              },
-              child: const Text('Guardar'),
             ),
           ],
         );
@@ -193,7 +133,17 @@ class _SesionListadoListaPageState extends State<SesionListadoListaPage> {
                                       showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
                                       await sesion.getEjercicios();
                                       Navigator.pop(context);
-                                      Navigator.push(context, MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)));
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)),
+                                      );
+                                      // Si se editó o eliminó, recargar la lista
+                                      if (result == true) {
+                                        final sesionesActualizadas = await widget.rutina.getSesiones();
+                                        setState(() {
+                                          _listadoSesiones = sesionesActualizadas;
+                                        });
+                                      }
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
@@ -203,7 +153,24 @@ class _SesionListadoListaPageState extends State<SesionListadoListaPage> {
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text(sesion.titulo, style: const TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold)),
+                                                Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        sesion.titulo,
+                                                        style: const TextStyle(
+                                                          color: AppColors.textNormal,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    // Dificultad pills
+                                                    buildDificultadPills(sesion.dificultad, 6, 12),
+                                                  ],
+                                                ),
                                                 const SizedBox(height: 8),
                                                 Row(
                                                   children: [
@@ -237,7 +204,6 @@ class _SesionListadoListaPageState extends State<SesionListadoListaPage> {
                                               ],
                                             ),
                                           ),
-                                          IconButton(icon: const Icon(Icons.edit, color: AppColors.textNormal), onPressed: () => _mostrarDialogoEditarSesion(sesion)),
                                         ],
                                       ),
                                     ),

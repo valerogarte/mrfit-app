@@ -65,7 +65,7 @@ class ChartWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(16.0), // Set the desired corner radius
       child: Container(
         padding: const EdgeInsets.all(16.0),
-        height: 250,
+        height: 275,
         color: AppColors.cardBackground,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +74,7 @@ class ChartWidget extends StatelessWidget {
               title,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
             Expanded(
               child: LineChart(
                 LineChartData(

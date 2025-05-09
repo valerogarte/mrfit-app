@@ -7,9 +7,9 @@ import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mrfit/widgets/chart/grafica.dart';
 
-class SesionListadoInformacionPage extends StatefulWidget {
+class RutinaInformacionPage extends StatefulWidget {
   final Rutina rutina;
-  const SesionListadoInformacionPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaInformacionPage({Key? key, required this.rutina}) : super(key: key);
 
   @override
   _SesionListadoInformacionState createState() => _SesionListadoInformacionState();
@@ -22,7 +22,7 @@ class _ChartEntry {
   _ChartEntry(this.dia, this.cantidad);
 }
 
-class _SesionListadoInformacionState extends State<SesionListadoInformacionPage> {
+class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
   // NUEVAS PROPIEDADES
   int totalEntrenos = 0;
   int tiempoTotalSeg = 0;
@@ -32,6 +32,7 @@ class _SesionListadoInformacionState extends State<SesionListadoInformacionPage>
   List<FlSpot> spots = [];
   List<DateTime> dates = [];
   Grupo? grupo;
+  List<Map<String, dynamic>> sesionesPorTipo = [];
 
   @override
   void initState() {
@@ -41,7 +42,8 @@ class _SesionListadoInformacionState extends State<SesionListadoInformacionPage>
 
   Future<void> _loadEstadisticas() async {
     final rut = widget.rutina;
-    final t1 = await rut.getTotalEntrenamientos();
+    final entrenosData = await rut.getTotalEntrenamientos();
+    final t1 = entrenosData['total'] ?? 0;
     final t2 = await rut.getTiempoTotalSegundos();
     final t3 = await rut.getDuracionMediaSegundos();
     final t4 = await rut.getTotalSetsCompletados();
@@ -62,6 +64,7 @@ class _SesionListadoInformacionState extends State<SesionListadoInformacionPage>
       }).toList();
       dates = chartData.map((m) => DateTime.parse(m['inicio'] as String)).toList();
       grupo = g; // <--- asignación
+      sesionesPorTipo = (entrenosData['porSesion'] as List).cast<Map<String, dynamic>>();
     });
   }
 
@@ -134,20 +137,59 @@ class _SesionListadoInformacionState extends State<SesionListadoInformacionPage>
           ),
           const SizedBox(height: 16),
           if (widget.rutina.descripcion.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.rutina.descripcion,
-                  style: const TextStyle(
-                    color: AppColors.accentColor,
-                    fontSize: 16,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Descripción',
+                    style: const TextStyle(
+                      color: AppColors.textMedium,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    widget.rutina.descripcion,
+                    style: const TextStyle(
+                      color: AppColors.textMedium,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
             ),
           const SizedBox(height: 16),
+          // NUEVO: Tabla de sesiones por tipo
+          if (sesionesPorTipo.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Entrenamientos por sesión',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textMedium,
+                        ),
+                      ),
+                    ),
+                  ),
+                  _buildSesionesPorTipo(),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
           // GRÁFICA de volumen por entrenamiento
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -158,7 +200,71 @@ class _SesionListadoInformacionState extends State<SesionListadoInformacionPage>
               textNoResults: 'No hay entrenamientos aún.',
             ),
           ),
+          const SizedBox(height: 64),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSesionesPorTipo() {
+    if (sesionesPorTipo.isEmpty) return const SizedBox.shrink();
+
+    final maxCantidad = sesionesPorTipo.map<int>((e) => (e['cantidad'] ?? 0) as int).fold<int>(0, (a, b) => a > b ? a : b);
+
+    return Card(
+      elevation: 0,
+      color: AppColors.background,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: sesionesPorTipo.map((row) {
+                final nombre = (row['nombre'] ?? '').toString();
+                final cantidad = (row['cantidad'] ?? 0) as int;
+                final barWidth = maxCantidad > 0 ? (cantidad / maxCantidad) * maxWidth : 0.0;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // -- título encima de la barra
+                      Text(
+                        nombre,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.accentColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // -- la barrita horizontal
+                      Container(
+                        height: 20,
+                        width: barWidth,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.mutedAdvertencia,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$cantidad',
+                          style: const TextStyle(
+                            color: AppColors.background,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
     );
   }

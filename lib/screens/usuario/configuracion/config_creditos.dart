@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/utils/constants.dart';
 
 class ConfiguracionCreditosPage extends StatelessWidget {
   const ConfiguracionCreditosPage({Key? key}) : super(key: key);
@@ -110,7 +111,7 @@ class ConfiguracionCreditosPage extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Versión 1.0.0',
+                        'Versión ${AppConstants.version}',
                         style: TextStyle(color: AppColors.textMedium),
                       ),
                     ],

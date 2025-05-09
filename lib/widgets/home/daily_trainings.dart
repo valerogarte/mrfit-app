@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mrfit/screens/planes/planes.dart';
-import 'package:mrfit/screens/sesion/sesion_listado_page.dart';
+import 'package:mrfit/screens/rutinas/rutinas_page.dart';
+import 'package:mrfit/screens/rutinas/rutina_page.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
@@ -176,7 +176,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     if (!mounted) return;
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanesPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RutinasPage()));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.background,
@@ -195,7 +195,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                           if (!mounted) return;
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => SesionListadoPage(rutina: snapshot.data)),
+                            MaterialPageRoute(builder: (_) => RutinaPage(rutina: snapshot.data)),
                           );
                         },
                         style: ElevatedButton.styleFrom(

@@ -1,21 +1,22 @@
 // planes.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mrfit/screens/sesion/sesion_listado_page.dart';
+import 'package:mrfit/screens/rutinas/rutina_page.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/models/rutina/grupo.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
+import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 
-class PlanesPage extends ConsumerStatefulWidget {
-  const PlanesPage({Key? key}) : super(key: key);
+class RutinasPage extends ConsumerStatefulWidget {
+  const RutinasPage({Key? key}) : super(key: key);
   @override
-  ConsumerState<PlanesPage> createState() => _PlanesPageState();
+  ConsumerState<RutinasPage> createState() => _RutinasPageState();
 }
 
-class _PlanesPageState extends ConsumerState<PlanesPage> {
+class _RutinasPageState extends ConsumerState<RutinasPage> {
   Map<Grupo, List<Rutina>> gruposConRutinas = {};
   bool isLoading = true;
   int? rutinaActualId;
@@ -88,23 +89,6 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
     }
     setState(() => gruposConRutinas[grupo] = updated);
     for (var r in updated) r.setPeso(r.peso!);
-  }
-
-  Future<void> _establecerRutinaActual(Rutina rutina) async {
-    final usuario = ref.read(usuarioProvider);
-    if (rutinaActualId == rutina.id) {
-      await usuario.setRutinaActual(null);
-      setState(() => rutinaActualId = null);
-    } else {
-      final ok = await usuario.setRutinaActual(rutina.id);
-      if (ok) {
-        setState(() => rutinaActualId = rutina.id);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al establecer la rutina actual.')),
-        );
-      }
-    }
   }
 
   Future<void> _mostrarDialogoNuevoPlan() async {
@@ -209,7 +193,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                             onTap: () async {
                                               final result = await Navigator.push(
                                                 context,
-                                                MaterialPageRoute(builder: (_) => SesionListadoPage(rutina: rutina)),
+                                                MaterialPageRoute(builder: (_) => RutinaPage(rutina: rutina)),
                                               );
                                               if (result == true) {
                                                 await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
@@ -245,7 +229,7 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                                                 final result = await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (_) => SesionListadoPage(rutina: rutina),
+                                                    builder: (_) => RutinaPage(rutina: rutina),
                                                   ),
                                                 );
                                                 if (result == true) {
@@ -291,6 +275,9 @@ class _PlanesPageState extends ConsumerState<PlanesPage> {
                     color: esActual ? AppColors.background : AppColors.textNormal,
                   ),
                 ),
+                const SizedBox(height: 8),
+                // Dificultad pills (igual que en rutina_listado_sesiones.dart)
+                buildDificultadPills(rutina.dificultad, 6, 12),
                 if (esActual)
                   const Padding(
                     padding: EdgeInsets.only(top: 4),

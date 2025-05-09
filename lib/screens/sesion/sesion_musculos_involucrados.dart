@@ -54,18 +54,21 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: _showFrontImage
-                              ? Image.asset(
-                                  'assets/images/cuerpohumano/cuerpohumano-frontal.png',
-                                  key: const ValueKey('front'),
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  'assets/images/cuerpohumano/cuerpohumano-back.png',
-                                  key: const ValueKey('back'),
-                                  fit: BoxFit.cover,
-                                ),
+                          padding: const EdgeInsets.only(left: 16, bottom: 8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: _showFrontImage
+                                ? Image.asset(
+                                    'assets/images/cuerpohumano/cuerpohumano-frontal.png',
+                                    key: const ValueKey('front'),
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/images/cuerpohumano/cuerpohumano-back.png',
+                                    key: const ValueKey('back'),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
                         const LegendWidget(),
                       ],
@@ -74,20 +77,32 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
                   // Columna derecha: listado de músculos (35% del ancho)
                   Container(
                     width: availableWidth * 0.35,
-                    padding: const EdgeInsets.all(10),
-                    child: ListView.builder(
-                      itemCount: musculos.length,
-                      itemBuilder: (context, index) {
-                        final m = musculos[index];
-                        if (m == null) return const SizedBox.shrink();
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: MusclesListWidget(
-                            musculo: m,
-                            maxPercentage: maxPercentage,
-                          ),
-                        );
-                      },
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: musculos.length,
+                          itemBuilder: (context, index) {
+                            final m = musculos[index];
+                            if (m == null) return const SizedBox.shrink();
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                top: index == 0 ? 0 : 5,
+                                bottom: 5,
+                              ),
+                              child: MusclesListWidget(
+                                musculo: m,
+                                maxPercentage: maxPercentage,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ],

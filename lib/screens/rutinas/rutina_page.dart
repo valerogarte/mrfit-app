@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
-import 'sesion_listado_lista.dart';
-import 'sesion_listado_informacion.dart';
+import 'rutina_listado_sesiones.dart';
+import 'rutina_informacion.dart';
 import 'editar_rutina_page.dart';
 
-class SesionListadoPage extends StatefulWidget {
+class RutinaPage extends StatefulWidget {
   final Rutina rutina;
-  const SesionListadoPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaPage({Key? key, required this.rutina}) : super(key: key);
 
   @override
-  _SesionListadoPageState createState() => _SesionListadoPageState();
+  _RutinaPageState createState() => _RutinaPageState();
 }
 
-class _SesionListadoPageState extends State<SesionListadoPage> {
+class _RutinaPageState extends State<RutinaPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -117,15 +117,15 @@ class _SesionListadoPageState extends State<SesionListadoPage> {
             labelColor: AppColors.mutedAdvertencia,
             unselectedLabelColor: AppColors.accentColor,
             tabs: const [
-              Tab(text: 'Entrenamientos'),
+              Tab(text: 'Sesiones'),
               Tab(text: 'Información'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            SesionListadoListaPage(rutina: widget.rutina),
-            SesionListadoInformacionPage(rutina: widget.rutina),
+            RutinaListadoSesionesPage(rutina: widget.rutina),
+            RutinaInformacionPage(rutina: widget.rutina),
           ],
         ),
       ),

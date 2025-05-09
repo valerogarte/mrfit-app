@@ -9,12 +9,14 @@ class Sesion {
   final int id;
   String titulo;
   int orden;
+  int dificultad; // Nuevo campo dificultad
   List<EjercicioPersonalizado> ejerciciosPersonalizados = [];
 
   Sesion({
     required this.id,
     required this.titulo,
     required this.orden,
+    this.dificultad = 1, // Valor por defecto
   });
 
   factory Sesion.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Sesion {
       id: json['id'],
       titulo: json['titulo'] ?? '',
       orden: json['orden'],
+      dificultad: json['dificultad'] ?? 1, // Lee dificultad si existe
     );
   }
 
@@ -30,7 +33,7 @@ class Sesion {
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(
       'rutinas_sesion',
-      columns: ['id', 'titulo', 'orden'],
+      columns: ['id', 'titulo', 'orden', 'dificultad'],
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -40,6 +43,7 @@ class Sesion {
       id: id,
       titulo: json['titulo'] as String,
       orden: json['orden'] as int,
+      dificultad: json['dificultad'] != null ? json['dificultad'] as int : 1,
     );
     await sesion.getEjercicios();
     return sesion;
@@ -51,6 +55,7 @@ class Sesion {
       'id': id,
       'titulo': titulo,
       'orden': orden,
+      'dificultad': dificultad, // Añadido dificultad
       'ejerciciosPersonalizados': ejerciciosPersonalizados.map((e) => e.toJson()).toList(),
     };
   }
@@ -136,6 +141,19 @@ class Sesion {
     final result = await db.update(
       'rutinas_sesion',
       {'orden': nuevoOrden},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return result;
+  }
+
+  // Método para actualizar la dificultad de la sesión
+  Future<int> setDificultad(int nuevaDificultad) async {
+    final db = await DatabaseHelper.instance.database;
+    dificultad = nuevaDificultad;
+    final result = await db.update(
+      'rutinas_sesion',
+      {'dificultad': nuevaDificultad},
       where: 'id = ?',
       whereArgs: [id],
     );
