@@ -15,15 +15,18 @@ class ChartWidget extends StatelessWidget {
     required this.title,
     required this.labels,
     required this.values,
-    required this.textNoResults,
+    this.textNoResults = '',
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (values.isEmpty || labels.isEmpty) {
-      return const NotFoundData(
+      if (textNoResults.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return NotFoundData(
         title: "Sin datos disponibles",
-        textNoResults: "No hay información para mostrar en el gráfico.",
+        textNoResults: textNoResults,
       );
     }
 

@@ -195,4 +195,105 @@ extension UsuarioHealthCorporalExtension on Usuario {
     }
     return weight;
   }
+
+  Future<Map<DateTime, double>> getReadMuscleMass(int nDays) async {
+    if (!await checkPermissionsFor("MUSCLE_MASS")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["MUSCLE_MASS"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, double>> getReadLeanBodyMass(int nDays) async {
+    if (!await checkPermissionsFor("LEAN_BODY_MASS")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["LEAN_BODY_MASS"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, double>> getReadBodyFat(int nDays) async {
+    if (!await checkPermissionsFor("BODY_FAT_PERCENTAGE")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["BODY_FAT_PERCENTAGE"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, double>> getReadBodyBone(int nDays) async {
+    if (!await checkPermissionsFor("BONE_MASS")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["BONE_MASS"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, double>> getReadBodyWater(int nDays) async {
+    if (!await checkPermissionsFor("BODY_WATER_MASS")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["BODY_WATER_MASS"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<Map<DateTime, double>> getReadBMI(int nDays) async {
+    if (!await checkPermissionsFor("BODY_MASS_INDEX")) return {};
+
+    final dataPoints = await _readHealthData(healthDataTypesString["BODY_MASS_INDEX"]!, nDays);
+    final Map<DateTime, double> tempMap = {};
+    for (var dp in dataPoints) {
+      final localDate = dp.dateFrom.toLocal();
+      final date = DateTime(localDate.year, localDate.month, localDate.day);
+      final dateFormat = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0;
+      tempMap[dateFormat] = double.parse(value.toStringAsFixed(2));
+    }
+    return tempMap;
+  }
+
+  Future<double> getCurrentBasalMetabolicRate(int nDays) async {
+    if (!await checkPermissionsFor("BASAL_METABOLIC_RATE")) return 0.0;
+
+    final dataPoints = await _readHealthData(healthDataTypesString["BASAL_METABOLIC_RATE"]!, nDays);
+    if (dataPoints.isEmpty) return 0.0;
+    // Tomar el último valor disponible
+    final dp = dataPoints.last;
+    final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0.0;
+    return double.parse(value.toStringAsFixed(2));
+  }
 }
