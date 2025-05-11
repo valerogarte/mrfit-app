@@ -10,6 +10,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'dart:convert';
 import 'package:mrfit/models/cache/custom_cache.dart';
 import 'package:mrfit/channel/channel_healtconnect.dart';
+import 'package:mrfit/widgets/chart/resumen_semanal_entrenamiento.dart';
 
 // ---------------------------------------------
 // Extensions
@@ -52,15 +53,29 @@ class CalendarHeaderWidget extends StatelessWidget {
   final DateTime selectedDate;
   final GlobalKey<State<CalendarWidget>> calendarKey;
   final DateChangedCallback onDateChanged;
+  final Set<DateTime> diasEntrenados;
 
   const CalendarHeaderWidget({
     super.key,
     required this.selectedDate,
     required this.calendarKey,
     required this.onDateChanged,
+    required this.diasEntrenados,
   });
 
-  bool get _showGoToToday => !selectedDate.isToday && !CalendarWidget.isDateInCurrentWeek(selectedDate);
+  bool get _showGoToToday => !selectedDate.isToday;
+
+  int get _trainedLast7Days {
+    final today = DateTime.now();
+    final from = today.subtract(const Duration(days: 6));
+    return diasEntrenados.where((d) => !d.isAfter(today) && !d.isBefore(from)).length;
+  }
+
+  int get _trainedLast30Days {
+    final today = DateTime.now();
+    final from = today.subtract(const Duration(days: 29));
+    return diasEntrenados.where((d) => !d.isAfter(today) && !d.isBefore(from)).length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +110,48 @@ class CalendarHeaderWidget extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.accentColor,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          else
+            GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => ResumenSemanalEntrenamientosWidget(
+                    daysTrainedLast30Days: diasEntrenados.where((d) => !d.isAfter(DateTime.now()) && d.isAfter(DateTime.now().subtract(const Duration(days: 30)))).length,
+                    daysTrainedLast7Days: _trainedLast7Days,
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      '${_trainedLast7Days}/7',
+                      style: const TextStyle(
+                        color: AppColors.accentColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.fitness_center,
+                      color: AppColors.mutedAdvertencia,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_trainedLast30Days}/30',
+                      style: const TextStyle(
+                        color: AppColors.accentColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

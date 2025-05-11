@@ -7,7 +7,7 @@ import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/widgets/home/calendar.dart';
 import 'package:mrfit/widgets/home/daily_steps_activity_kcal.dart';
 import 'package:mrfit/widgets/home/daily_sleep.dart';
-import 'package:mrfit/widgets/home/daily_weekly.dart';
+import 'package:mrfit/widgets/chart/resumen_semanal_entrenamiento.dart';
 import 'package:mrfit/widgets/home/daily_trainings.dart';
 import 'package:mrfit/widgets/home/daily_physical.dart';
 import 'package:mrfit/widgets/home/daily_nutrition.dart';
@@ -95,6 +95,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               selectedDate: _selectedDate,
               calendarKey: _calendarKey,
               onDateChanged: (date) => setState(() => _selectedDate = date),
+              diasEntrenados: _diasEntrenados,
             ),
           ),
           const SizedBox(height: 10),
@@ -131,8 +132,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                               dailySleepWidget(day: _selectedDate, usuario: usuario),
                               const SizedBox(height: 15),
                               DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              WeeklyStatsWidget(daysTrainedLast30Days: days30, daysTrainedLast7Days: days7),
                               const SizedBox(height: 15),
                               dailyPhysicalWidget(),
                               const SizedBox(height: 15),
