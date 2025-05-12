@@ -43,6 +43,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   int? _restingTimeLeft;
   Timer? _restTimer;
   bool restartEntrenadora = false;
+  bool _finalizado = false; // Flag para ocultar controles
 
   @override
   void initState() {
@@ -311,6 +312,9 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
       // Si hay que terminar el entrenamiento
       if (index == widget.entrenamiento.countEjercicios() - 1) {
         restartEntrenadora = true;
+        setState(() {
+          _finalizado = true;
+        });
         _entrenadora.anunciarFinalizacion(widget.entrenamiento);
       }
     }
@@ -355,7 +359,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
               ],
             ),
             title: Text(_formatDuration(_elapsedTime)),
-            actions: usuario.entrenadorActivo
+            actions: usuario.entrenadorActivo && !_finalizado
                 ? [
                     IconButton(
                       icon: Icon(
@@ -382,7 +386,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       },
                     ),
                   ]
-                : [], // Hide controls if entrenadorActivo is false
+                : [],
           ),
           body: Column(
             children: [
@@ -628,6 +632,13 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                 },
                 onDelete: () async {
                   await serie.delete();
+                  final ejercicios = widget.entrenamiento.ejercicios;
+                  final quedanSeries = ejercicios.any((ej) => ej.series.any((s) => !s.deleted && !s.realizada));
+                  if (!quedanSeries && mounted) {
+                    setState(() {
+                      _finalizado = true;
+                    });
+                  }
                   setState(() {
                     int originalIndex = ejercicioR.series.indexWhere((s) => s.id == serie.id);
                     if (originalIndex != -1) {
@@ -689,6 +700,14 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       }
                     }
                   });
+
+                  final ejercicios = widget.entrenamiento.ejercicios;
+                  final quedanSeries = ejercicios.any((ej) => ej.series.any((s) => !s.deleted && !s.realizada));
+                  if (!quedanSeries && mounted) {
+                    setState(() {
+                      _finalizado = true;
+                    });
+                  }
                 },
                 ejercicioRealizado: ejercicioR,
               );

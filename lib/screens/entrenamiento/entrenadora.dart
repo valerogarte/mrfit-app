@@ -46,6 +46,13 @@ class Entrenadora {
       ..setSpeechRate(0.5)
       ..setPitch(1.0)
       ..awaitSpeakCompletion(true);
+
+    configure(
+      aviso10Segundos: aviso10Segundos,
+      avisoCuentaAtras: avisoCuentaAtras,
+      entrenadorVoz: entrenadorVoz,
+      entrenadorVolumen: entrenadorVolumen,
+    );
   }
 
   /// Configura las preferencias de voz y avisos
