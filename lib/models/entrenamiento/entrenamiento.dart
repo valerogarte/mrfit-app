@@ -129,28 +129,6 @@ class Entrenamiento {
     return kcal.toInt();
   }
 
-  String formatTimeAgo() {
-    final now = DateTime.now();
-    final difference = now.difference(inicio);
-    final years = (difference.inDays / 365).floor();
-    final months = (difference.inDays / 30).floor();
-    final days = difference.inDays;
-    final hours = difference.inHours;
-    if (years > 0) {
-      return 'Hace $years ${years == 1 ? 'año' : 'años'}';
-    } else if (months > 0) {
-      return 'Hace $months ${months == 1 ? 'mes' : 'meses'}';
-    } else if (days > 1) {
-      return 'Hace $days días';
-    } else if (days == 1 || (now.day != inicio.day && hours < 24)) {
-      return 'Ayer';
-    } else if (hours < 1) {
-      return 'Recientemente';
-    } else {
-      return 'Hace $hours ${hours == 1 ? 'hora' : 'horas'}';
-    }
-  }
-
   Future<void> calcularRecuperacion(Usuario usuario) async {
     if (_recoveryCalculated) return;
     _recoveryCalculated = true;

@@ -5,6 +5,7 @@ import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
 import 'package:mrfit/main.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class EntrenamientoRealizadoPage extends StatelessWidget {
   final dynamic idHealthConnect;
@@ -77,7 +78,7 @@ class EntrenamientoRealizadoPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entrenamiento.formatTimeAgo(), style: const TextStyle(fontSize: 18)),
+                Text(MrFunctions.formatTimeAgo(entrenamiento.inicio), style: const TextStyle(fontSize: 18)),
                 ResumenPastilla(entrenamiento: entrenamiento),
                 const SizedBox(height: 20),
                 // Sensación del entrenamiento

@@ -7,6 +7,7 @@ import 'package:mrfit/screens/sesion/sesion_page.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class RutinaListadoSesionesPage extends StatefulWidget {
   final Rutina rutina;
@@ -197,6 +198,24 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                                           return const Text("00:00", style: TextStyle(color: AppColors.textNormal));
                                                         }
                                                         return Text(snap.data ?? '00:00', style: const TextStyle(color: AppColors.textNormal));
+                                                      },
+                                                    ),
+                                                    const SizedBox(width: 16),
+                                                    const Icon(Icons.calendar_today, color: AppColors.textNormal, size: 20),
+                                                    const SizedBox(width: 5),
+                                                    FutureBuilder<DateTime?>(
+                                                      future: sesion.getTimeUltimoEntrenamiento(),
+                                                      builder: (context, snap) {
+                                                        if (snap.connectionState == ConnectionState.waiting) {
+                                                          return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
+                                                        }
+                                                        final date = snap.data;
+                                                        if (date == null) {
+                                                          return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
+                                                        }
+                                                        // Formatear la fecha como desees, aquí un ejemplo simple:
+                                                        final formatted = MrFunctions.formatTimeAgo(date);
+                                                        return Text(formatted, style: const TextStyle(color: AppColors.textNormal));
                                                       },
                                                     ),
                                                   ],

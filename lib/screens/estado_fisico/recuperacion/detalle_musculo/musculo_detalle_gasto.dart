@@ -5,6 +5,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class DetalleMusculoGasto extends ConsumerWidget {
   final String musculo;
@@ -32,7 +33,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
       entrenamiento.calcularRecuperacion(usuario);
       final entrenamientoVolumen = entrenamiento.entrenamientoVolumen;
       final factorRec = entrenamiento.factorRec;
-      final fechaStr = entrenamiento.formatTimeAgo();
+      final fechaStr = MrFunctions.formatTimeAgo(entrenamiento.inicio);
 
       final exerciseListResult = _buildExerciseList(entrenamiento, musculo, factorRec, currentPercentage);
       if (exerciseListResult == null) continue;

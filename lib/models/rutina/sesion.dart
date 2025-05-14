@@ -375,4 +375,22 @@ class Sesion {
       'values': values,
     };
   }
+
+  /// Devuelve la fecha de fin del último entrenamiento o null si no hay registros.
+  Future<DateTime?> getTimeUltimoEntrenamiento() async {
+    final db = await DatabaseHelper.instance.database;
+    final result = await db.query(
+      'entrenamiento_entrenamiento',
+      columns: ['fin'],
+      where: 'sesion_id = ?',
+      whereArgs: [id],
+      orderBy: 'fin DESC',
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    final fin = result.first['fin'];
+    if (fin == null) return null;
+    return DateTime.tryParse(fin as String);
+  }
 }
