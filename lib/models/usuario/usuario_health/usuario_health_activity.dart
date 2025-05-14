@@ -1,6 +1,51 @@
 part of '../usuario.dart';
 
 extension UsuarioActivityExtension on Usuario {
+  List<HealthDataPoint> customRemoveDuplicates(
+    List<HealthDataPoint> dataPoints, {
+    Duration sectionGap = const Duration(seconds: 2),
+  }) {
+    // 1. Ordena por inicio
+    dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    // 2. Elimina dataPoints exactos
+    final seen = <String>{};
+    final filtered = <HealthDataPoint>[];
+    for (var p in dataPoints) {
+      if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) continue;
+
+      final key = [
+        p.dateFrom.millisecondsSinceEpoch,
+        p.dateTo.millisecondsSinceEpoch,
+        (p.value as NumericHealthValue).numericValue,
+      ].join('-');
+
+      if (seen.add(key)) filtered.add(p);
+    }
+
+    // 3. Agrupa los dataPoints en secciones de tiempo. Con un pequeño margen de tiempo por si no encaja exacto.
+    final sections = <_TimeSection>[];
+    for (var p in filtered) {
+      var added = false;
+      for (var sec in sections) {
+        // si p.dateFrom ≤ sec.end + sectionGap
+        if (p.dateFrom.isBefore(sec.end.add(sectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(sectionGap))) {
+          sec.points.add(p);
+          // expande la sección si p.dateTo la supera
+          if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
+          added = true;
+          break;
+        }
+      }
+      if (!added) {
+        sections.add(_TimeSection(p));
+      }
+    }
+
+    final clean = sections.expand((s) => s.points).toList();
+    return clean;
+  }
+
   Future<List<HealthDataPoint>> getStepsByDate(String date, {int nDays = 1}) async {
     if (!await checkPermissionsFor("STEPS")) return [];
 
@@ -14,7 +59,8 @@ extension UsuarioActivityExtension on Usuario {
       types: [healthDataTypesString["STEPS"]!],
     );
 
-    final dataPointsClean = _health.removeDuplicates(dataPoints);
+    final dataPointsRaw = _health.removeDuplicates(dataPoints);
+    final dataPointsClean = customRemoveDuplicates(dataPointsRaw);
 
     return dataPointsClean;
   }
@@ -331,130 +377,5 @@ extension UsuarioActivityExtension on Usuario {
     final workoutId = workout.uuid;
 
     return workoutId;
-  }
-
-  /// Top 5 mejores distancias de running (km)
-  Future<List<Map<String, dynamic>>> getMaxRunDistanceRecord(int nDays) async {
-    // await _health.configure();
-    // if (!await checkPermissionsFor("DISTANCE_DELTA")) return [];
-
-    // final List<Map<String, dynamic>> registros = [];
-
-    // for (int i = 0; i < nDays; i++) {
-    //   final date = DateTime.now().subtract(Duration(days: i));
-    //   final map = await getReadDistanceByDate(DateFormat('yyyy-MM-dd').format(date));
-    //   final meters = map[DateTime(date.year, date.month, date.day)] ?? 0;
-    //   if (meters > 0) {
-    //     registros.add({
-    //       "value": double.parse((meters / 1000).toStringAsFixed(1)),
-    //       "date": date,
-    //     });
-    //   }
-    // }
-
-    // registros.sort((a, b) => (b['value'] as double).compareTo(a['value'] as double));
-    // return registros.take(5).toList();
-    return [
-      {"value": 10, "date": DateTime.now().subtract(Duration(days: 1))},
-      {"value": 20, "date": DateTime.now().subtract(Duration(days: 2))},
-      {"value": 30, "date": DateTime.now().subtract(Duration(days: 3))},
-      {"value": 40, "date": DateTime.now().subtract(Duration(days: 4))},
-      {"value": 50, "date": DateTime.now().subtract(Duration(days: 5))},
-    ];
-  }
-
-  /// Top 5 días con más pasos
-  Future<List<Map<String, dynamic>>> getMaxStepsDayRecord(int nDays) async {
-    // final List<Map<String, dynamic>> registros = [];
-
-    // for (int i = 0; i < nDays; i++) {
-    //   final date = DateTime.now().subtract(Duration(days: i));
-    //   final iso = DateFormat('yyyy-MM-dd').format(date);
-    //   final steps = await getTotalStepsByDate(iso);
-    //   if (steps > 0) {
-    //     registros.add({
-    //       "value": steps,
-    //       "date": date,
-    //     });
-    //   }
-    // }
-
-    // registros.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    // return registros.take(5).toList();
-    return [
-      {"value": 20000, "date": DateTime.now().subtract(Duration(days: 1))},
-      // {"value": 30000, "date": DateTime.now().subtract(Duration(days: 2))},
-      // {"value": 4000, "date": DateTime.now().subtract(Duration(days: 3))},
-      // {"value": 50000, "date": DateTime.now().subtract(Duration(days: 4))},
-      // {"value": 60000, "date": DateTime.now().subtract(Duration(days: 5))},
-    ];
-  }
-
-  /// Top 5 sesiones de entrenamiento más largas (min)
-  Future<List<Map<String, dynamic>>> getMaxWorkoutMinutesRecord(int nDays) async {
-    // final List<Map<String, dynamic>> registros = [];
-
-    // for (int i = 0; i < nDays; i++) {
-    //   final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days: i)));
-    //   final entrenos = await getDailyTrainingsByDate(dateStr);
-    //   final sesiones = entrenos[dateStr] ?? [];
-
-    //   for (var dp in sesiones) {
-    //     final mins = dp.dateTo.difference(dp.dateFrom).inMinutes;
-    //     if (mins > 0) {
-    //       registros.add({
-    //         "value": mins,
-    //         "date": dp.dateFrom,
-    //       });
-    //     }
-    //   }
-    // }
-
-    // registros.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    // return registros.take(5).toList();
-    return [
-      {"value": 120, "date": DateTime.now().subtract(Duration(days: 1))},
-      {"value": 90, "date": DateTime.now().subtract(Duration(days: 2))},
-      {"value": 75, "date": DateTime.now().subtract(Duration(days: 3))},
-      {"value": 60, "date": DateTime.now().subtract(Duration(days: 4))},
-      {"value": 45, "date": DateTime.now().subtract(Duration(days: 5))},
-    ];
-  }
-
-  /// Top 5 semanas seguidas cumpliendo el objetivo de entrenamiento semanal
-  Future<List<Map<String, dynamic>>> getMaxWorkoutWeeklyRecord(int nDays) async {
-    // final List<Map<String, dynamic>> registros = [];
-    // int currentStreak = 0;
-    // DateTime? lastWorkoutDate;
-
-    // for (int i = 0; i < nDays; i++) {
-    //   final date = DateTime.now().subtract(Duration(days: i));
-    //   final dateStr = DateFormat('yyyy-MM-dd').format(date);
-    //   final entrenos = await getDailyTrainingsByDate(dateStr);
-
-    //   if (entrenos.isNotEmpty) {
-    //     if (lastWorkoutDate == null || date.difference(lastWorkoutDate!).inDays == 1) {
-    //       currentStreak++;
-    //     } else {
-    //       registros.add({"value": currentStreak, "date": lastWorkoutDate!});
-    //       currentStreak = 1;
-    //     }
-    //     lastWorkoutDate = date;
-    //   }
-    // }
-
-    // if (currentStreak > 0 && lastWorkoutDate != null) {
-    //   registros.add({"value": currentStreak, "date": lastWorkoutDate!});
-    // }
-
-    // registros.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    // return registros.take(5).toList();
-    return [
-      {"value": 1, "date": DateTime.now().subtract(Duration(days: 1))},
-      {"value": 2, "date": DateTime.now().subtract(Duration(days: 2))},
-      {"value": 5, "date": DateTime.now().subtract(Duration(days: 3))},
-      {"value": 8, "date": DateTime.now().subtract(Duration(days: 4))},
-      {"value": 12, "date": DateTime.now().subtract(Duration(days: 5))},
-    ];
   }
 }

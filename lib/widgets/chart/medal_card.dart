@@ -60,8 +60,8 @@ class MedalCard extends StatelessWidget {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        Color.lerp(Colors.white, mainColor, 0.9)!,
-        Color.lerp(Colors.black, mainColor, 0.6)!,
+        Color.lerp(Colors.white, mainColor, 0.7)!,
+        Color.lerp(Colors.black, mainColor, 0.4)!,
       ],
     );
 

@@ -52,7 +52,7 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '$daysTrainedLast30Days/30',
+                      '$daysTrainedLast7Days/7',
                       style: const TextStyle(
                         fontSize: 40,
                         color: AppColors.accentColor,
@@ -72,7 +72,7 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      '$daysTrainedLast7Days/7',
+                      '$daysTrainedLast30Days/30',
                       style: const TextStyle(
                         fontSize: 40,
                         color: AppColors.accentColor,
@@ -89,7 +89,7 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: const Text(
-                      'Días entrenados en 30 días',
+                      'Días entrenados en 7 días',
                       style: TextStyle(
                         fontSize: 16,
                         color: AppColors.textMedium,
@@ -102,7 +102,7 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: const Text(
-                      'Días entrenados en 7 días',
+                      'Días entrenados en 30 días',
                       textAlign: TextAlign.right,
                       style: TextStyle(
                         fontSize: 16,

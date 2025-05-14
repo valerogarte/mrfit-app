@@ -113,7 +113,6 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   );
                 } else if (activity['type'] == 'workout') {
                   final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
-                  print(info);
                   final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(

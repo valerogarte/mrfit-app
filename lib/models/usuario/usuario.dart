@@ -15,10 +15,12 @@ import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/channel/channel_inactividad.dart';
 import 'package:mrfit/utils/constants.dart';
+import 'package:mrfit/models/cache/custom_cache.dart';
 
-part 'usuario_health.dart';
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';
+part 'usuario_medals.dart';
+part 'usuario_health.dart';
 part 'usuario_health/usuario_health_activity.dart';
 part 'usuario_health/usuario_health_corporal.dart';
 part 'usuario_health/usuario_health_sleep.dart';

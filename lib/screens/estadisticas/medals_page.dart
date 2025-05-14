@@ -4,118 +4,226 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/medal_card.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 
-class MedalsPage extends StatelessWidget {
+class MedalsPage extends StatefulWidget {
   final Usuario usuario;
-  final int lookbackDays;
 
-  const MedalsPage({Key? key, required this.usuario, this.lookbackDays = 30}) : super(key: key);
+  const MedalsPage({Key? key, required this.usuario}) : super(key: key);
+
+  @override
+  State<MedalsPage> createState() => _MedalsPageState();
+}
+
+class _MedalsPageState extends State<MedalsPage> {
+  Future<void> recalcularMedallas(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        content: Row(
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.mutedSilver),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Text(
+                'Recalculando medallas. Esto puede tardar unos instantes.',
+                style: TextStyle(color: AppColors.textMedium),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    String resultMsg = "OK";
+    try {
+      await widget.usuario.getTop5Records(getFromCache: false);
+    } catch (e) {
+      resultMsg = "KO";
+    }
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: Text(resultMsg == "OK" ? "Éxito" : "Error", style: const TextStyle(color: AppColors.textNormal)),
+          content: Text(
+            resultMsg == "OK" ? "Las medallas se han recalculado correctamente." : "Hubo un error al recalcular las medallas.",
+            style: const TextStyle(color: AppColors.textMedium),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK', style: TextStyle(color: AppColors.mutedSilver)),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> makeMedals(
+    String key,
+    List<Map<String, dynamic>> records,
+    Map<String, List<int>> defaults,
+    Map<String, IconData> iconos,
+  ) {
+    // thresholds ordenados
+    final thresholds = List<int>.from(defaults[key]!)..sort();
+
+    // si no hay registros, saco 3 defaults asc + disabled siguiente
+    if (records.isEmpty) {
+      final medals = <Map<String, dynamic>>[];
+      for (var i = 0; i < 3 && i < thresholds.length; i++) {
+        medals.add({
+          'icon': iconos[key]!,
+          'value': thresholds[i].toString(),
+          'units': key == 'STEPS'
+              ? 'pasos'
+              : key == 'WORKOUT'
+                  ? 'min'
+                  : 'semanas',
+          'date': '-',
+          'type': 'disabled',
+        });
+      }
+      // siguiente umbral default o dinámico
+      final next = thresholds.length > 3 ? thresholds[3] : thresholds.last;
+      medals.add({
+        'icon': iconos[key]!,
+        'value': next.toString(),
+        'units': medals.first['units'],
+        'date': '-',
+        'type': 'disabled',
+      });
+      return medals;
+    }
+
+    // 1) Top4 reales
+    records.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+    final topN = records.take(4).toList();
+
+    // 2) Calcula nextThreshold
+    final maxValue = records.first['value'] as int;
+    final greater = thresholds.firstWhere((u) => u > maxValue, orElse: () => -1);
+    int nextThreshold;
+    if (greater > 0) {
+      nextThreshold = greater;
+    } else {
+      switch (key) {
+        case 'STEPS':
+          nextThreshold = ((maxValue + 5000 - 1) ~/ 5000) * 5000;
+          break;
+        case 'WORKOUT':
+          nextThreshold = ((maxValue + 15 - 1) ~/ 15) * 15;
+          break;
+        case 'WEEKLY_STREAK':
+          nextThreshold = maxValue + 1;
+          break;
+        default:
+          nextThreshold = maxValue;
+      }
+    }
+
+    // 3) Creo tarjetas reales
+    final medals = <Map<String, dynamic>>[];
+    for (var i = 0; i < topN.length; i++) {
+      final rec = topN[i];
+      final date = DateFormat('d MMMM yyyy', 'es_ES').format(DateTime.parse(rec['date']));
+      String type = (i == 0)
+          ? 'platinum'
+          : (i == 1)
+              ? 'silver'
+              : (i == 2)
+                  ? 'bronze'
+                  : 'blue';
+      medals.add({
+        'icon': iconos[key]!,
+        'value': rec['value'].toString(),
+        'units': key == 'STEPS'
+            ? 'pasos'
+            : key == 'WORKOUT'
+                ? 'min'
+                : 'semanas',
+        'date': date,
+        'type': type,
+      });
+    }
+
+    // 4) Relleno con defaults hasta minRecords=records<3?3:4
+    final minRecords = (records.length < 3) ? 3 : 4;
+    final used = medals.map((m) => int.parse(m['value'])).toSet();
+    var idx = 0;
+    while (medals.length < minRecords && idx < thresholds.length) {
+      final u = thresholds[idx++];
+      if (!used.contains(u)) {
+        medals.add({
+          'icon': iconos[key]!,
+          'value': u.toString(),
+          'units': medals.first['units'],
+          'date': '-',
+          'type': 'disabled',
+        });
+        used.add(u);
+      }
+    }
+
+    // 5) añado la medalla extra
+    medals.add({
+      'icon': iconos[key]!,
+      'value': nextThreshold.toString(),
+      'units': medals.first['units'],
+      'date': '-',
+      'type': 'disabled',
+    });
+
+    return medals;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final defaults = {
+      "STEPS": [5000, 10000, 20000, 30000, 40000],
+      "WORKOUT": [60, 90, 120, 180, 210],
+      "WEEKLY_STREAK": [2, 4, 6, 8, 10],
+    };
+    final iconos = {
+      "STEPS": Icons.directions_walk,
+      "WORKOUT": Icons.fitness_center,
+      "WEEKLY_STREAK": Icons.fitness_center,
+    };
+    final sectionTitles = {
+      "STEPS": "Récords de pasos",
+      "WORKOUT": "Tiempo máximo entrenando",
+      "WEEKLY_STREAK": "Semanas seguidas entrenando",
+    };
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Medallas"),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (v) {
+              if (v == 'recalcular') recalcularMedallas(context);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'recalcular', child: Text('Recalcular')),
+            ],
+          ),
+        ],
       ),
-      body: FutureBuilder<List<List<Map<String, dynamic>>>>(
-        future: Future.wait([
-          usuario.getMaxRunDistanceRecord(lookbackDays),
-          usuario.getMaxStepsDayRecord(lookbackDays),
-          usuario.getMaxWorkoutMinutesRecord(lookbackDays),
-          usuario.getMaxWorkoutWeeklyRecord(lookbackDays), // Added call
-        ]),
+      body: FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
+        future: widget.usuario.getTop5Records().timeout(const Duration(seconds: 180), onTimeout: () => {}),
         builder: (ctx, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final fmt = DateFormat('d MMMM yyyy', 'es_ES');
-          final runRecs = snap.data![0];
-          final stepsRecs = snap.data![1];
-          final workRecs = snap.data![2];
-          final weeklyRecs = snap.data![3]; // Added weekly records
-
-          final allRecords = {
-            "Pasos": [
-              {"icon": Icons.directions_walk, "value": "20000", "units": "pasos", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_walk, "value": "30000", "units": "pasos", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_walk, "value": "40000", "units": "pasos", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_walk, "value": "50000", "units": "pasos", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_walk, "value": "60000", "units": "pasos", "date": "-", "type": "disabled"},
-            ],
-            "Km": [
-              {"icon": Icons.directions_run, "value": "10", "units": "km", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_run, "value": "20", "units": "km", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_run, "value": "30", "units": "km", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_run, "value": "40", "units": "km", "date": "-", "type": "disabled"},
-              {"icon": Icons.directions_run, "value": "50", "units": "km", "date": "-", "type": "disabled"},
-            ],
-            "Minutos entrenados": [
-              {"icon": Icons.fitness_center, "value": "60", "units": "min", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "90", "units": "min", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "120", "units": "min", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "180", "units": "min", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "360", "units": "min", "date": "-", "type": "disabled"},
-            ],
-            "Semanas seguidas entrenando": [
-              {"icon": Icons.fitness_center, "value": "2", "units": "semanas", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "4", "units": "semanas", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "6", "units": "semanas", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "8", "units": "semanas", "date": "-", "type": "disabled"},
-              {"icon": Icons.fitness_center, "value": "10", "units": "semanas", "date": "-", "type": "disabled"},
-            ],
-          };
-
-          void asignarMedallas(List<Map<String, dynamic>> medallas, List<Map<String, dynamic>> topRecords) {
-            medallas.sort((a, b) => int.parse(a['value']).compareTo(int.parse(b['value'])));
-
-            for (var m in medallas) {
-              m['type'] = 'disabled';
-              m['date'] = "-";
-            }
-
-            final Set<String> diasAsignados = {};
-            final List<Map<String, dynamic>> medallasConseguidas = [];
-
-            for (var m in medallas.reversed) {
-              final int val = int.parse(m['value']);
-              final record = topRecords.firstWhere(
-                (r) => val <= r['value'] && !diasAsignados.contains(DateFormat('yyyy-MM-dd').format(r['date'])),
-                orElse: () => {},
-              );
-
-              if (record.containsKey('date')) {
-                final dia = DateFormat('yyyy-MM-dd').format(record['date']);
-                diasAsignados.add(dia);
-                m['date'] = DateFormat('d MMMM yyyy', 'es_ES').format(record['date']);
-                medallasConseguidas.add(m); // guardamos para luego asignar tipo
-              }
-            }
-
-            // Asignar oro, plata, bronce según el mayor valor conseguido
-            medallasConseguidas.sort((a, b) => int.parse(b['value']).compareTo(int.parse(a['value'])));
-
-            for (var i = 0; i < medallasConseguidas.length; i++) {
-              if (i == 0) {
-                medallasConseguidas[i]['type'] = 'platinum';
-              } else if (i == 1) {
-                medallasConseguidas[i]['type'] = 'silver';
-              } else if (i == 2) {
-                medallasConseguidas[i]['type'] = 'bronze';
-              } else {
-                medallasConseguidas[i]['type'] = 'blue';
-              }
-            }
-          }
-
-          asignarMedallas(allRecords["Pasos"]!, stepsRecs);
-          asignarMedallas(allRecords["Km"]!, runRecs);
-          asignarMedallas(allRecords["Minutos entrenados"]!, workRecs);
-          asignarMedallas(allRecords["Semanas seguidas entrenando"]!, weeklyRecs); // Assign weekly medals
-
-          final w = MediaQuery.of(context).size.width;
-          final mw = w / 4.5;
-          final mh = mw / 0.75;
-
+          if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
+          if (snap.hasError) return const Center(child: Text('Error al cargar las medallas.'));
+          final data = snap.data ?? {};
+          if (data.isEmpty) return const Center(child: Text('No hay registros de medallas.'));
+          final sections = ["STEPS", "WORKOUT", "WEEKLY_STREAK"];
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -123,18 +231,19 @@ class MedalsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: allRecords.keys.length,
-                    itemBuilder: (context, index) {
-                      final section = allRecords.keys.elementAt(index);
-                      final medals = allRecords[section]!;
+                    itemCount: sections.length,
+                    itemBuilder: (context, idx) {
+                      final keyData = sections[idx];
+                      final recs = data[keyData] ?? [];
+                      final medals = makeMedals(keyData, recs, defaults, iconos);
+                      final w = MediaQuery.of(context).size.width;
+                      final mw = w / 4.5;
+                      final mh = mw / 0.75;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            section,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                          Text(sectionTitles[keyData]!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(20),
