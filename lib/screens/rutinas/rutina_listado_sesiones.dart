@@ -131,9 +131,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                 children: [
                                   InkWell(
                                     onTap: () async {
-                                      showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
                                       await sesion.getEjercicios();
-                                      Navigator.pop(context);
                                       final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)),
