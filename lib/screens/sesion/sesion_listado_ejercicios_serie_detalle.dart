@@ -3,6 +3,7 @@ import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 import 'package:mrfit/models/rutina/serie_personalizada.dart';
 import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'dart:async';
 
 class SesionGestionSerieDetalle extends StatefulWidget {
   final int setIndex;
@@ -36,6 +37,21 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
   late TextEditingController _weightController;
   late TextEditingController _speedController;
   late TextEditingController _restController;
+
+  // Timer para incremento/decremento continuo
+  Timer? _holdTimer;
+
+  void _startHold(Function action) {
+    // Ejecuta la acción inmediatamente
+    action();
+    // Luego inicia el timer para repetir la acción cada 80ms
+    _holdTimer = Timer.periodic(const Duration(milliseconds: 80), (_) => action());
+  }
+
+  void _stopHold() {
+    _holdTimer?.cancel();
+    _holdTimer = null;
+  }
 
   @override
   void initState() {
@@ -73,6 +89,7 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
 
   @override
   void dispose() {
+    _holdTimer?.cancel();
     _controller.dispose();
     _repsController.dispose();
     _weightController.dispose();
@@ -190,25 +207,40 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
     bool isDecimal = false,
     double step = 1.0,
   }) {
+    void decrement() {
+      double currentValue = double.tryParse(controller.text) ?? 0.0;
+      if (currentValue <= 0) return; // no bajamos de 0
+      currentValue -= step;
+      if (currentValue < 0) currentValue = 0;
+      if (!isDecimal) currentValue = currentValue.roundToDouble();
+      controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
+      onChanged(controller.text);
+    }
+
+    void increment() {
+      double currentValue = double.tryParse(controller.text) ?? 0.0;
+      currentValue += step;
+      if (!isDecimal) currentValue = currentValue.roundToDouble();
+      controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
+      onChanged(controller.text);
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // Botón para restar
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.textNormal, width: 1),
-              shape: const CircleBorder(),
+          GestureDetector(
+            onTap: decrement,
+            onLongPressStart: (_) => _startHold(decrement),
+            onLongPressEnd: (_) => _stopHold(),
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.textNormal, width: 1),
+                shape: const CircleBorder(),
+              ),
+              onPressed: decrement,
+              child: const Icon(Icons.remove, size: 20, color: AppColors.textNormal),
             ),
-            onPressed: () {
-              double currentValue = double.tryParse(controller.text) ?? 0.0;
-              if (currentValue <= 0) return; // no bajamos de 0
-              currentValue -= step;
-              if (!isDecimal) currentValue = currentValue.roundToDouble();
-              controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
-              onChanged(controller.text);
-            },
-            child: const Icon(Icons.remove, size: 20, color: AppColors.textNormal),
           ),
           // Campo de texto
           Expanded(
@@ -228,20 +260,18 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
               onChanged: onChanged,
             ),
           ),
-          // Botón para sumar
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.textNormal, width: 1),
-              shape: const CircleBorder(),
+          GestureDetector(
+            onTap: increment,
+            onLongPressStart: (_) => _startHold(increment),
+            onLongPressEnd: (_) => _stopHold(),
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.textNormal, width: 1),
+                shape: const CircleBorder(),
+              ),
+              onPressed: increment,
+              child: const Icon(Icons.add, size: 20, color: AppColors.textNormal),
             ),
-            onPressed: () {
-              double currentValue = double.tryParse(controller.text) ?? 0.0;
-              currentValue += step;
-              if (!isDecimal) currentValue = currentValue.roundToDouble();
-              controller.text = currentValue.toStringAsFixed(isDecimal ? 1 : 0);
-              onChanged(controller.text);
-            },
-            child: const Icon(Icons.add, size: 20, color: AppColors.textNormal),
           ),
         ],
       ),
@@ -318,6 +348,7 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
                       });
                     },
                     isDecimal: true,
+                    step: 0.5,
                   ),
                   _buildInputField(
                     label: 'Velocidad de las repeticiones',
