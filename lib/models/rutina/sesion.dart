@@ -4,6 +4,7 @@ import 'ejercicio_personalizado.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class Sesion {
   final int id;
@@ -126,7 +127,7 @@ class Sesion {
       for (var ejercicioP in ejerciciosPersonalizados) {
         totalTiempo += (await ejercicioP.calcularTiempo());
       }
-      return _formatDuration(Duration(seconds: totalTiempo));
+      return MrFunctions.formatDuration(Duration(seconds: totalTiempo));
     } catch (e, st) {
       final logger = Logger();
       logger.i('Error al calcular tiempo: $e');
@@ -282,18 +283,6 @@ class Sesion {
     return result;
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    if (duration.inHours > 0) {
-      String hours = twoDigits(duration.inHours);
-      return "$hours:$minutes:$seconds";
-    } else {
-      return "$minutes:$seconds";
-    }
-  }
-
   Future<List<Map<String, dynamic>>> getInfo() async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(
@@ -315,9 +304,9 @@ class Sesion {
       totalSeconds += fin.difference(inicio).inSeconds;
     }
 
-    final tiempoTotal = _formatDuration(Duration(seconds: totalSeconds));
+    final tiempoTotal = MrFunctions.formatDuration(Duration(seconds: totalSeconds));
 
-    final avgDuration = nSesions > 0 ? _formatDuration(Duration(seconds: totalSeconds ~/ nSesions)) : '00:00';
+    final avgDuration = nSesions > 0 ? MrFunctions.formatDuration(Duration(seconds: totalSeconds ~/ nSesions)) : '00:00';
 
     final setsResult = await db.rawQuery(
       '''

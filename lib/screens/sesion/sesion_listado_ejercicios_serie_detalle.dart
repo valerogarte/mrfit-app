@@ -4,7 +4,7 @@ import 'package:mrfit/models/rutina/serie_personalizada.dart';
 import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
 import 'package:mrfit/utils/colors.dart';
 
-class SeriesItem extends StatefulWidget {
+class SesionGestionSerieDetalle extends StatefulWidget {
   final int setIndex;
   final SeriePersonalizada serieP;
   final EjercicioPersonalizado ejercicioP;
@@ -13,7 +13,7 @@ class SeriesItem extends StatefulWidget {
   final bool isExpanded;
   final VoidCallback onToggleExpand;
 
-  const SeriesItem({
+  const SesionGestionSerieDetalle({
     Key? key,
     required this.setIndex,
     required this.serieP,
@@ -25,10 +25,10 @@ class SeriesItem extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SeriesItemState createState() => _SeriesItemState();
+  _SesionGestionSerieDetalleState createState() => _SesionGestionSerieDetalleState();
 }
 
-class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -60,7 +60,7 @@ class _SeriesItemState extends State<SeriesItem> with SingleTickerProviderStateM
   // Cada vez que el widget se actualiza (el padre cambia isExpanded),
   // forzamos la animación de apertura/cierre.
   @override
-  void didUpdateWidget(covariant SeriesItem oldWidget) {
+  void didUpdateWidget(covariant SesionGestionSerieDetalle oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isExpanded != widget.isExpanded) {
       if (widget.isExpanded) {

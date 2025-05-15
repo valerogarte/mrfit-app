@@ -14,6 +14,7 @@ import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'entrenamiento_editar/entrenamiento_editar.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class EntrenamientoPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
@@ -186,18 +187,6 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
     super.dispose();
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    if (duration.inHours > 0) {
-      String hours = twoDigits(duration.inHours);
-      return "$hours:$minutes:$seconds";
-    } else {
-      return "$minutes:$seconds";
-    }
-  }
-
   Future<void> _leerEntrenamiento() async {
     final ejercicios = widget.entrenamiento.ejercicios;
 
@@ -358,7 +347,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                 ),
               ],
             ),
-            title: Text(_formatDuration(_elapsedTime)),
+            title: Text(MrFunctions.formatDuration(_elapsedTime)),
             actions: usuario.entrenadorActivo && !_finalizado
                 ? [
                     IconButton(

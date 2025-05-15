@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mrfit/widgets/chart/grafica.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 
 class RutinaInformacionPage extends StatefulWidget {
   final Rutina rutina;
@@ -85,8 +86,8 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
                   runSpacing: 8,
                   children: [
                     _buildPill('Total entrenamientos', Text('$totalEntrenos', style: _pillValueStyle), pillWidth),
-                    _buildPill('Tiempo total', Text(_formatDuration(Duration(seconds: tiempoTotalSeg)), style: _pillValueStyle), pillWidth),
-                    _buildPill('Duración media', Text(_formatDuration(Duration(seconds: duracionMediaSeg.round())), style: _pillValueStyle), pillWidth),
+                    _buildPill('Tiempo total', Text(MrFunctions.formatDuration(Duration(seconds: tiempoTotalSeg)), style: _pillValueStyle), pillWidth),
+                    _buildPill('Duración media', Text(MrFunctions.formatDuration(Duration(seconds: duracionMediaSeg.round())), style: _pillValueStyle), pillWidth),
                     _buildPill('Sets completados', Text('$totalSets', style: _pillValueStyle), pillWidth),
                   ],
                 );
@@ -290,13 +291,5 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
         ],
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final h = duration.inHours;
-    final m = twoDigits(duration.inMinutes.remainder(60));
-    final s = twoDigits(duration.inSeconds.remainder(60));
-    return '$h:$m:$s';
   }
 }

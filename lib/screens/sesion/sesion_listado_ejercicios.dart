@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/widgets/animated_image.dart';
-import 'package:mrfit/widgets/series_item.dart';
 import 'package:mrfit/screens/entrenamiento/entrenamiento_page.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
@@ -15,8 +13,7 @@ import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
-
-part 'sesion_listado_ejercicios_serie.dart';
+import 'package:mrfit/screens/sesion/sesion_listado_ejercicios_serie.dart';
 
 class SesionListadoEjerciciosPage extends ConsumerStatefulWidget {
   final Sesion sesion;
@@ -86,127 +83,6 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
       await _ejercicios[i].setOrden(i.toDouble());
     }
     setState(() {});
-  }
-
-  void _openActionSheet(EjercicioPersonalizado ejercicioPersonalizado) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      isDismissible: true,
-      builder: (context) {
-        int? expandedSetIndex;
-        return DraggableScrollableSheet(
-          initialChildSize: 0.85,
-          minChildSize: 0.3,
-          maxChildSize: 1,
-          builder: (context, scrollController) {
-            return StatefulBuilder(
-              builder: (context, localSetState) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBackground,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Series',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textNormal,
-                              ),
-                            ),
-                            FutureBuilder<List<dynamic>>(
-                              future: Future.wait([ejercicioPersonalizado.calcularTiempo(), ejercicioPersonalizado.calcularVolumen()]),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
-                                  return const SizedBox();
-                                } else {
-                                  final int tiempo = snapshot.data![0] as int;
-                                  final double volumen = snapshot.data![1] as double;
-                                  final String tiempoFormateado = _formatDuration(Duration(seconds: tiempo));
-                                  return Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.timer, color: AppColors.mutedAdvertencia, size: 16),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        tiempoFormateado,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: AppColors.textNormal,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.fitness_center, color: AppColors.mutedAdvertencia, size: 16),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$volumen kg',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: AppColors.textNormal,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      ListView.builder(
-                        controller: scrollController,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: ejercicioPersonalizado.countSeriesPersonalizadas(),
-                        itemBuilder: (context, setIndex) {
-                          final serieP = ejercicioPersonalizado.seriesPersonalizadas?[setIndex];
-                          if (serieP != null) {
-                            return SeriesItem(
-                              key: ValueKey(serieP.id),
-                              setIndex: setIndex,
-                              serieP: serieP,
-                              ejercicioP: ejercicioPersonalizado,
-                              isExpanded: (expandedSetIndex == setIndex),
-                              onToggleExpand: () {
-                                localSetState(() {
-                                  expandedSetIndex = expandedSetIndex == setIndex ? null : setIndex;
-                                });
-                              },
-                              onDelete: () async {
-                                setState(() => ejercicioPersonalizado.seriesPersonalizadas?.removeAt(setIndex));
-                                localSetState(() {});
-                              },
-                              onSave: () async {
-                                await ejercicioPersonalizado.getSeriesPersonalizadas();
-                                localSetState(() {});
-                              },
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      _buildSeriesControls(ejercicioPersonalizado, localSetState),
-                      _buildPromedioSeries(ejercicioPersonalizado),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -326,7 +202,19 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
         ),
         Expanded(
           child: InkWell(
-            onTap: () => _openActionSheet(ejercicioPersonalizado),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SesionGestionSeriesPage(
+                    ejercicioPersonalizado: ejercicioPersonalizado,
+                    onSeriesChanged: () async {
+                      await _fetchSesionCompleta();
+                    },
+                  ),
+                ),
+              );
+            },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
