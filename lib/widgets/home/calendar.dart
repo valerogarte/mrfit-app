@@ -255,9 +255,9 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
         kcal = double.tryParse(d['kcal'].toString()) ?? 0.0;
         minAct = int.tryParse(d['minAct'].toString()) ?? 0;
       } else {
-        if (stepsPerm) steps = await usuario.getTotalStepsByDate(iso);
-        if (kcalPerm) kcal = await usuario.getTotalCaloriesBurnedByDay(iso);
-        if (activityPerm) minAct = await usuario.getTimeActivityByDate(iso);
+        if (stepsPerm) steps = await usuario.getTotalStepsByDateForCalendar(iso);
+        if (kcalPerm) kcal = await usuario.getTotalCaloriesBurnedByDateForCalendar(iso);
+        if (activityPerm) minAct = await usuario.getTimeActivityByDateForCalendar(iso);
 
         // cacheo solo días pasados con datos
         if (!date.isToday && date.isBefore(today) && (steps > 0 || kcal > 0 || minAct > 0)) {
@@ -266,6 +266,13 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
             'kcal': kcal.toString(),
             'minAct': minAct.toString(),
           };
+
+          if (steps > 0) {
+            await usuario.isRecord("STEPS", steps, date);
+          }
+          if (minAct > 0) {
+            await usuario.isRecord("WORKOUT", minAct, date);
+          }
         }
       }
 

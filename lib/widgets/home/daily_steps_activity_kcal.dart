@@ -38,7 +38,7 @@ Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
   }
 
   if (grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true) {
-    minutes = await usuario.getTimeActivityByDate(formattedDay);
+    minutes = await usuario.getTimeActivityByDateForCalendar(formattedDay);
   }
 
   if (grantedPermissions['TOTAL_CALORIES_BURNED'] == true) {

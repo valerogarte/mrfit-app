@@ -182,4 +182,68 @@ extension UsuarioMedalsExtension on Usuario {
 
     return cache;
   }
+
+  /// Verifica si el valor dado para la key es un récord, lo añade si corresponde y actualiza el cache.
+  Future<bool> isRecord(String key, dynamic value, DateTime date) async {
+    // Obtener cache de records
+    final cacheGet = await CustomCache.getByKey("medals");
+    Map<String, List<Map<String, dynamic>>> cacheDecoded;
+    bool cacheWasEmpty = false;
+
+    if (cacheGet?.value == null || !(cacheGet!.value is String) || (cacheGet.value as String).trim().isEmpty) {
+      // Inicializar cache vacío
+      cacheDecoded = {
+        "STEPS": [],
+        "WORKOUT": [],
+        "LONGEST_SESSIONS": [],
+        "WEEKLY_STREAK": [],
+      };
+      cacheWasEmpty = true;
+    } else {
+      final raw = jsonDecode(cacheGet.value);
+      cacheDecoded = {
+        "STEPS": (raw["STEPS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WORKOUT": (raw["WORKOUT"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "LONGEST_SESSIONS": (raw["LONGEST_SESSIONS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WEEKLY_STREAK": (raw["WEEKLY_STREAK"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+      };
+    }
+
+    // Determinar si es récord
+    final List<Map<String, dynamic>> records = cacheDecoded[key] ?? [];
+    bool isRecord = false;
+    // Normalizar valor para comparar
+    int newValue = value is int ? value : (value is num ? value.toInt() : 0);
+
+    // Si el cache está vacío, añadir el primer récord
+    if (records.isEmpty) {
+      final record = {
+        "value": newValue,
+        "date": date.toIso8601String(),
+      };
+      cacheDecoded[key] = [record];
+      isRecord = true;
+    } else {
+      // Revisar si el valor es mayor que alguno de los top 5
+      final sorted = List<Map<String, dynamic>>.from(records)..sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+      if (sorted.length < 5 || newValue > (sorted.last['value'] as int)) {
+        // Añadir y mantener top 5
+        final record = {
+          "value": newValue,
+          "date": date.toIso8601String(),
+        };
+        records.add(record);
+        records.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+        cacheDecoded[key] = records.take(5).toList();
+        isRecord = true;
+      }
+    }
+
+    // Guardar cache actualizado si hubo cambios
+    if (isRecord || cacheWasEmpty) {
+      await CustomCache.set("medals", jsonEncode(cacheDecoded));
+    }
+
+    return isRecord;
+  }
 }

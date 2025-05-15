@@ -65,7 +65,7 @@ extension UsuarioActivityExtension on Usuario {
     return dataPointsClean;
   }
 
-  Future<int> getTotalStepsByDate(String date, {int nDays = 1}) async {
+  Future<int> getTotalStepsByDateForCalendar(String date, {int nDays = 1}) async {
     final dataPoints = await getStepsByDate(date, nDays: nDays);
     int stepsByDay = 0;
 
@@ -141,7 +141,7 @@ extension UsuarioActivityExtension on Usuario {
     return filteredDataPoints;
   }
 
-  Future<double> getTotalCaloriesBurnedByDay(String date, {int nDays = 1}) async {
+  Future<double> getTotalCaloriesBurnedByDateForCalendar(String date, {int nDays = 1}) async {
     final dataPoints = await getCaloriesBurnedByDay(date, nDays: nDays);
     double caloriesByDay = 0.0;
 
@@ -178,7 +178,7 @@ extension UsuarioActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<int> getTimeActivityByDate(String date) async {
+  Future<int> getTimeActivityByDateForCalendar(String date) async {
     final activities = await getActivity(date);
 
     int minutes = 0;
