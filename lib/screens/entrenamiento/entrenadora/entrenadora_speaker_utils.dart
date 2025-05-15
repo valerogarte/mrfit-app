@@ -84,13 +84,12 @@ extension EntrenadoraHelpers on Entrenadora {
           if (seriesActual.isNotEmpty) {
             final primeraSerieNoRealizada = seriesActual.first;
             // Compara pesos
+            final equipamiento = ejercicioR.ejercicio.equipamiento;
             if (ultimaSerieAnterior.peso != primeraSerieNoRealizada.peso) {
               if (!await waitWhileInterrupted()) return;
               var nuevoPeso = primeraSerieNoRealizada.peso;
 
               if (ejercicioR.ejercicio.equipamiento != null) {
-                final equipamiento = ejercicioR.ejercicio.equipamiento;
-
                 // 1="Solo cuerpo" y 3="Otros"
                 if ({1, 3}.contains(equipamiento.id)) {
                   // NO DIGO NADA, solo se usa el cuerpo u equipamiento genérico
@@ -115,8 +114,12 @@ extension EntrenadoraHelpers on Entrenadora {
 
               if (!await waitWhileInterrupted()) return;
             } else {
-              await Future.delayed(const Duration(milliseconds: 300));
-              await _flutterTts!.speak('Mantén el mismo peso.');
+              if ({1, 3}.contains(equipamiento.id)) {
+                // NO DIGO NADA, solo se usa el cuerpo u equipamiento genérico
+              } else {
+                await Future.delayed(const Duration(milliseconds: 300));
+                await _flutterTts!.speak('Mantén el mismo peso.');
+              }
             }
           }
         }
