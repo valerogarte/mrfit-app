@@ -106,53 +106,60 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
     return await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent, // Para permitir el borde redondeado
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
           expand: false,
           builder: (context, scrollController) {
-            return Column(
-              children: [
-                ListTile(
-                  title: Text(
-                    titulo,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(24),
                 ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      ListTile(
-                        leading: const SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Icon(Icons.clear),
-                        ),
-                        title: const Text('Cualquiera'),
-                        onTap: () => Navigator.pop(context, null),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      titulo,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.mutedAdvertencia,
                       ),
-                      ...items.map((T item) {
-                        final image = imageUrl != null && imageUrl(item).isNotEmpty ? imageUrl(item) : 'https://cdn-icons-png.freepik.com/512/105/105376.png';
-                        return ListTile(
-                          leading: SizedBox(
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        ListTile(
+                          leading: const SizedBox(
                             width: 40,
                             height: 40,
-                            child: Image.network(
-                              image,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.image_not_supported);
-                              },
-                            ),
+                            child: Icon(Icons.clear, color: AppColors.textMedium),
                           ),
-                          title: Text(itemAsString(item)),
-                          onTap: () => Navigator.pop(context, item),
-                        );
-                      }).toList(),
-                    ],
+                          title: const Text(
+                            'Cualquiera',
+                            style: TextStyle(color: AppColors.textMedium),
+                          ),
+                          onTap: () => Navigator.pop(context, null),
+                        ),
+                        ...items.map((T item) {
+                          return ListTile(
+                            leading: const Icon(Icons.circle, size: 16, color: AppColors.textMedium),
+                            title: Text(
+                              itemAsString(item),
+                              style: const TextStyle(color: AppColors.textMedium),
+                            ),
+                            onTap: () => Navigator.pop(context, item),
+                          );
+                        }).toList(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         );
