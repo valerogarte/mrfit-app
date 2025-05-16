@@ -37,37 +37,96 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
   }
 
   Future<void> _mostrarDialogoNuevaSesion() async {
-    String nuevoTitulo = '';
-    await showDialog(
+    // Mostrar diálogo y esperar la sesión creada
+    final Sesion? nuevaSesion = await showDialog<Sesion?>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: const Text('Nuevo Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
-          content: TextField(
-            decoration: const InputDecoration(
-              labelText: 'Título de la sesión',
-              labelStyle: TextStyle(color: AppColors.textNormal),
-            ),
-            style: const TextStyle(color: AppColors.textNormal),
-            onChanged: (value) => nuevoTitulo = value,
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal))),
-            ElevatedButton(
-              onPressed: () async {
-                if (nuevoTitulo.isNotEmpty) {
-                  Navigator.pop(context);
-                  final nuevaSesion = await widget.rutina.insertarSesion(nuevoTitulo);
-                  setState(() => _listadoSesiones.add(nuevaSesion));
-                }
-              },
-              child: const Text('Crear'),
-            ),
-          ],
+        String nuevoTitulo = '';
+        int dificultad = 1;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: AppColors.cardBackground,
+              title: const Text('Nuevo Día de Entrenamiento', style: TextStyle(color: AppColors.textNormal)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Título de la sesión',
+                      labelStyle: TextStyle(color: AppColors.textNormal),
+                    ),
+                    style: const TextStyle(color: AppColors.textNormal),
+                    onChanged: (value) => nuevoTitulo = value,
+                  ),
+                  const SizedBox(height: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove, color: AppColors.textNormal),
+                            onPressed: dificultad > 1 ? () => setDialogState(() => dificultad--) : null,
+                            splashRadius: 18,
+                          ),
+                          Row(
+                            children: List.generate(
+                                5,
+                                (i) => GestureDetector(
+                                      onTap: () => setDialogState(() => dificultad = i + 1),
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                                        width: 30,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: i < dificultad ? AppColors.accentColor : AppColors.appBarBackground,
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                    )),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add, color: AppColors.textNormal),
+                            onPressed: dificultad < 5 ? () => setDialogState(() => dificultad++) : null,
+                            splashRadius: 18,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar', style: TextStyle(color: AppColors.textNormal)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (nuevoTitulo.isNotEmpty) {
+                      // 1. Crear sesión en BD
+                      final Sesion sesionCreada = await widget.rutina.insertarSesion(nuevoTitulo, dificultad);
+                      // 2. Devolver el objeto al cerrar el diálogo
+                      Navigator.pop(context, sesionCreada);
+                    }
+                  },
+                  child: const Text('Crear'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+
+    // Si hay sesión devuelta, actualizar la lista en el State principal
+    if (nuevaSesion != null) {
+      setState(() {
+        _listadoSesiones.add(nuevaSesion);
+      });
+    }
   }
 
   Future<void> _actualizarOrdenDiasEntrenamiento() async {

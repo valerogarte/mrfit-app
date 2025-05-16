@@ -1,7 +1,7 @@
 // planes.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mrfit/screens/rutinas/rutina_page.dart';
+import 'package:mrfit/screens/rutinas/rutina_detalle.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
@@ -173,6 +173,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                     padding: EdgeInsets.zero, // <-- quitamos padding
                                     scrollDirection: Axis.horizontal,
                                     onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
+                                    proxyDecorator: (child, index, animation) => Material(color: Colors.transparent, child: child),
                                     children: rutinas.map((rutina) {
                                       final esActual = rutina.id == rutinaActualId;
                                       return Container(

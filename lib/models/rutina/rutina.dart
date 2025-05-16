@@ -134,8 +134,13 @@ class Rutina {
     grupoId = 2;
   }
 
-  // Insertar una sesión en la rutina usando la base de datos local
-  Future<Sesion> insertarSesion(String titulo) async {
+  /// Inserta una sesión en la rutina usando la base de datos local.
+  /// [titulo]: Título de la sesión.
+  /// [dificultad]: Dificultad de la sesión (1-5).
+  ///
+  /// Ejemplo de uso:
+  ///   await rutina.insertarSesion('Día 1', 3);
+  Future<Sesion> insertarSesion(String titulo, int dificultad) async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.rawQuery(
       "SELECT MAX(orden) as maxOrden FROM rutinas_sesion WHERE rutina_id = ?",
@@ -148,8 +153,9 @@ class Rutina {
       'titulo': titulo,
       'rutina_id': id,
       'orden': newOrder,
+      'dificultad': dificultad,
     });
-    return Sesion(id: newId, titulo: titulo, orden: newOrder);
+    return Sesion(id: newId, titulo: titulo, orden: newOrder, dificultad: dificultad);
   }
 
   // Obtener las sesiones vinculadas a esta rutina usando la base de datos local

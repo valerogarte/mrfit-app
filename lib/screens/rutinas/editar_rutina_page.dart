@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
-import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 
 class EditarRutinaPage extends ConsumerStatefulWidget {
   final Rutina rutina;

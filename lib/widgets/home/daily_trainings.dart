@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/screens/rutinas/rutinas_page.dart';
-import 'package:mrfit/screens/rutinas/rutina_page.dart';
+import 'package:mrfit/screens/rutinas/rutina_detalle.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
