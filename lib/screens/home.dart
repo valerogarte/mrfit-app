@@ -52,18 +52,41 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     });
   }
 
+  /// Cambia el día seleccionado al hacer swipe y actualiza el calendario si es necesario.
   void _onHorizontalDrag(DragEndDetails details) {
     if (details.primaryVelocity == null) return;
-    if (details.primaryVelocity! < 0) {
-      // swipe left → día siguiente
-      final next = _selectedDate.add(const Duration(days: 1));
-      if (!next.isAfter(DateTime.now())) {
-        setState(() => _selectedDate = next);
-      }
-    } else if (details.primaryVelocity! > 0) {
-      // swipe right → día anterior
-      setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
+
+    final isSwipeLeft = details.primaryVelocity! < 0;
+    final isSwipeRight = details.primaryVelocity! > 0;
+
+    DateTime nextDate = _selectedDate;
+    if (isSwipeLeft) {
+      nextDate = _selectedDate.add(const Duration(days: 1));
+      if (nextDate.isAfter(DateTime.now())) return;
+    } else if (isSwipeRight) {
+      nextDate = _selectedDate.subtract(const Duration(days: 1));
+    } else {
+      return;
     }
+
+    setState(() => _selectedDate = nextDate);
+    _reloadCalendarIfInCurrentWeek(nextDate);
+  }
+
+  /// Actualiza el calendario si el día seleccionado está en la semana actual.
+  void _reloadCalendarIfInCurrentWeek(DateTime date) {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - DateTime.monday));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    if (!date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)) {
+      (_calendarKey.currentState as dynamic)?.reloadCurrentWeek();
+    }
+  }
+
+  /// Maneja la notificación de scroll y actualiza el calendario si corresponde.
+  bool _onScrollNotification(ScrollNotification notification) {
+    _reloadCalendarIfInCurrentWeek(_selectedDate);
+    return false;
   }
 
   @override
@@ -121,6 +144,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     child: GestureDetector(
                       onHorizontalDragEnd: _onHorizontalDrag,
                       child: NotificationListener<ScrollNotification>(
+                        onNotification: _onScrollNotification,
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: Column(

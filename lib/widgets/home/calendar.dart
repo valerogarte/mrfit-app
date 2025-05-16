@@ -314,6 +314,11 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     _loadData(_baseDate);
   }
 
+  /// Método público para recargar los datos de la semana actual.
+  void reloadCurrentWeek() {
+    _loadData(_baseDate);
+  }
+
   double _progress(double v, int t) => t == 0 ? 0 : (v / t).clamp(0, 1);
 
   @override
