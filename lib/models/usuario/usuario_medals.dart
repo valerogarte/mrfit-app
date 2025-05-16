@@ -110,48 +110,7 @@ extension UsuarioMedalsExtension on Usuario {
     final topLongestSessions = allSessions.take(5).toList();
 
     // Número de semanas seguidas cumpliendo el objetivo de entrenamiento semanal (WEEKLY_STREAK)
-    // Agrupar minutos por semana
-    final Map<int, int> weekMinutes = {}; // key: weekNumberSinceBirth, value: totalMinutes
-    final birthMonday = fechaNacimiento.subtract(Duration(days: fechaNacimiento.weekday - 1));
-    workoutMinutesByDay.forEach((date, mins) {
-      final weekNumber = date.difference(birthMonday).inDays ~/ 7;
-      weekMinutes[weekNumber] = (weekMinutes[weekNumber] ?? 0) + mins;
-    });
-
-    // Calcular streak de semanas consecutivas cumpliendo el objetivo
-    final objetivo = objetivoEntrenamientoSemanal ?? 0;
-    List<Map<String, dynamic>> streaks = [];
-    int streak = 0;
-    DateTime? streakEndDate;
-    int currentWeek = ((DateTime.now().difference(birthMonday).inDays) ~/ 7);
-    for (int i = currentWeek; i >= 0; i--) {
-      final mins = weekMinutes[i] ?? 0;
-      if (mins >= objetivo && objetivo > 0) {
-        streak++;
-        streakEndDate ??= birthMonday.add(Duration(days: i * 7 + 6));
-      } else {
-        if (streak > 0) {
-          streaks.add({
-            "value": streak,
-            "date": streakEndDate ?? birthMonday.add(Duration(days: i * 7 + 6)),
-            "goal": objetivo,
-          });
-          streak = 0;
-          streakEndDate = null;
-        }
-      }
-    }
-    // Si termina con una racha activa
-    if (streak > 0) {
-      streaks.add({
-        "value": streak,
-        "date": streakEndDate ?? DateTime.now(),
-        "goal": objetivo,
-      });
-    }
-    // Ordenar y tomar las 5 mejores rachas
-    streaks.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    final weeklyStreak = streaks.take(5).toList();
+    final weeklyStreak = await fetchAndUpdateWeeklyStreaks();
 
     final cache = {
       "STEPS": topSteps,
@@ -245,5 +204,172 @@ extension UsuarioMedalsExtension on Usuario {
     }
 
     return isRecord;
+  }
+
+  /// Actualiza la racha semanal de entrenamientos y devuelve los resultados.
+  Future<List<Map<String, dynamic>>> fetchAndUpdateWeeklyStreaks() async {
+    final objetivo = objetivoEntrenamientoSemanal ?? 0;
+    if (objetivo <= 0) {
+      return [];
+    }
+
+    // Obtener cache actual
+    final cacheGet = await CustomCache.getByKey("medals");
+    Map<String, List<Map<String, dynamic>>> cacheDecoded;
+    bool cacheWasEmpty = false;
+    DateTime? lastCachedDate;
+
+    if (cacheGet?.value == null || !(cacheGet!.value is String) || (cacheGet.value as String).trim().isEmpty) {
+      cacheDecoded = {
+        "STEPS": [],
+        "WORKOUT": [],
+        "LONGEST_SESSIONS": [],
+        "WEEKLY_STREAK": [],
+      };
+      cacheWasEmpty = true;
+    } else {
+      final raw = jsonDecode(cacheGet.value);
+      cacheDecoded = {
+        "STEPS": (raw["STEPS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WORKOUT": (raw["WORKOUT"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "LONGEST_SESSIONS": (raw["LONGEST_SESSIONS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WEEKLY_STREAK": (raw["WEEKLY_STREAK"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+      };
+      // Buscar la fecha más reciente en la caché de rachas
+      final weeklyStreakCache = cacheDecoded["WEEKLY_STREAK"];
+      if (weeklyStreakCache != null && weeklyStreakCache.isNotEmpty) {
+        final dates = weeklyStreakCache.map((e) => e['date']).where((d) => d != null).map((d) => d is DateTime ? d : DateTime.tryParse(d.toString())).where((d) => d != null).cast<DateTime>().toList();
+        if (dates.isNotEmpty) {
+          lastCachedDate = dates.reduce((a, b) => a.isAfter(b) ? a : b);
+        }
+      }
+    }
+
+    // Acceso a la base de datos usando DatabaseHelper
+    final db = await DatabaseHelper.instance.database;
+    List<Map<String, dynamic>> results;
+
+    if (lastCachedDate != null) {
+      results = await db.rawQuery(
+        '''
+        SELECT inicio, fin FROM entrenamiento_entrenamiento
+        WHERE usuario_id = ? AND inicio >= ?
+        ORDER BY inicio ASC
+        ''',
+        [id, lastCachedDate.toIso8601String()],
+      );
+    } else {
+      results = await db.rawQuery(
+        '''
+        SELECT inicio, fin FROM entrenamiento_entrenamiento
+        WHERE usuario_id = ?
+        ORDER BY inicio ASC
+        ''',
+        [id],
+      );
+    }
+
+    if (results.isEmpty && !cacheWasEmpty) {
+      return cacheDecoded["WEEKLY_STREAK"] ?? [];
+    }
+
+    // Agrupar entrenamientos por semana
+    final Map<int, int> entrenosPorSemana = {};
+    final birthMonday = fechaNacimiento.subtract(Duration(days: fechaNacimiento.weekday - 1));
+    DateTime? lastEntrenamientoDate;
+    bool entrenamientoActivo = false;
+
+    for (var row in results) {
+      final inicio = row['inicio'];
+      final fin = row['fin'];
+      final date = inicio is DateTime ? inicio : DateTime.tryParse(inicio.toString());
+      if (date != null) {
+        final weekNumber = date.difference(birthMonday).inDays ~/ 7;
+        entrenosPorSemana[weekNumber] = (entrenosPorSemana[weekNumber] ?? 0) + 1;
+        // Guardar la fecha del último entrenamiento
+        if (lastEntrenamientoDate == null || date.isAfter(lastEntrenamientoDate)) {
+          lastEntrenamientoDate = date;
+          entrenamientoActivo = fin == null;
+        }
+      }
+    }
+
+    // Buscar todas las rachas de semanas consecutivas cumpliendo el objetivo
+    List<Map<String, dynamic>> streaks = [];
+    int streak = 0;
+    DateTime? streakEndDate;
+    int currentWeek = ((DateTime.now().difference(birthMonday).inDays) ~/ 7);
+
+    for (int i = 0; i <= currentWeek; i++) {
+      final entrenos = entrenosPorSemana[i] ?? 0;
+      if (entrenos >= objetivo) {
+        streak++;
+        streakEndDate = birthMonday.add(Duration(days: i * 7 + 6));
+      } else {
+        if (streak > 0) {
+          streaks.add({
+            "value": streak,
+            "date": streakEndDate ?? birthMonday.add(Duration(days: i * 7 + 6)),
+            "goal": objetivo,
+          });
+          streak = 0;
+          streakEndDate = null;
+        }
+      }
+    }
+
+    // Si termina con una racha activa, comprobar si el último entrenamiento sigue activo y es de la semana actual
+    if (streak > 0) {
+      DateTime fechaFinRacha = streakEndDate ?? DateTime.now();
+      // Si el último entrenamiento está activo y es de la semana actual, extiende la racha hasta hoy
+      if (entrenamientoActivo && lastEntrenamientoDate != null) {
+        final lastWeek = lastEntrenamientoDate.difference(birthMonday).inDays ~/ 7;
+        if (lastWeek == currentWeek) {
+          fechaFinRacha = DateTime.now();
+        }
+      }
+      streaks.add({
+        "value": streak,
+        "date": fechaFinRacha,
+        "goal": objetivo,
+      });
+    }
+
+    // Filtrar para que solo haya una racha por valor, y que sea la más antigua
+    final Map<int, Map<String, dynamic>> uniqueStreaks = {};
+    for (final s in streaks) {
+      final value = s['value'] as int;
+      if (!uniqueStreaks.containsKey(value) || (s['date'] as DateTime).isBefore(uniqueStreaks[value]!['date'] as DateTime)) {
+        uniqueStreaks[value] = s;
+      }
+    }
+
+    // Ordenar por valor descendente y tomar las 5 mejores rachas
+    final topStreaks = uniqueStreaks.values.toList()..sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+    final top5 = topStreaks.take(5).toList();
+
+    // Comprobar si hay algún récord nuevo respecto al cache
+    bool isRecord = false;
+    final cachedValues = (cacheDecoded["WEEKLY_STREAK"] ?? []).map((e) => e['value'] as int).toSet();
+    for (final streak in top5) {
+      if (!cachedValues.contains(streak['value'])) {
+        isRecord = true;
+        break;
+      }
+    }
+
+    // Actualizar cache si hay récord o estaba vacío
+    if (isRecord || cacheWasEmpty) {
+      cacheDecoded["WEEKLY_STREAK"] = top5.map((s) {
+        final item = Map<String, dynamic>.from(s);
+        if (item['date'] is DateTime) {
+          item['date'] = (item['date'] as DateTime).toIso8601String();
+        }
+        return item;
+      }).toList();
+      await CustomCache.set("medals", jsonEncode(cacheDecoded));
+    }
+
+    return cacheDecoded["WEEKLY_STREAK"] ?? [];
   }
 }

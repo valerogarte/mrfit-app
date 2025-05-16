@@ -45,6 +45,8 @@ class _MedalsPageState extends State<MedalsPage> {
     }
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pop();
+      // Actualiza el estado para refrescar las medallas tras recalcular
+      setState(() {});
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -192,8 +194,8 @@ class _MedalsPageState extends State<MedalsPage> {
     };
     final iconos = {
       "STEPS": Icons.directions_walk,
-      "WORKOUT": Icons.fitness_center,
-      "WEEKLY_STREAK": Icons.fitness_center,
+      "WORKOUT": Icons.access_time,
+      "WEEKLY_STREAK": Icons.calendar_today,
     };
     final sectionTitles = {
       "STEPS": "Récords de pasos",

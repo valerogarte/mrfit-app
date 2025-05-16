@@ -7,7 +7,6 @@ import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/widgets/home/calendar.dart';
 import 'package:mrfit/widgets/home/daily_steps_activity_kcal.dart';
 import 'package:mrfit/widgets/home/daily_sleep.dart';
-import 'package:mrfit/widgets/chart/resumen_semanal_entrenamiento.dart';
 import 'package:mrfit/widgets/home/daily_trainings.dart';
 import 'package:mrfit/widgets/home/daily_physical.dart';
 import 'package:mrfit/widgets/home/daily_nutrition.dart';

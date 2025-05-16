@@ -2,14 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'dart:convert';
 import 'package:mrfit/models/cache/custom_cache.dart';
-import 'package:mrfit/channel/channel_healtconnect.dart';
 import 'package:mrfit/widgets/chart/resumen_semanal_entrenamiento.dart';
 
 // ---------------------------------------------
@@ -272,6 +270,10 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
           }
           if (minAct > 0) {
             await usuario.isRecord("WORKOUT", minAct, date);
+          }
+          // Si el día es el de ayer
+          if (date.isYesterday) {
+            await usuario.fetchAndUpdateWeeklyStreaks();
           }
         }
       }
