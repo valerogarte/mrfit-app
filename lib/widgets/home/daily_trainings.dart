@@ -23,6 +23,8 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
   Future<Widget> _buildActivityRow({
     required String uuid,
     required String title,
+    required DateTime start,
+    required DateTime end,
     required IconData icon,
     required Color iconColor,
     required Color iconBackgroundColor,
@@ -37,7 +39,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     }
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => EntrenamientoRealizadoPage(idHealthConnect: uuid)));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => EntrenamientoRealizadoPage(idHealthConnect: uuid, title: title, icon: icon, start: start, end: end)));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,11 +96,14 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               children: activities.asMap().entries.map((entry) {
                 final index = entry.key;
                 final activity = entry.value;
+                print(activity);
                 if (activity['type'] == 'steps') {
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(
                       uuid: "automatic",
                       title: "Caminar (automático)",
+                      start: activity['start'],
+                      end: activity['end'],
                       icon: Icons.directions_walk,
                       iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
@@ -119,6 +124,8 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                     future: _buildActivityRow(
                       uuid: activity['uuid'],
                       title: info["nombre"],
+                      start: activity['start'],
+                      end: activity['end'],
                       icon: info["icon"],
                       iconColor: AppColors.mutedAdvertencia,
                       iconBackgroundColor: AppColors.appBarBackground,
