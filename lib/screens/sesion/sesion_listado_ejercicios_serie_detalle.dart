@@ -134,7 +134,7 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
+          backgroundColor: AppColors.background,
           title: const Text('Eliminar Serie', style: TextStyle(color: AppColors.textNormal)),
           content: const Text('¿Estás seguro de que deseas eliminar esta serie?', style: TextStyle(color: AppColors.textNormal)),
           actions: [
@@ -161,7 +161,7 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
   void _showSeriesInfoModal() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.cardBackground,
+      backgroundColor: AppColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -325,7 +325,7 @@ class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> w
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Container(
-              color: AppColors.cardBackground,
+              color: AppColors.background,
               child: Column(
                 children: [
                   _buildInputField(

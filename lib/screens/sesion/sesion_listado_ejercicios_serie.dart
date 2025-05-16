@@ -168,7 +168,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        backgroundColor: AppColors.cardBackground,
+                        backgroundColor: AppColors.background,
                         title: const Text(
                           'Eliminar Ejercicio',
                           style: TextStyle(color: AppColors.textNormal),
@@ -231,11 +231,11 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(ejercicioPersonalizado.ejercicio.nombre, style: TextStyle(color: AppColors.textNormal)),
-        backgroundColor: AppColors.cardBackground,
+        backgroundColor: AppColors.background,
         iconTheme: const IconThemeData(color: AppColors.textNormal),
         elevation: 0,
       ),
-      backgroundColor: AppColors.cardBackground,
+      backgroundColor: AppColors.background,
       body: ListView(
         children: [
           Padding(

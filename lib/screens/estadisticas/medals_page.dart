@@ -254,9 +254,12 @@ class _MedalsPageState extends State<MedalsPage> {
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: medals.map((r) {
+                                  children: medals.asMap().entries.map((entry) {
+                                    final i = entry.key;
+                                    final r = entry.value;
+                                    // Solo añadir padding a la derecha si no es la última medalla
                                     return Padding(
-                                      padding: const EdgeInsets.only(right: 12),
+                                      padding: EdgeInsets.only(right: i == medals.length - 1 ? 0 : 12),
                                       child: MedalCard(
                                         width: mw,
                                         icon: r['icon'] as IconData,

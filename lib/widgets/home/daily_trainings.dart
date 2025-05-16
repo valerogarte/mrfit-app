@@ -5,6 +5,7 @@ import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/utils/constants.dart';
 import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
 
 class DailyTrainingsWidget extends StatefulWidget {
@@ -28,7 +29,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     required String timeInfo,
     String? sourceName,
   }) async {
-    if (sourceName != null && sourceName == "com.example.vagfit") {
+    if (sourceName != null && sourceName == AppConstants.domainNameApp) {
       final entrenamiento = await Entrenamiento.loadByUuid(uuid);
       if (entrenamiento != null) {
         title = entrenamiento.titulo;

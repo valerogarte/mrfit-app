@@ -246,6 +246,8 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                   ),
                           ),
                         ),
+                        // Agrega un espaciado de 40 al final de la última fila
+                        if (i == gruposConRutinas.keys.length - 1) const SizedBox(height: 80),
                       ],
                     );
                   },

@@ -90,15 +90,9 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
                           itemBuilder: (context, index) {
                             final m = musculos[index];
                             if (m == null) return const SizedBox.shrink();
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                top: index == 0 ? 0 : 5,
-                                bottom: 5,
-                              ),
-                              child: MusclesListWidget(
-                                musculo: m,
-                                maxPercentage: maxPercentage,
-                              ),
+                            return MusclesListWidget(
+                              musculo: m,
+                              maxPercentage: maxPercentage,
                             );
                           },
                         ),

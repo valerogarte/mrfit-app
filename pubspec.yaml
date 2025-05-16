@@ -32,7 +32,7 @@ dependencies:
     sdk: flutter
   # firebase_core: ^3.0.0
   # firebase_auth: ^5.0.0
-  flutter_signin_button: ^2.0.0 # Botones de login
+  # flutter_signin_button: ^2.0.0 # Botones de login
   google_sign_in: ^6.1.4 # Google Sign In
   flutter_tts: ^4.0.0 # Text to speech
   http: ^1.0.0 # Peticiones HTTP
@@ -50,6 +50,8 @@ dependencies:
   flutter_riverpod: ^2.3.6 # Variables globales
   confetti: ^0.8.0 # Confetti
   flutter_launcher_icons: ^0.14.3 # Icono de la app
+  font_awesome_flutter: ^10.8.0 # Iconos
+  url_launcher: ^6.3.1 # Lanzar URL
 
 flutter_icons:
   android: true
