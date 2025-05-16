@@ -9,6 +9,7 @@ class AppConstants {
 
   // Quiero montar una lista de prioridad de la aplicación para pintar los datos de health
   static const List<String> healthPriority = [
+    domainNameApp,
     'com.google.android.apps.fitness',
     'com.mobvoi.companion.at',
   ];
