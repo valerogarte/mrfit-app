@@ -83,12 +83,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     }
   }
 
-  /// Maneja la notificación de scroll y actualiza el calendario si corresponde.
-  bool _onScrollNotification(ScrollNotification notification) {
-    _reloadCalendarIfInCurrentWeek(_selectedDate);
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
@@ -138,13 +132,13 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                   child: RefreshIndicator(
                     key: _refreshKey,
                     onRefresh: () async {
+                      _reloadCalendarIfInCurrentWeek(_selectedDate);
                       await _cargarResumenEntrenamientos();
                       setState(() {});
                     },
                     child: GestureDetector(
                       onHorizontalDragEnd: _onHorizontalDrag,
                       child: NotificationListener<ScrollNotification>(
-                        onNotification: _onScrollNotification,
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: Column(
