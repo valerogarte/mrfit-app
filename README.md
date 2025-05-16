@@ -46,6 +46,16 @@ flutter build apk --release
 
 Para más herramientas y configuración avanzada, consulta la documentación oficial de Flutter.
 
+## Ajustes en VSCode
+1. Abre el archivo `settings.json` del VSCode.
+2. Añade las siguientes configuraciones:
+   ```json
+   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+   "github.copilot.chat.commitMessageGeneration.instructions": "Follow the Conventional Commits format. Be clear and use the following prefixes:\n\nfeat: New feature → feat: add login button\nfix: Bug fix → fix: resolve crash on submit\ndocs: Documentation only changes → docs: update README\nstyle: Changes that do not affect the code meaning (formatting, etc.) → style: format code\nrefactor: Code changes that neither fix a bug nor add a feature → refactor: simplify logic\nperf: Performance improvements → perf: optimize image loading\ntest: Adding or updating tests → test: add unit tests for auth\nchore: Minor tasks or maintenance (build, dependencies, etc.) → chore: update dependencies\nbuild: Changes that affect the build system (webpack, ddev, etc.) → build: update Dockerfile\nci: Continuous Integration changes → ci: fix GitHub Actions script",
+   "github.copilot.chat.pullRequestDescriptionGeneration.instructions": "Summarize the main changes in one paragraph, then use bullet points to explain each individual change. Finally, add a summary if any additional commands need to be executed after installing the Pull Request.",
+   ```
+3. Esto funcionará por tener el fichero `.github/copilot-instructions.md` en la raíz del proyecto.
+
 ## Arquitectura general
 - Carpeta "models" con los modelos de los contenidos.
 - Carpeta "utils" con colores y constantes globales.
@@ -70,51 +80,3 @@ Se agradece a toda la comunidad de Flutter y a los desarrolladores de paquetes d
 ## Licencia
 Este proyecto está disponible bajo los términos de la licencia que se especifica en el repositorio. Revisa el archivo LICENSE para más detalles.
 Imagen modelo basada en: https://www.artstation.com/artwork/rVqBe
-
-## TODO:
-
-Django:
-- Altura
-- Entrenador activo
-- Voz del entrenador
-- Aviso 10 segundos
-- Aviso cuenta atrás
-- Objetivo kcal
-- Primer día de la semana
-Usuario:
-- Montar todo nuevamente
-Cache:
-- Establecer caché para elementos de la home
-Frecuencia cardiaca:
-- Funcionalidad
-Sueño:
-- Debe aparecer después de que el tiempo de inactividad haya sido superior a 2 horas.
-Escaleras subidas:
-* Funcionalidad
-Mejoras:
-- Al dejar pulsado el botón de - o + debería subir o bajar mucho
-- Revisar entrenamiento "Pierna" el ejercicio de sentadillas
-Editar entrenamiento:
-- Poder añadir un ejercicio
-- Esconder por las esquinas los bloques
-Actualización:
-- Al hacer scroll down en la home arriba del todo, debe recargar la página al completo
-Rings:
-- Se deben pintar los datos bien en el calendario
-- Pintar bien los números cuando da más de una vuelta
------
-TRAS SUBIR A PLAYSTORE
-Alarmas:
-* En la página de la sesión, arriba a la derecha poner alarmas a modo recordatorio
-Medallas:
-* Mayor número de pasos.
-Notas Diario:
-* Funcionalidad
-Maps:
-* Funcionalidad
-Mejoras:
-- Si elimino la última serie del último ejercicio borro el ejercicio
-* Iconos nuevos de caritas
-Yoga:
-- https://github.com/rebeccaestes/yoga_api/blob/master/yoga_api.json
-- https://thenounproject.com/icon/yoga-81538/
