@@ -119,7 +119,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
                     onReorder: _onReorder,
                     proxyDecorator: (child, index, animation) {
                       return Material(
-                        color: AppColors.mutedAdvertencia,
+                        color: Colors.transparent,
                         child: child,
                       );
                     },
@@ -202,6 +202,9 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
         ),
         Expanded(
           child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
             onTap: () async {
               await Navigator.push(
                 context,

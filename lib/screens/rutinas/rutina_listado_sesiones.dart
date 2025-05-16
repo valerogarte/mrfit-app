@@ -189,6 +189,9 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   InkWell(
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
                                     onTap: () async {
                                       await sesion.getEjercicios();
                                       final result = await Navigator.push(
