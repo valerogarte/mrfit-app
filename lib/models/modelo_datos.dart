@@ -124,11 +124,11 @@ class ModeloDatos {
   }
 
   static dynamic getDifficultyOptions({int? value}) {
+    // Opciones de dificultad predefinidas
     List<Map<String, dynamic>> options = [
       {
         'value': 1,
         'label': 'A mínimos',
-        'description': 'Mínimo esfuerzo',
         'iconColor': Color.fromARGB(255, 145, 231, 148),
         'met': 2.5,
       },
@@ -170,7 +170,16 @@ class ModeloDatos {
     ];
 
     if (value != null) {
-      return options.firstWhere((option) => option['value'] == value);
+      // Busca la opción correspondiente, si no existe devuelve una opción por defecto
+      return options.firstWhere(
+        (option) => option['value'] == value,
+        orElse: () => {
+          'value': 1,
+          'label': 'Sin valor',
+          'iconColor': Color.fromARGB(255, 145, 231, 148),
+          'met': 2.5,
+        },
+      );
     }
 
     return options;

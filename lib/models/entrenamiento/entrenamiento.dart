@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:health/health.dart';
 import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 import 'ejercicio_realizado.dart';
 import 'serie_realizada.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
@@ -208,9 +209,27 @@ class Entrenamiento {
     return totalRepeticiones;
   }
 
-  int getDificultadMedia() {
-    final int dificultadMedia = 0;
-    return dificultadMedia;
+  Map<String, dynamic> getRerAvg() {
+    int dificultadMedia = 0;
+    int numeroSeries = 0;
+    for (final ejercicioRealizado in ejercicios) {
+      for (final serie in ejercicioRealizado.series) {
+        if (serie.realizada && !serie.deleted) {
+          numeroSeries++;
+          dificultadMedia += serie.rer;
+        }
+      }
+    }
+    if (numeroSeries > 0) {
+      dificultadMedia = (dificultadMedia / numeroSeries).round();
+      // Limita dificultadMedia al rango válido (1-6)
+      if (dificultadMedia < 1) dificultadMedia = 1;
+      if (dificultadMedia > 6) dificultadMedia = 6;
+    } else {
+      // Si no hay series realizadas, retorna opción por defecto
+      return ModeloDatos.getDifficultyOptions(value: 0);
+    }
+    return ModeloDatos.getDifficultyOptions(value: dificultadMedia);
   }
 
   static Future<Entrenamiento?> loadByUuid(String idHealthConnect) async {

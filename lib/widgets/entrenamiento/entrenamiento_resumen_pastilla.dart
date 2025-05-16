@@ -14,6 +14,7 @@ class ResumenPastilla extends StatelessWidget {
     const double textSize = 16;
     const double sectionSpacing = 20;
     const double itemSpacing = 12;
+    final avgEntrenamiento = entrenamiento.getRerAvg();
 
     return Container(
       width: double.infinity,
@@ -44,7 +45,8 @@ class ResumenPastilla extends StatelessWidget {
               ),
               _buildInfoItem(
                 icon: Icons.emoji_emotions,
-                value: 'Ligero',
+                value: avgEntrenamiento['label'],
+                iconColor: avgEntrenamiento['iconColor'],
                 iconSize: iconSize,
                 textSize: textSize,
               ),
@@ -56,10 +58,25 @@ class ResumenPastilla extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-            height: sectionSpacing,
-            thickness: 1,
-            color: AppColors.mutedAdvertencia,
+          // Línea divisoria con extremos transparentes usando un gradiente
+          Container(
+            height: 1,
+            margin: EdgeInsets.symmetric(vertical: sectionSpacing / 2),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  AppColors.mutedAdvertencia,
+                  AppColors.mutedAdvertencia,
+                  AppColors.mutedAdvertencia,
+                  AppColors.mutedAdvertencia,
+                  AppColors.mutedAdvertencia,
+                  Colors.transparent,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -91,13 +108,14 @@ class ResumenPastilla extends StatelessWidget {
     required String value,
     required double iconSize,
     required double textSize,
+    Color? iconColor,
   }) {
     return Column(
       children: [
         Icon(
           icon,
           size: iconSize,
-          color: AppColors.mutedAdvertencia,
+          color: iconColor ?? AppColors.mutedAdvertencia,
         ),
         const SizedBox(height: 8),
         Text(
