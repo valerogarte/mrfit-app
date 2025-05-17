@@ -19,10 +19,10 @@ class ResumenPastilla extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),

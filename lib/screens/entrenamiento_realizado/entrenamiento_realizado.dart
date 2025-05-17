@@ -57,79 +57,92 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
             ),
             actions: _menuActions(context, pageData.entrenamiento),
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Fila con el icono a la izquierda y la fecha a la derecha
-                Row(
-                  children: [
-                    // Columna para el icono
-                    // Icono dentro de un círculo con fondo y borde
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.background, // Fondo del círculo
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.mutedAdvertencia, // Borde del círculo
-                          width: 2,
+          body: Container(
+            // Contenedor principal con bordes superiores redondeados, overflow oculto y margen horizontal
+            decoration: const BoxDecoration(
+              // color: AppColors.appBarBackground,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            clipBehavior: Clip.hardEdge, // Oculta el overflow
+            margin: const EdgeInsets.symmetric(horizontal: 20), // Margen horizontal de 20
+            child: SingleChildScrollView(
+              // Quitamos el padding horizontal, solo dejamos vertical si se desea
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Fila con el icono a la izquierda y la fecha a la derecha
+                  Row(
+                    children: [
+                      // Columna para el icono
+                      // Icono dentro de un círculo con fondo y borde
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.background, // Fondo del círculo
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.mutedAdvertencia, // Borde del círculo
+                            width: 2,
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            icon,
+                            size: 28,
+                            color: AppColors.mutedAdvertencia,
+                          ),
                         ),
                       ),
-                      child: Center(
-                        child: Icon(
-                          icon,
-                          size: 28,
-                          color: AppColors.mutedAdvertencia,
+                      const SizedBox(width: 12),
+                      // Columna para la hora alineada a la izquierda
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: AppColors.textNormal, // Color definido para texto medio
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${TimeOfDay.fromDateTime(start).format(context)} - ${TimeOfDay.fromDateTime(end).format(context)}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: AppColors.textMedium, // Color definido para texto medio
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Columna para la hora alineada a la izquierda
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: AppColors.textNormal, // Color definido para texto medio
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${TimeOfDay.fromDateTime(start).format(context)} - ${TimeOfDay.fromDateTime(end).format(context)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: AppColors.textMedium, // Color definido para texto medio
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                if (pageData.entrenamiento != null) ResumenPastilla(entrenamiento: pageData.entrenamiento!),
-                const SizedBox(height: 20),
-                // Siempre pintamos los datos de salud; si no hay, placeholder.
-                ResumenSaludEntrenamiento(
-                  datosSalud: pageData.healthSummary,
-                ),
-                const SizedBox(height: 20),
-                // Solo si existe un entrenamiento Mr Fit.
-                if (pageData.entrenamiento != null)
-                  EntrenamientoMrFitWidget(
-                    entrenamiento: pageData.entrenamiento!,
+                    ],
                   ),
-              ],
+                  const SizedBox(height: 16),
+                  if (pageData.entrenamiento != null) ResumenPastilla(entrenamiento: pageData.entrenamiento!),
+                  const SizedBox(height: 20),
+                  // Siempre pintamos los datos de salud; si no hay, placeholder.
+                  ResumenSaludEntrenamiento(
+                    datosSalud: pageData.healthSummary,
+                  ),
+                  const SizedBox(height: 20),
+                  // Solo si existe un entrenamiento Mr Fit.
+                  if (pageData.entrenamiento != null)
+                    EntrenamientoMrFitWidget(
+                      entrenamiento: pageData.entrenamiento!,
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -285,9 +298,16 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
       return const _PlaceholderSalud('No disponible');
     }
 
-    final heartRates = datosSalud!['HEART_RATE'] as List?;
-    final steps = datosSalud!['STEPS'];
-    final distance = datosSalud!['DISTANCE_DELTA'];
+    final heartRateData = datosSalud!['HEART_RATE'] as Map?;
+    final stepsData = datosSalud!['STEPS'] as Map?;
+    final distanceData = datosSalud!['DISTANCE_DELTA'] as Map?;
+
+    String formatDouble(dynamic value, {int decimals = 1}) {
+      if (value == null) return 'No disponible';
+      if (value is int) return value.toString();
+      if (value is double) return value.toStringAsFixed(decimals);
+      return value.toString();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,10 +317,26 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         Text(
-          'Frecuencia cardiaca: ${heartRates != null && heartRates.isNotEmpty ? heartRates.join(', ') + ' bpm' : 'No disponible'}',
+          'Frecuencia cardiaca:'
+          ' ${heartRateData?['values'] != null && (heartRateData!['values'] as List).isNotEmpty ? (heartRateData['values'] as List).join(', ') + ' bpm' : 'No disponible'}',
         ),
-        Text('Pasos: ${steps ?? 'No disponible'}'),
-        Text('Distancia: ${distance ?? 'No disponible'} m'),
+        Text(
+          'FC promedio: ${formatDouble(heartRateData?['avg'])} bpm, '
+          'mín: ${formatDouble(heartRateData?['min'])} bpm, '
+          'máx: ${formatDouble(heartRateData?['max'])} bpm',
+        ),
+        Text(
+          'Pasos: ${formatDouble(stepsData?['sum'], decimals: 0)}'
+          ' (promedio: ${formatDouble(stepsData?['avg'], decimals: 1)}, '
+          'mín: ${formatDouble(stepsData?['min'], decimals: 0)}, '
+          'máx: ${formatDouble(stepsData?['max'], decimals: 0)})',
+        ),
+        Text(
+          'Distancia: ${formatDouble(distanceData?['sum'], decimals: 0)} m'
+          ' (promedio: ${formatDouble(distanceData?['avg'])} m, '
+          'mín: ${formatDouble(distanceData?['min'], decimals: 0)} m, '
+          'máx: ${formatDouble(distanceData?['max'], decimals: 0)} m)',
+        ),
       ],
     );
   }
