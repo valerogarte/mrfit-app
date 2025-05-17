@@ -46,3 +46,6 @@ app.*.map.json
 
 chatgpt.txt
 export.ps1
+
+# Video
+/img_app/gif/video.mp4
