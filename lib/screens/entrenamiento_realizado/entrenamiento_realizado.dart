@@ -140,6 +140,8 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
                   // Siempre pintamos los datos de salud; si no hay, placeholder.
                   ResumenSaludEntrenamiento(
                     datosSalud: pageData.healthSummary,
+                    start: start,
+                    end: end,
                   ),
                   const SizedBox(height: 20),
                   // Solo si existe un entrenamiento Mr Fit.
@@ -295,8 +297,15 @@ class EntrenamientoMrFitWidget extends StatelessWidget {
 /// Muestra siempre los 3 datos de salud (o placeholder si no hay).
 class ResumenSaludEntrenamiento extends StatelessWidget {
   final Map<String, dynamic>? datosSalud;
+  final DateTime? start;
+  final DateTime? end;
 
-  const ResumenSaludEntrenamiento({super.key, required this.datosSalud});
+  const ResumenSaludEntrenamiento({
+    super.key,
+    required this.datosSalud,
+    this.start,
+    this.end,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -306,16 +315,30 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
 
     final heartRateData = datosSalud!['HEART_RATE'] as Map?;
 
-    // Construye los puntos para la gráfica de frecuencia cardiaca si hay datos
+    /// Construye los puntos para la gráfica de frecuencia cardiaca usando dataPoints.
+    /// Cada punto toma el tiempo relativo al inicio y el valor de frecuencia.
     List<FlSpot> buildHeartRateSpots(Map? heartRateData) {
-      if (heartRateData == null || heartRateData['values'] == null) return [];
-      final values = heartRateData['values'] as List?;
-      if (values == null || values.isEmpty) return [];
-      // Suponemos que los valores están ordenados y corresponden a intervalos regulares de tiempo
-      return List<FlSpot>.generate(
-        values.length,
-        (i) => FlSpot(i.toDouble(), (values[i] as num).toDouble()),
-      );
+      if (heartRateData == null || heartRateData['dataPoints'] == null) return [];
+      final dataPoints = heartRateData['dataPoints'] as List?;
+      if (dataPoints == null || dataPoints.isEmpty) return [];
+      final DateTime? refStart = start;
+      if (refStart == null) return [];
+      final List<FlSpot> spots = [];
+      for (final dp in dataPoints) {
+        final dateStr = dp['dateFrom'] as String?;
+        final valueMap = dp['value'] as Map?;
+        print('$dateStr : $valueMap'); // Eliminar prints en producción
+        final numValue = valueMap?['numericValue'] as num?;
+        if (dateStr == null || numValue == null) continue;
+        final date = DateTime.tryParse(dateStr);
+        if (date == null) continue;
+        // Convertimos la diferencia a horas para que coincida con el eje X de la gráfica
+        final seconds = date.difference(refStart).inSeconds.toDouble();
+        final hours = seconds / 3600.0;
+        spots.add(FlSpot(hours, numValue.toDouble()));
+      }
+      // print(spots); // Eliminar prints en producción
+      return spots;
     }
 
     final heartRateSpots = buildHeartRateSpots(heartRateData);
@@ -335,6 +358,8 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
               minY: minY,
               maxY: maxY,
               mean: mean,
+              startDate: start,
+              endDate: end,
             ),
           ),
         // Los pasos y la distancia ahora se muestran en la pastilla, no aquí.

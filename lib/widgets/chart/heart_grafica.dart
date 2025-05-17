@@ -7,13 +7,19 @@ class HeartGrafica extends StatelessWidget {
   final double minY;
   final double maxY;
   final double mean;
+  // Fechas opcionales para ajustar el rango del eje X
+  final DateTime? startDate;
+  final DateTime? endDate;
 
+  /// [startDate] y [endDate] son opcionales. Si se proporcionan, el eje X se ajusta al rango horario entre ambas.
   const HeartGrafica({
     Key? key,
     required this.spots,
     required this.minY,
     required this.maxY,
     required this.mean,
+    this.startDate,
+    this.endDate,
   }) : super(key: key);
 
   // Construye una línea vertical personalizada.
@@ -167,100 +173,156 @@ class HeartGrafica extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double xInterval = 6;
+    // Determina el rango del eje X según las fechas proporcionadas o por defecto 0-24h
+    double minX, maxX;
+    double xInterval;
+
+    if (startDate != null && endDate != null) {
+      // Calcula la diferencia en horas entre las fechas
+      minX = 0;
+      final duration = endDate!.difference(startDate!);
+      maxX = duration.inMinutes / 60.0;
+      // Intervalo dinámico para no saturar el eje X
+      if (maxX <= 3) {
+        xInterval = 0.5;
+      } else if (maxX <= 6) {
+        xInterval = 1;
+      } else if (maxX <= 12) {
+        xInterval = 2;
+      } else {
+        xInterval = 3;
+      }
+    } else {
+      minX = 0;
+      maxX = 24;
+      xInterval = 6;
+    }
+
     final yAxisValues = _getYAxisValues(minY, maxY);
 
     return SizedBox(
       height: 200,
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            show: false,
-            drawVerticalLine: false,
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: xInterval,
-                getTitlesWidget: (value, meta) => Text('${value.toInt()}h', style: TextStyle(color: Colors.grey, fontSize: 12)),
+      child: Stack(
+        children: [
+          LineChart(
+            LineChartData(
+              gridData: FlGridData(
+                show: false,
+                drawVerticalLine: false,
               ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  if (yAxisValues.contains(value)) {
-                    final label = _getYAxisLabel(value, minY, maxY);
-                    if (label != null) {
-                      return Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12));
-                    }
-                  }
-                  return const SizedBox.shrink();
-                },
-                reservedSize: 25,
-                interval: 1,
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: xInterval,
+                    getTitlesWidget: (value, meta) {
+                      // Si hay fechas, mostrar la hora relativa al inicio
+                      if (startDate != null && endDate != null) {
+                        final minutes = (value * 60).round();
+                        final labelTime = startDate!.add(Duration(minutes: minutes));
+                        final hour = labelTime.hour.toString().padLeft(2, '0');
+                        final minute = labelTime.minute.toString().padLeft(2, '0');
+                        return Text('$hour:$minute', style: const TextStyle(color: Colors.grey, fontSize: 12));
+                      }
+                      // Por defecto, mostrar como "xh"
+                      return Text('${value.toInt()}h', style: const TextStyle(color: Colors.grey, fontSize: 12));
+                    },
+                  ),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      if (yAxisValues.contains(value)) {
+                        final label = _getYAxisLabel(value, minY, maxY);
+                        if (label != null) {
+                          return Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12));
+                        }
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    reservedSize: 25,
+                    interval: 1,
+                  ),
+                ),
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
-            ),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(show: false),
-          minX: 0,
-          maxX: 24,
-          minY: minY,
-          maxY: maxY,
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              color: AppColors.mutedRed,
-              barWidth: 1,
-              isStrokeCapRound: true,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.mutedRed.withAlpha(77),
-                    AppColors.mutedRed.withAlpha(77),
-                    AppColors.mutedRed.withAlpha(0),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
+              borderData: FlBorderData(show: false),
+              minX: minX,
+              maxX: maxX,
+              minY: minY,
+              maxY: maxY,
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  color: AppColors.mutedRed,
+                  barWidth: 1,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.mutedRed.withAlpha(77),
+                        AppColors.mutedRed.withAlpha(77),
+                        AppColors.mutedRed.withAlpha(0),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+              ],
+              extraLinesData: ExtraLinesData(
+                horizontalLines: [
+                  HorizontalLine(
+                    y: mean,
+                    color: AppColors.mutedRed,
+                    strokeWidth: 1,
+                    dashArray: [4, 4],
+                    // Eliminamos la etiqueta de la línea de la media
+                    label: null,
+                  ),
+                  ..._buildHorizontalLines(
+                    minY: minY,
+                    maxY: maxY,
+                    color: Colors.grey,
+                  ),
+                ],
+                verticalLines: _buildVerticalLines(
+                  minX: minX,
+                  maxX: maxX,
+                  interval: xInterval,
+                  color: Colors.grey,
                 ),
               ),
             ),
-          ],
-          extraLinesData: ExtraLinesData(
-            horizontalLines: [
-              HorizontalLine(
-                y: mean,
-                color: AppColors.mutedRed,
-                strokeWidth: 1,
-                dashArray: [4, 4],
-                label: HorizontalLineLabel(
-                  show: true,
-                  alignment: Alignment.topRight,
-                  style: TextStyle(color: AppColors.mutedRed),
-                  labelResolver: (line) => line.y.toInt().toString(),
+          ),
+          // Etiqueta de la media fuera del gráfico, alineada a la derecha
+          Positioned(
+            right: 0,
+            // Calcula la posición vertical relativa a la media
+            top: 200 * (1 - (mean - minY) / (maxY - minY)) - 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.background.withAlpha(160),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                mean.toInt().toString(),
+                style: TextStyle(
+                  color: AppColors.mutedRed,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
               ),
-              ..._buildHorizontalLines(
-                minY: minY,
-                maxY: maxY,
-                color: Colors.grey,
-              ),
-            ],
-            verticalLines: _buildVerticalLines(
-              minX: 0,
-              maxX: 24,
-              interval: xInterval,
-              color: Colors.grey,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
