@@ -10,6 +10,8 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/utils/mr_functions.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
+import 'package:mrfit/widgets/chart/heart_grafica.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 /// Página que muestra siempre el resumen de salud en el rango [start, end]
 /// y, si existe un entrenamiento creado en Mr Fit, lo añade debajo.
@@ -129,7 +131,12 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  if (pageData.entrenamiento != null) ResumenPastilla(entrenamiento: pageData.entrenamiento!),
+                  ResumenPastilla(
+                    entrenamiento: pageData.entrenamiento,
+                    steps: pageData.healthSummary?['STEPS']?['sum'] as int?,
+                    distance: pageData.healthSummary?['DISTANCE_DELTA']?['sum'] != null ? (pageData.healthSummary?['DISTANCE_DELTA']?['sum'] as num).round() : null,
+                    heartRateAvg: pageData.healthSummary?['HEART_RATE']?['avg'] != null ? (pageData.healthSummary?['HEART_RATE']?['avg'] as num).toInt() : null,
+                  ),
                   const SizedBox(height: 20),
                   // Siempre pintamos los datos de salud; si no hay, placeholder.
                   ResumenSaludEntrenamiento(
@@ -299,44 +306,39 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
     }
 
     final heartRateData = datosSalud!['HEART_RATE'] as Map?;
-    final stepsData = datosSalud!['STEPS'] as Map?;
-    final distanceData = datosSalud!['DISTANCE_DELTA'] as Map?;
 
-    String formatDouble(dynamic value, {int decimals = 1}) {
-      if (value == null) return 'No disponible';
-      if (value is int) return value.toString();
-      if (value is double) return value.toStringAsFixed(decimals);
-      return value.toString();
+    // Construye los puntos para la gráfica de frecuencia cardiaca si hay datos
+    List<FlSpot> buildHeartRateSpots(Map? heartRateData) {
+      if (heartRateData == null || heartRateData['values'] == null) return [];
+      final values = heartRateData['values'] as List?;
+      if (values == null || values.isEmpty) return [];
+      // Suponemos que los valores están ordenados y corresponden a intervalos regulares de tiempo
+      return List<FlSpot>.generate(
+        values.length,
+        (i) => FlSpot(i.toDouble(), (values[i] as num).toDouble()),
+      );
     }
+
+    final heartRateSpots = buildHeartRateSpots(heartRateData);
+    final minY = heartRateData?['min'] != null ? (heartRateData!['min'] as num).toDouble() : 0.0;
+    final maxY = heartRateData?['max'] != null ? (heartRateData!['max'] as num).toDouble() : 200.0;
+    final mean = heartRateData?['avg'] != null ? (heartRateData!['avg'] as num).toDouble() : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Resumen de salud:',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(
-          'Frecuencia cardiaca:'
-          ' ${heartRateData?['values'] != null && (heartRateData!['values'] as List).isNotEmpty ? (heartRateData['values'] as List).join(', ') + ' bpm' : 'No disponible'}',
-        ),
-        Text(
-          'FC promedio: ${formatDouble(heartRateData?['avg'])} bpm, '
-          'mín: ${formatDouble(heartRateData?['min'])} bpm, '
-          'máx: ${formatDouble(heartRateData?['max'])} bpm',
-        ),
-        Text(
-          'Pasos: ${formatDouble(stepsData?['sum'], decimals: 0)}'
-          ' (promedio: ${formatDouble(stepsData?['avg'], decimals: 1)}, '
-          'mín: ${formatDouble(stepsData?['min'], decimals: 0)}, '
-          'máx: ${formatDouble(stepsData?['max'], decimals: 0)})',
-        ),
-        Text(
-          'Distancia: ${formatDouble(distanceData?['sum'], decimals: 0)} m'
-          ' (promedio: ${formatDouble(distanceData?['avg'])} m, '
-          'mín: ${formatDouble(distanceData?['min'], decimals: 0)} m, '
-          'máx: ${formatDouble(distanceData?['max'], decimals: 0)} m)',
-        ),
+        // Gráfica de frecuencia cardiaca si hay datos
+        if (heartRateSpots.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: HeartGrafica(
+              spots: heartRateSpots,
+              minY: minY,
+              maxY: maxY,
+              mean: mean,
+            ),
+          ),
+        // Los pasos y la distancia ahora se muestran en la pastilla, no aquí.
       ],
     );
   }
