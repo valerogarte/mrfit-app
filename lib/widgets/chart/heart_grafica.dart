@@ -65,6 +65,7 @@ class HeartGrafica extends StatelessWidget {
     TextStyle? style,
     Color? labelColor,
     bool isDanger = false,
+    bool isRangeLabel = false, // Nuevo parámetro para distinguir los labels de rango
   }) {
     return HorizontalLine(
       y: y,
@@ -80,6 +81,16 @@ class HeartGrafica extends StatelessWidget {
                     color: labelColor ?? Colors.grey,
                     fontSize: isDanger ? 12 : 10,
                     fontWeight: isDanger ? FontWeight.bold : FontWeight.w400,
+                    // Aplica sombra solo a los labels de rango
+                    shadows: isRangeLabel
+                        ? [
+                            Shadow(
+                              color: AppColors.background,
+                              offset: const Offset(0, 0),
+                              blurRadius: 1,
+                            ),
+                          ]
+                        : null,
                   ),
               padding: const EdgeInsets.only(top: 10),
               labelResolver: (_) => label,
@@ -106,6 +117,7 @@ class HeartGrafica extends StatelessWidget {
           y: y.toDouble(),
           color: color,
           label: label,
+          isRangeLabel: true, // Aplica sombra a los labels de rango
         ));
         inRangeKeys.add(y.toDouble());
       }
@@ -125,6 +137,7 @@ class HeartGrafica extends StatelessWidget {
             y: maxY.toDouble(),
             color: color,
             label: _labeledValues[nextKey],
+            isRangeLabel: true, // Aplica sombra a los labels de rango
           ));
         }
       }
@@ -222,7 +235,22 @@ class HeartGrafica extends StatelessWidget {
                         final labelTime = startDate!.add(Duration(minutes: minutes));
                         final hour = labelTime.hour.toString().padLeft(2, '0');
                         final minute = labelTime.minute.toString().padLeft(2, '0');
-                        return Text('$hour:$minute', style: const TextStyle(color: Colors.grey, fontSize: 12));
+                        // Determina si es el último label (end)
+                        final isEnd = (value - maxX).abs() < 0.01;
+                        final isStart = (value - minX).abs() < 0.01;
+                        // Usa un ancho fijo para todos los labels de hora y alinea el último a la derecha
+                        return SizedBox(
+                          width: 60,
+                          child: Text(
+                            '$hour:$minute',
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                            textAlign: isStart
+                                ? TextAlign.right
+                                : isEnd
+                                    ? TextAlign.left
+                                    : TextAlign.center,
+                          ),
+                        );
                       }
                       // Por defecto, mostrar como "xh"
                       return Text('${value.toInt()}h', style: const TextStyle(color: Colors.grey, fontSize: 12));
