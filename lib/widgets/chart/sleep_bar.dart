@@ -18,12 +18,25 @@ const Map<String, int> _kTypeValue = {
   'SLEEP_DEEP': 5,
   'SLEEP_REM': 4,
   'SLEEP_LIGHT': 3,
-  'SLEEP_ASLEEP': 2,
-  'SLEEP_IN_BED': 2,
+  'SLEEP_ASLEEP': 3,
+  'SLEEP_IN_BED': 3,
   'SLEEP_AWAKE_IN_BED': 1,
   'SLEEP_AWAKE': 1,
-  'SLEEP_OUT_OF_BED': 0,
+  'SLEEP_OUT_OF_BED': 2,
   'SLEEP_UNKNOWN': 0,
+};
+
+// Mapa de etiquetas legibles para cada tipo de sueño
+const Map<String, String> _kTypeLabel = {
+  'SLEEP_DEEP': 'Profundo',
+  'SLEEP_REM': 'REM',
+  'SLEEP_LIGHT': 'Ligero',
+  'SLEEP_ASLEEP': 'Dormido',
+  'SLEEP_IN_BED': 'En cama',
+  'SLEEP_AWAKE_IN_BED': 'Despierto en cama',
+  'SLEEP_AWAKE': 'Despierto',
+  'SLEEP_OUT_OF_BED': 'Fuera de cama',
+  'SLEEP_UNKNOWN': 'Desconocido',
 };
 
 class SleepBar extends StatelessWidget {
@@ -41,6 +54,77 @@ class SleepBar extends StatelessWidget {
   final TimeOfDay horaInicioRutina;
   final TimeOfDay horaFinRutina;
   final List<SleepSlot> typeSlots;
+
+  // Método auxiliar para obtener el tipo de sueño según el minuto (x)
+  String _getSleepTypeByMinute(double minute, List<SleepSlot> slots, DateTime graphStart) {
+    for (final slot in slots) {
+      final startMin = slot.start.difference(graphStart).inMinutes.toDouble();
+      final endMin = slot.end.difference(graphStart).inMinutes.toDouble();
+      if (minute >= startMin && minute < endMin) {
+        return slot.type;
+      }
+    }
+    return 'SLEEP_UNKNOWN';
+  }
+
+  // Devuelve la etiqueta legible para el tipo de sueño
+  String _getSleepTypeLabel(String type) {
+    return _kTypeLabel[type] ?? type;
+  }
+
+  /// Genera los puntos para un gráfico tipo "step" (escalera) solo dentro del rango de sueño real.
+  List<FlSpot> _generateStepSpots(
+    List<SleepSlot> slots,
+    DateTime graphStart,
+    DateTime graphEnd,
+    DateTime realStart,
+    DateTime realEnd,
+  ) {
+    final List<FlSpot> stepSpots = [];
+    if (slots.isEmpty) return stepSpots;
+
+    // Ordenar los slots por inicio
+    final sortedSlots = List<SleepSlot>.from(slots)..sort((a, b) => a.start.compareTo(b.start));
+
+    final realStartX = realStart.difference(graphStart).inMinutes.toDouble();
+    final realEndX = realEnd.difference(graphStart).inMinutes.toDouble();
+
+    for (var i = 0; i < sortedSlots.length; i++) {
+      final slot = sortedSlots[i];
+      final slotStartX = slot.start.difference(graphStart).inMinutes.toDouble();
+      final slotEndX = slot.end.difference(graphStart).inMinutes.toDouble();
+      final y = (_kTypeValue[slot.type] ?? 0).toDouble();
+
+      // Calcular el inicio y fin del slot recortado al rango real
+      final startX = slotStartX.clamp(realStartX, realEndX);
+      final endX = slotEndX.clamp(realStartX, realEndX);
+
+      // Si el slot está completamente fuera del rango real, omitir
+      if (endX <= realStartX || startX >= realEndX) continue;
+
+      // Si es el primer punto y no coincide con realStartX, agregar punto inicial horizontal
+      if (stepSpots.isEmpty && startX > realStartX) {
+        stepSpots.add(FlSpot(realStartX, y));
+      }
+
+      // Si el slot no empieza donde terminó el anterior, agregar transición vertical
+      if (stepSpots.isNotEmpty && stepSpots.last.x != startX) {
+        stepSpots.add(FlSpot(startX, stepSpots.last.y));
+      }
+
+      // Punto horizontal hasta el final del slot (dentro del rango real)
+      stepSpots.add(FlSpot(startX, y));
+      stepSpots.add(FlSpot(endX, y));
+    }
+
+    // Si el último punto no llega hasta realEndX, bajar a 0
+    if (stepSpots.isNotEmpty && stepSpots.last.x < realEndX) {
+      stepSpots.add(FlSpot(realEndX, stepSpots.last.y));
+      stepSpots.add(FlSpot(realEndX, 0));
+    }
+
+    return stepSpots;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +146,14 @@ class SleepBar extends StatelessWidget {
     final totalMinutes = graphEnd.difference(graphStart).inMinutes;
     if (totalMinutes <= 0) return const SizedBox.shrink();
 
-    final spots = typeSlots.where((s) => _kTypeValue.containsKey(s.type) && !s.start.isBefore(realStart)).map((s) {
-      final x = s.start.difference(graphStart).inMinutes.toDouble();
-      final y = (_kTypeValue[s.type] ?? 0).toDouble();
-      return FlSpot(x, y);
-    }).toList()
-      ..sort((a, b) => a.x.compareTo(b.x));
+    // Generar los puntos tipo "step" solo dentro del rango de sueño real
+    final stepSpots = _generateStepSpots(
+      typeSlots,
+      graphStart,
+      graphEnd,
+      realStart,
+      realEnd,
+    );
 
     return SizedBox(
       width: width,
@@ -87,7 +173,7 @@ class SleepBar extends StatelessWidget {
             _buildRoutineZone(routineLeft, routineWidthPx),
             _buildSessionBar(realLeft, realWidthPx, accentHeight),
             _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
-            _buildSleepLine(spots, totalMinutes, accentHeight),
+            _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart), // Usar stepSpots
           ]);
         },
       ),
@@ -166,7 +252,7 @@ class SleepBar extends StatelessWidget {
     ]);
   }
 
-  Widget _buildSleepLine(List<FlSpot> spots, int maxX, double height) {
+  Widget _buildSleepLine(List<FlSpot> spots, int maxX, double height, DateTime graphStart) {
     // Lo último para quedar encima de la barrita, usa left+right para ocupar todo el ancho
     return Positioned(
       top: _kLabelH + (_kBarHeight - height) / 2 + 2,
@@ -197,6 +283,25 @@ class SleepBar extends StatelessWidget {
               ),
             )
           ],
+          // Personalización del tooltip para mostrar el tipo de sueño
+          lineTouchData: LineTouchData(
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((touchedSpot) {
+                  final sleepType = _getSleepTypeByMinute(
+                    touchedSpot.x,
+                    typeSlots,
+                    graphStart,
+                  );
+                  final label = _getSleepTypeLabel(sleepType);
+                  return LineTooltipItem(
+                    label,
+                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  );
+                }).toList();
+              },
+            ),
+          ),
         ),
       ),
     );
