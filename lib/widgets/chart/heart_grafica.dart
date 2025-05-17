@@ -16,8 +16,17 @@ class HeartGrafica extends StatelessWidget {
     required this.mean,
   }) : super(key: key);
 
-  // Calcula las posiciones de las líneas verticales según el intervalo del eje X,
-  // incluyendo el primer y último valor.
+  // Construye una línea vertical personalizada.
+  VerticalLine _buildVerticalLine(double x, Color color) {
+    return VerticalLine(
+      x: x,
+      color: color.withAlpha(51),
+      strokeWidth: 1,
+      dashArray: [4, 4],
+    );
+  }
+
+  // Genera las líneas verticales del gráfico.
   List<VerticalLine> _buildVerticalLines({
     required double minX,
     required double maxX,
@@ -25,98 +34,114 @@ class HeartGrafica extends StatelessWidget {
     required Color color,
   }) {
     final List<VerticalLine> lines = [];
-    // Añade línea en minX
-    lines.add(
-      VerticalLine(
-        x: minX,
-        color: color.withAlpha(51), // 0.2 * 255 ≈ 51
-        strokeWidth: 1,
-        dashArray: [4, 4],
-      ),
-    );
-    // Añade líneas en los intervalos intermedios
+    lines.add(_buildVerticalLine(minX, color));
     for (double x = minX + interval; x < maxX; x += interval) {
-      lines.add(
-        VerticalLine(
-          x: x,
-          color: color.withAlpha(51),
-          strokeWidth: 1,
-          dashArray: [4, 4],
-        ),
-      );
+      lines.add(_buildVerticalLine(x, color));
     }
-    // Añade línea en maxX
-    lines.add(
-      VerticalLine(
-        x: maxX,
-        color: color.withAlpha(51),
-        strokeWidth: 1,
-        dashArray: [4, 4],
-      ),
-    );
+    lines.add(_buildVerticalLine(maxX, color));
     return lines;
   }
 
-  // Calcula las posiciones de las líneas horizontales solo en minY, maxY y los valores de los rangos.
+  // Devuelve el mapa de valores y etiquetas de los rangos cardíacos.
+  Map<int, String> get _labeledValues => const {
+        94: 'Relax',
+        113: 'Calentamiento',
+        130: 'Quema grasa',
+        170: 'Cardio',
+        187: 'Anaeróbico',
+      };
+
+  // Construye una línea horizontal con etiqueta opcional.
+  HorizontalLine _buildHorizontalLine({
+    required double y,
+    required Color color,
+    String? label,
+    TextStyle? style,
+    Color? labelColor,
+    bool isDanger = false,
+  }) {
+    return HorizontalLine(
+      y: y,
+      color: isDanger ? Colors.red.withAlpha(100) : color.withAlpha(51),
+      strokeWidth: isDanger ? 2 : 1,
+      dashArray: [4, 4],
+      label: label != null
+          ? HorizontalLineLabel(
+              show: true,
+              alignment: Alignment.centerLeft,
+              style: style ??
+                  TextStyle(
+                    color: labelColor ?? Colors.grey,
+                    fontSize: isDanger ? 12 : 10,
+                    fontWeight: isDanger ? FontWeight.bold : FontWeight.w400,
+                  ),
+              padding: const EdgeInsets.only(top: 10),
+              labelResolver: (_) => label,
+            )
+          : null,
+    );
+  }
+
+  // Genera las líneas horizontales del gráfico, incluyendo rangos y advertencias.
   List<HorizontalLine> _buildHorizontalLines({
     required double minY,
     required double maxY,
     required Color color,
   }) {
     final List<HorizontalLine> lines = [];
-    // Línea en minY
-    lines.add(
-      HorizontalLine(
-        y: minY,
-        color: color.withAlpha(51),
-        strokeWidth: 1,
-        dashArray: [4, 4],
-      ),
-    );
-    // Línea en maxY
-    lines.add(
-      HorizontalLine(
-        y: maxY,
-        color: color.withAlpha(51),
-        strokeWidth: 1,
-        dashArray: [4, 4],
-      ),
-    );
-    // Líneas en los valores de los rangos, solo si están dentro del rango
-    final Map<double, String> labeledValues = {
-      94: 'Relax',
-      113: 'Calentamiento',
-      130: 'Quemas grasa',
-      170: 'Cardio',
-      187: 'Anaeróbico',
-    };
-    labeledValues.forEach((y, label) {
+    lines.add(_buildHorizontalLine(y: minY, color: color));
+    lines.add(_buildHorizontalLine(y: maxY, color: color));
+
+    final List<double> inRangeKeys = [];
+    // Se asegura que 'y' sea double al llamar a _buildHorizontalLine y al agregar a inRangeKeys
+    _labeledValues.forEach((y, label) {
       if (y > minY && y < maxY) {
-        lines.add(
-          HorizontalLine(
-            y: y,
-            color: color.withAlpha(51),
-            strokeWidth: 1,
-            dashArray: [4, 4],
-            label: HorizontalLineLabel(
-              show: true,
-              alignment: Alignment.centerLeft,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-              ),
-              padding: const EdgeInsets.only(top: 10),
-              labelResolver: (_) => label,
-            ),
-          ),
-        );
+        lines.add(_buildHorizontalLine(
+          y: y.toDouble(),
+          color: color,
+          label: label,
+        ));
+        inRangeKeys.add(y.toDouble());
       }
     });
+
+    // Añade el siguiente rango superior si corresponde
+    if (inRangeKeys.isNotEmpty) {
+      final lastRange = inRangeKeys.last;
+      if (maxY - lastRange >= 10) {
+        final sortedKeys = _labeledValues.keys.toList()..sort();
+        final nextKey = sortedKeys.firstWhere(
+          (k) => k > lastRange,
+          orElse: () => 0,
+        );
+        if (nextKey != 0) {
+          lines.add(_buildHorizontalLine(
+            y: maxY.toDouble(),
+            color: color,
+            label: _labeledValues[nextKey],
+          ));
+        }
+      }
+    }
+
+    // Si el máximo supera 187, mostrar advertencia de peligro
+    if (maxY > 187) {
+      lines.add(_buildHorizontalLine(
+        y: maxY,
+        color: color,
+        label: 'Peligroso',
+        style: const TextStyle(
+          color: Colors.red,
+          fontSize: 10,
+        ),
+        isDanger: true,
+      ));
+    }
+
     return lines;
   }
 
-  // Devuelve los valores y etiquetas a mostrar en el eje Y: min, max y los rangos definidos.
+  // Devuelve los valores y etiquetas a mostrar en el eje Y.
   List<double> _getYAxisValues(double minY, double maxY) {
     final List<double> values = [minY, maxY];
     const labeledKeys = [94.0, 113.0, 130.0, 170.0, 187.0];
@@ -133,7 +158,6 @@ class HeartGrafica extends StatelessWidget {
   String? _getYAxisLabel(double value, double minY, double maxY) {
     if (value == minY) return minY.toInt().toString();
     if (value == maxY) return maxY.toInt().toString();
-    // Si el valor es uno de los rangos, muestra el número
     final labeledValues = [94.0, 113.0, 130.0, 170.0, 187.0];
     if (labeledValues.contains(value)) {
       return value.toInt().toString();
@@ -144,7 +168,6 @@ class HeartGrafica extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double xInterval = 6;
-    const double yInterval = 50;
     final yAxisValues = _getYAxisValues(minY, maxY);
 
     return SizedBox(
@@ -152,7 +175,7 @@ class HeartGrafica extends StatelessWidget {
       child: LineChart(
         LineChartData(
           gridData: FlGridData(
-            show: false, // No mostrar líneas horizontales automáticas
+            show: false,
             drawVerticalLine: false,
           ),
           titlesData: FlTitlesData(
@@ -166,9 +189,7 @@ class HeartGrafica extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                // Solo muestra los valores definidos en yAxisValues
                 getTitlesWidget: (value, meta) {
-                  // Solo muestra el label si el valor está en yAxisValues
                   if (yAxisValues.contains(value)) {
                     final label = _getYAxisLabel(value, minY, maxY);
                     if (label != null) {
@@ -197,14 +218,13 @@ class HeartGrafica extends StatelessWidget {
               barWidth: 1,
               isStrokeCapRound: true,
               dotData: FlDotData(show: false),
-              // Sombra bajo la línea con gradiente del mismo color y opacidad decreciente
               belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.mutedRed.withAlpha(77), // 0.3 * 255 ≈ 77
+                    AppColors.mutedRed.withAlpha(77),
                     AppColors.mutedRed.withAlpha(77),
                     AppColors.mutedRed.withAlpha(0),
                   ],
@@ -215,7 +235,6 @@ class HeartGrafica extends StatelessWidget {
           ],
           extraLinesData: ExtraLinesData(
             horizontalLines: [
-              // Línea horizontal de la media
               HorizontalLine(
                 y: mean,
                 color: AppColors.mutedRed,
@@ -228,7 +247,6 @@ class HeartGrafica extends StatelessWidget {
                   labelResolver: (line) => line.y.toInt().toString(),
                 ),
               ),
-              // Solo líneas horizontales en min, max y labeledValues
               ..._buildHorizontalLines(
                 minY: minY,
                 maxY: maxY,
