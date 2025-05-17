@@ -274,16 +274,15 @@ class SleepBar extends StatelessWidget {
               isCurved: false,
               color: AppColors.mutedAdvertencia,
               isStrokeCapRound: true,
-              barWidth: 2,
-              dotData: FlDotData(show: false),
-              shadow: const Shadow(
-                color: AppColors.background,
-                blurRadius: 4,
-                offset: Offset(2, 2),
+              barWidth: 1,
+              dotData: FlDotData(
+                show: false, // No mostrar puntos normalmente
+                checkToShowDot: (spot, barData) => false,
               ),
+              showingIndicators: [],
             )
           ],
-          // Personalización del tooltip para mostrar el tipo de sueño
+          // Personalización del tooltip y del círculo de selección
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               getTooltipItems: (touchedSpots) {
@@ -301,6 +300,25 @@ class SleepBar extends StatelessWidget {
                 }).toList();
               },
             ),
+            getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
+              // Personaliza el círculo de selección
+              return spotIndexes.map((index) {
+                return TouchedSpotIndicatorData(
+                  FlLine(color: Colors.transparent),
+                  FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, bar, index) {
+                      return FlDotCirclePainter(
+                        radius: 2, // Radio del círculo de selección
+                        color: AppColors.background, // Color del círculo
+                        strokeWidth: 0,
+                        strokeColor: Colors.transparent,
+                      );
+                    },
+                  ),
+                );
+              }).toList();
+            },
           ),
         ),
       ),
