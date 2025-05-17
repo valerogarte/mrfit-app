@@ -238,8 +238,8 @@ class EntrenamientoMrFitWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           decoration: BoxDecoration(
             color: AppColors.background,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.mutedAdvertencia, width: 1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.mutedAdvertencia, width: 2),
           ),
           child: Text(
             ModeloDatos.getSensacionText(entrenamiento.sensacion.toDouble()),

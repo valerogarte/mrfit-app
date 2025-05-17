@@ -25,10 +25,16 @@ class HealthSummary {
       endTime: end,
     );
 
-    // Agrupar los dataPoints por tipo y convertirlos a JSON
-    final heartRatePoints = dataPoints.where((dp) => dp.type == HealthDataType.HEART_RATE).toList();
-    final stepsPoints = dataPoints.where((dp) => dp.type == HealthDataType.STEPS).toList();
-    final distancePoints = dataPoints.where((dp) => dp.type == HealthDataType.DISTANCE_DELTA).toList();
+    // Eliminar duplicados y limpiar los dataPoints por tipo usando HealthUtils
+    final heartRatePoints = HealthUtils.customRemoveDuplicates(
+      dataPoints.where((dp) => dp.type == HealthDataType.HEART_RATE).toList(),
+    );
+    final stepsPoints = HealthUtils.customRemoveDuplicates(
+      dataPoints.where((dp) => dp.type == HealthDataType.STEPS).toList(),
+    );
+    final distancePoints = HealthUtils.customRemoveDuplicates(
+      dataPoints.where((dp) => dp.type == HealthDataType.DISTANCE_DELTA).toList(),
+    );
 
     // Extraer valores de frecuencia cardiaca
     final heartRates = heartRatePoints.map((dp) => dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0).toList();
@@ -95,4 +101,63 @@ class HealthSummary {
       },
     };
   }
+}
+
+/// Utilidades para el manejo de datos de salud.
+class HealthUtils {
+  /// Elimina duplicados y agrupa puntos de datos de salud por secciones de tiempo.
+  /// [dataPoints]: Lista de puntos de datos de salud.
+  /// [sectionGap]: Margen de tiempo para agrupar secciones.
+  static List<HealthDataPoint> customRemoveDuplicates(
+    List<HealthDataPoint> dataPoints, {
+    Duration sectionGap = const Duration(seconds: 2),
+  }) {
+    // Ordena los puntos por fecha de inicio.
+    dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    // Elimina puntos de datos exactos.
+    final seen = <String>{};
+    final filtered = <HealthDataPoint>[];
+    for (var p in dataPoints) {
+      if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) continue;
+
+      final key = [
+        p.dateFrom.millisecondsSinceEpoch,
+        p.dateTo.millisecondsSinceEpoch,
+        (p.value as NumericHealthValue).numericValue,
+      ].join('-');
+
+      if (seen.add(key)) filtered.add(p);
+    }
+
+    // Agrupa los puntos en secciones de tiempo.
+    final sections = <_TimeSection>[];
+    for (var p in filtered) {
+      var added = false;
+      for (var sec in sections) {
+        if (p.dateFrom.isBefore(sec.end.add(sectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(sectionGap))) {
+          sec.points.add(p);
+          if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
+          added = true;
+          break;
+        }
+      }
+      if (!added) {
+        sections.add(_TimeSection(p));
+      }
+    }
+
+    final clean = sections.expand((s) => s.points).toList();
+    return clean;
+  }
+}
+
+/// Clase interna para agrupar puntos de datos por secciones de tiempo.
+class _TimeSection {
+  DateTime end;
+  final List<HealthDataPoint> points;
+
+  _TimeSection(HealthDataPoint p)
+      : end = p.dateTo,
+        points = [p];
 }

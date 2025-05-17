@@ -16,6 +16,7 @@ import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/channel/channel_inactividad.dart';
 import 'package:mrfit/utils/constants.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
+import 'package:mrfit/models/health/health.dart';
 
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';

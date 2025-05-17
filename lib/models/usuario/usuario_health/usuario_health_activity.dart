@@ -1,51 +1,6 @@
 part of '../usuario.dart';
 
 extension UsuarioActivityExtension on Usuario {
-  List<HealthDataPoint> customRemoveDuplicates(
-    List<HealthDataPoint> dataPoints, {
-    Duration sectionGap = const Duration(seconds: 2),
-  }) {
-    // 1. Ordena por inicio
-    dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
-
-    // 2. Elimina dataPoints exactos
-    final seen = <String>{};
-    final filtered = <HealthDataPoint>[];
-    for (var p in dataPoints) {
-      if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) continue;
-
-      final key = [
-        p.dateFrom.millisecondsSinceEpoch,
-        p.dateTo.millisecondsSinceEpoch,
-        (p.value as NumericHealthValue).numericValue,
-      ].join('-');
-
-      if (seen.add(key)) filtered.add(p);
-    }
-
-    // 3. Agrupa los dataPoints en secciones de tiempo. Con un pequeño margen de tiempo por si no encaja exacto.
-    final sections = <_TimeSection>[];
-    for (var p in filtered) {
-      var added = false;
-      for (var sec in sections) {
-        // si p.dateFrom ≤ sec.end + sectionGap
-        if (p.dateFrom.isBefore(sec.end.add(sectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(sectionGap))) {
-          sec.points.add(p);
-          // expande la sección si p.dateTo la supera
-          if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
-          added = true;
-          break;
-        }
-      }
-      if (!added) {
-        sections.add(_TimeSection(p));
-      }
-    }
-
-    final clean = sections.expand((s) => s.points).toList();
-    return clean;
-  }
-
   Future<List<HealthDataPoint>> getStepsByDate(String date, {int nDays = 1}) async {
     if (!await checkPermissionsFor("STEPS")) return [];
 
@@ -60,7 +15,8 @@ extension UsuarioActivityExtension on Usuario {
     );
 
     final dataPointsRaw = _health.removeDuplicates(dataPoints);
-    final dataPointsClean = customRemoveDuplicates(dataPointsRaw);
+    // Usa la función utilitaria para eliminar duplicados personalizados
+    final dataPointsClean = HealthUtils.customRemoveDuplicates(dataPointsRaw);
 
     return dataPointsClean;
   }
