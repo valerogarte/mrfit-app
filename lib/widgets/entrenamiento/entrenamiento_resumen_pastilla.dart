@@ -30,7 +30,8 @@ class ResumenPastilla extends StatelessWidget {
 
     final bool showFirstRow = entrenamiento != null;
     final bool showSecondRow = entrenamiento != null;
-    final bool showExtraRow = steps != null || distance != null || heartRateAvg != null;
+    // Solo mostrar la fila extra si alguno de los valores es mayor a 0
+    final bool showExtraRow = (steps != null && steps! > 0) || (distance != null && distance! > 0) || (heartRateAvg != null && heartRateAvg! > 0);
 
     final NumberFormat milesFormat = NumberFormat('#,##0', 'es_ES');
 
