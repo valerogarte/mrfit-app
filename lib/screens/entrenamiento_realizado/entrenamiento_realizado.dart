@@ -316,28 +316,31 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
     final heartRateData = datosSalud!['HEART_RATE'] as Map?;
 
     /// Construye los puntos para la gráfica de frecuencia cardiaca usando dataPoints.
-    /// Cada punto toma el tiempo relativo al inicio y el valor de frecuencia.
+    /// Solo incluye puntos dentro del rango [start, end] si ambos están definidos.
     List<FlSpot> buildHeartRateSpots(Map? heartRateData) {
       if (heartRateData == null || heartRateData['dataPoints'] == null) return [];
       final dataPoints = heartRateData['dataPoints'] as List?;
       if (dataPoints == null || dataPoints.isEmpty) return [];
       final DateTime? refStart = start;
+      final DateTime? refEnd = end;
       if (refStart == null) return [];
       final List<FlSpot> spots = [];
       for (final dp in dataPoints) {
         final dateStr = dp['dateFrom'] as String?;
         final valueMap = dp['value'] as Map?;
-        print('$dateStr : $valueMap'); // Eliminar prints en producción
         final numValue = valueMap?['numericValue'] as num?;
         if (dateStr == null || numValue == null) continue;
         final date = DateTime.tryParse(dateStr);
         if (date == null) continue;
+        // Solo incluir puntos dentro del rango [start, end] si ambos están definidos
+        if (refEnd != null && (date.isBefore(refStart) || date.isAfter(refEnd))) {
+          continue;
+        }
         // Convertimos la diferencia a horas para que coincida con el eje X de la gráfica
         final seconds = date.difference(refStart).inSeconds.toDouble();
         final hours = seconds / 3600.0;
         spots.add(FlSpot(hours, numValue.toDouble()));
       }
-      // print(spots); // Eliminar prints en producción
       return spots;
     }
 
