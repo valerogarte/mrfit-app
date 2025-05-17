@@ -30,7 +30,6 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
         final firstSlot = snapshot.data!.first;
         final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
-        // NUEVO: llamamos a getTypeSleepByDate para obtener los slots tipados
         return FutureBuilder<List<SleepSlot>>(
           future: usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
           builder: (ctx2, typeSnap) {
@@ -146,12 +145,23 @@ Widget _sleepStats(
 }) {
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
+
+  // Calcular calidad del sueño usando typeSlots si están disponibles
+  double? quality;
+  if ((typeSlots ?? []).isNotEmpty) {
+    quality = usuario.getQualitySleep(typeSlots!);
+    if (quality == 0) {
+      quality = null;
+    }
+  }
+
   return _sleepBase(
     mainText: '${hours}h ${minutes}m',
     fromWhere: fromWhere,
     slots: allSlots ?? [],
     typeSlots: typeSlots ?? [],
-    usuario: usuario, // Pass usuario here
+    usuario: usuario,
+    quality: quality,
   );
 }
 
@@ -161,6 +171,7 @@ Widget _sleepBase({
   required List<SleepSlot> slots,
   List<SleepSlot>? typeSlots,
   required Usuario usuario,
+  double? quality, // Nuevo parámetro para calidad
 }) {
   return Container(
     width: double.infinity,
@@ -180,6 +191,28 @@ Widget _sleepBase({
               mainText,
               style: const TextStyle(color: AppColors.textNormal, fontSize: 16, fontWeight: FontWeight.bold),
             ),
+            // Espacio flexible para empujar la calidad a la derecha
+            Expanded(child: Container()),
+            if (quality != null)
+              AnimatedOpacity(
+                opacity: 1.0,
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeIn,
+                child: Row(
+                  children: [
+                    Icon(Icons.verified, color: AppColors.mutedAdvertencia, size: 18),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${quality.toStringAsFixed(1)}%',
+                      style: const TextStyle(
+                        color: AppColors.mutedAdvertencia,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 12),

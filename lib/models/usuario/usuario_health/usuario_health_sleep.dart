@@ -263,4 +263,76 @@ extension UsuarioSleepExtension on Usuario {
       return false;
     }
   }
+
+  /// Calcula la calidad del sueño en base a la proporción de los diferentes tipos de sueño.
+  /// - SLEEP_DEEP: 20% - 25%
+  /// - SLEEP_REM: 20% - 25%
+  /// - SLEEP_LIGHT: 50% - 60%
+  /// La suma de los siguientes tipos no debe superar el 10%:
+  /// SLEEP_ASLEEP, SLEEP_IN_BED, SLEEP_AWAKE_IN_BED, SLEEP_AWAKE, SLEEP_OUT_OF_BED, SLEEP_UNKNOWN
+  ///
+  /// El porcentaje final se calcula partiendo de 100 puntos y restando penalizaciones
+  /// si los porcentajes de cada tipo principal están fuera de su rango ideal, y si los tipos secundarios superan el 10%.
+  /// Cada desviación fuera del rango ideal penaliza el score, y el resultado se limita entre 0 y 100.
+  double getQualitySleep(List<SleepSlot> slots) {
+    if (slots.isEmpty) return 0.0;
+
+    // Agrupar la duración por tipo de sueño
+    final Map<String, int> durations = {};
+    int totalMinutes = 0;
+
+    for (var slot in slots) {
+      durations[slot.type] = (durations[slot.type] ?? 0) + slot.duration;
+      totalMinutes += slot.duration;
+    }
+
+    if (totalMinutes == 0) return 0.0;
+
+    // Tipos principales
+    final deep = durations['SLEEP_DEEP'] ?? 0;
+    final rem = durations['SLEEP_REM'] ?? 0;
+    final light = durations['SLEEP_LIGHT'] ?? 0;
+
+    // Tipos secundarios (no deben superar el 10%)
+    final secondaryTypes = [
+      'SLEEP_ASLEEP',
+      'SLEEP_IN_BED',
+      'SLEEP_AWAKE_IN_BED',
+      'SLEEP_AWAKE',
+      'SLEEP_OUT_OF_BED',
+      'SLEEP_UNKNOWN',
+    ];
+    final secondary = secondaryTypes.fold<int>(0, (sum, t) => sum + (durations[t] ?? 0));
+
+    // Calcular porcentajes
+    final deepPct = deep / totalMinutes * 100;
+    final remPct = rem / totalMinutes * 100;
+    final lightPct = light / totalMinutes * 100;
+    final secondaryPct = secondary / totalMinutes * 100;
+
+    // Puntuación basada en la cercanía a los rangos ideales
+    double score = 100.0;
+
+    // Penalización por estar fuera de los rangos ideales
+    double penalty(double pct, double min, double max) {
+      if (pct < min) return (min - pct) * 2;
+      if (pct > max) return (pct - max) * 2;
+      return 0.0;
+    }
+
+    score -= penalty(deepPct, 20, 25);
+    score -= penalty(remPct, 20, 25);
+    score -= penalty(lightPct, 50, 60);
+
+    // Penalización fuerte si los secundarios superan el 10%
+    if (secondaryPct > 10) {
+      score -= (secondaryPct - 10) * 3;
+    }
+
+    // Limitar el score entre 0 y 100
+    if (score < 0) score = 0;
+    if (score > 100) score = 100;
+
+    return double.parse(score.toStringAsFixed(1));
+  }
 }
