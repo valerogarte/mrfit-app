@@ -286,6 +286,7 @@ class SleepBar extends StatelessWidget {
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               getTooltipItems: (touchedSpots) {
+                // Añade la hora al final de la etiqueta del tipo de sueño
                 return touchedSpots.map((touchedSpot) {
                   final sleepType = _getSleepTypeByMinute(
                     touchedSpot.x,
@@ -293,8 +294,11 @@ class SleepBar extends StatelessWidget {
                     graphStart,
                   );
                   final label = _getSleepTypeLabel(sleepType);
+                  // Calcula la hora correspondiente al punto seleccionado
+                  final pointTime = graphStart.add(Duration(minutes: touchedSpot.x.round()));
+                  final formattedTime = DateFormat.Hm().format(pointTime);
                   return LineTooltipItem(
-                    label,
+                    '$label $formattedTime',
                     const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   );
                 }).toList();
