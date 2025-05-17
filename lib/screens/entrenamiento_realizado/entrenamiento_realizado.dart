@@ -80,7 +80,6 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
                   Row(
                     children: [
                       // Columna para el icono
-                      // Icono dentro de un círculo con fondo y borde
                       Container(
                         width: 48,
                         height: 48,
