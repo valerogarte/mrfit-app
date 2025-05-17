@@ -129,6 +129,7 @@ class ModeloDatos {
       {
         'value': 1,
         'label': 'A mínimos',
+        'description': 'Sin apenas esfuerzo',
         'iconColor': Color.fromARGB(255, 145, 231, 148),
         'met': 2.5,
       },
