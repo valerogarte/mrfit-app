@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 class UsageStats {
-  static const MethodChannel _channel = MethodChannel('com.vagfit/usage_stats');
+  static const MethodChannel _channel = MethodChannel('es.mrfit.app/usage_stats');
 
   static Future<bool> hasUsageStatsPermission() async {
     final bool hasPermission = await _channel.invokeMethod('hasUsageStatsPermission');

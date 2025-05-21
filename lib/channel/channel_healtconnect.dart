@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 
 class HealthConnectHelper {
-  static const MethodChannel _channel = MethodChannel('com.vagfit/health');
+  static const MethodChannel _channel = MethodChannel('es.mrfit.app/health');
 
   static Future<bool> hasHealthDataPermission() async {
     try {

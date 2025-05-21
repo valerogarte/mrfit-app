@@ -1,4 +1,4 @@
-package com.example.vagfit
+package es.mrfit.app
 
 import android.app.AppOpsManager
 import android.app.usage.UsageEvents

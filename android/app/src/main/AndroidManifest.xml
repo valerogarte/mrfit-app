@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.vagfit">
+    package="es.mrfit.app">
 
     <!-- Permiso para acceder a Internet -->
     <uses-permission android:name="android.permission.INTERNET" />

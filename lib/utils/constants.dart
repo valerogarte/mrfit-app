@@ -5,7 +5,7 @@ class AppConstants {
 
   static const String appName = 'MrFit';
 
-  static const String domainNameApp = 'com.example.mrfit';
+  static const String domainNameApp = 'es.mrfit.app';
 
   // Quiero montar una lista de prioridad de la aplicación para pintar los datos de health
   static const List<String> healthPriority = [
