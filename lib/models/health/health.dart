@@ -44,7 +44,7 @@ class HealthSummary {
     double? heartRateMax;
     if (heartRatePoints.isNotEmpty) {
       // Calcula la media global agrupando por segundo y promediando cada grupo, devuelve un solo int
-      heartRateAvg = HealthUtils.getAvgBySecondInt(heartRatePoints);
+      heartRateAvg = HealthUtils.getAvgByGranularity(heartRatePoints, granularity: "second");
       heartRateMin = heartRates.reduce((a, b) => a < b ? a : b);
       heartRateMax = heartRates.reduce((a, b) => a > b ? a : b);
     }
@@ -105,6 +105,8 @@ class HealthSummary {
 }
 
 /// Utilidades para el manejo de datos de salud.
+/// Enum para definir la granularidad de agrupación de tiempo.
+
 class HealthUtils {
   /// Elimina duplicados y agrupa puntos de datos de salud por secciones de tiempo.
   /// [dataPoints]: Lista de puntos de datos de salud.
@@ -152,22 +154,47 @@ class HealthUtils {
     return clean;
   }
 
-  /// Agrupa los puntos de datos por segundo y calcula la media global de todas las medias por segundo.
+  /// Agrupa los puntos de datos por la granularidad de tiempo especificada y calcula la media global de todas las medias por grupo.
+  /// [points]: Lista de puntos de datos de salud.
+  /// [granularity]: Granularidad de agrupación (segundo, minuto, hora).
   /// Devuelve la media global como entero.
-  static int getAvgBySecondInt(List<HealthDataPoint> points) {
-    final Map<int, List<double>> valuesBySecond = {};
+  static int getAvgByGranularity(
+    List<HealthDataPoint> points, {
+    String granularity = "second",
+  }) {
+    final Map<int, List<double>> valuesByGroup = {};
+
     for (var dp in points) {
       if (dp.value is NumericHealthValue) {
-        final int second = dp.dateFrom.millisecondsSinceEpoch ~/ 1000;
-        valuesBySecond.putIfAbsent(second, () => []);
-        valuesBySecond[second]!.add((dp.value as NumericHealthValue).numericValue.toDouble());
+        int groupKey = 0; // Valor por defecto para evitar error de variable no inicializada
+        final date = dp.dateFrom;
+        // Agrupa los puntos según la granularidad de tiempo especificada.
+        switch (granularity) {
+          case "hour":
+            groupKey = DateTime(date.year, date.month, date.day, date.hour).millisecondsSinceEpoch;
+            break;
+          case "minute":
+            groupKey = DateTime(date.year, date.month, date.day, date.hour, date.minute).millisecondsSinceEpoch;
+            break;
+          case "second":
+            groupKey = DateTime(date.year, date.month, date.day, date.hour, date.minute, date.second).millisecondsSinceEpoch;
+            break;
+          default:
+            groupKey = DateTime(date.year, date.month, date.day, date.hour, date.minute, date.second).millisecondsSinceEpoch;
+            break;
+        }
+        valuesByGroup.putIfAbsent(groupKey, () => []);
+        valuesByGroup[groupKey]!.add((dp.value as NumericHealthValue).numericValue.toDouble());
       }
     }
-    if (valuesBySecond.isEmpty) return 0;
+
+    if (valuesByGroup.isEmpty) return 0;
+
     // Calcula la media de cada grupo
-    final mediasPorSegundo = valuesBySecond.values.map((values) => (values.reduce((a, b) => a + b) / values.length)).toList();
+    final mediasPorGrupo = valuesByGroup.values.map((values) => values.reduce((a, b) => a + b) / values.length).toList();
+
     // Calcula la media global y la convierte a int
-    final mediaGlobal = mediasPorSegundo.reduce((a, b) => a + b) / mediasPorSegundo.length;
+    final mediaGlobal = mediasPorGrupo.reduce((a, b) => a + b) / mediasPorGrupo.length;
     return mediaGlobal.round();
   }
 }

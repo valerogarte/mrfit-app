@@ -96,7 +96,6 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               children: activities.asMap().entries.map((entry) {
                 final index = entry.key;
                 final activity = entry.value;
-                print(activity);
                 if (activity['type'] == 'steps') {
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(

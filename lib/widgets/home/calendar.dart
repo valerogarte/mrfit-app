@@ -247,7 +247,6 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       int minAct = 0;
 
       if (cacheMap.containsKey(iso)) {
-        print('Cache hit: $iso');
         final d = cacheMap[iso]!;
         steps = int.tryParse(d['steps'].toString()) ?? 0;
         kcal = double.tryParse(d['kcal'].toString()) ?? 0.0;

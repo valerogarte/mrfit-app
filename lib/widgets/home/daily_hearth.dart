@@ -39,7 +39,7 @@ Widget dailyHearthWidget({
         minY = minY < 0 ? 0 : minY;
 
         // Calcula el promedio usando el Map<DateTime, double>
-        final mean = HealthUtils.getAvgBySecondInt(heartRatePoints).toDouble();
+        final mean = HealthUtils.getAvgByGranularity(heartRatePoints, granularity: "hour").toDouble();
 
         content = HeartGrafica(
           spots: spots,
