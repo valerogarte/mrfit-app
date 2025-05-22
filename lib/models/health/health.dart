@@ -1,5 +1,6 @@
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:health/health.dart';
+import 'package:mrfit/utils/constants.dart';
 
 /// Clase para obtener un resumen de salud del usuario en un rango de fechas o por UUID.
 /// Utiliza una sola llamada para obtener varios tipos de datos de salud.
@@ -28,13 +29,30 @@ class HealthSummary {
     // Eliminar duplicados y limpiar los dataPoints por tipo usando HealthUtils
     final heartRatePoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.HEART_RATE).toList(),
+      filterByApp: true,
+      sectionGap: const Duration(milliseconds: 2),
     );
     final stepsPoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.STEPS).toList(),
+      filterByApp: true,
     );
+    // Filtra y elimina duplicados de los puntos de distancia, usando un sectionGap de 5 milisegundos
     final distancePoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.DISTANCE_DELTA).toList(),
+      filterByApp: true,
+      sectionGap: const Duration(milliseconds: 2),
     );
+
+    for (var dp in distancePoints) {
+      if (dp.value is NumericHealthValue) {
+        final value = (dp.value as NumericHealthValue).numericValue.toInt();
+        final sourceName = dp.sourceName;
+        final dateFrom = dp.dateFrom;
+        final dateTo = dp.dateTo;
+        // Puedes usar estos valores según sea necesario, por ejemplo:
+        print('$dateFrom - $dateTo : $value, $sourceName');
+      }
+    }
 
     // Extraer valores de frecuencia cardiaca
     final heartRates = heartRatePoints.map((dp) => dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0).toList();
@@ -108,12 +126,24 @@ class HealthSummary {
 /// Enum para definir la granularidad de agrupación de tiempo.
 
 class HealthUtils {
-  /// Elimina duplicados y agrupa puntos de datos de salud por secciones de tiempo.
-  /// [dataPoints]: Lista de puntos de datos de salud.
-  /// [sectionGap]: Margen de tiempo para agrupar secciones.
+  /// Elimina duplicados y agrupa puntos de datos de salud según criterios personalizados.
+  ///
+  /// Esta función toma una lista de [HealthDataPoint] y realiza las siguientes operaciones:
+  /// - Ordena los puntos por fecha de inicio.
+  /// - Elimina puntos de datos duplicados exactos (por fecha y valor).
+  /// - Opcionalmente, filtra los puntos por la fuente de datos (app) de mayor prioridad o frecuencia.
+  /// - Agrupa los puntos en secciones de tiempo si se especifica [sectionGap].
+  ///
+  /// Parámetros:
+  /// - [dataPoints]: Lista de puntos de datos de salud a procesar.
+  /// - [sectionGap]: (Opcional) Duración máxima entre puntos para agruparlos en la misma sección.
+  /// - [filterByApp]: (Opcional) Si es `true`, solo se consideran los puntos de la app prioritaria.
+  ///
+  /// Retorna una lista de [HealthDataPoint] sin duplicados y agrupados según los criterios dados.
   static List<HealthDataPoint> customRemoveDuplicates(
     List<HealthDataPoint> dataPoints, {
-    Duration sectionGap = const Duration(seconds: 2),
+    Duration? sectionGap,
+    bool filterByApp = false,
   }) {
     // Ordena los puntos por fecha de inicio.
     dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
@@ -133,12 +163,67 @@ class HealthUtils {
       if (seen.add(key)) filtered.add(p);
     }
 
-    // Agrupa los puntos en secciones de tiempo.
+    // Si se solicita filtrar por prioridad de app
+    if (filterByApp && filtered.isNotEmpty) {
+      // Determina el sourceName prioritario presente en los datos
+      String? selectedSource;
+      for (final app in AppConstants.healthPriority) {
+        if (filtered.any((p) => p.sourceName == app)) {
+          selectedSource = app;
+          break;
+        }
+      }
+      // Si no hay ninguno de la prioridad, toma el sourceName más frecuente
+      selectedSource ??= (filtered
+          .fold<Map<String, int>>({}, (map, p) {
+            map[p.sourceName] = (map[p.sourceName] ?? 0) + 1;
+            return map;
+          })
+          .entries
+          .reduce((a, b) => a.value >= b.value ? a : b)
+          .key);
+
+      // Filtra solo los puntos del sourceName seleccionado
+      final sourceFiltered = filtered.where((p) => p.sourceName == selectedSource).toList();
+
+      // Si sectionGap está definido, agrupa por secciones de tiempo
+      if (sectionGap != null) {
+        // Si se especifica un sectionGap, agrupa los puntos filtrados por app en secciones de tiempo.
+        final Duration effectiveSectionGap = sectionGap;
+        final sections = <_TimeSection>[];
+        for (var p in sourceFiltered) {
+          var added = false;
+          // Busca si el punto actual puede agregarse a una sección existente según el gap de tiempo.
+          for (var sec in sections) {
+            // Si la fecha de inicio del punto está dentro del intervalo permitido, agrégalo a la sección.
+            if (p.dateFrom.isBefore(sec.end.add(effectiveSectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(effectiveSectionGap))) {
+              sec.points.add(p);
+              // Actualiza el final de la sección si el punto termina después.
+              if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
+              added = true;
+              break;
+            }
+          }
+          // Si no se pudo agregar a ninguna sección existente, crea una nueva sección.
+          if (!added) {
+            sections.add(_TimeSection(p));
+          }
+        }
+        // Devuelve todos los puntos agrupados en las secciones.
+        return sections.expand((s) => s.points).toList();
+      } else {
+        // Si no se especifica sectionGap, retorna solo los puntos filtrados por app.
+        return sourceFiltered;
+      }
+    }
+
+    // Si no se filtra por app, agrupa por secciones de tiempo usando sectionGap (o valor por defecto)
+    final Duration effectiveSectionGap = sectionGap ?? const Duration(seconds: 2);
     final sections = <_TimeSection>[];
     for (var p in filtered) {
       var added = false;
       for (var sec in sections) {
-        if (p.dateFrom.isBefore(sec.end.add(sectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(sectionGap))) {
+        if (p.dateFrom.isBefore(sec.end.add(effectiveSectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(effectiveSectionGap))) {
           sec.points.add(p);
           if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
           added = true;
@@ -150,8 +235,7 @@ class HealthUtils {
       }
     }
 
-    final clean = sections.expand((s) => s.points).toList();
-    return clean;
+    return sections.expand((s) => s.points).toList();
   }
 
   /// Agrupa los puntos de datos por la granularidad de tiempo especificada y calcula la media global de todas las medias por grupo.
