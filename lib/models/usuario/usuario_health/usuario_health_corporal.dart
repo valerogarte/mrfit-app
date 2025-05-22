@@ -5,7 +5,6 @@ extension UsuarioHealthCorporalExtension on Usuario {
     await _health.configure();
 
     final type = healthDataTypesString["HEART_RATE"]!;
-    final permission = healthDataPermissions["HEART_RATE"]!;
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
@@ -30,7 +29,6 @@ extension UsuarioHealthCorporalExtension on Usuario {
 
     double heightMeter = height / 100;
     final type = healthDataTypesString["HEIGHT"]!;
-    final permission = healthDataPermissions["HEIGHT"]!;
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
@@ -53,7 +51,6 @@ extension UsuarioHealthCorporalExtension on Usuario {
     await _health.configure();
 
     final type = healthDataTypesString["WEIGHT"]!;
-    final permission = healthDataPermissions["WEIGHT"]!;
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
 
@@ -73,50 +70,15 @@ extension UsuarioHealthCorporalExtension on Usuario {
     return success;
   }
 
-  Future<List<HealthDataPoint>> getReadHeartRate(int nDays) async {
-    return _readHealthData(healthDataTypesString["HEART_RATE"]!, nDays);
-  }
-
-  Future<Map<DateTime, double>> getReadHeartRateByDate(DateTime date) async {
-    await _health.configure();
-    if (!await checkPermissionsFor("HEART_RATE")) return {};
-
-    final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
-
-    // 1) Leer y limpiar duplicados
-    var dataPoints = await _health.getHealthDataFromTypes(
-      types: [HealthDataType.HEART_RATE],
-      startTime: startOfDay,
-      endTime: endOfDay,
-    );
-    dataPoints = _health.removeDuplicates(dataPoints);
-
-    // 2) Ordenar cronológicamente
-    dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
-
-    final result = <DateTime, double>{};
-
-    for (var dp in dataPoints) {
-      final localTime = dp.dateFrom.toLocal();
-      final double value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0;
-
-      // 3) Si ya hay lectura en esa hora, hacemos promedio
-      result.update(
-        localTime,
-        (old) => (old + value) / 2,
-        ifAbsent: () => value,
-      );
-    }
-
-    return result;
+  Future<List<HealthDataPoint>> getReadHeartRate(DateTime date) async {
+    return _readHealthDataByDate(healthDataTypesString["HEART_RATE"]!, date);
   }
 
   Future<int> getDailySpo2(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("BLOOD_OXYGEN")) return 0;
     // lee últimas 24 h
-    final raw = await _readHealthData(healthDataTypesString["BLOOD_OXYGEN"]!, 1);
+    final raw = await _readHealthDataByDate(healthDataTypesString["BLOOD_OXYGEN"]!, date);
     if (raw.isEmpty) return 0;
     final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
     return avg.round();
@@ -125,7 +87,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<int> getDailyStress(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("HEART_RATE_VARIABILITY_RMSSD")) return 0;
-    final raw = await _readHealthData(healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!, 1);
+    final raw = await _readHealthDataByDate(healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!, date);
     if (raw.isEmpty) return 0;
     final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
     return avg.round(); // RMSSD en ms, pero lo usas como “estrés”
@@ -134,7 +96,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<int> getDailyStairsClimbed(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("FLIGHTS_CLIMBED")) return 0;
-    final raw = await _readHealthData(healthDataTypesString["FLIGHTS_CLIMBED"]!, 1);
+    final raw = await _readHealthDataByDate(healthDataTypesString["FLIGHTS_CLIMBED"]!, date);
     if (raw.isEmpty) return 0;
     return raw.map((dp) => (dp.value as NumericHealthValue).numericValue.toInt()).reduce((a, b) => a + b);
   }
@@ -142,7 +104,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, dynamic>> getReadHeight(int nDays) async {
     if (!await checkPermissionsFor("HEIGHT")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["HEIGHT"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["HEIGHT"]!, nDays);
     final Map<DateTime, dynamic> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -170,7 +132,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadWeight(int nDays) async {
     if (!await checkPermissionsFor("WEIGHT")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["WEIGHT"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["WEIGHT"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -199,7 +161,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadMuscleMass(int nDays) async {
     if (!await checkPermissionsFor("MUSCLE_MASS")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["MUSCLE_MASS"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["MUSCLE_MASS"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -214,7 +176,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadLeanBodyMass(int nDays) async {
     if (!await checkPermissionsFor("LEAN_BODY_MASS")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["LEAN_BODY_MASS"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["LEAN_BODY_MASS"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -229,7 +191,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadBodyFat(int nDays) async {
     if (!await checkPermissionsFor("BODY_FAT_PERCENTAGE")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["BODY_FAT_PERCENTAGE"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BODY_FAT_PERCENTAGE"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -244,7 +206,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadBodyBone(int nDays) async {
     if (!await checkPermissionsFor("BONE_MASS")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["BONE_MASS"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BONE_MASS"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -259,7 +221,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadBodyWater(int nDays) async {
     if (!await checkPermissionsFor("BODY_WATER_MASS")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["BODY_WATER_MASS"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BODY_WATER_MASS"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -274,7 +236,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<Map<DateTime, double>> getReadBMI(int nDays) async {
     if (!await checkPermissionsFor("BODY_MASS_INDEX")) return {};
 
-    final dataPoints = await _readHealthData(healthDataTypesString["BODY_MASS_INDEX"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BODY_MASS_INDEX"]!, nDays);
     final Map<DateTime, double> tempMap = {};
     for (var dp in dataPoints) {
       final localDate = dp.dateFrom.toLocal();
@@ -289,7 +251,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<double> getCurrentBasalMetabolicRate(int nDays) async {
     if (!await checkPermissionsFor("BASAL_METABOLIC_RATE")) return 0.0;
 
-    final dataPoints = await _readHealthData(healthDataTypesString["BASAL_METABOLIC_RATE"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BASAL_METABOLIC_RATE"]!, nDays);
     if (dataPoints.isEmpty) return 0.0;
     // Tomar el último valor disponible
     final dp = dataPoints.last;

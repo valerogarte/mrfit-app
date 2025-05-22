@@ -67,7 +67,9 @@ extension UsuarioHealthExtension on Usuario {
     return granted;
   }
 
-  Future<List<HealthDataPoint>> _readHealthData(HealthDataType type, int nDays) async {
+  /// Lee los datos de salud para un tipo específico en los últimos [nDays] días,
+  /// y los devuelve ordenados de más antiguo a más moderno.
+  Future<List<HealthDataPoint>> _readHealthDataFromNDaysAgoToNow(HealthDataType type, int nDays) async {
     final now = DateTime.now();
     final past = now.subtract(Duration(days: nDays));
     try {
@@ -76,8 +78,30 @@ extension UsuarioHealthExtension on Usuario {
         endTime: now,
         types: [type],
       );
+      // Ordena los resultados por fecha de más antiguo a más moderno
+      results.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
       return results;
     } catch (e) {
+      // En caso de error, retorna una lista vacía
+      return [];
+    }
+  }
+
+  /// Lee los datos de salud para un tipo específico en una fecha dada,
+  /// desde las 00:00 hasta las 23:59:59 de ese día.
+  Future<List<HealthDataPoint>> _readHealthDataByDate(HealthDataType type, DateTime date) async {
+    final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+    try {
+      List<HealthDataPoint> results = await _health.getHealthDataFromTypes(
+        startTime: startOfDay,
+        endTime: endOfDay,
+        types: [type],
+      );
+      return results;
+    } catch (e) {
+      // En caso de error, retorna una lista vacía
       return [];
     }
   }

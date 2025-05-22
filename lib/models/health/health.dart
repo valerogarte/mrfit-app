@@ -39,11 +39,12 @@ class HealthSummary {
     // Extraer valores de frecuencia cardiaca
     final heartRates = heartRatePoints.map((dp) => dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0).toList();
 
-    double? heartRateAvg;
+    int? heartRateAvg;
     double? heartRateMin;
     double? heartRateMax;
-    if (heartRates.isNotEmpty) {
-      heartRateAvg = heartRates.reduce((a, b) => a + b) / heartRates.length;
+    if (heartRatePoints.isNotEmpty) {
+      // Calcula la media global agrupando por segundo y promediando cada grupo, devuelve un solo int
+      heartRateAvg = HealthUtils.getAvgBySecondInt(heartRatePoints);
       heartRateMin = heartRates.reduce((a, b) => a < b ? a : b);
       heartRateMax = heartRates.reduce((a, b) => a > b ? a : b);
     }
@@ -149,6 +150,25 @@ class HealthUtils {
 
     final clean = sections.expand((s) => s.points).toList();
     return clean;
+  }
+
+  /// Agrupa los puntos de datos por segundo y calcula la media global de todas las medias por segundo.
+  /// Devuelve la media global como entero.
+  static int getAvgBySecondInt(List<HealthDataPoint> points) {
+    final Map<int, List<double>> valuesBySecond = {};
+    for (var dp in points) {
+      if (dp.value is NumericHealthValue) {
+        final int second = dp.dateFrom.millisecondsSinceEpoch ~/ 1000;
+        valuesBySecond.putIfAbsent(second, () => []);
+        valuesBySecond[second]!.add((dp.value as NumericHealthValue).numericValue.toDouble());
+      }
+    }
+    if (valuesBySecond.isEmpty) return 0;
+    // Calcula la media de cada grupo
+    final mediasPorSegundo = valuesBySecond.values.map((values) => (values.reduce((a, b) => a + b) / values.length)).toList();
+    // Calcula la media global y la convierte a int
+    final mediaGlobal = mediasPorSegundo.reduce((a, b) => a + b) / mediasPorSegundo.length;
+    return mediaGlobal.round();
   }
 }
 

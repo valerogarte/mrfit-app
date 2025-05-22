@@ -3,21 +3,29 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mrfit/widgets/chart/heart_grafica.dart';
+import 'package:mrfit/models/health/health.dart';
+import 'package:health/health.dart'; // Importa las clases necesarias para HealthDataPoint y NumericHealthValue
 
 Widget dailyHearthWidget({
   required DateTime day,
   required Usuario usuario,
 }) {
-  return FutureBuilder<Map<DateTime, double>>(
-    future: usuario.getReadHeartRateByDate(day),
+  return FutureBuilder<List<HealthDataPoint>>(
+    future: usuario.getReadHeartRate(day),
     builder: (context, snapshot) {
-      final heartRateData = snapshot.data ?? {};
+      // Convierte la lista de HealthDataPoint a un Map<DateTime, double> para graficar
+      final List<HealthDataPoint> heartRatePoints = snapshot.data ?? [];
+      // Ordena los puntos por fecha antes de crear el Map
+      heartRatePoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+      final Map<DateTime, double> heartRateData = {for (var dp in heartRatePoints) dp.dateFrom.toLocal(): dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toDouble() : 0.0};
+
+      // Genera los puntos para la gráfica en orden cronológico
       final spots = heartRateData.entries.map((entry) {
         final time = entry.key.hour + entry.key.minute / 60.0;
         return FlSpot(time, entry.value);
       }).toList();
 
-      // Cálculo dinámico de rangos
+      // Cálculo dinámico de rangos para la gráfica
       Widget content;
       if (spots.isNotEmpty) {
         final highest = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
@@ -30,7 +38,8 @@ Widget dailyHearthWidget({
         minY = (minY % 10 == 0) ? minY : (minY - (minY % 10));
         minY = minY < 0 ? 0 : minY;
 
-        final mean = spots.map((s) => s.y).reduce((a, b) => a + b) / spots.length;
+        // Calcula el promedio usando el Map<DateTime, double>
+        final mean = HealthUtils.getAvgBySecondInt(heartRatePoints).toDouble();
 
         content = HeartGrafica(
           spots: spots,

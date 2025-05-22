@@ -6,7 +6,7 @@ import 'package:intl/intl.dart'; // Para formatear números con separador de mil
 class ResumenPastilla extends StatelessWidget {
   final Entrenamiento? entrenamiento;
   final int? steps;
-  final int? distance; // metros
+  final int? distance;
   final int? heartRateAvg;
 
   const ResumenPastilla({

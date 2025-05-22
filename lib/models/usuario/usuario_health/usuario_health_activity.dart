@@ -209,7 +209,7 @@ extension UsuarioActivityExtension on Usuario {
           'start': periodStart,
           'end': periodEnd,
           'durationMin': streak,
-          'avgPpm': total ~/ streak,
+          'avgStepspm': total ~/ streak,
         });
       }
     }
@@ -244,7 +244,7 @@ extension UsuarioActivityExtension on Usuario {
         last
           ..['end'] = newEnd
           ..['durationMin'] = newDur
-          ..['avgPpm'] = totalPasos ~/ newDur;
+          ..['avgStepspm'] = totalPasos ~/ newDur;
       } else {
         merged.add(Map.from(period));
       }
@@ -290,7 +290,7 @@ extension UsuarioActivityExtension on Usuario {
           'start': step['start'],
           'end': step['end'],
           'durationMin': step['durationMin'],
-          'avgPpm': step['avgPpm'],
+          'avgStepspm': step['avgStepspm'],
         });
       }
     }
