@@ -234,6 +234,55 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
         backgroundColor: AppColors.background,
         iconTheme: const IconThemeData(color: AppColors.textNormal),
         elevation: 0,
+        actions: [
+          // Botón de menú con 3 puntitos
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: AppColors.textNormal),
+            onSelected: (value) {
+              if (value == 'eliminar') {
+                // Mostrar el mismo diálogo de eliminación
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: AppColors.background,
+                    title: const Text(
+                      'Eliminar Ejercicio',
+                      style: TextStyle(color: AppColors.textNormal),
+                    ),
+                    content: const Text(
+                      '¿Estás seguro de que deseas eliminar este ejercicio?',
+                      style: TextStyle(color: AppColors.textNormal),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(color: AppColors.mutedRed),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ejercicioPersonalizado.delete();
+                          if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Eliminar'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'eliminar',
+                child: Text('Eliminar'),
+              ),
+            ],
+          ),
+        ],
       ),
       backgroundColor: AppColors.background,
       body: ListView(

@@ -48,9 +48,14 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
     final data = await ModeloDatos().getDatosFiltrosEjercicios();
     if (data != null) {
       setState(() {
-        _musculos = (data['musculos'] as List).map((json) => Musculo.fromJson(json)).toList();
-        _equipamientos = (data['equipamientos'] as List).map((json) => Equipamiento.fromJson(json)).toList();
-        _categorias = (data['categorias'] as List).map((json) => Categoria.fromJson(json)).toList();
+        // Convertir y ordenar la lista de músculos alfabéticamente por título
+        _musculos = (data['musculos'] as List).map((json) => Musculo.fromJson(json)).toList()..sort((a, b) => a.titulo.toLowerCase().compareTo(b.titulo.toLowerCase()));
+
+        // Convertir y ordenar la lista de equipamientos alfabéticamente por título
+        _equipamientos = (data['equipamientos'] as List).map((json) => Equipamiento.fromJson(json)).toList()..sort((a, b) => a.titulo.toLowerCase().compareTo(b.titulo.toLowerCase()));
+
+        // Convertir y ordenar la lista de categorías alfabéticamente por título
+        _categorias = (data['categorias'] as List).map((json) => Categoria.fromJson(json)).toList()..sort((a, b) => a.titulo.toLowerCase().compareTo(b.titulo.toLowerCase()));
       });
       _buscarEjercicios();
     } else {

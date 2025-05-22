@@ -84,81 +84,84 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final days7 = _diasEntrenados.where((d) => d.isAfter(today.subtract(const Duration(days: 7)))).length;
-    final days30 = _diasEntrenados.where((d) => d.isAfter(today.subtract(const Duration(days: 30)))).length;
     final usuario = ref.read(usuarioProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: CalendarWidget(
-              key: _calendarKey,
-              selectedDate: _selectedDate,
-              diasEntrenados: _diasEntrenados,
-              onDateSelected: (date) {
-                if (date.isAfter(DateTime.now())) return;
-                setState(() => _selectedDate = date);
-              },
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CalendarHeaderWidget(
-              selectedDate: _selectedDate,
-              calendarKey: _calendarKey,
-              onDateChanged: (date) => setState(() => _selectedDate = date),
-              diasEntrenados: _diasEntrenados,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: Padding(
+      body: SafeArea(
+        // SafeArea se encarga de los paddings necesarios
+        child: Column(
+          children: [
+            Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+              child: CalendarWidget(
+                key: _calendarKey,
+                selectedDate: _selectedDate,
+                diasEntrenados: _diasEntrenados,
+                onDateSelected: (date) {
+                  if (date.isAfter(DateTime.now())) return;
+                  setState(() => _selectedDate = date);
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: CalendarHeaderWidget(
+                selectedDate: _selectedDate,
+                calendarKey: _calendarKey,
+                onDateChanged: (date) => setState(() => _selectedDate = date),
+                diasEntrenados: _diasEntrenados,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: RefreshIndicator(
-                    key: _refreshKey,
-                    onRefresh: () async {
-                      _reloadCalendarIfInCurrentWeek(_selectedDate);
-                      await _cargarResumenEntrenamientos();
-                      setState(() {});
-                    },
-                    child: GestureDetector(
-                      onHorizontalDragEnd: _onHorizontalDrag,
-                      child: NotificationListener<ScrollNotification>(
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            children: [
-                              dailyStatsWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              dailySleepWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              dailyPhysicalWidget(),
-                              const SizedBox(height: 15),
-                              dailyHearthWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              dailyVitalsWidget(day: _selectedDate, usuario: usuario),
-                              const SizedBox(height: 15),
-                              StatisticsWidget(usuario: usuario),
-                              const SizedBox(height: 30),
-                            ],
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    child: RefreshIndicator(
+                      key: _refreshKey,
+                      onRefresh: () async {
+                        _reloadCalendarIfInCurrentWeek(_selectedDate);
+                        await _cargarResumenEntrenamientos();
+                        setState(() {});
+                      },
+                      child: GestureDetector(
+                        onHorizontalDragEnd: _onHorizontalDrag,
+                        child: NotificationListener<ScrollNotification>(
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            // Añade padding inferior seguro para evitar que el contenido quede oculto tras la barra del sistema
+                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+                            child: Column(
+                              children: [
+                                dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                dailySleepWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                dailyPhysicalWidget(),
+                                const SizedBox(height: 15),
+                                dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
+                                StatisticsWidget(usuario: usuario),
+                                // Ajusta el espacio final sumando el safeBottom
+                                SizedBox(height: 30 + MediaQuery.of(context).padding.bottom),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -167,8 +170,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
