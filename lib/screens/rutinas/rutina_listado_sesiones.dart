@@ -17,8 +17,9 @@ class RutinaListadoSesionesPage extends StatefulWidget {
   _RutinaListadoSesionesPageState createState() => _RutinaListadoSesionesPageState();
 }
 
-class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
+class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> with RouteAware {
   List<Sesion> _listadoSesiones = [];
+  final RouteObserver<PageRoute> _routeObserver = RouteObserver<PageRoute>();
 
   @override
   void initState() {
@@ -31,13 +32,31 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
   void dispose() {
     Entrenadora().detener();
+    _routeObserver.unsubscribe(this);
     super.dispose();
   }
 
+  @override
+  void didPopNext() {
+    _refrescarSesiones();
+  }
+
+  Future<void> _refrescarSesiones() async {
+    final sesionesActualizadas = await widget.rutina.getSesiones();
+    setState(() {
+      _listadoSesiones = sesionesActualizadas;
+    });
+  }
+
   Future<void> _mostrarDialogoNuevaSesion() async {
-    // Mostrar diálogo y esperar la sesión creada
     final Sesion? nuevaSesion = await showDialog<Sesion?>(
       context: context,
       builder: (context) {
@@ -106,9 +125,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                 ElevatedButton(
                   onPressed: () async {
                     if (nuevoTitulo.isNotEmpty) {
-                      // 1. Crear sesión en BD
                       final Sesion sesionCreada = await widget.rutina.insertarSesion(nuevoTitulo, dificultad);
-                      // 2. Devolver el objeto al cerrar el diálogo
                       Navigator.pop(context, sesionCreada);
                     }
                   },
@@ -121,7 +138,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
       },
     );
 
-    // Si hay sesión devuelta, actualizar la lista en el State principal
     if (nuevaSesion != null) {
       setState(() {
         _listadoSesiones.add(nuevaSesion);
@@ -149,7 +165,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
             )
           : Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              // Se elimina el color de fondo, será transparente por defecto
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(24),
@@ -198,7 +213,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                         context,
                                         MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)),
                                       );
-                                      // Si se editó o eliminó, recargar la lista
                                       if (result == true) {
                                         final sesionesActualizadas = await widget.rutina.getSesiones();
                                         setState(() {
@@ -228,7 +242,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                                       ),
                                                     ),
                                                     const SizedBox(width: 8),
-                                                    // Dificultad pills
                                                     buildDificultadPills(sesion.dificultad, 6, 12),
                                                   ],
                                                 ),
@@ -240,7 +253,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                                     FutureBuilder<int>(
                                                       future: sesion.getEjerciciosCount(),
                                                       builder: (context, snap) {
-                                                        // Cambiado: mostrar "0 ejercicios" mientras carga
                                                         if (snap.connectionState == ConnectionState.waiting) {
                                                           return const Text("0 ejercicios", style: TextStyle(color: AppColors.textNormal));
                                                         }
@@ -253,7 +265,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                                     FutureBuilder<String>(
                                                       future: sesion.calcularTiempoEntrenamiento(),
                                                       builder: (context, snap) {
-                                                        // Cambiado: mostrar "00:00" mientras carga
                                                         if (snap.connectionState == ConnectionState.waiting) {
                                                           return const Text("00:00", style: TextStyle(color: AppColors.textNormal));
                                                         }
@@ -273,7 +284,6 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> {
                                                         if (date == null) {
                                                           return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
                                                         }
-                                                        // Formatear la fecha como desees, aquí un ejemplo simple:
                                                         final formatted = MrFunctions.formatTimeAgo(date);
                                                         return Text(formatted, style: const TextStyle(color: AppColors.textNormal));
                                                       },
