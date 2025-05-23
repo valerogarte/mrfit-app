@@ -111,6 +111,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 calendarKey: _calendarKey,
                 onDateChanged: (date) => setState(() => _selectedDate = date),
                 diasEntrenados: _diasEntrenados,
+                usuario: usuario,
               ),
             ),
             const SizedBox(height: 10),

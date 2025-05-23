@@ -78,7 +78,7 @@ class Usuario {
     this.volumenMaximo = const {},
     required this.objetivoPasosDiarios,
     required this.objetivoEntrenamientoSemanal,
-    this.objetivoTiempoEntrenamiento = 0, // Provide a default value
+    this.objetivoTiempoEntrenamiento = 0,
     required this.fechaNacimiento,
     required this.genero,
     required this.historiaLesiones,
@@ -88,7 +88,7 @@ class Usuario {
     required this.entrenadorVolumen,
     required this.tiempoDescanso,
     this.weight = 0.0,
-    this.rutinaActualId, // Incluir el nuevo campo en el constructor
+    this.rutinaActualId,
     this.altura,
     this.aviso10Segundos = false,
     this.avisoCuentaAtras = false,

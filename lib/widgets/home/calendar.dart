@@ -52,6 +52,7 @@ class CalendarHeaderWidget extends StatelessWidget {
   final GlobalKey<State<CalendarWidget>> calendarKey;
   final DateChangedCallback onDateChanged;
   final Set<DateTime> diasEntrenados;
+  final Usuario usuario;
 
   const CalendarHeaderWidget({
     super.key,
@@ -59,6 +60,7 @@ class CalendarHeaderWidget extends StatelessWidget {
     required this.calendarKey,
     required this.onDateChanged,
     required this.diasEntrenados,
+    required this.usuario,
   });
 
   bool get _showGoToToday => !selectedDate.isToday;
@@ -117,6 +119,7 @@ class CalendarHeaderWidget extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (ctx) => ResumenSemanalEntrenamientosWidget(
+                    usuario: usuario,
                     daysTrainedLast30Days: diasEntrenados.where((d) => !d.isAfter(DateTime.now()) && d.isAfter(DateTime.now().subtract(const Duration(days: 30)))).length,
                     daysTrainedLast7Days: _trainedLast7Days,
                   ),
@@ -126,10 +129,11 @@ class CalendarHeaderWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Row(
                   children: [
+                    // Calcula el color según el objetivo semanal
                     Text(
                       '${_trainedLast7Days}/7',
-                      style: const TextStyle(
-                        color: AppColors.accentColor,
+                      style: TextStyle(
+                        color: _trainedLast7Days >= (usuario.objetivoEntrenamientoSemanal ?? 0) ? AppColors.accentColor : Colors.red,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -141,10 +145,11 @@ class CalendarHeaderWidget extends StatelessWidget {
                       size: 16,
                     ),
                     const SizedBox(width: 4),
+                    // Calcula el color según el objetivo mensual
                     Text(
                       '${_trainedLast30Days}/30',
-                      style: const TextStyle(
-                        color: AppColors.accentColor,
+                      style: TextStyle(
+                        color: _trainedLast30Days >= (((usuario.objetivoEntrenamientoSemanal ?? 0) * 30) / 7).floor() ? AppColors.accentColor : Colors.red,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
