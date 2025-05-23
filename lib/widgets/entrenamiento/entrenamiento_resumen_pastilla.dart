@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'package:intl/intl.dart'; // Para formatear números con separador de miles
+import 'package:intl/intl.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 
 class ResumenPastilla extends StatelessWidget {
   final Entrenamiento? entrenamiento;
@@ -10,23 +11,23 @@ class ResumenPastilla extends StatelessWidget {
   final int? heartRateAvg;
 
   const ResumenPastilla({
-    Key? key,
+    super.key,
     this.entrenamiento,
     this.steps,
     this.distance,
     this.heartRateAvg,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     // Constantes para estilo y espaciado
     const double iconSize = 28;
     const double textSize = 16;
-    const double sectionSpacing = 20;
-    const double itemSpacing = 12;
 
-    // Obtiene el promedio solo si hay entrenamiento
-    final avgEntrenamiento = entrenamiento?.getRerAvg();
+    // Calcula dificultad media solo si hay entrenamiento
+    int dificultadMedia = entrenamiento?.getRerAvg() ?? 0;
+    // ModeloDatos.getDifficultyOptions espera un valor, retorna Map o null
+    final avgEntrenamiento = dificultadMedia > 0 ? ModeloDatos.getDifficultyOptions(value: dificultadMedia) : null;
 
     final bool showFirstRow = entrenamiento != null;
     final bool showSecondRow = entrenamiento != null;
@@ -72,9 +73,9 @@ class ResumenPastilla extends StatelessWidget {
                   flex: 1,
                   child: _buildInfoItem(
                     icon: Icons.emoji_emotions,
-                    value: avgEntrenamiento?['label'] ?? '',
-                    unit: 'sensación',
-                    iconColor: avgEntrenamiento?['iconColor'],
+                    value: dificultadMedia > 0 ? (avgEntrenamiento?['label'] ?? 'Vacío') : 'Vacío',
+                    unit: 'esfuerzo',
+                    iconColor: dificultadMedia > 0 ? (avgEntrenamiento?['iconColor'] ?? AppColors.background) : AppColors.background,
                     iconSize: iconSize,
                     textSize: textSize,
                   ),
