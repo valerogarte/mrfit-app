@@ -139,195 +139,214 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
       appBar: AppBar(
         title: const Text('Buscar Ejercicios'),
       ),
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                // Fila con el campo "Nombre" y el botón de filtros
-                Row(
-                  children: [
-                    // Campo de entrada "Nombre"
-                    Expanded(
-                      child: TextField(
-                        controller: _nombreController,
-                        style: const TextStyle(color: AppColors.textNormal),
-                        decoration: const InputDecoration(
-                          labelText: 'Nombre',
-                          labelStyle: TextStyle(color: AppColors.textNormal),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+              child: Column(
+                children: [
+                  // Fila con el campo "Nombre" y el botón de filtros
+                  Row(
+                    children: [
+                      // Campo de entrada "Nombre"
+                      Expanded(
+                        child: TextField(
+                          controller: _nombreController,
+                          style: const TextStyle(color: AppColors.textNormal),
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre',
+                            labelStyle: TextStyle(color: AppColors.textNormal),
+                          ),
+                          onChanged: _onFilterChanged,
                         ),
-                        onChanged: _onFilterChanged,
                       ),
-                    ),
-                    // Botón de "Filtros Avanzados"
-                    IconButton(
-                      icon: Icon(
-                        _mostrarFiltrosAvanzados ? Icons.filter_alt_off : Icons.filter_alt,
-                        color: AppColors.accentColor,
+                      // Botón de "Filtros Avanzados"
+                      IconButton(
+                        icon: Icon(
+                          _mostrarFiltrosAvanzados ? Icons.filter_alt_off : Icons.filter_alt,
+                          color: AppColors.accentColor,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _mostrarFiltrosAvanzados = !_mostrarFiltrosAvanzados;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _mostrarFiltrosAvanzados = !_mostrarFiltrosAvanzados;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Uso de AnimatedCrossFade para los filtros
-                AnimatedCrossFade(
-                  firstChild: filtrosBasicos,
-                  secondChild: filtrosAvanzados,
-                  crossFadeState: _mostrarFiltrosAvanzados ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 300),
-                ),
-                const SizedBox(height: 10),
-                // Lista de ejercicios encontrados
-                Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                          itemCount: _ejercicios.length,
-                          itemBuilder: (context, index) {
-                            final ejercicio = _ejercicios[index];
-                            final isSelected = _ejerciciosSeleccionados.contains(ejercicio);
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Uso de AnimatedCrossFade para los filtros
+                  AnimatedCrossFade(
+                    firstChild: filtrosBasicos,
+                    secondChild: filtrosAvanzados,
+                    crossFadeState: _mostrarFiltrosAvanzados ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  const SizedBox(height: 10),
+                  // Lista de ejercicios encontrados
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                        ),
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ListView.builder(
+                              itemCount: _ejercicios.length + 1, // +1 para el espacio extra
+                              itemBuilder: (context, index) {
+                                if (index == _ejercicios.length) {
+                                  // Espacio extra al final para evitar que el botón tape el último ítem
+                                  return const SizedBox(height: 80);
+                                }
+                                final ejercicio = _ejercicios[index];
+                                final isSelected = _ejerciciosSeleccionados.contains(ejercicio);
 
-                            // Obtener los músculos tipo "P"
-                            final primaryMuscles = ejercicio.musculosInvolucrados.where((m) => m.tipo == 'P').map((m) => m.musculo.titulo).join(', ');
+                                // Obtener los músculos tipo "P"
+                                final primaryMuscles = ejercicio.musculosInvolucrados.where((m) => m.tipo == 'P').map((m) => m.musculo.titulo).join(', ');
 
-                            return Card(
-                              color: isSelected ? AppColors.mutedAdvertencia : AppColors.cardBackground,
-                              child: Row(
-                                children: [
-                                  // Imagen con icono de información
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      final loadedEjercicio = await Ejercicio.loadById(ejercicio.id);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => EjercicioDetallePage(
-                                            ejercicio: loadedEjercicio,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(6.0),
-                                          child: AnimatedImage(
-                                            ejercicio: ejercicio,
-                                            width: 105,
-                                            height: 70,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          bottom: 4,
-                                          right: 4,
-                                          child: Icon(
-                                            Icons.info_outline,
-                                            color: AppColors.mutedAdvertencia,
-                                            size: 16,
-                                            shadows: [
-                                              Shadow(
-                                                offset: Offset(1.0, 1.0),
-                                                blurRadius: 3.0,
-                                                color: Colors.black,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8.0),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.mutedAdvertencia : AppColors.cardBackground,
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                  const SizedBox(width: 16),
-                                  // Información del ejercicio con comportamiento independiente
-                                  Expanded(
-                                    child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () {
-                                        setState(() {
-                                          if (isSelected) {
-                                            _ejerciciosSeleccionados.remove(ejercicio);
-                                          } else {
-                                            _ejerciciosSeleccionados.add(ejercicio);
-                                          }
-                                        });
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            // Nueva fila con el nombre y el widget pills a la derecha
-                                            Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start, // Forzar alineación superior
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    ejercicio.nombre,
-                                                    style: TextStyle(
-                                                      color: isSelected ? AppColors.background : AppColors.textNormal,
-                                                      fontSize: 15,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment: Alignment.topRight,
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.only(right: 8.0),
-                                                    child: buildDificultadPills(int.parse(ejercicio.dificultad.titulo), 6, 12),
-                                                  ),
-                                                ),
-                                              ],
+                                  child: Row(
+                                    children: [
+                                      // Imagen con icono de información, igualando estilo a sesion_listado_ejercicios.dart
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final loadedEjercicio = await Ejercicio.loadById(ejercicio.id);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => EjercicioDetallePage(
+                                                ejercicio: loadedEjercicio,
+                                              ),
                                             ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              primaryMuscles.isNotEmpty ? primaryMuscles : 'Sin músculos principales',
-                                              style: TextStyle(
-                                                color: isSelected ? AppColors.background : AppColors.textMedium,
-                                                fontSize: 13,
+                                          );
+                                        },
+                                        child: Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(20.0),
+                                              child: AnimatedImage(
+                                                ejercicio: ejercicio,
+                                                width: 105,
+                                                height: 70,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 4,
+                                              right: 4,
+                                              child: Icon(
+                                                Icons.info_outline,
+                                                color: AppColors.mutedAdvertencia,
+                                                size: 16,
+                                                shadows: [
+                                                  Shadow(
+                                                    offset: Offset(1.0, 1.0),
+                                                    blurRadius: 3.0,
+                                                    color: Colors.black,
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
+                                      const SizedBox(width: 16),
+                                      // Información del ejercicio con comportamiento independiente
+                                      Expanded(
+                                        child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            setState(() {
+                                              if (isSelected) {
+                                                _ejerciciosSeleccionados.remove(ejercicio);
+                                              } else {
+                                                _ejerciciosSeleccionados.add(ejercicio);
+                                              }
+                                            });
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // Nueva fila con el nombre y el widget pills a la derecha
+                                                Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start, // Forzar alineación superior
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        ejercicio.nombre,
+                                                        style: TextStyle(
+                                                          color: isSelected ? AppColors.background : AppColors.textNormal,
+                                                          fontSize: 15,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment: Alignment.topRight,
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.only(right: 8.0),
+                                                        child: buildDificultadPills(int.parse(ejercicio.dificultad.titulo), 6, 12),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  primaryMuscles.isNotEmpty ? primaryMuscles : 'Sin músculos principales',
+                                                  style: TextStyle(
+                                                    color: isSelected ? AppColors.background : AppColors.textMedium,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                )
-              ],
-            ),
-          ),
-          // Botón "Añadir" flotante en la parte inferior
-          if (_ejerciciosSeleccionados.isNotEmpty)
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: ElevatedButton(
-                onPressed: _agregarEjerciciosSeleccionados,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: AppColors.accentColor,
-                ),
-                child: Text(
-                  'Añadir (${_ejerciciosSeleccionados.length})',
-                  style: const TextStyle(fontSize: 18),
-                ),
+                                );
+                              },
+                            ),
+                    ),
+                  )
+                ],
               ),
             ),
-        ],
+            // Botón "Añadir" flotante en la parte inferior
+            if (_ejerciciosSeleccionados.isNotEmpty)
+              Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: ElevatedButton(
+                  onPressed: _agregarEjerciciosSeleccionados,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: AppColors.accentColor,
+                  ),
+                  child: Text(
+                    'Añadir (${_ejerciciosSeleccionados.length})',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
