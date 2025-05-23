@@ -30,7 +30,6 @@ class HealthSummary {
     final heartRatePoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.HEART_RATE).toList(),
       filterByApp: true,
-      sectionGap: const Duration(milliseconds: 2),
     );
     final stepsPoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.STEPS).toList(),
@@ -40,17 +39,33 @@ class HealthSummary {
     final distancePoints = HealthUtils.customRemoveDuplicates(
       dataPoints.where((dp) => dp.type == HealthDataType.DISTANCE_DELTA).toList(),
       filterByApp: true,
-      sectionGap: const Duration(milliseconds: 2),
     );
 
+    // Recorre los puntos de distancia y calcula la diferencia en segundos (con microsegundos) respecto al punto anterior.
+    HealthDataPoint? previousDp;
     for (var dp in distancePoints) {
       if (dp.value is NumericHealthValue) {
         final value = (dp.value as NumericHealthValue).numericValue.toInt();
         final sourceName = dp.sourceName;
         final dateFrom = dp.dateFrom;
         final dateTo = dp.dateTo;
-        // Puedes usar estos valores según sea necesario, por ejemplo:
-        print('$dateFrom - $dateTo : $value, $sourceName');
+
+        // Calcula la diferencia en segundos (con microsegundos) entre el fin del punto anterior y el inicio del actual.
+        double? diferenciaFinAnteriorInicioActual;
+        if (previousDp != null) {
+          final diff = dateFrom.difference(previousDp.dateTo);
+          diferenciaFinAnteriorInicioActual = diff.inMicroseconds / 1000000.0;
+        }
+
+        // Imprime la información relevante, incluyendo la diferencia entre el fin del anterior y el inicio del actual.
+        // Formatea las fechas a HH:mm:ss para mayor claridad en el log
+        // Formatea las fechas a HH:mm:ss.SSS para mayor precisión en el log
+        final formattedDateFrom = "${dateFrom.hour.toString().padLeft(2, '0')}:${dateFrom.minute.toString().padLeft(2, '0')}:${dateFrom.second.toString().padLeft(2, '0')}.${dateFrom.millisecond.toString().padLeft(3, '0')}";
+        final formattedDateTo = "${dateTo.hour.toString().padLeft(2, '0')}:${dateTo.minute.toString().padLeft(2, '0')}:${dateTo.second.toString().padLeft(2, '0')}.${dateTo.millisecond.toString().padLeft(3, '0')}";
+        print('$formattedDateFrom - $formattedDateTo : $value'
+            '${diferenciaFinAnteriorInicioActual != null ? ' (Δ ${diferenciaFinAnteriorInicioActual.toStringAsFixed(6)} s)' : ''}, $sourceName');
+
+        previousDp = dp;
       }
     }
 
@@ -145,12 +160,11 @@ class HealthUtils {
     Duration? sectionGap,
     bool filterByApp = false,
   }) {
-    // Ordena los puntos por fecha de inicio.
+    // 1) Ordena y quita duplicados
     dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
-
-    // Elimina puntos de datos exactos.
     final seen = <String>{};
-    final filtered = <HealthDataPoint>[];
+    final deduped = <HealthDataPoint>[];
+
     for (var p in dataPoints) {
       if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) continue;
 
@@ -160,85 +174,98 @@ class HealthUtils {
         (p.value as NumericHealthValue).numericValue,
       ].join('-');
 
-      if (seen.add(key)) filtered.add(p);
+      if (seen.add(key)) deduped.add(p);
     }
 
-    // Si se solicita filtrar por prioridad de app
-    if (filterByApp && filtered.isNotEmpty) {
-      // Determina el sourceName prioritario presente en los datos
-      String? selectedSource;
-      for (final app in AppConstants.healthPriority) {
-        if (filtered.any((p) => p.sourceName == app)) {
-          selectedSource = app;
+    // 2) Filtra por app si toca
+    var processed = deduped;
+    if (filterByApp && processed.isNotEmpty) {
+      String? src;
+      for (var app in AppConstants.healthPriority) {
+        if (processed.any((p) => p.sourceName == app)) {
+          src = app;
           break;
         }
       }
-      // Si no hay ninguno de la prioridad, toma el sourceName más frecuente
-      selectedSource ??= (filtered
-          .fold<Map<String, int>>({}, (map, p) {
-            map[p.sourceName] = (map[p.sourceName] ?? 0) + 1;
-            return map;
+      src ??= processed
+          .fold<Map<String, int>>({}, (m, p) {
+            m[p.sourceName] = (m[p.sourceName] ?? 0) + 1;
+            return m;
           })
           .entries
           .reduce((a, b) => a.value >= b.value ? a : b)
-          .key);
+          .key;
 
-      // Filtra solo los puntos del sourceName seleccionado
-      final sourceFiltered = filtered.where((p) => p.sourceName == selectedSource).toList();
+      processed = processed.where((p) => p.sourceName == src).toList();
+    }
 
-      // Si sectionGap está definido, agrupa por secciones de tiempo
-      if (sectionGap != null) {
-        // Si se especifica un sectionGap, agrupa los puntos filtrados por app en secciones de tiempo.
-        final Duration effectiveSectionGap = sectionGap;
-        final sections = <_TimeSection>[];
-        for (var p in sourceFiltered) {
-          var added = false;
-          // Busca si el punto actual puede agregarse a una sección existente según el gap de tiempo.
-          for (var sec in sections) {
-            // Si la fecha de inicio del punto está dentro del intervalo permitido, agrégalo a la sección.
-            if (p.dateFrom.isBefore(sec.end.add(effectiveSectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(effectiveSectionGap))) {
-              sec.points.add(p);
-              // Actualiza el final de la sección si el punto termina después.
-              if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
-              added = true;
+    // 3) Agrupa por secciones de tiempo
+    final sections = <_TimeSection>[];
+    for (var p in processed) {
+      if (sections.isEmpty) {
+        sections.add(_TimeSection(p));
+      } else {
+        bool addedToSection = false;
+        for (var section in sections) {
+          // Si el final de la sección es igual al inicio del nuevo punto
+          if (section.end == p.dateFrom) {
+            section.points.add(p);
+            section.end = p.dateTo;
+            addedToSection = true;
+            // Ordena las secciones por fecha de inicio de más reciente a más antigua
+            // Con el objetivo de encontrar más rápido la sección a la que añadir el nuevo punto
+            sections.sort((a, b) => b.end.compareTo(a.end));
+            break;
+          }
+        }
+        // Si no se añadió a ninguna sección existente
+        //    Si la diferencia entre inicio de sesión y el end de una sección es menor que el sectionGap, añádelo a esa sección
+        if (sectionGap != null) {
+          for (var section in sections) {
+            final diff = p.dateFrom.difference(section.end);
+            if (diff.abs() <= sectionGap) {
+              section.points.add(p);
+              section.end = p.dateTo;
+              addedToSection = true;
               break;
             }
           }
-          // Si no se pudo agregar a ninguna sección existente, crea una nueva sección.
-          if (!added) {
-            sections.add(_TimeSection(p));
+        }
+        // Si finalmente no está dentro de ninguna sección, añádelo a una sección nueva
+        if (!addedToSection) {
+          sections.last.points.add(p);
+          sections.last.end = p.dateTo;
+        }
+      }
+    }
+    // 4) Si hay secciones solapadas, unimos los puntos que haya diferentes y unificamos las secciones
+    for (var sectionUno in sections) {
+      // Compruebo si hay solapamiento con otras secciones
+      for (var sectionDos in sections) {
+        if (sectionUno.points.isNotEmpty && sectionDos.points.isNotEmpty) {
+          // Si hay solapamiento, los puntos de sectionUno que están fuera de sectionDos se añaden a sectionDos
+          if (sectionUno.end.isAfter(sectionDos.end) && sectionUno.end.isBefore(sectionDos.end.add(sectionGap!))) {
+            // Añade los puntos de sectionUno a sectionDos si no están ya
+            for (var p in sectionUno.points) {
+              if (!sectionDos.points.contains(p)) {
+                sectionDos.points.add(p);
+              }
+            }
+            // Elimina la sección solapada
+            sections.remove(sectionUno);
           }
         }
-        // Devuelve todos los puntos agrupados en las secciones.
-        return sections.expand((s) => s.points).toList();
-      } else {
-        // Si no se especifica sectionGap, retorna solo los puntos filtrados por app.
-        return sourceFiltered;
       }
     }
 
-    // Si no se filtra por app, agrupa por secciones de tiempo usando sectionGap (o valor por defecto)
-    final Duration effectiveSectionGap = sectionGap ?? const Duration(seconds: 2);
-    final sections = <_TimeSection>[];
-    for (var p in filtered) {
-      var added = false;
-      for (var sec in sections) {
-        if (p.dateFrom.isBefore(sec.end.add(effectiveSectionGap)) || p.dateFrom.isAtSameMomentAs(sec.end.add(effectiveSectionGap))) {
-          sec.points.add(p);
-          if (p.dateTo.isAfter(sec.end)) sec.end = p.dateTo;
-          added = true;
-          break;
-        }
-      }
-      if (!added) {
-        sections.add(_TimeSection(p));
-      }
-    }
+    // 5) Aplana la lista de secciones a una lista de puntos
+    processed = sections.expand((s) => s.points).toList();
 
-    return sections.expand((s) => s.points).toList();
+    return processed.isEmpty ? [] : processed;
   }
 
-  /// Agrupa los puntos de datos por la granularidad de tiempo especificada y calcula la media global de todas las medias por grupo.
+  /// Te da la media de los dataPoints agrupada por la granularidad elegida.
+  /// Por ejemplo, si eliges "hour", te dará la media de cada hora.
   /// [points]: Lista de puntos de datos de salud.
   /// [granularity]: Granularidad de agrupación (segundo, minuto, hora).
   /// Devuelve la media global como entero.
