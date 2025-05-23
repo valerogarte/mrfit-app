@@ -1,9 +1,7 @@
 # GitHub Copilot Instructions
 
-Por favor, genera código siguiendo los principios SOLID.
-
-Asegúrate de incluir comentarios claros y relevantes. No incluyas anotaciones como "<- esta es la línea modificada", ya que ensucian el historial y no aportan valor real al código.
-
-Si te encuentras este tipo de líneas, elimínalas.
-
-El objetivo es mantener un código limpio, entendible y coherente con las buenas prácticas de desarrollo.
+- **Aplica SOLID** (SRP, OCP, LSP, ISP, DIP).  
+- **Código limpio y mantenible**: estructura clara, naming descriptivo.  
+- **Comentarios útiles**: explica el “porqué”, no el “qué”.  
+- **Sin anotaciones de historial**: elimina líneas tipo “he modificado esta línea”.  
+- **Buenas prácticas**: coherencia, legibilidad y principio KISS.
