@@ -16,7 +16,7 @@ extension UsuarioActivityExtension on Usuario {
 
     final dataPointsRaw = _health.removeDuplicates(dataPoints);
     // Usa la función utilitaria para eliminar duplicados personalizados
-    final dataPointsClean = HealthUtils.customRemoveDuplicates(dataPointsRaw, sectionGap: Duration(seconds: 2));
+    final dataPointsClean = HealthUtils.customRemoveDuplicates(dataPointsRaw);
 
     return dataPointsClean;
   }
