@@ -234,31 +234,66 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
     required String imageUrl,
     required VoidCallback onTap,
   }) {
+    final bool tieneValor = subtitle.trim().isNotEmpty && subtitle.trim().toLowerCase() != 'cualquiera';
+
+    // Mantener altura uniforme para todos los filtros, independientemente de si tienen valor o no
+    const double valorFontSize = 14;
+
     return Card(
       color: AppColors.cardBackground,
-      child: ListTile(
-        title: Text(
-          title,
-          style: const TextStyle(color: AppColors.textNormal),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(color: AppColors.textMedium),
-        ),
-        trailing: imageUrl.isNotEmpty
-            ? SizedBox(
-                width: 40,
-                height: 40,
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.image_not_supported);
-                  },
-                ),
-              )
-            : const Icon(Icons.arrow_drop_down, color: AppColors.textNormal),
+      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            children: [
+              if (imageUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    imageUrl,
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.image_not_supported, size: 22);
+                    },
+                  ),
+                )
+              else
+                const Icon(Icons.arrow_drop_down, color: AppColors.textNormal, size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: AppColors.textNormal,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      tieneValor ? subtitle : 'Cualquiera',
+                      style: TextStyle(
+                        color: tieneValor ? AppColors.accentColor : AppColors.textMedium,
+                        fontSize: valorFontSize,
+                        fontWeight: tieneValor ? FontWeight.bold : FontWeight.normal,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
