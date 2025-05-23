@@ -246,47 +246,64 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                                   ],
                                                 ),
                                                 const SizedBox(height: 8),
-                                                Row(
+                                                // Cambia Row por Wrap para evitar overflow en pantallas pequeñas
+                                                Wrap(
+                                                  spacing: 16,
+                                                  runSpacing: 8,
+                                                  crossAxisAlignment: WrapCrossAlignment.center,
                                                   children: [
-                                                    const Icon(Icons.fitness_center, color: AppColors.textNormal, size: 20),
-                                                    const SizedBox(width: 5),
-                                                    FutureBuilder<int>(
-                                                      future: sesion.getEjerciciosCount(),
-                                                      builder: (context, snap) {
-                                                        if (snap.connectionState == ConnectionState.waiting) {
-                                                          return const Text("0 ejercicios", style: TextStyle(color: AppColors.textNormal));
-                                                        }
-                                                        return Text("${snap.data ?? 0} ejercicios", style: const TextStyle(color: AppColors.textNormal));
-                                                      },
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(Icons.fitness_center, color: AppColors.textNormal, size: 20),
+                                                        const SizedBox(width: 5),
+                                                        FutureBuilder<int>(
+                                                          future: sesion.getEjerciciosCount(),
+                                                          builder: (context, snap) {
+                                                            if (snap.connectionState == ConnectionState.waiting) {
+                                                              return const Text("0 ejercicios", style: TextStyle(color: AppColors.textNormal));
+                                                            }
+                                                            return Text("${snap.data ?? 0} ejercicios", style: const TextStyle(color: AppColors.textNormal));
+                                                          },
+                                                        ),
+                                                      ],
                                                     ),
-                                                    const SizedBox(width: 16),
-                                                    const Icon(Icons.timer, color: AppColors.textNormal, size: 20),
-                                                    const SizedBox(width: 5),
-                                                    FutureBuilder<String>(
-                                                      future: sesion.calcularTiempoEntrenamiento(),
-                                                      builder: (context, snap) {
-                                                        if (snap.connectionState == ConnectionState.waiting) {
-                                                          return const Text("00:00", style: TextStyle(color: AppColors.textNormal));
-                                                        }
-                                                        return Text(snap.data ?? '00:00', style: const TextStyle(color: AppColors.textNormal));
-                                                      },
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(Icons.timer, color: AppColors.textNormal, size: 20),
+                                                        const SizedBox(width: 5),
+                                                        FutureBuilder<String>(
+                                                          future: sesion.calcularTiempoEntrenamiento(),
+                                                          builder: (context, snap) {
+                                                            if (snap.connectionState == ConnectionState.waiting) {
+                                                              return const Text("00:00", style: TextStyle(color: AppColors.textNormal));
+                                                            }
+                                                            return Text(snap.data ?? '00:00', style: const TextStyle(color: AppColors.textNormal));
+                                                          },
+                                                        ),
+                                                      ],
                                                     ),
-                                                    const SizedBox(width: 16),
-                                                    const Icon(Icons.calendar_today, color: AppColors.textNormal, size: 20),
-                                                    const SizedBox(width: 5),
-                                                    FutureBuilder<DateTime?>(
-                                                      future: sesion.getTimeUltimoEntrenamiento(),
-                                                      builder: (context, snap) {
-                                                        if (snap.connectionState == ConnectionState.waiting) {
-                                                          return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
-                                                        }
-                                                        final date = snap.data;
-                                                        if (date == null) {
-                                                          return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
-                                                        }
-                                                        final formatted = MrFunctions.formatTimeAgo(date);
-                                                        return Text(formatted, style: const TextStyle(color: AppColors.textNormal));
-                                                      },
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(Icons.calendar_today, color: AppColors.textNormal, size: 20),
+                                                        const SizedBox(width: 5),
+                                                        FutureBuilder<DateTime?>(
+                                                          future: sesion.getTimeUltimoEntrenamiento(),
+                                                          builder: (context, snap) {
+                                                            if (snap.connectionState == ConnectionState.waiting) {
+                                                              return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
+                                                            }
+                                                            final date = snap.data;
+                                                            if (date == null) {
+                                                              return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
+                                                            }
+                                                            final formatted = MrFunctions.formatTimeAgo(date);
+                                                            return Text(formatted, style: const TextStyle(color: AppColors.textNormal));
+                                                          },
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
