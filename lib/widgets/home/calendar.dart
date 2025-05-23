@@ -215,6 +215,22 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     _loadData();
   }
 
+  @override
+  void didUpdateWidget(CalendarWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si el día seleccionado cambia de semana, actualiza la semana base y la página del calendario.
+    // Esto asegura que el calendario muestre la semana correcta cuando el usuario selecciona un día de otra semana,
+    // por ejemplo, al cambiar de día tras las 00:00 o al navegar manualmente.
+    if (!widget.selectedDate.startOfWeek.isAtSameMomentAs(_baseDate)) {
+      setState(() {
+        _baseDate = widget.selectedDate.startOfWeek;
+        _currentPage = _basePage;
+      });
+      _pageController.jumpToPage(_basePage);
+      _loadData(_baseDate);
+    }
+  }
+
   Future<void> _loadData([DateTime? weekStart]) async {
     final usuario = ref.read(usuarioProvider);
 
@@ -373,7 +389,11 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                       stepsProgress: _hasStepsPermission ? _progress((_daysValues[dateString]?["steps"] as num? ?? 0).toDouble(), _targetSteps) : 0,
                       minutosPercent: _hasActivityPermission ? _progress((_daysValues[dateString]?["minAct"] as num? ?? 0).toDouble(), _targetActivityMinutes) : 0,
                       kcalProgress: _hasKcalPermission ? _progress((_daysValues[dateString]?["kcal"] as num? ?? 0).toDouble(), _targetKcal) : 0,
-                      onTap: () => widget.onDateSelected(date),
+                      onTap: () {
+                        if (!date.isAfter(DateTime.now())) {
+                          widget.onDateSelected(date);
+                        }
+                      },
                     );
                   }).toList(),
                 );
