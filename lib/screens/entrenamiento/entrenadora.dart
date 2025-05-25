@@ -26,11 +26,19 @@ class Entrenadora {
   String entrenadorVoz = '';
   int entrenadorVolumen = 10;
 
+  // Referencia estática privada para el singleton
+  static Entrenadora? _singletonInstance;
+
   // Singleton: Instancia única estática
   static final Entrenadora _instance = Entrenadora._internal();
 
   // Constructor factory que retorna la instancia única
-  factory Entrenadora() => _instance;
+  factory Entrenadora() {
+    // Si ya existe una instancia, la destruimos antes de crear una nueva
+    _singletonInstance?.dispose();
+    _singletonInstance = Entrenadora._internal();
+    return _singletonInstance!;
+  }
 
   // Constructor privado
   Entrenadora._internal() {
@@ -99,6 +107,21 @@ class Entrenadora {
       if (borrarSpeaker || saltarDescanso) return false;
     }
     return true;
+  }
+
+  /// Libera recursos y destruye la instancia singleton.
+  /// Útil para evitar fugas de memoria y reinicializar la entrenadora.
+  void dispose() {
+    // Libera recursos de TTS si es necesario
+    _flutterTts?.stop();
+    _flutterTts = null;
+    _isPaused = false;
+    _borrarSpeaker = false;
+    saltarDescanso = false;
+    // Limpia la referencia singleton
+    if (identical(_singletonInstance, this)) {
+      _singletonInstance = null;
+    }
   }
 
   // Agrega getters para exponer el estado de las variables
