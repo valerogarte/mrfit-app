@@ -11,7 +11,6 @@ import 'package:mrfit/utils/mr_functions.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
 import 'package:mrfit/widgets/chart/heart_grafica.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 /// Página que muestra siempre el resumen de salud en el rango [start, end]
 /// y, si existe un entrenamiento creado en Mr Fit, lo añade debajo.
@@ -314,53 +313,18 @@ class ResumenSaludEntrenamiento extends StatelessWidget {
     }
 
     final heartRateData = datosSalud!['HEART_RATE'] as Map?;
-
-    /// Construye los puntos para la gráfica de frecuencia cardiaca usando dataPoints.
-    /// Solo incluye puntos dentro del rango [start, end] si ambos están definidos.
-    List<FlSpot> buildHeartRateSpots(Map? heartRateData) {
-      if (heartRateData == null || heartRateData['dataPoints'] == null) return [];
-      final dataPoints = heartRateData['dataPoints'] as List?;
-      if (dataPoints == null || dataPoints.isEmpty) return [];
-      final DateTime? refStart = start;
-      final DateTime? refEnd = end;
-      if (refStart == null) return [];
-      final List<FlSpot> spots = [];
-      for (final dp in dataPoints) {
-        final dateStr = dp['dateFrom'] as String?;
-        final valueMap = dp['value'] as Map?;
-        final numValue = valueMap?['numericValue'] as num?;
-        if (dateStr == null || numValue == null) continue;
-        final date = DateTime.tryParse(dateStr);
-        if (date == null) continue;
-        // Solo incluir puntos dentro del rango [start, end] si ambos están definidos
-        if (refEnd != null && (date.isBefore(refStart) || date.isAfter(refEnd))) {
-          continue;
-        }
-        // Convertimos la diferencia a horas para que coincida con el eje X de la gráfica
-        final seconds = date.difference(refStart).inSeconds.toDouble();
-        final hours = seconds / 3600.0;
-        spots.add(FlSpot(hours, numValue.toDouble()));
-      }
-      return spots;
-    }
-
-    final heartRateSpots = buildHeartRateSpots(heartRateData);
-    final minY = heartRateData?['min'] != null ? (heartRateData!['min'] as num).toDouble() : 0.0;
-    final maxY = heartRateData?['max'] != null ? (heartRateData!['max'] as num).toDouble() : 200.0;
-    final mean = heartRateData?['avg'] != null ? (heartRateData!['avg'] as num).toDouble() : 0.0;
+    final heartRateDataPoints = heartRateData?['dataPoints'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Gráfica de frecuencia cardiaca si hay datos
-        if (heartRateSpots.isNotEmpty)
+        if (heartRateDataPoints.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: HeartGrafica(
-              spots: heartRateSpots,
-              minY: minY,
-              maxY: maxY,
-              mean: mean,
+              dataPoints: heartRateDataPoints,
+              granularity: "second",
               startDate: start,
               endDate: end,
             ),

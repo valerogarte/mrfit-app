@@ -61,7 +61,6 @@ class HealthSummary {
     int distanceSum = distanceList.fold(0, (sum, v) => sum + v);
 
     // Serializar los dataPoints a JSON
-    final heartRateJson = heartRatePoints.map((dp) => dp.toJson()).toList();
     final stepsJson = stepsPoints.map((dp) => dp.toJson()).toList();
     final distanceJson = distancePoints.map((dp) => dp.toJson()).toList();
 
@@ -70,7 +69,7 @@ class HealthSummary {
         'avg': heartRateAvg,
         'min': heartRateMin,
         'max': heartRateMax,
-        'dataPoints': heartRateJson,
+        'dataPoints': heartRatePoints,
       },
       'STEPS': {
         'sum': stepsSum,

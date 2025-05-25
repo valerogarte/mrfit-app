@@ -1,26 +1,53 @@
+import 'package:health/health.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/models/health/health.dart';
 
 class HeartGrafica extends StatelessWidget {
-  final List<FlSpot> spots;
-  final double minY;
-  final double maxY;
-  final double mean;
-  // Fechas opcionales para ajustar el rango del eje X
+  // Ahora recibe la lista original de datos
+  final List<HealthDataPoint> dataPoints;
   final DateTime? startDate;
   final DateTime? endDate;
+  final String granularity;
 
   /// [startDate] y [endDate] son opcionales. Si se proporcionan, el eje X se ajusta al rango horario entre ambas.
   const HeartGrafica({
     Key? key,
-    required this.spots,
-    required this.minY,
-    required this.maxY,
-    required this.mean,
+    required this.dataPoints,
+    required this.granularity,
     this.startDate,
     this.endDate,
   }) : super(key: key);
+
+  // Convierte HealthDataPoint -> FlSpot internamente
+  /// Convierte HealthDataPoint a FlSpot.
+  /// Si [startDate] y [endDate] son nulos, pinta desde las 00:00 hasta las 23:59:59.
+  List<FlSpot> _buildSpots() {
+    if (dataPoints.isEmpty) return [];
+
+    if (startDate != null) {
+      final refStart = startDate!;
+      final refEnd = endDate;
+      return dataPoints.where((dp) {
+        final d = dp.dateFrom;
+        return !(refEnd != null && (d.isBefore(refStart) || d.isAfter(refEnd)));
+      }).map((dp) {
+        final secs = dp.dateFrom.difference(refStart).inSeconds.toDouble();
+        final hours = secs / 3600.0;
+        final value = (dp.value as NumericHealthValue).numericValue.toDouble();
+        return FlSpot(hours, value);
+      }).toList();
+    } else {
+      // Si no hay fechas, mapea cada punto al rango 0-24h (día completo)
+      return dataPoints.map((dp) {
+        final d = dp.dateFrom;
+        final hours = d.hour + d.minute / 60.0 + d.second / 3600.0;
+        final value = (dp.value as NumericHealthValue).numericValue.toDouble();
+        return FlSpot(hours, value);
+      }).toList();
+    }
+  }
 
   // Construye una línea vertical personalizada.
   VerticalLine _buildVerticalLine(double x, Color color) {
@@ -186,6 +213,10 @@ class HeartGrafica extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final spots = _buildSpots();
+    // Calcular dinámicamente minY y maxY según los datos disponibles
+    final double minY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) : 0;
+    final double maxY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) : 0;
     // Determina el rango del eje X según las fechas proporcionadas o por defecto 0-24h
     double minX, maxX;
     double xInterval;
@@ -210,6 +241,8 @@ class HeartGrafica extends StatelessWidget {
       maxX = 24;
       xInterval = 6;
     }
+
+    final mean = HealthUtils.getAvgByGranularity(dataPoints, granularity: granularity).toDouble();
 
     final yAxisValues = _getYAxisValues(minY, maxY);
 
