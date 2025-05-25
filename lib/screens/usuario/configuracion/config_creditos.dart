@@ -81,6 +81,14 @@ class ConfiguracionCreditosPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.appBarBackground,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.textNormal),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -93,11 +101,11 @@ class ConfiguracionCreditosPage extends StatelessWidget {
                   clipBehavior: Clip.none, // Ensures the avatar is not clipped
                   children: [
                     Container(
-                      height: 200,
+                      height: 100,
                       color: AppColors.appBarBackground,
                     ),
                     Positioned(
-                      top: 130,
+                      top: 50,
                       left: MediaQuery.of(context).size.width / 2 - 50,
                       child: Material(
                         elevation: 6, // Higher elevation for better z-index
@@ -227,16 +235,7 @@ class ConfiguracionCreditosPage extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-            top: 16, // Margen superior
-            left: 16, // Margen izquierdo
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: AppColors.textNormal),
-              onPressed: () {
-                Navigator.of(context).pop(); // Navegar hacia atrás
-              },
-            ),
-          ),
+          // Elimina el Positioned con el IconButton de retroceso, ya que ahora está en el AppBar.
         ],
       ),
     );
