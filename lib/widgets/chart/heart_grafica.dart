@@ -327,6 +327,58 @@ class HeartGrafica extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
+              // Añadimos configuración para mostrar el tooltip personalizado
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      String hourLabel;
+                      if (startDate != null && endDate != null) {
+                        final minutes = (spot.x * 60).round();
+                        final labelTime = startDate!.add(Duration(minutes: minutes));
+                        final hour = labelTime.hour.toString().padLeft(2, '0');
+                        final minute = labelTime.minute.toString().padLeft(2, '0');
+                        hourLabel = '$hour:$minute';
+                      } else {
+                        final hour = spot.x.floor().toString().padLeft(2, '0');
+                        final minute = ((spot.x - spot.x.floor()) * 60).round().toString().padLeft(2, '0');
+                        hourLabel = '$hour:$minute';
+                      }
+                      return LineTooltipItem(
+                        '${spot.y.toInt()} - $hourLabel',
+                        const TextStyle(
+                          color: AppColors.mutedRed,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+                getTouchedSpotIndicator: (barData, spotIndexes) {
+                  // Personaliza el indicador del punto tocado (dot pequeño y color personalizado)
+                  return spotIndexes.map((index) {
+                    return TouchedSpotIndicatorData(
+                      FlLine(
+                        color: AppColors.mutedRed,
+                        strokeWidth: 1,
+                        dashArray: [4, 4],
+                      ),
+                      FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 3,
+                            color: AppColors.mutedRed,
+                            strokeWidth: 1,
+                            strokeColor: Colors.white,
+                          );
+                        },
+                      ),
+                    );
+                  }).toList();
+                },
+              ),
             ),
           ),
           // Etiqueta de la media fuera del gráfico, alineada a la derecha
