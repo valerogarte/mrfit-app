@@ -110,14 +110,18 @@ extension UsuarioActivityExtension on Usuario {
     return caloriesByDay;
   }
 
-  Future<int> getTotalSteps({String? date, DateTime? startDate, int nDays = 1}) async {
-    final parsedDate = date != null ? DateTime.parse(date) : startDate!;
-    final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
-    final end = start.add(Duration(days: nDays));
+  Future<int> getTotalStepsForCalendar(DateTime date) async {
+    final dataPointsRaw = await _readHealthDataByDate(HealthDataType.STEPS, date);
 
-    final steps = await _health.getTotalStepsInInterval(start, end);
+    final dataPoints = HealthUtils.customRemoveDuplicates(dataPointsRaw);
+    int steps = 0;
+    for (var dp in dataPoints) {
+      if (dp.value is NumericHealthValue) {
+        steps += (dp.value as NumericHealthValue).numericValue.toInt();
+      }
+    }
 
-    return steps ?? 0;
+    return steps;
   }
 
   Future<Map<DateTime, double>> getTotalCaloriesBurned({String? date, DateTime? startDate, int nDays = 1}) async {

@@ -34,7 +34,7 @@ Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
   final parsedDate = DateTime.parse(formattedDay);
 
   if (grantedPermissions['STEPS'] == true) {
-    steps = await usuario.getTotalSteps(date: formattedDay);
+    steps = await usuario.getTotalStepsForCalendar(day);
   }
 
   if (grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true) {
