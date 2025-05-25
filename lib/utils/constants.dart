@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String version = '1.0.27';
+  static const String version = '1.0.34';
 
   static const String hostImages = 'https://mrfit.es/MrFit/media/';
 
@@ -7,7 +7,6 @@ class AppConstants {
 
   static const String domainNameApp = 'es.mrfit.app';
 
-  // Quiero montar una lista de prioridad de la aplicación para pintar los datos de health
   static const List<String> healthPriority = [
     domainNameApp,
     'com.mobvoi.companion.at',

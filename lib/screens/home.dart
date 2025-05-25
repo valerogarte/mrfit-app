@@ -89,7 +89,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        // SafeArea se encarga de los paddings necesarios
         child: Column(
           children: [
             Padding(

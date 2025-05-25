@@ -7,13 +7,15 @@ import 'package:mrfit/models/ejercicio/ejercicio.dart';
 class AnimatedImage extends StatefulWidget {
   final Ejercicio ejercicio;
   final double width;
-  final double? height; // cambiado a opcional
+  final double? height;
+  final bool showCopyRight; // Nuevo campo para mostrar copyright
 
   const AnimatedImage({
     Key? key,
     required this.ejercicio,
     required this.width,
     this.height,
+    this.showCopyRight = false, // Valor por defecto
   }) : super(key: key);
 
   @override
@@ -51,41 +53,81 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    Widget imageWidget;
+
     if (widget.ejercicio.imagenMovimiento.isNotEmpty) {
-      return Image.network(
+      imageWidget = Image.network(
         widget.ejercicio.imagenMovimiento,
         width: widget.width,
         height: widget.height,
         errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
       );
+    } else {
+      final bool hasImagenUno = widget.ejercicio.imagenUno.isNotEmpty;
+      final bool hasImagenDos = widget.ejercicio.imagenDos.isNotEmpty;
+
+      if (hasImagenUno && !hasImagenDos) {
+        imageWidget = Image.network(
+          widget.ejercicio.imagenUno,
+          width: widget.width,
+          height: widget.height,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+        );
+      } else if (!hasImagenUno && hasImagenDos) {
+        imageWidget = Image.network(
+          widget.ejercicio.imagenDos,
+          width: widget.width,
+          height: widget.height,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+        );
+      } else {
+        imageWidget = Image.network(
+          showFirstImage ? widget.ejercicio.imagenUno : widget.ejercicio.imagenDos,
+          width: widget.width,
+          height: widget.height,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+        );
+      }
     }
 
-    final bool hasImagenUno = widget.ejercicio.imagenUno.isNotEmpty;
-    final bool hasImagenDos = widget.ejercicio.imagenDos.isNotEmpty;
-
-    if (hasImagenUno && !hasImagenDos) {
-      return Image.network(
-        widget.ejercicio.imagenUno,
-        width: widget.width,
-        height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+    if (widget.showCopyRight) {
+      return Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          imageWidget,
+          Positioned(
+            bottom: 4,
+            left: 8,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Opacity(
+                  opacity: 0.7,
+                  child: Text(
+                    widget.ejercicio.imagenCopyright,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      // Se usa withAlpha para ajustar la opacidad del color.
+                      color: Colors.grey.withAlpha(100),
+                      fontSize: 12,
+                      shadows: const [
+                        Shadow(
+                          color: Colors.black54,
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       );
+    } else {
+      return imageWidget;
     }
-
-    if (!hasImagenUno && hasImagenDos) {
-      return Image.network(
-        widget.ejercicio.imagenDos,
-        width: widget.width,
-        height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
-      );
-    }
-
-    return Image.network(
-      showFirstImage ? widget.ejercicio.imagenUno : widget.ejercicio.imagenDos,
-      width: widget.width,
-      height: widget.height,
-      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
-    );
   }
 }

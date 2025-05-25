@@ -12,6 +12,7 @@ class Ejercicio {
   final String imagenUno;
   final String imagenDos;
   final String imagenMovimiento;
+  final String imagenCopyright;
   final Equipamiento equipamiento;
   final bool realizarPorExtremidad;
   final List<MusculoInvolucrado> musculosInvolucrados;
@@ -32,6 +33,7 @@ class Ejercicio {
     required this.imagenUno,
     required this.imagenDos,
     required this.imagenMovimiento,
+    required this.imagenCopyright,
     required this.equipamiento,
     required this.realizarPorExtremidad,
     required this.musculosInvolucrados,
@@ -158,6 +160,7 @@ class Ejercicio {
               titulo: row['equip_titulo'] as String? ?? '',
               imagen: row['equip_imagen'] as String? ?? '',
             ),
+      imagenCopyright: row['copyright'] as String? ?? 'MrFit.es',
       realizarPorExtremidad: (row['realizar_por_extremidad'] == 1 || row['realizar_por_extremidad'] == true) ? true : false,
       musculosInvolucrados: musculosInvolucrados,
       instrucciones: instrucciones,
@@ -195,6 +198,7 @@ class Ejercicio {
       imagenUno: json['imagen_uno'] != null && !(json['imagen_uno'] as String).startsWith(AppConstants.hostImages) ? '${AppConstants.hostImages}${json['imagen_uno']}' : json['imagen_uno'] ?? '',
       imagenDos: json['imagen_dos'] != null && !(json['imagen_dos'] as String).startsWith(AppConstants.hostImages) ? '${AppConstants.hostImages}${json['imagen_dos']}' : json['imagen_dos'] ?? '',
       imagenMovimiento: json['imagen_movimiento'] != null && !(json['imagen_movimiento'] as String).startsWith(AppConstants.hostImages) ? '${AppConstants.hostImages}${json['imagen_movimiento']}' : json['imagen_movimiento'] ?? '',
+      imagenCopyright: json['imagenCopyright'] ?? '',
       equipamiento: Equipamiento.fromJson(json['equipamiento'] ?? {}),
       realizarPorExtremidad: json['realizar_por_extremidad'] is bool ? json['realizar_por_extremidad'] : ((json['realizar_por_extremidad']?.toString().toLowerCase() ?? 'false') == 'true'),
       musculosInvolucrados: (json['musculos_involucrados'] as List? ?? []).map((m) => MusculoInvolucrado.fromJson(m)).toList(),
@@ -218,6 +222,7 @@ class Ejercicio {
       'imagen_uno': imagenUno.startsWith(AppConstants.hostImages) ? imagenUno : '${AppConstants.hostImages}$imagenUno',
       'imagen_dos': imagenDos.startsWith(AppConstants.hostImages) ? imagenDos : '${AppConstants.hostImages}$imagenDos',
       'imagen_movimiento': imagenMovimiento.startsWith(AppConstants.hostImages) ? imagenMovimiento : '${AppConstants.hostImages}$imagenMovimiento',
+      'imagenCopyright': imagenCopyright,
       'equipamiento': equipamiento.toJson(),
       'realizar_por_extremidad': realizarPorExtremidad,
       'musculos_involucrados': musculosInvolucrados.map((m) => m.toJson()).toList(),

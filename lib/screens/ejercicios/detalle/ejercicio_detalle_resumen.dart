@@ -30,6 +30,7 @@ class EjercicioResumen extends StatelessWidget {
                     ),
                     child: AnimatedImage(
                       ejercicio: ejercicio,
+                      showCopyRight: true,
                       width: MediaQuery.of(context).size.width,
                     ),
                   ),
