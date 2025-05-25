@@ -21,14 +21,35 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
   List<Sesion> _listadoSesiones = [];
   final RouteObserver<PageRoute> _routeObserver = RouteObserver<PageRoute>();
 
+  // Cache de futuros para evitar recargas innecesarias tras navegar
+  final Map<int, Future<int>> _ejerciciosCountFutures = {};
+  final Map<int, Future<String>> _tiempoEntrenamientoFutures = {};
+  final Map<int, Future<DateTime?>> _ultimoEntrenamientoFutures = {};
+  final Map<int, Future<int?>> _isEntrenandoFutures = {}; // Cache para isEntrenandoAhora
+
   @override
   void initState() {
     super.initState();
-    widget.rutina.getSesiones().then((sesiones) {
-      setState(() {
-        _listadoSesiones = sesiones;
-      });
+    _cargarSesionesYCache();
+  }
+
+  // Carga sesiones y cachea los futuros asociados
+  Future<void> _cargarSesionesYCache() async {
+    final sesiones = await widget.rutina.getSesiones();
+    setState(() {
+      _listadoSesiones = sesiones;
+      _cachearFuturosSesiones(sesiones);
     });
+  }
+
+  // Cachea los futuros de cada sesión por id
+  void _cachearFuturosSesiones(List<Sesion> sesiones) {
+    for (final sesion in sesiones) {
+      _ejerciciosCountFutures[sesion.id] = sesion.getEjerciciosCount();
+      _tiempoEntrenamientoFutures[sesion.id] = sesion.calcularTiempoEntrenamiento();
+      _ultimoEntrenamientoFutures[sesion.id] = sesion.getTimeUltimoEntrenamiento();
+      _isEntrenandoFutures[sesion.id] = sesion.isEntrenandoAhora();
+    }
   }
 
   @override
@@ -53,6 +74,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
     final sesionesActualizadas = await widget.rutina.getSesiones();
     setState(() {
       _listadoSesiones = sesionesActualizadas;
+      _cachearFuturosSesiones(sesionesActualizadas);
     });
   }
 
@@ -141,6 +163,11 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
     if (nuevaSesion != null) {
       setState(() {
         _listadoSesiones.add(nuevaSesion);
+        // Cachear futuros para la nueva sesión
+        _ejerciciosCountFutures[nuevaSesion.id] = nuevaSesion.getEjerciciosCount();
+        _tiempoEntrenamientoFutures[nuevaSesion.id] = nuevaSesion.calcularTiempoEntrenamiento();
+        _ultimoEntrenamientoFutures[nuevaSesion.id] = nuevaSesion.getTimeUltimoEntrenamiento();
+        _isEntrenandoFutures[nuevaSesion.id] = nuevaSesion.isEntrenandoAhora();
       });
     }
   }
@@ -214,10 +241,8 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                         MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)),
                                       );
                                       if (result == true) {
-                                        final sesionesActualizadas = await widget.rutina.getSesiones();
-                                        setState(() {
-                                          _listadoSesiones = sesionesActualizadas;
-                                        });
+                                        // Al volver, refrescar sesiones y cache
+                                        await _refrescarSesiones();
                                       }
                                     },
                                     child: Padding(
@@ -258,7 +283,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                                         const Icon(Icons.fitness_center, color: AppColors.textNormal, size: 20),
                                                         const SizedBox(width: 5),
                                                         FutureBuilder<int>(
-                                                          future: sesion.getEjerciciosCount(),
+                                                          future: _ejerciciosCountFutures[sesion.id],
                                                           builder: (context, snap) {
                                                             if (snap.connectionState == ConnectionState.waiting) {
                                                               return const Text("0 ejercicios", style: TextStyle(color: AppColors.textNormal));
@@ -274,7 +299,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                                         const Icon(Icons.timer, color: AppColors.textNormal, size: 20),
                                                         const SizedBox(width: 5),
                                                         FutureBuilder<String>(
-                                                          future: sesion.calcularTiempoEntrenamiento(),
+                                                          future: _tiempoEntrenamientoFutures[sesion.id],
                                                           builder: (context, snap) {
                                                             if (snap.connectionState == ConnectionState.waiting) {
                                                               return const Text("00:00", style: TextStyle(color: AppColors.textNormal));
@@ -290,7 +315,7 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                                         const Icon(Icons.calendar_today, color: AppColors.textNormal, size: 20),
                                                         const SizedBox(width: 5),
                                                         FutureBuilder<DateTime?>(
-                                                          future: sesion.getTimeUltimoEntrenamiento(),
+                                                          future: _ultimoEntrenamientoFutures[sesion.id],
                                                           builder: (context, snap) {
                                                             if (snap.connectionState == ConnectionState.waiting) {
                                                               return const Text("Sin registro", style: TextStyle(color: AppColors.textNormal));
@@ -315,10 +340,16 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                                     ),
                                   ),
                                   FutureBuilder<int?>(
-                                    future: sesion.isEntrenandoAhora(),
+                                    future: _isEntrenandoFutures[sesion.id],
                                     builder: (context, snap) {
                                       if (snap.connectionState == ConnectionState.waiting) return const SizedBox.shrink();
-                                      return (snap.data ?? 0) > 0 ? AnimatedContainer(duration: const Duration(seconds: 1), height: 4, color: Colors.orangeAccent) : const SizedBox.shrink();
+                                      return (snap.data ?? 0) > 0
+                                          ? AnimatedContainer(
+                                              duration: const Duration(seconds: 1),
+                                              height: 4,
+                                              color: Colors.orangeAccent,
+                                            )
+                                          : const SizedBox.shrink();
                                     },
                                   ),
                                 ],
