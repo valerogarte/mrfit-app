@@ -5,7 +5,6 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/health/health.dart';
 
 class HeartGrafica extends StatelessWidget {
-  // Ahora recibe la lista original de datos
   final List<HealthDataPoint> dataPoints;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -20,16 +19,35 @@ class HeartGrafica extends StatelessWidget {
     this.endDate,
   }) : super(key: key);
 
-  // Convierte HealthDataPoint -> FlSpot internamente
   /// Convierte HealthDataPoint a FlSpot.
   /// Si [startDate] y [endDate] son nulos, pinta desde las 00:00 hasta las 23:59:59.
-  List<FlSpot> _buildSpots() {
+  /// Construye la lista de segmentos de puntos FlSpot, cortando donde hay saltos > 5% del eje X.
+  List<List<FlSpot>> _buildSpotSegments() {
     if (dataPoints.isEmpty) return [];
 
+    // Ordena los puntos por fecha de inicio (dateFrom)
+    final sortedPoints = List<HealthDataPoint>.from(dataPoints)..sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    // Determina el rango X total
+    double minX, maxX;
+    if (startDate != null && endDate != null) {
+      minX = 0;
+      final duration = endDate!.difference(startDate!);
+      maxX = duration.inMinutes / 60.0;
+    } else {
+      minX = 0;
+      maxX = 24;
+    }
+    final xRange = maxX - minX;
+    final maxGap = xRange * 0.05; // 5% del rango X
+    const minGapMinutes = 20; // Mínimo de 20 minutos para cortar segmento
+
+    // Convierte los puntos a FlSpot con su valor X relativo
+    List<FlSpot> spots = [];
     if (startDate != null) {
       final refStart = startDate!;
       final refEnd = endDate;
-      return dataPoints.where((dp) {
+      spots = sortedPoints.where((dp) {
         final d = dp.dateFrom;
         return !(refEnd != null && (d.isBefore(refStart) || d.isAfter(refEnd)));
       }).map((dp) {
@@ -39,14 +57,33 @@ class HeartGrafica extends StatelessWidget {
         return FlSpot(hours, value);
       }).toList();
     } else {
-      // Si no hay fechas, mapea cada punto al rango 0-24h (día completo)
-      return dataPoints.map((dp) {
+      spots = sortedPoints.map((dp) {
         final d = dp.dateFrom;
         final hours = d.hour + d.minute / 60.0 + d.second / 3600.0;
         final value = (dp.value as NumericHealthValue).numericValue.toDouble();
         return FlSpot(hours, value);
       }).toList();
     }
+
+    // Divide los puntos en segmentos donde los saltos no superan el 5%
+    List<List<FlSpot>> segments = [];
+    if (spots.isEmpty) return segments;
+    List<FlSpot> current = [spots.first];
+    for (int i = 1; i < spots.length; i++) {
+      final prev = spots[i - 1];
+      final curr = spots[i];
+      final gapX = curr.x - prev.x;
+      final gapMinutes = gapX * 60;
+      // Solo corta si el salto es mayor al 5% del eje X Y mayor a 20 minutos
+      if (gapX > maxGap && gapMinutes > minGapMinutes) {
+        segments.add(current);
+        current = [curr];
+      } else {
+        current.add(curr);
+      }
+    }
+    if (current.isNotEmpty) segments.add(current);
+    return segments;
   }
 
   // Construye una línea vertical personalizada.
@@ -213,10 +250,26 @@ class HeartGrafica extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spots = _buildSpots();
-    // Calcular dinámicamente minY y maxY según los datos disponibles
-    final double minY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) : 0;
-    final double maxY = spots.isNotEmpty ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) : 0;
+    // Usar los segmentos de puntos para pintar líneas discontinuas donde hay saltos grandes
+    final spotSegments = _buildSpotSegments();
+
+    // Calcula minY y maxY con margen y redondeo a múltiplos de 10, asegurando minY >= 0
+    double minY, maxY;
+    final allSpots = spotSegments.expand((s) => s).toList();
+    if (allSpots.isNotEmpty) {
+      final highest = allSpots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+      final lowest = allSpots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+
+      maxY = (highest + 20).ceilToDouble();
+      maxY = (maxY % 10 == 0) ? maxY : (maxY + (10 - maxY % 10));
+
+      minY = (lowest - 20).floorToDouble();
+      minY = (minY % 10 == 0) ? minY : (minY - (minY % 10));
+      minY = minY < 0 ? 0 : minY;
+    } else {
+      minY = 0;
+      maxY = 0;
+    }
     // Determina el rango del eje X según las fechas proporcionadas o por defecto 0-24h
     double minX, maxX;
     double xInterval;
@@ -315,27 +368,28 @@ class HeartGrafica extends StatelessWidget {
               minY: minY,
               maxY: maxY,
               lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  isCurved: true,
-                  color: AppColors.mutedRed,
-                  barWidth: 1,
-                  isStrokeCapRound: true,
-                  dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.mutedRed.withAlpha(77),
-                        AppColors.mutedRed.withAlpha(77),
-                        AppColors.mutedRed.withAlpha(0),
-                      ],
-                      stops: const [0.0, 0.5, 1.0],
-                    ),
-                  ),
-                ),
+                // Pinta cada segmento como una línea independiente
+                ...spotSegments.map((segment) => LineChartBarData(
+                      spots: segment,
+                      isCurved: true,
+                      color: AppColors.mutedRed,
+                      barWidth: 1,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.mutedRed.withAlpha(77),
+                            AppColors.mutedRed.withAlpha(77),
+                            AppColors.mutedRed.withAlpha(0),
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ),
+                      ),
+                    )),
               ],
               extraLinesData: ExtraLinesData(
                 horizontalLines: [
