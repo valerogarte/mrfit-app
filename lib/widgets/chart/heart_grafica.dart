@@ -19,28 +19,24 @@ class HeartGrafica extends StatelessWidget {
     this.endDate,
   }) : super(key: key);
 
-  /// Convierte HealthDataPoint a FlSpot.
-  /// Si [startDate] y [endDate] son nulos, pinta desde las 00:00 hasta las 23:59:59.
-  /// Construye la lista de segmentos de puntos FlSpot, cortando donde hay saltos > 5% del eje X.
+  /// Convierte HealthDataPoint a FlSpot y segmenta por saltos grandes.
   List<List<FlSpot>> _buildSpotSegments() {
     if (dataPoints.isEmpty) return [];
 
-    // Ordena los puntos por fecha de inicio (dateFrom)
+    // Ordena los puntos por fecha de inicio
     final sortedPoints = List<HealthDataPoint>.from(dataPoints)..sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
 
     // Determina el rango X total
-    double minX, maxX;
+    double minX = 0, maxX;
     if (startDate != null && endDate != null) {
-      minX = 0;
       final duration = endDate!.difference(startDate!);
       maxX = duration.inMinutes / 60.0;
     } else {
-      minX = 0;
       maxX = 24;
     }
     final xRange = maxX - minX;
     final maxGap = xRange * 0.05; // 5% del rango X
-    const minGapMinutes = 20; // Mínimo de 20 minutos para cortar segmento
+    const minGapMinutes = 20;
 
     // Convierte los puntos a FlSpot con su valor X relativo
     List<FlSpot> spots = [];
@@ -65,7 +61,7 @@ class HeartGrafica extends StatelessWidget {
       }).toList();
     }
 
-    // Divide los puntos en segmentos donde los saltos no superan el 5%
+    // Segmenta los puntos donde hay saltos grandes
     List<List<FlSpot>> segments = [];
     if (spots.isEmpty) return segments;
     List<FlSpot> current = [spots.first];
@@ -74,7 +70,6 @@ class HeartGrafica extends StatelessWidget {
       final curr = spots[i];
       final gapX = curr.x - prev.x;
       final gapMinutes = gapX * 60;
-      // Solo corta si el salto es mayor al 5% del eje X Y mayor a 20 minutos
       if (gapX > maxGap && gapMinutes > minGapMinutes) {
         segments.add(current);
         current = [curr];
@@ -103,7 +98,7 @@ class HeartGrafica extends StatelessWidget {
     required double interval,
     required Color color,
   }) {
-    final List<VerticalLine> lines = [];
+    final lines = <VerticalLine>[];
     lines.add(_buildVerticalLine(minX, color));
     for (double x = minX + interval; x < maxX; x += interval) {
       lines.add(_buildVerticalLine(x, color));
@@ -112,7 +107,7 @@ class HeartGrafica extends StatelessWidget {
     return lines;
   }
 
-  // Devuelve el mapa de valores y etiquetas de los rangos cardíacos.
+  // Rangos cardíacos y etiquetas
   Map<int, String> get _labeledValues => const {
         94: 'Relax',
         113: 'Calentamiento',
@@ -129,7 +124,7 @@ class HeartGrafica extends StatelessWidget {
     TextStyle? style,
     Color? labelColor,
     bool isDanger = false,
-    bool isRangeLabel = false, // Nuevo parámetro para distinguir los labels de rango
+    bool isRangeLabel = false,
   }) {
     return HorizontalLine(
       y: y,
@@ -145,12 +140,11 @@ class HeartGrafica extends StatelessWidget {
                     color: labelColor ?? Colors.grey,
                     fontSize: isDanger ? 12 : 10,
                     fontWeight: isDanger ? FontWeight.bold : FontWeight.w400,
-                    // Aplica sombra solo a los labels de rango
                     shadows: isRangeLabel
                         ? [
                             Shadow(
                               color: AppColors.background,
-                              offset: const Offset(0, 0),
+                              offset: Offset.zero,
                               blurRadius: 1,
                             ),
                           ]
@@ -169,19 +163,19 @@ class HeartGrafica extends StatelessWidget {
     required double maxY,
     required Color color,
   }) {
-    final List<HorizontalLine> lines = [];
-    lines.add(_buildHorizontalLine(y: minY, color: color));
-    lines.add(_buildHorizontalLine(y: maxY, color: color));
+    final lines = <HorizontalLine>[
+      _buildHorizontalLine(y: minY, color: color),
+      _buildHorizontalLine(y: maxY, color: color),
+    ];
 
-    final List<double> inRangeKeys = [];
-    // Se asegura que 'y' sea double al llamar a _buildHorizontalLine y al agregar a inRangeKeys
+    final inRangeKeys = <double>[];
     _labeledValues.forEach((y, label) {
       if (y > minY && y < maxY) {
         lines.add(_buildHorizontalLine(
           y: y.toDouble(),
           color: color,
           label: label,
-          isRangeLabel: true, // Aplica sombra a los labels de rango
+          isRangeLabel: true,
         ));
         inRangeKeys.add(y.toDouble());
       }
@@ -198,10 +192,10 @@ class HeartGrafica extends StatelessWidget {
         );
         if (nextKey != 0) {
           lines.add(_buildHorizontalLine(
-            y: maxY.toDouble(),
+            y: maxY,
             color: color,
             label: _labeledValues[nextKey],
-            isRangeLabel: true, // Aplica sombra a los labels de rango
+            isRangeLabel: true,
           ));
         }
       }
@@ -226,7 +220,7 @@ class HeartGrafica extends StatelessWidget {
 
   // Devuelve los valores y etiquetas a mostrar en el eje Y.
   List<double> _getYAxisValues(double minY, double maxY) {
-    final List<double> values = [minY, maxY];
+    final values = [minY, maxY];
     const labeledKeys = [94.0, 113.0, 130.0, 170.0, 187.0];
     for (final y in labeledKeys) {
       if (y > minY && y < maxY) {
@@ -241,7 +235,7 @@ class HeartGrafica extends StatelessWidget {
   String? _getYAxisLabel(double value, double minY, double maxY) {
     if (value == minY) return minY.toInt().toString();
     if (value == maxY) return maxY.toInt().toString();
-    final labeledValues = [94.0, 113.0, 130.0, 170.0, 187.0];
+    const labeledValues = [94.0, 113.0, 130.0, 170.0, 187.0];
     if (labeledValues.contains(value)) {
       return value.toInt().toString();
     }
@@ -250,7 +244,7 @@ class HeartGrafica extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usar los segmentos de puntos para pintar líneas discontinuas donde hay saltos grandes
+    // Segmenta los puntos para líneas discontinuas
     final spotSegments = _buildSpotSegments();
 
     // Calcula minY y maxY con margen y redondeo a múltiplos de 10, asegurando minY >= 0
@@ -262,7 +256,6 @@ class HeartGrafica extends StatelessWidget {
 
       maxY = (highest + 20).ceilToDouble();
       maxY = (maxY % 10 == 0) ? maxY : (maxY + (10 - maxY % 10));
-
       minY = (lowest - 20).floorToDouble();
       minY = (minY % 10 == 0) ? minY : (minY - (minY % 10));
       minY = minY < 0 ? 0 : minY;
@@ -270,16 +263,12 @@ class HeartGrafica extends StatelessWidget {
       minY = 0;
       maxY = 0;
     }
-    // Determina el rango del eje X según las fechas proporcionadas o por defecto 0-24h
-    double minX, maxX;
-    double xInterval;
 
+    // Determina el rango del eje X según las fechas proporcionadas o por defecto 0-24h
+    double minX = 0, maxX, xInterval;
     if (startDate != null && endDate != null) {
-      // Calcula la diferencia en horas entre las fechas
-      minX = 0;
       final duration = endDate!.difference(startDate!);
       maxX = duration.inMinutes / 60.0;
-      // Intervalo dinámico para no saturar el eje X
       if (maxX <= 3) {
         xInterval = 0.5;
       } else if (maxX <= 6) {
@@ -290,13 +279,11 @@ class HeartGrafica extends StatelessWidget {
         xInterval = 3;
       }
     } else {
-      minX = 0;
       maxX = 24;
       xInterval = 6;
     }
 
     final mean = HealthUtils.getAvgByGranularity(dataPoints, granularity: granularity).toDouble();
-
     final yAxisValues = _getYAxisValues(minY, maxY);
 
     return SizedBox(
@@ -315,16 +302,14 @@ class HeartGrafica extends StatelessWidget {
                     showTitles: true,
                     interval: xInterval,
                     getTitlesWidget: (value, meta) {
-                      // Si hay fechas, mostrar la hora relativa al inicio
+                      // Etiquetas del eje X: hora relativa o "xh"
                       if (startDate != null && endDate != null) {
                         final minutes = (value * 60).round();
                         final labelTime = startDate!.add(Duration(minutes: minutes));
                         final hour = labelTime.hour.toString().padLeft(2, '0');
                         final minute = labelTime.minute.toString().padLeft(2, '0');
-                        // Determina si es el último label (end)
                         final isEnd = (value - maxX).abs() < 0.01;
                         final isStart = (value - minX).abs() < 0.01;
-                        // Usa un ancho fijo para todos los labels de hora y alinea el último a la derecha
                         return SizedBox(
                           width: 60,
                           child: Text(
@@ -338,7 +323,6 @@ class HeartGrafica extends StatelessWidget {
                           ),
                         );
                       }
-                      // Por defecto, mostrar como "xh"
                       return Text('${value.toInt()}h', style: const TextStyle(color: Colors.grey, fontSize: 12));
                     },
                   ),
@@ -398,7 +382,6 @@ class HeartGrafica extends StatelessWidget {
                     color: AppColors.mutedRed,
                     strokeWidth: 1,
                     dashArray: [4, 4],
-                    // Eliminamos la etiqueta de la línea de la media
                     label: null,
                   ),
                   ..._buildHorizontalLines(
@@ -414,7 +397,6 @@ class HeartGrafica extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
-              // Añadimos configuración para mostrar el tooltip personalizado
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   getTooltipItems: (touchedSpots) {
@@ -443,7 +425,7 @@ class HeartGrafica extends StatelessWidget {
                   },
                 ),
                 getTouchedSpotIndicator: (barData, spotIndexes) {
-                  // Personaliza el indicador del punto tocado (dot pequeño y color personalizado)
+                  // Personaliza el indicador del punto tocado
                   return spotIndexes.map((index) {
                     return TouchedSpotIndicatorData(
                       FlLine(
@@ -471,8 +453,7 @@ class HeartGrafica extends StatelessWidget {
           // Etiqueta de la media fuera del gráfico, alineada a la derecha
           Positioned(
             right: 0,
-            // Calcula la posición vertical relativa a la media
-            top: 200 * (1 - (mean - minY) / (maxY - minY)) - 0,
+            top: 200 * (1 - (mean - minY) / (maxY - minY)),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
