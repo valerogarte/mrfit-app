@@ -77,13 +77,20 @@ class _RutinaPageState extends State<RutinaPage> {
                         );
                     }
                   } else if (v == 2) {
-                    // Archivar
+                    // Archivar o Restaurar según grupo
+                    final esGrupo1 = widget.rutina.grupoId == 1;
                     final confirma = await showDialog<bool>(
                       context: context,
                       builder: (c) => AlertDialog(
                         backgroundColor: AppColors.cardBackground,
-                        title: const Text('Archivar Rutina', style: TextStyle(color: AppColors.textNormal)),
-                        content: const Text('¿Seguro que quieres archivarla? Podrás verla en la sección de archivadas.', style: TextStyle(color: AppColors.textNormal)),
+                        title: Text(
+                          esGrupo1 ? 'Archivar Rutina' : 'Restaurar Rutina',
+                          style: const TextStyle(color: AppColors.textNormal),
+                        ),
+                        content: Text(
+                          esGrupo1 ? '¿Seguro que quieres archivarla? Podrás verla en la sección de archivadas.' : '¿Seguro que quieres restaurarla? Volverá a la sección principal.',
+                          style: const TextStyle(color: AppColors.textNormal),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(c, false),
@@ -91,22 +98,34 @@ class _RutinaPageState extends State<RutinaPage> {
                           ),
                           ElevatedButton(
                             onPressed: () => Navigator.pop(c, true),
-                            child: const Text('Archivar'),
+                            child: Text(esGrupo1 ? 'Archivar' : 'Restaurar'),
                           ),
                         ],
                       ),
                     );
                     if (confirma == true) {
-                      await widget.rutina.archivar();
-                      Navigator.pop(context, true); // Igual que al eliminar
+                      if (esGrupo1) {
+                        await widget.rutina.archivar();
+                      } else {
+                        await widget.rutina.restaurar();
+                      }
+                      Navigator.pop(context, true);
                     }
                   }
                 },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 0, child: Text('Editar', style: TextStyle(color: AppColors.textNormal))),
-                  const PopupMenuItem(value: 2, child: Text('Archivar', style: TextStyle(color: AppColors.textNormal))),
-                  const PopupMenuItem(value: 1, child: Text('Eliminar', style: TextStyle(color: AppColors.textNormal))),
-                ],
+                itemBuilder: (_) {
+                  final items = <PopupMenuEntry<int>>[
+                    const PopupMenuItem(value: 0, child: Text('Editar', style: TextStyle(color: AppColors.textNormal))),
+                  ];
+                  // Solo muestra Archivar si grupoId == 1, Restaurar si grupoId == 2
+                  if (widget.rutina.grupoId == 1) {
+                    items.add(const PopupMenuItem(value: 2, child: Text('Archivar', style: TextStyle(color: AppColors.textNormal))));
+                  } else if (widget.rutina.grupoId == 2) {
+                    items.add(const PopupMenuItem(value: 2, child: Text('Restaurar', style: TextStyle(color: AppColors.textNormal))));
+                  }
+                  items.add(const PopupMenuItem(value: 1, child: Text('Eliminar', style: TextStyle(color: AppColors.textNormal))));
+                  return items;
+                },
               ),
           ],
           bottom: TabBar(

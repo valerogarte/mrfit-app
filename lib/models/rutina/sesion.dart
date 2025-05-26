@@ -10,14 +10,14 @@ class Sesion {
   final int id;
   String titulo;
   int orden;
-  int dificultad; // Nuevo campo dificultad
+  int dificultad;
   List<EjercicioPersonalizado> ejerciciosPersonalizados = [];
 
   Sesion({
     required this.id,
     required this.titulo,
     required this.orden,
-    this.dificultad = 1, // Valor por defecto
+    this.dificultad = 1,
   });
 
   factory Sesion.fromJson(Map<String, dynamic> json) {
@@ -25,7 +25,7 @@ class Sesion {
       id: json['id'],
       titulo: json['titulo'] ?? '',
       orden: json['orden'],
-      dificultad: json['dificultad'] ?? 1, // Lee dificultad si existe
+      dificultad: json['dificultad'] ?? 1,
     );
   }
 
@@ -56,7 +56,7 @@ class Sesion {
       'id': id,
       'titulo': titulo,
       'orden': orden,
-      'dificultad': dificultad, // Añadido dificultad
+      'dificultad': dificultad,
       'ejerciciosPersonalizados': ejerciciosPersonalizados.map((e) => e.toJson()).toList(),
     };
   }
@@ -204,6 +204,7 @@ class Sesion {
       'entrenamiento_entrenamiento',
       {
         'inicio': nowStr,
+        'titulo': titulo,
         'fin': null,
         'sesion_id': id,
         'usuario_id': 1,

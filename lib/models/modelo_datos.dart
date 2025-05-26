@@ -40,9 +40,13 @@ class ModeloDatos {
       List<String> condiciones = [];
       List<dynamic> argumentos = [];
 
+      // Búsqueda flexible por nombre: todas las palabras deben estar presentes en cualquier orden
       if ((filtros['nombre'] ?? '').isNotEmpty) {
-        condiciones.add("nombre LIKE ?");
-        argumentos.add("%${filtros['nombre']}%");
+        final palabras = filtros['nombre']!.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+        for (final palabra in palabras) {
+          condiciones.add("LOWER(e.nombre) LIKE ?");
+          argumentos.add("%$palabra%");
+        }
       }
 
       if ((filtros['categoria'] ?? '').isNotEmpty) {

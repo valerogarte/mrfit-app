@@ -121,19 +121,28 @@ class SerieRealizada {
   }
 
   double calcularDuracionEjercicioSerie() {
-    double duracion = velocidadRepeticion * repeticiones;
+    double duracion = (velocidadRepeticion * repeticiones);
     return duracion;
   }
 
   double calcularKcal(double pesoUsuario) {
     if (realizada == false) return 0;
     if (rer == 0) rer = 2;
+    // MET = Metabolic Equivalent of Task
     // Kcal = MET × peso (kg) × duración (h)
     final duracion = calcularDuracionEjercicioSerie();
     final opcion = ModeloDatos.getDifficultyOptions(value: rer);
-    final met = opcion != null ? opcion['met'] : 3.0;
-    final duracionHoras = duracion / 3600;
-    double kcal = met * pesoUsuario * duracionHoras;
+    final metEntrenando = opcion != null ? opcion['met'] : 3.0;
+    final duracionHorasEntrenando = duracion / 3600;
+    double kcalEntrenando = metEntrenando * pesoUsuario * duracionHorasEntrenando;
+
+    // El MET de descanso es el mayor entre (metEntrenando * 0.5) y 1.5.
+    final metDescanso = (metEntrenando * 0.5) > 1.5 ? (metEntrenando * 0.5) : 1.5;
+    final duracionHorasDescanso = descanso / 3600;
+    final double kcalDescanso = metDescanso * pesoUsuario * duracionHorasDescanso;
+
+    double kcal = kcalEntrenando + kcalDescanso;
+
     kcal = double.parse(kcal.toStringAsFixed(2));
     return kcal;
   }

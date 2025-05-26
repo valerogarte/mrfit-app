@@ -56,7 +56,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
             return _sleepPlaceholder(usuario);
           }
           if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
-            return _sleepPermission();
+            return _sleepPermission(context); // <-- pasa context aquí
           }
 
           final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
@@ -93,7 +93,22 @@ Widget _sleepPlaceholder(Usuario usuario) {
   );
 }
 
-Widget _sleepPermission() {
+Widget _sleepPermission(BuildContext context) {
+  // Maneja la apertura de ajustes de permisos con control de errores
+  Future<void> _handleOpenUsageStatsSettings() async {
+    try {
+      await UsageStats.openUsageStatsSettings();
+    } catch (e) {
+      // Informa al usuario si ocurre un error al abrir los ajustes
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo abrir los ajustes de permisos.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -119,7 +134,7 @@ Widget _sleepPermission() {
         Padding(
           padding: const EdgeInsets.only(left: 0),
           child: ElevatedButton.icon(
-            onPressed: UsageStats.openUsageStatsSettings,
+            onPressed: _handleOpenUsageStatsSettings,
             icon: const Icon(Icons.settings, color: AppColors.background),
             label: const Text(
               'Permisos',

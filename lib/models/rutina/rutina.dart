@@ -1,5 +1,5 @@
 import 'package:mrfit/data/database_helper.dart';
-import 'package:sqflite/sqflite.dart'; // <-- agregada
+import 'package:sqflite/sqflite.dart';
 import 'sesion.dart';
 
 class Rutina {
@@ -12,6 +12,7 @@ class Rutina {
   int grupoId;
   int peso;
   int dificultad;
+  int? rutinaPadreId;
 
   Rutina({
     required this.id,
@@ -23,6 +24,7 @@ class Rutina {
     required this.grupoId,
     required this.peso,
     required this.dificultad,
+    this.rutinaPadreId,
   });
 
   factory Rutina.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,7 @@ class Rutina {
       grupoId: json['grupo_id'],
       peso: json['peso'],
       dificultad: json['dificultad'],
+      rutinaPadreId: json['rutina_padre_id'],
     );
   }
 
@@ -45,11 +48,12 @@ class Rutina {
       'titulo': titulo,
       'descripcion': descripcion,
       'imagen': imagen,
-      'fecha_creacion': fechaCreacion?.toIso8601String(),
+      'fecha_creacion': fechaCreacion.toIso8601String(),
       'usuario_id': usuarioId,
       'grupo_id': grupoId,
       'peso': peso,
       'dificultad': dificultad,
+      'rutina_padre_id': rutinaPadreId,
     };
   }
 
@@ -122,7 +126,6 @@ class Rutina {
     return result > 0;
   }
 
-  // NUEVO: Archivar la rutina (grupo_id = 2)
   Future<void> archivar() async {
     final db = await DatabaseHelper.instance.database;
     await db.update(
@@ -132,6 +135,17 @@ class Rutina {
       whereArgs: [id],
     );
     grupoId = 2;
+  }
+
+  Future<void> restaurar() async {
+    final db = await DatabaseHelper.instance.database;
+    await db.update(
+      'rutinas_rutina',
+      {'grupo_id': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    grupoId = 1;
   }
 
   /// Inserta una sesión en la rutina usando la base de datos local.
@@ -263,5 +277,98 @@ class Rutina {
        GROUP BY e.id
        ORDER BY e.inicio ASC
     ''', [id]);
+  }
+
+  /// Duplica la rutina completa, incluyendo sesiones, ejercicios personalizados y series personalizadas.
+  Future<Rutina> duplicar() async {
+    final db = await DatabaseHelper.instance.database;
+
+    // 1. Crear la nueva rutina (copia de los campos, rutinaPadreId apunta a la original)
+    final nuevaRutinaId = await db.insert('rutinas_rutina', {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'imagen': imagen,
+      'fecha_creacion': DateTime.now().toIso8601String(),
+      'usuario_id': usuarioId,
+      'grupo_id': 1,
+      'peso': peso,
+      'dificultad': dificultad,
+      'rutina_padre_id': id,
+    });
+
+    // 2. Copiar sesiones
+    final sesiones = await db.query(
+      'rutinas_sesion',
+      where: 'rutina_id = ?',
+      whereArgs: [id],
+    );
+
+    // Mapeo de id de sesión original a nueva sesión
+    final Map<int, int> sesionIdMap = {};
+
+    for (final sesion in sesiones) {
+      final nuevaSesionId = await db.insert('rutinas_sesion', {
+        'titulo': sesion['titulo'],
+        'orden': sesion['orden'],
+        'rutina_id': nuevaRutinaId,
+        'dificultad': sesion['dificultad'],
+      });
+      sesionIdMap[sesion['id'] as int] = nuevaSesionId;
+    }
+
+    // 3. Copiar ejercicios personalizados y series personalizadas para cada sesión
+    for (final sesion in sesiones) {
+      final oldSesionId = sesion['id'] as int;
+      final newSesionId = sesionIdMap[oldSesionId]!;
+
+      // Copiar ejercicios personalizados
+      final ejercicios = await db.query(
+        'rutinas_ejerciciopersonalizado',
+        where: 'sesion_id = ?',
+        whereArgs: [oldSesionId],
+      );
+
+      // Mapeo de id de ejercicio personalizado original a nuevo
+      final Map<int, int> ejercicioIdMap = {};
+
+      for (final ejercicio in ejercicios) {
+        final nuevoEjercicioId = await db.insert('rutinas_ejerciciopersonalizado', {
+          'peso_orden': ejercicio['peso_orden'],
+          'ejercicio_id': ejercicio['ejercicio_id'],
+          'sesion_id': newSesionId,
+        });
+        ejercicioIdMap[ejercicio['id'] as int] = nuevoEjercicioId;
+      }
+
+      // Copiar series personalizadas asociadas a cada ejercicio personalizado
+      for (final ejercicio in ejercicios) {
+        final oldEjercicioId = ejercicio['id'] as int;
+        final newEjercicioId = ejercicioIdMap[oldEjercicioId]!;
+
+        final series = await db.query(
+          'rutinas_seriepersonalizada',
+          where: 'ejercicio_personalizado_id = ?',
+          whereArgs: [oldEjercicioId],
+        );
+
+        for (final serie in series) {
+          await db.insert('rutinas_seriepersonalizada', {
+            'repeticiones': serie['repeticiones'],
+            'peso': serie['peso'],
+            'velocidad_repeticion': serie['velocidad_repeticion'],
+            'descanso': serie['descanso'],
+            'rer': serie['rer'],
+            'ejercicio_personalizado_id': newEjercicioId,
+          });
+        }
+      }
+    }
+
+    // 4. Devolver la nueva rutina como objeto
+    final nuevaRutina = await Rutina.loadById(nuevaRutinaId);
+    if (nuevaRutina == null) {
+      throw Exception('Error al duplicar la rutina');
+    }
+    return nuevaRutina;
   }
 }

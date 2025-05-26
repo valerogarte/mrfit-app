@@ -8,16 +8,20 @@ import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/utils/mr_functions.dart';
+import 'package:mrfit/screens/rutinas/rutinas_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
-class RutinaListadoSesionesPage extends StatefulWidget {
+class RutinaListadoSesionesPage extends ConsumerStatefulWidget {
   final Rutina rutina;
   const RutinaListadoSesionesPage({Key? key, required this.rutina}) : super(key: key);
 
   @override
-  _RutinaListadoSesionesPageState createState() => _RutinaListadoSesionesPageState();
+  ConsumerState<RutinaListadoSesionesPage> createState() => _RutinaListadoSesionesPageState();
 }
 
-class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> with RouteAware {
+class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesionesPage> with RouteAware {
   List<Sesion> _listadoSesiones = [];
   final RouteObserver<PageRoute> _routeObserver = RouteObserver<PageRoute>();
 
@@ -25,11 +29,14 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
   final Map<int, Future<int>> _ejerciciosCountFutures = {};
   final Map<int, Future<String>> _tiempoEntrenamientoFutures = {};
   final Map<int, Future<DateTime?>> _ultimoEntrenamientoFutures = {};
-  final Map<int, Future<int?>> _isEntrenandoFutures = {}; // Cache para isEntrenandoAhora
+  final Map<int, Future<int?>> _isEntrenandoFutures = {};
+
+  late Usuario usuario;
 
   @override
   void initState() {
     super.initState();
+    usuario = ref.read(usuarioProvider);
     _cargarSesionesYCache();
   }
 
@@ -180,6 +187,8 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
 
   @override
   Widget build(BuildContext context) {
+    final bool puedeAgregarSesion = widget.rutina.grupoId == 1 || widget.rutina.grupoId == 2;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: _listadoSesiones.isEmpty
@@ -364,13 +373,56 @@ class _RutinaListadoSesionesPageState extends State<RutinaListadoSesionesPage> w
                 ),
               ),
             ),
-      floatingActionButton: SafeArea(
-        child: FloatingActionButton(
-          onPressed: _mostrarDialogoNuevaSesion,
-          backgroundColor: AppColors.accentColor,
-          child: const Icon(Icons.add, color: AppColors.background),
-        ),
-      ),
+      floatingActionButton: puedeAgregarSesion
+          ? SafeArea(
+              child: FloatingActionButton(
+                onPressed: _mostrarDialogoNuevaSesion,
+                backgroundColor: AppColors.accentColor,
+                child: const Icon(Icons.add, color: AppColors.background),
+              ),
+            )
+          : null,
+      // Si no puede agregar sesión, muestra el botón "Iniciar Rutina" abajo
+      bottomNavigationBar: !puedeAgregarSesion
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mutedAdvertencia,
+                      foregroundColor: AppColors.background,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () async {
+                      // Duplica la rutina y navega a la página de rutinas
+                      final rutinaNueva = await widget.rutina.duplicar();
+                      await usuario.setRutinaActual(rutinaNueva.id);
+                      if (!mounted) return;
+                      // Navega a RutinasPage y elimina el stack hasta la raíz
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const RutinasPage()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text(
+                      'Iniciar Rutina',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.background,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
