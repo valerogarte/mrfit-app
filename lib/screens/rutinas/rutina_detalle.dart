@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
 import 'rutina_listado_sesiones.dart';
 import 'rutina_informacion.dart';
-import 'editar_rutina_page.dart';
+import 'rutina_editar_page.dart';
 
-class RutinaPage extends StatefulWidget {
+// Cambia a ConsumerStatefulWidget para acceder a providers
+class RutinaPage extends ConsumerStatefulWidget {
   final Rutina rutina;
   const RutinaPage({Key? key, required this.rutina}) : super(key: key);
 
   @override
-  _RutinaPageState createState() => _RutinaPageState();
+  ConsumerState<RutinaPage> createState() => _RutinaPageState();
 }
 
-class _RutinaPageState extends State<RutinaPage> {
+class _RutinaPageState extends ConsumerState<RutinaPage> {
   @override
   Widget build(BuildContext context) {
+    // Acceso a usuarioProvider usando ref
+    final usuario = ref.read(usuarioProvider);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -106,6 +111,11 @@ class _RutinaPageState extends State<RutinaPage> {
                     if (confirma == true) {
                       if (esGrupo1) {
                         await widget.rutina.archivar();
+                        // Si la rutina archivada es la actual, la desasocia del usuario
+                        final rutinaActual = await usuario.getRutinaActual();
+                        if (rutinaActual?.id == widget.rutina.id) {
+                          await usuario.setRutinaActual(0);
+                        }
                       } else {
                         await widget.rutina.restaurar();
                       }

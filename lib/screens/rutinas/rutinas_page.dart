@@ -8,6 +8,7 @@ import 'package:mrfit/models/rutina/grupo.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
+import 'package:mrfit/main.dart';
 
 class RutinasPage extends ConsumerStatefulWidget {
   const RutinasPage({Key? key}) : super(key: key);
@@ -126,114 +127,108 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
     );
   }
 
+  Future<bool> _handleWillPop() async {
+    // Maneja el evento de retroceso físico (WillPopScope).
+    if (Navigator.of(context).canPop()) {
+      // Permite retroceder si hay rutas en el stack.
+      return true;
+    }
+    // Si no hay rutas previas, navega a la raíz y limpia el stack.
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MyApp()),
+      (route) => false,
+    );
+    // Evita el cierre de la app, ya que se redirige a la raíz.
+    return false;
+  }
+
+  void _handleBackButton() {
+    // Maneja el evento de retroceso personalizado (por ejemplo, botón en UI).
+    if (Navigator.of(context).canPop()) {
+      // Retrocede una ruta si es posible.
+      Navigator.of(context).pop();
+    } else {
+      // Si no hay rutas previas, navega a la raíz y limpia el stack.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MyApp()),
+        (route) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text("Rutinas"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+    return WillPopScope(
+      onWillPop: _handleWillPop,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text("Rutinas"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBackButton,
+          ),
         ),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : gruposConRutinas.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: NotFoundData(
-                    title: 'Sin rutinas',
-                    textNoResults: 'Puedes crear la primera pulsando "+".',
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(10),
-                  itemCount: gruposConRutinas.keys.length,
-                  itemBuilder: (ctx, i) {
-                    final grupo = gruposConRutinas.keys.elementAt(i);
-                    final rutinas = gruposConRutinas[grupo]!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            grupo.titulo,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textNormal),
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : gruposConRutinas.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: NotFoundData(
+                      title: 'Sin rutinas',
+                      textNoResults: 'Puedes crear la primera pulsando "+".',
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(10),
+                    itemCount: gruposConRutinas.keys.length,
+                    itemBuilder: (ctx, i) {
+                      final grupo = gruposConRutinas.keys.elementAt(i);
+                      final rutinas = gruposConRutinas[grupo]!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              grupo.titulo,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textNormal),
+                            ),
                           ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            height: 120,
-                            child: grupo.id == 1
-                                ? ReorderableListView(
-                                    padding: EdgeInsets.zero, // <-- quitamos padding
-                                    scrollDirection: Axis.horizontal,
-                                    onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
-                                    proxyDecorator: (child, index, animation) => Material(color: Colors.transparent, child: child),
-                                    children: rutinas.map((rutina) {
-                                      final esActual = rutina.id == rutinaActualId;
-                                      return Container(
-                                        key: ValueKey(rutina.id),
-                                        width: 200,
-                                        height: 120,
-                                        margin: const EdgeInsets.only(right: 10),
-                                        child: Card(
-                                          margin: EdgeInsets.zero, // <-- quitamos margen
-                                          color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          shadowColor: Colors.transparent,
-                                          elevation: esActual ? 8 : 4,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(20),
-                                            onTap: () async {
-                                              final result = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (_) => RutinaPage(rutina: rutina)),
-                                              );
-                                              if (result == true) {
-                                                await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
-                                              }
-                                            },
-                                            child: _contenidoTarjeta(rutina, esActual),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  )
-                                : SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              height: 120,
+                              child: grupo.id == 1
+                                  ? ReorderableListView(
+                                      padding: EdgeInsets.zero, // <-- quitamos padding
+                                      scrollDirection: Axis.horizontal,
+                                      onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
+                                      proxyDecorator: (child, index, animation) => Material(color: Colors.transparent, child: child),
                                       children: rutinas.map((rutina) {
                                         final esActual = rutina.id == rutinaActualId;
                                         return Container(
+                                          key: ValueKey(rutina.id),
                                           width: 200,
                                           height: 120,
                                           margin: const EdgeInsets.only(right: 10),
                                           child: Card(
-                                            shadowColor: Colors.transparent,
-                                            margin: EdgeInsets.zero,
+                                            margin: EdgeInsets.zero, // <-- quitamos margen
                                             color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(20),
                                             ),
+                                            shadowColor: Colors.transparent,
                                             elevation: esActual ? 8 : 4,
                                             child: InkWell(
                                               borderRadius: BorderRadius.circular(20),
                                               onTap: () async {
                                                 final result = await Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) => RutinaPage(rutina: rutina),
-                                                  ),
+                                                  MaterialPageRoute(builder: (_) => RutinaPage(rutina: rutina)),
                                                 );
                                                 if (result == true) {
-                                                  await fetchPlanes();
+                                                  await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
                                                 }
                                               },
                                               child: _contenidoTarjeta(rutina, esActual),
@@ -241,20 +236,58 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                           ),
                                         );
                                       }).toList(),
+                                    )
+                                  : SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: rutinas.map((rutina) {
+                                          final esActual = rutina.id == rutinaActualId;
+                                          return Container(
+                                            width: 200,
+                                            height: 120,
+                                            margin: const EdgeInsets.only(right: 10),
+                                            child: Card(
+                                              shadowColor: Colors.transparent,
+                                              margin: EdgeInsets.zero,
+                                              color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              elevation: esActual ? 8 : 4,
+                                              child: InkWell(
+                                                borderRadius: BorderRadius.circular(20),
+                                                onTap: () async {
+                                                  final result = await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) => RutinaPage(rutina: rutina),
+                                                    ),
+                                                  );
+                                                  if (result == true) {
+                                                    await fetchPlanes();
+                                                  }
+                                                },
+                                                child: _contenidoTarjeta(rutina, esActual),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
                                     ),
-                                  ),
+                            ),
                           ),
-                        ),
-                        // Agrega un espaciado de 40 al final de la última fila
-                        if (i == gruposConRutinas.keys.length - 1) const SizedBox(height: 80),
-                      ],
-                    );
-                  },
-                ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarDialogoNuevoPlan,
-        backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.accentColor,
-        child: const Icon(Icons.add, color: AppColors.background),
+                          // Agrega un espaciado de 40 al final de la última fila
+                          if (i == gruposConRutinas.keys.length - 1) const SizedBox(height: 80),
+                        ],
+                      );
+                    },
+                  ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _mostrarDialogoNuevoPlan,
+          backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.accentColor,
+          child: const Icon(Icons.add, color: AppColors.background),
+        ),
       ),
     );
   }
