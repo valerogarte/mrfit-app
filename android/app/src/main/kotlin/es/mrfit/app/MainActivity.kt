@@ -22,9 +22,9 @@ import java.util.Locale
 
 class MainActivity : FlutterFragmentActivity() {
 
-    private val SCREEN_CHANNEL = "com.vagfit/screen_state"
-    private val USAGE_CHANNEL = "com.vagfit/usage_stats"
-    private val HEALTH_CHANNEL = "com.vagfit/health"
+    private val SCREEN_CHANNEL = "es.mrfit/screen_state"
+    private val USAGE_CHANNEL = "es.mrfit/usage_stats"
+    private val HEALTH_CHANNEL = "es.mrfit/health"
     private val REQUEST_CODE = 1001
     private var screenStateReceiver: BroadcastReceiver? = null
 

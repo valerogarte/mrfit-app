@@ -91,13 +91,13 @@ class _ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntre
         String label;
         if (gender == 'female') {
           _missCounter++;
-          label = 'Miss $_missCounter';
+          label = 'Miss Voice $_missCounter';
         } else if (gender == 'male') {
           _mrCounter++;
-          label = 'Mr $_mrCounter';
+          label = 'Mr Voice $_mrCounter';
         } else {
           _mxCounter++;
-          label = 'Mx $_mxCounter';
+          label = 'Mx Voice $_mxCounter';
         }
 
         return {

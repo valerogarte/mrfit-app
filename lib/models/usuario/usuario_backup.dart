@@ -49,7 +49,7 @@ class UsuarioBackup {
           whereArgs: [1, 2],
         );
         rutinaIds.addAll(rows.map((r) => r['id'] as int));
-        sqlToExecute.add("DELETE FROM $table WHERE grupo_id IN (1, 2);");
+        sqlToExecute.add('DELETE FROM "$table" WHERE grupo_id IN (1, 2);');
       } else if (table == 'rutinas_sesion') {
         if (rutinaIds.isNotEmpty) {
           final ph = List.filled(rutinaIds.length, '?').join(',');
@@ -60,7 +60,7 @@ class UsuarioBackup {
           );
           sesionIds.addAll(rows.map((r) => r['id'] as int));
           final idList = rutinaIds.join(',');
-          sqlToExecute.add("DELETE FROM $table WHERE rutina_id IN ($idList);");
+          sqlToExecute.add('DELETE FROM "$table" WHERE rutina_id IN ($idList);');
         }
       } else if (table == 'rutinas_ejerciciopersonalizado') {
         if (sesionIds.isNotEmpty) {
@@ -72,7 +72,7 @@ class UsuarioBackup {
           );
           ejercicioPersIds.addAll(rows.map((r) => r['id'] as int));
           final idList = sesionIds.join(',');
-          sqlToExecute.add("DELETE FROM $table WHERE sesion_id IN ($idList);");
+          sqlToExecute.add('DELETE FROM "$table" WHERE sesion_id IN ($idList);');
         }
       } else if (table == 'rutinas_seriepersonalizada') {
         if (ejercicioPersIds.isNotEmpty) {
@@ -83,11 +83,11 @@ class UsuarioBackup {
             whereArgs: ejercicioPersIds,
           );
           final idList = ejercicioPersIds.join(',');
-          sqlToExecute.add("DELETE FROM $table WHERE ejercicio_personalizado_id IN ($idList);");
+          sqlToExecute.add('DELETE FROM "$table" WHERE ejercicio_personalizado_id IN ($idList);');
         }
       } else {
         rows = await db.query(table);
-        sqlToExecute.add("DELETE FROM $table;");
+        sqlToExecute.add('DELETE FROM "$table";');
       }
 
       // Reset de secuencia
@@ -111,6 +111,10 @@ class UsuarioBackup {
         );
       }
     }
+
+    // antes de generar el script, prepend y append de transacción y FK pragma
+    sqlToExecute.insertAll(0, ['PRAGMA foreign_keys=OFF;', 'BEGIN TRANSACTION;']);
+    sqlToExecute.addAll(['COMMIT;', 'PRAGMA foreign_keys=ON;']);
 
     final sqlScript = sqlToExecute.join('\n');
     logger.i('Script SQL generado');
