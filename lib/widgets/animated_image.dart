@@ -51,6 +51,32 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
     super.dispose();
   }
 
+  /// Devuelve un widget fallback del tamaño de la imagen, con "MrFit" centrado y tamaño de fuente adaptativo.
+  Widget _mrFitFallbackTitle(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      color: Colors.transparent,
+      alignment: Alignment.center,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ),
+            children: [
+              TextSpan(text: 'Mr', style: const TextStyle(color: AppColors.mutedAdvertencia)),
+              TextSpan(text: 'Fit', style: const TextStyle(color: AppColors.textNormal)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget imageWidget;
@@ -60,7 +86,7 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
         widget.ejercicio.imagenMovimiento,
         width: widget.width,
         height: widget.height,
-        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+        errorBuilder: (context, error, stackTrace) => Center(child: _mrFitFallbackTitle(context)),
       );
     } else {
       final bool hasImagenUno = widget.ejercicio.imagenUno.isNotEmpty;
@@ -71,21 +97,21 @@ class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProvider
           widget.ejercicio.imagenUno,
           width: widget.width,
           height: widget.height,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+          errorBuilder: (context, error, stackTrace) => Center(child: _mrFitFallbackTitle(context)),
         );
       } else if (!hasImagenUno && hasImagenDos) {
         imageWidget = Image.network(
           widget.ejercicio.imagenDos,
           width: widget.width,
           height: widget.height,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+          errorBuilder: (context, error, stackTrace) => Center(child: _mrFitFallbackTitle(context)),
         );
       } else {
         imageWidget = Image.network(
           showFirstImage ? widget.ejercicio.imagenUno : widget.ejercicio.imagenDos,
           width: widget.width,
           height: widget.height,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: AppColors.textNormal),
+          errorBuilder: (context, error, stackTrace) => Center(child: _mrFitFallbackTitle(context)),
         );
       }
     }
