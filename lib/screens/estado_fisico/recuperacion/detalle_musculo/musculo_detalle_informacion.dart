@@ -23,7 +23,8 @@ class DetalleMusculoInformacion extends StatefulWidget {
 class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
   Musculo? _musculo;
   List<Map<String, dynamic>> _volumenes = [];
-  List<Ejercicio> _ejerciciosMasUsados = [];
+  List<Ejercicio> _ejerciciosPrincipalesMasUsados = [];
+  List<Ejercicio> _ejerciciosSecundariosMasUsados = []; // Nueva lista para secundarios
   bool _loading = true;
 
   @override
@@ -38,18 +39,21 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
     final musculo = await Musculo.getByName(widget.musculo);
     if (musculo != null) {
       final volumenes = await musculo.getVolumenesMaximos();
-      final ejerciciosMasUsados = await musculo.getEjerciciosMasUsados();
+      final ejerciciosPrincipalesMasUsados = await musculo.getEjerciciosPrincipalMasUsados();
+      final ejerciciosSecundariosMasUsados = await musculo.getEjerciciosSecundarioMasUsados();
       setState(() {
         _musculo = musculo;
         _volumenes = volumenes;
-        _ejerciciosMasUsados = ejerciciosMasUsados;
+        _ejerciciosPrincipalesMasUsados = ejerciciosPrincipalesMasUsados;
+        _ejerciciosSecundariosMasUsados = ejerciciosSecundariosMasUsados;
         _loading = false;
       });
     } else {
       setState(() {
         _musculo = null;
         _volumenes = [];
-        _ejerciciosMasUsados = [];
+        _ejerciciosPrincipalesMasUsados = [];
+        _ejerciciosSecundariosMasUsados = [];
         _loading = false;
       });
     }
@@ -182,10 +186,10 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
                 "Evolución MrPoints",
                 buildVolumenesChart(),
               ),
-              // Sección Ejercicios
+              // Sección Ejercicios principales
               buildSection(
-                "Ejercicios más usados",
-                _ejerciciosMasUsados.isEmpty
+                "Ejercicios más usados como principal",
+                _ejerciciosPrincipalesMasUsados.isEmpty
                     ? Text(
                         "No hay ejercicios registrados.",
                         style: TextStyle(color: AppColors.textMedium),
@@ -197,13 +201,59 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
                         ),
                         height: 70,
                         alignment: Alignment.center,
-                        clipBehavior: Clip.hardEdge, // Oculta el overflow del contenido
+                        clipBehavior: Clip.hardEdge,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _ejerciciosMasUsados.length,
+                          itemCount: _ejerciciosPrincipalesMasUsados.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 16),
                           itemBuilder: (context, index) {
-                            final ejercicio = _ejerciciosMasUsados[index];
+                            final ejercicio = _ejerciciosPrincipalesMasUsados[index];
+                            return GestureDetector(
+                              onTap: () async {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EjercicioDetallePage(
+                                      ejercicio: ejercicio,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: AnimatedImage(
+                                  ejercicio: ejercicio,
+                                  width: 105,
+                                  height: 70,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+              ),
+              // Nueva sección: Ejercicios secundarios
+              buildSection(
+                "Ejercicios más usados como secundario",
+                _ejerciciosSecundariosMasUsados.isEmpty
+                    ? Text(
+                        "No hay ejercicios registrados.",
+                        style: TextStyle(color: AppColors.textMedium),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        height: 70,
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.hardEdge,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _ejerciciosSecundariosMasUsados.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          itemBuilder: (context, index) {
+                            final ejercicio = _ejerciciosSecundariosMasUsados[index];
                             return GestureDetector(
                               onTap: () async {
                                 Navigator.push(
