@@ -414,4 +414,28 @@ class Entrenamiento {
       whereArgs: [id],
     );
   }
+
+  /// Genera una lista de puntos (día, factor) para graficar la curva de recuperación.
+  /// Útil para visualizar cómo desciende el factor de recuperación tras el entrenamiento.
+  /// El output es una lista de mapas: [{'dias': double, 'factor': double}, ...]
+  List<Map<String, double>> generarDatosGraficoRecuperacion({
+    int pasos = 50,
+    double? diasMaximo,
+    double? diasRecuperacion,
+  }) {
+    // Permite personalizar los parámetros o usar los del entrenamiento.
+    final double maxDias = diasMaximo ?? getDiasMaximoParaRecuperacionMuscular();
+    final double tiempoRec = diasRecuperacion ?? getDiasParaRecuperacionMuscular();
+    const double kDecay = 1.0;
+    final List<Map<String, double>> datos = [];
+    for (int i = 0; i <= pasos; i++) {
+      final double d = maxDias * i / pasos;
+      final double dExp = math.min(d, tiempoRec);
+      final double factorExpo = math.exp(-kDecay * dExp);
+      final double r = math.max(0.0, math.min((d - 3.0) / 2.0, 1.0));
+      final double factor = factorExpo * (1 - r);
+      datos.add({'dias': d, 'factor': factor});
+    }
+    return datos;
+  }
 }

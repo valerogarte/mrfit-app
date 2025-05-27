@@ -35,14 +35,21 @@ class DetalleMusculoGasto extends ConsumerWidget {
       final factorRec = entrenamiento.factorRec;
       final fechaStr = MrFunctions.formatTimeAgo(entrenamiento.inicio);
 
-      final exerciseListResult = _buildExerciseList(entrenamiento, musculo, factorRec, currentPercentage);
+      // Pasa context a _buildExerciseList
+      final exerciseListResult = _buildExerciseList(
+        context,
+        entrenamiento,
+        musculo,
+        factorRec,
+        currentPercentage,
+      );
       if (exerciseListResult == null) continue;
 
       final trainingImpact = currentPercentage - exerciseListResult.updatedPercentage;
       currentPercentage = exerciseListResult.updatedPercentage;
 
       cards.add(
-        _buildTrainingCard(fechaStr, entrenamientoVolumen, factorRec, trainingImpact, exerciseListResult.widget),
+        _buildTrainingCard(fechaStr, entrenamientoVolumen, factorRec, trainingImpact, exerciseListResult.widget, context),
       );
     }
 
@@ -69,7 +76,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
       child: Card(
         color: AppColors.mutedAdvertencia,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
           child: Row(
@@ -93,12 +100,12 @@ class DetalleMusculoGasto extends ConsumerWidget {
     );
   }
 
-  Widget _buildTrainingCard(String fechaStr, double volumen, double factorRec, double trainingImpact, Widget exerciseListWidget) {
+  Widget _buildTrainingCard(String fechaStr, double volumen, double factorRec, double trainingImpact, Widget exerciseListWidget, BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       child: Card(
         color: AppColors.cardBackground,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -107,40 +114,93 @@ class DetalleMusculoGasto extends ConsumerWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.appBarBackground,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    fechaStr,
-                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textMedium, fontSize: 18),
+                  // Fecha centrada visualmente
+                  Center(
+                    child: Text(
+                      fechaStr,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textMedium,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.fitness_center, color: AppColors.accentColor, size: 24),
-                          const SizedBox(width: 5),
-                          Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
-                        ],
+                      // Icono gym con modal
+                      GestureDetector(
+                        onTap: () => _showInfoDialog(
+                          context,
+                          title: 'Volumen total',
+                          description: 'El volumen total (kg) representa la suma de todos los kilogramos movidos en el entrenamiento.',
+                          icon: Icons.fitness_center,
+                          iconColor: AppColors.accentColor,
+                          formula: [
+                            'VT = suma de todos los pesos',
+                            'VT = ${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg',
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.fitness_center, color: AppColors.accentColor, size: 24),
+                            const SizedBox(width: 5),
+                            Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
+                          ],
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Icon(Icons.restore, color: AppColors.accentColor, size: 24),
-                          const SizedBox(width: 5),
-                          Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
-                        ],
+                      // Icono restaurar (factorRec) con modal
+                      GestureDetector(
+                        onTap: () => _showInfoDialog(
+                          context,
+                          title: 'Factor de recuperación',
+                          description:
+                              'El factor de recuperación es un multiplicador que ajusta el impacto del entrenamiento. Utiliza una función exponencial para modelar la recuperación y limita el valor según el tiempo máximo y mínimo de recuperación muscular.',
+                          icon: Icons.restore,
+                          iconColor: AppColors.accentColor,
+                          formula: [
+                            'FR = tiempoDesdeFinEntrenamiento x factorDecaida',
+                            'FR = ${factorRec.toStringAsFixed(2)}',
+                          ],
+                          imageAsset: 'assets/images/app/factor_recuperacion.png',
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.restore, color: AppColors.accentColor, size: 24),
+                            const SizedBox(width: 5),
+                            Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
+                          ],
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Icon(Icons.flash_on, color: AppColors.mutedAdvertencia, size: 24),
-                          const SizedBox(width: 5),
-                          Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.mutedAdvertencia, fontSize: 16)),
-                        ],
-                      )
+                      // Icono rayo con modal
+                      GestureDetector(
+                        onTap: () => _showInfoDialog(
+                          context,
+                          title: 'Gasto muscular en este entrenamiento',
+                          description: 'El impacto del entrenamiento en el músculo seleccionado. Representa la suma del porcentaje de fatiga generado por todos los ejercicios realizados.',
+                          icon: Icons.flash_on,
+                          iconColor: AppColors.mutedAdvertencia,
+                          formula: [
+                            'I = suma del % actual de todos los ejercicios con el factor de recuperación aplicado',
+                            'I = ej1(%) + ej2(%) + ...',
+                            'I = ${trainingImpact.toStringAsFixed(2)}%',
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.flash_on, color: AppColors.mutedAdvertencia, size: 24),
+                            const SizedBox(width: 5),
+                            Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.mutedAdvertencia, fontSize: 16)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -168,11 +228,16 @@ class DetalleMusculoGasto extends ConsumerWidget {
     );
   }
 
-  _ExerciseListResult? _buildExerciseList(Entrenamiento entrenamiento, String musculo, double factorRec, double startingPercentage) {
+  _ExerciseListResult? _buildExerciseList(
+    BuildContext context,
+    Entrenamiento entrenamiento,
+    String musculo,
+    double factorRec,
+    double startingPercentage,
+  ) {
     double currentPercentage = startingPercentage;
     List<Widget> exercises = [];
 
-    // Get all difficulty options once
     final List<Map<String, dynamic>> difficultyOptions = ModeloDatos.getDifficultyOptions();
 
     for (final ejercicioRealizado in entrenamiento.ejercicios) {
@@ -187,6 +252,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
       if (!musculosValores.containsKey(musculo.toLowerCase())) continue;
 
       final musculoValores = musculosValores[musculo.toLowerCase()];
+      print(musculoValores);
       final musculoSeleccionado = musculosInvolucrados[indexMusculo];
       final String nombre = ejercicio.nombre;
       final int porcentajeImplicacion = musculoSeleccionado.porcentajeImplicacion;
@@ -205,7 +271,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: AppColors.background,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +293,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
                           );
                         },
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(20),
                           child: Image.network(
                             ejercicio.imagenUno,
                             width: 80,
@@ -257,10 +323,34 @@ class DetalleMusculoGasto extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.flash_on, color: AppColors.accentColor),
+                        // Icono rayo con modal
+                        GestureDetector(
+                          onTap: () => _showInfoDialog(
+                            context,
+                            title: 'Gasto muscular',
+                            description: 'Porcentaje de fatiga generado en este músculo por el ejercicio.',
+                            icon: Icons.flash_on,
+                            iconColor: AppColors.accentColor,
+                            formula: [
+                              'GM = Fatiga inicial - Fatiga final',
+                              'GM = ${anterior.toStringAsFixed(1)}% - ${(anterior - gastoActual).toStringAsFixed(1)}%',
+                              "GM = ${gastoActual.toStringAsFixed(1)}%",
+                            ],
+                          ),
+                          child: Icon(Icons.flash_on, color: AppColors.accentColor),
+                        ),
                         Text('${gastoActual.toStringAsFixed(1)}%', style: TextStyle(color: AppColors.textMedium)),
                         const SizedBox(width: 5),
-                        Expanded(
+                        // Caritas con modal
+                        GestureDetector(
+                          onTap: () => _showInfoDialog(
+                            context,
+                            title: 'Dificultad percibida',
+                            description: 'Cada cara representa una serie realizada y su color la dificultad percibida (RIR).',
+                            icon: Icons.emoji_emotions,
+                            iconColor: AppColors.accentColor,
+                            difficultyLegend: ModeloDatos.getDifficultyOptions(),
+                          ),
                           child: Wrap(
                             spacing: 2,
                             children: seriesRealizadas.map((serie) {
@@ -280,9 +370,28 @@ class DetalleMusculoGasto extends ConsumerWidget {
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        Icon(Icons.fitness_center, color: AppColors.accentColor),
-                        const SizedBox(width: 5),
-                        Text('${volumenMusculo.toStringAsFixed(1)}kg en $musculo', style: TextStyle(color: AppColors.textMedium)),
+                        // Icono gym con modal
+                        GestureDetector(
+                          onTap: () => _showInfoDialog(
+                            context,
+                            title: 'Volumen en ejercicio',
+                            description: 'Cantidad de peso total movido por este músculo en el ejercicio.',
+                            icon: Icons.fitness_center,
+                            iconColor: AppColors.accentColor,
+                            formula: [
+                              'V = (peso x reps x series) x %uso',
+                              'V = ${ejercicioRealizado.volumenTotal} x ${porcentajeImplicacion / 100}',
+                              'V = ${volumenMusculo.toStringAsFixed(1)}kg',
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.fitness_center, color: AppColors.accentColor),
+                              const SizedBox(width: 5),
+                              Text('${volumenMusculo.toStringAsFixed(1)}kg en $musculo', style: TextStyle(color: AppColors.textMedium)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -318,11 +427,141 @@ class DetalleMusculoGasto extends ConsumerWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         '$percentage%',
         style: TextStyle(color: AppColors.textMedium, fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  // Muestra un modal explicativo para los iconos informativos usando la paleta de AppColors
+  void _showInfoDialog(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color iconColor,
+    List<Map<String, dynamic>>? difficultyLegend,
+    List<String>? formula, // Ahora es una lista de strings
+    String? imageAsset, // Nueva propiedad opcional para la imagen
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(icon, color: iconColor),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: AppColors.textNormal,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              description,
+              style: TextStyle(color: AppColors.textMedium),
+            ),
+            if (formula != null && formula.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Se calcula:',
+                style: TextStyle(
+                  color: AppColors.textMedium,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...formula.map((f) => Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Text(
+                      f,
+                      style: TextStyle(
+                        color: AppColors.textNormal,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  )),
+            ],
+            if (imageAsset != null) ...[
+              const SizedBox(height: 14),
+              Center(
+                child: Image.asset(
+                  imageAsset,
+                  height: 120,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+            if (difficultyLegend != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Leyenda de dificultad:',
+                style: TextStyle(
+                  color: AppColors.textMedium,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...difficultyLegend.map(
+                (option) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.emoji_emotions, color: option['iconColor'], size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            option['label'],
+                            style: TextStyle(color: AppColors.textMedium, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25, top: 2),
+                        child: Text(
+                          option['description'],
+                          style: TextStyle(
+                            color: AppColors.textMedium,
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.accentColor,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }
