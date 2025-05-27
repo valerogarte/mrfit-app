@@ -22,9 +22,9 @@ import java.util.Locale
 
 class MainActivity : FlutterFragmentActivity() {
 
-    private val SCREEN_CHANNEL = "es.mrfit/screen_state"
-    private val USAGE_CHANNEL = "es.mrfit/usage_stats"
-    private val HEALTH_CHANNEL = "es.mrfit/health"
+    private val SCREEN_CHANNEL = "es.mrfit.app/screen_state"
+    private val USAGE_CHANNEL = "es.mrfit.app/usage_stats"
+    private val HEALTH_CHANNEL = "es.mrfit.app/health"
     private val REQUEST_CODE = 1001
     private var screenStateReceiver: BroadcastReceiver? = null
 
@@ -39,10 +39,19 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(permissionGranted)
                 }
                 "openUsageStatsSettings" -> {
-                    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                    result.success(null)
+                    try {
+                        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                        if (intent.resolveActivity(packageManager) != null) {
+                            startActivity(intent)
+                            result.success(null)
+                        } else {
+                            result.error("ACTIVITY_NOT_FOUND", "No se encontró la pantalla de ajustes de uso", null)
+                        }
+                    } catch (e: Exception) {
+                        result.error("ERROR_OPENING_SETTINGS", "Error al intentar abrir los ajustes: ${e.message}", null)
+                    }
                 }
                 "getInactivitySlots" -> {
                     val day = call.argument<String>("day")
