@@ -35,10 +35,15 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: const [
-                Icon(Icons.bar_chart, color: AppColors.mutedAdvertencia),
-                SizedBox(width: 8),
-                Text(
+              children: [
+                // Icono dentro de un círculo para consistencia visual
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.transparent,
+                  child: const Icon(Icons.bar_chart, color: AppColors.mutedAdvertencia, size: 18),
+                ),
+                const SizedBox(width: 8),
+                const Text(
                   "Estadísticas",
                   style: TextStyle(
                     color: AppColors.textMedium,
