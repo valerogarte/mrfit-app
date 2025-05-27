@@ -49,7 +49,12 @@ class DetalleMusculoGasto extends ConsumerWidget {
       currentPercentage = exerciseListResult.updatedPercentage;
 
       cards.add(
-        _buildTrainingCard(fechaStr, entrenamientoVolumen, factorRec, trainingImpact, exerciseListResult.widget, context),
+        Column(
+          children: [
+            _buildTrainingCard(fechaStr, entrenamientoVolumen, factorRec, trainingImpact, exerciseListResult.widget, context),
+            const SizedBox(height: 32),
+          ],
+        ),
       );
     }
 
@@ -62,11 +67,25 @@ class DetalleMusculoGasto extends ConsumerWidget {
       onPercentageCalculated(currentPercentage);
     });
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: cards,
+    // Contenedor con bordes redondeados y scroll interno, usando SafeArea
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: cards,
+          ),
+        ),
       ),
     );
   }
@@ -101,130 +120,119 @@ class DetalleMusculoGasto extends ConsumerWidget {
   }
 
   Widget _buildTrainingCard(String fechaStr, double volumen, double factorRec, double trainingImpact, Widget exerciseListWidget, BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-      child: Card(
-        color: AppColors.cardBackground,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cabecera del entrenamiento
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.appBarBackground,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Fecha centrada visualmente
-                  Center(
-                    child: Text(
-                      fechaStr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textMedium,
-                        fontSize: 18,
-                      ),
+    return Card(
+      color: AppColors.cardBackground,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      margin: EdgeInsets.zero, // Ocupa el 100% del ancho, sin margen
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Cabecera del entrenamiento
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.appBarBackground,
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Fecha centrada visualmente
+                Center(
+                  child: Text(
+                    fechaStr,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textMedium,
+                      fontSize: 18,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Icono gym con modal
-                      GestureDetector(
-                        onTap: () => _showInfoDialog(
-                          context,
-                          title: 'Volumen total',
-                          description: 'El volumen total (kg) representa la suma de todos los kilogramos movidos en el entrenamiento.',
-                          icon: Icons.fitness_center,
-                          iconColor: AppColors.accentColor,
-                          formula: [
-                            'VT = suma de todos los pesos',
-                            'VT = ${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg',
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.fitness_center, color: AppColors.accentColor, size: 24),
-                            const SizedBox(width: 5),
-                            Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
-                          ],
-                        ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Icono gym con modal
+                    GestureDetector(
+                      onTap: () => _showInfoDialog(
+                        context,
+                        title: 'Volumen total',
+                        description: 'El volumen total (kg) representa la suma de todos los kilogramos movidos en el entrenamiento.',
+                        icon: Icons.fitness_center,
+                        iconColor: AppColors.accentColor,
+                        formula: [
+                          'VT = suma de todos los pesos',
+                          'VT = ${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg',
+                        ],
                       ),
-                      // Icono restaurar (factorRec) con modal
-                      GestureDetector(
-                        onTap: () => _showInfoDialog(
-                          context,
-                          title: 'Factor de recuperación',
-                          description:
-                              'El factor de recuperación es un multiplicador que ajusta el impacto del entrenamiento. Utiliza una función exponencial para modelar la recuperación y limita el valor según el tiempo máximo y mínimo de recuperación muscular.',
-                          icon: Icons.restore,
-                          iconColor: AppColors.accentColor,
-                          formula: [
-                            'FR = tiempoDesdeFinEntrenamiento x factorDecaida',
-                            'FR = ${factorRec.toStringAsFixed(2)}',
-                          ],
-                          imageAsset: 'assets/images/app/factor_recuperacion.png',
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.restore, color: AppColors.accentColor, size: 24),
-                            const SizedBox(width: 5),
-                            Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
-                          ],
-                        ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.fitness_center, color: AppColors.accentColor, size: 24),
+                          const SizedBox(width: 5),
+                          Text('${volumen.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')} kg', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
+                        ],
                       ),
-                      // Icono rayo con modal
-                      GestureDetector(
-                        onTap: () => _showInfoDialog(
-                          context,
-                          title: 'Gasto muscular en este entrenamiento',
-                          description: 'El impacto del entrenamiento en el músculo seleccionado. Representa la suma del porcentaje de fatiga generado por todos los ejercicios realizados.',
-                          icon: Icons.flash_on,
-                          iconColor: AppColors.mutedAdvertencia,
-                          formula: [
-                            'I = suma del % actual de todos los ejercicios con el factor de recuperación aplicado',
-                            'I = ej1(%) + ej2(%) + ...',
-                            'I = ${trainingImpact.toStringAsFixed(2)}%',
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.flash_on, color: AppColors.mutedAdvertencia, size: 24),
-                            const SizedBox(width: 5),
-                            Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.mutedAdvertencia, fontSize: 16)),
-                          ],
-                        ),
+                    ),
+                    // Icono restaurar (factorRec) con modal
+                    GestureDetector(
+                      onTap: () => _showInfoDialog(
+                        context,
+                        title: 'Factor de recuperación',
+                        description:
+                            'El factor de recuperación es un multiplicador que ajusta el impacto del entrenamiento. Utiliza una función exponencial para modelar la recuperación y limita el valor según el tiempo máximo y mínimo de recuperación muscular.',
+                        icon: Icons.restore,
+                        iconColor: AppColors.accentColor,
+                        formula: [
+                          'FR = tiempoDesdeFinEntrenamiento x factorDecaida',
+                          'FR = ${factorRec.toStringAsFixed(2)}',
+                        ],
+                        imageAsset: 'assets/images/app/factor_recuperacion.png',
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.restore, color: AppColors.accentColor, size: 24),
+                          const SizedBox(width: 5),
+                          Text('x${factorRec.toStringAsFixed(2)}', style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
+                        ],
+                      ),
+                    ),
+                    // Icono rayo con modal
+                    GestureDetector(
+                      onTap: () => _showInfoDialog(
+                        context,
+                        title: 'Gasto muscular en este entrenamiento',
+                        description: 'El impacto del entrenamiento en el músculo seleccionado. Representa la suma del porcentaje de fatiga generado por todos los ejercicios realizados.',
+                        icon: Icons.flash_on,
+                        iconColor: AppColors.mutedAdvertencia,
+                        formula: [
+                          'I = suma del % actual de todos los ejercicios con el factor de recuperación aplicado',
+                          'I = ej1(%) + ej2(%) + ...',
+                          'I = ${trainingImpact.toStringAsFixed(2)}%',
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.flash_on, color: AppColors.mutedAdvertencia, size: 24),
+                          const SizedBox(width: 5),
+                          Text('${trainingImpact.toStringAsFixed(2)}%', style: TextStyle(color: AppColors.mutedAdvertencia, fontSize: 16)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const Divider(height: 1, color: Colors.grey),
-            // Ejercicios realizados
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: exerciseListWidget,
-            ),
-          ],
-        ),
+          ),
+          const Divider(height: 1, color: Colors.grey),
+          // Ejercicios realizados
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: exerciseListWidget,
+          ),
+          // El espaciador se elimina de aquí
+        ],
       ),
-    );
-  }
-
-  Widget _buildInfoItem(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.accentColor, size: 24),
-        const SizedBox(width: 5),
-        Text(text, style: TextStyle(color: AppColors.textMedium, fontSize: 16)),
-      ],
     );
   }
 
@@ -252,7 +260,6 @@ class DetalleMusculoGasto extends ConsumerWidget {
       if (!musculosValores.containsKey(musculo.toLowerCase())) continue;
 
       final musculoValores = musculosValores[musculo.toLowerCase()];
-      print(musculoValores);
       final musculoSeleccionado = musculosInvolucrados[indexMusculo];
       final String nombre = ejercicio.nombre;
       final int porcentajeImplicacion = musculoSeleccionado.porcentajeImplicacion;
