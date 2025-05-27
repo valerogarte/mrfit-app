@@ -8,7 +8,6 @@ import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
 
 part 'ejercicios_buscar_logic.dart';
 

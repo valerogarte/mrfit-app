@@ -22,6 +22,60 @@ class Musculo {
       'imagen': imagen,
     };
   }
+
+  static Future<Musculo?> getByName(String nombre) async {
+    // Permite obtener un músculo por su nombre, útil para evitar duplicados y mantener consistencia.
+    final db = await DatabaseHelper.instance.database;
+    // Búsqueda insensible a mayúsculas/minúsculas para evitar duplicados por casing.
+    final result = await db.rawQuery(
+      'SELECT * FROM ejercicios_musculo WHERE LOWER(titulo) = LOWER(?) LIMIT 1',
+      [nombre],
+    );
+    if (result.isEmpty) return null;
+    return Musculo.fromJson(result.first);
+  }
+
+  Future<List<Map<String, dynamic>>> getVolumenesMaximos() async {
+    final db = await DatabaseHelper.instance.database;
+    final result = await db.rawQuery(
+      'SELECT * FROM accounts_volumenmaximo WHERE musculo_id = ? ORDER BY fecha DESC',
+      [id],
+    );
+    return result;
+  }
+
+  /// Devuelve una lista de los ejercicios más usados para este músculo.
+  /// El criterio es la cantidad de veces que el ejercicio aparece en el historial de ejercicios realizados.
+  /// Esto ayuda a sugerir ejercicios populares o efectivos para el usuario.
+  Future<List<Ejercicio>> getEjerciciosMasUsados({int limit = 5}) async {
+    final db = await DatabaseHelper.instance.database;
+    // Consulta que cuenta cuántas veces se ha realizado cada ejercicio asociado a este músculo.
+    final result = await db.rawQuery('''
+        SELECT 
+          eej.id, 
+          eej.nombre, 
+          eej.imagen_uno, 
+          eej.imagen_dos, 
+          eej.imagen_movimiento,
+          COALESCE(cnt.veces_usado, 0) AS veces_usado
+        FROM ejercicios_ejercicio AS eej
+        INNER JOIN ejercicios_ejerciciomusculo AS eem 
+          ON eem.ejercicio_id = eej.id
+        LEFT JOIN (
+          SELECT ejercicio_id, COUNT(*) AS veces_usado
+          FROM entrenamiento_ejerciciorealizado
+          GROUP BY ejercicio_id
+        ) AS cnt 
+          ON cnt.ejercicio_id = eej.id
+        WHERE eem.musculo_id = ?
+        ORDER BY veces_usado DESC
+        LIMIT ?
+      ''', [id, limit]);
+
+    return Future.wait(
+      result.map((row) => Ejercicio.loadById((row["id"] as int))),
+    );
+  }
 }
 
 class MusculoInvolucrado {

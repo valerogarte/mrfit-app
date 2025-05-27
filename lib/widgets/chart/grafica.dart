@@ -5,14 +5,14 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 
 class ChartWidget extends StatelessWidget {
-  final String title;
+  final String? title;
   final List<String> labels;
   final List<double> values;
   final String textNoResults;
 
   const ChartWidget({
     Key? key,
-    required this.title,
+    this.title,
     required this.labels,
     required this.values,
     this.textNoResults = '',
@@ -65,7 +65,7 @@ class ChartWidget extends StatelessWidget {
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16.0), // Set the desired corner radius
+      borderRadius: BorderRadius.circular(16.0),
       child: Container(
         padding: const EdgeInsets.all(16.0),
         height: 275,
@@ -73,11 +73,12 @@ class ChartWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+            if (title != null && title!.isNotEmpty)
+              Text(
+                title!,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            if (title != null && title!.isNotEmpty) const SizedBox(height: 20),
             Expanded(
               child: LineChart(
                 LineChartData(
