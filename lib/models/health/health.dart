@@ -109,10 +109,22 @@ class HealthUtils {
     dataPoints.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
     final seen = <String>{};
     final deduped = <HealthDataPoint>[];
+    final dailySummaries = <HealthDataPoint>[];
 
     for (var p in dataPoints) {
-      // ignora rangos de día completo
-      if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) continue;
+      // Detecta resumen diario de valores y guarda solo el de mayor valor, para devolerlo en caso de que no haya datos
+      if (p.dateFrom.hour == 0 && p.dateFrom.minute == 0 && p.dateFrom.second == 0 && p.dateTo.hour == 23 && p.dateTo.minute == 59 && p.dateTo.second == 59) {
+        if (dailySummaries.isEmpty) {
+          dailySummaries.add(p);
+        } else {
+          final currentMax = (dailySummaries.first.value as NumericHealthValue).numericValue;
+          final candidate = (p.value as NumericHealthValue).numericValue;
+          if (candidate > currentMax) {
+            dailySummaries[0] = p;
+          }
+        }
+        continue;
+      }
 
       final key = [
         p.dateFrom.millisecondsSinceEpoch,
@@ -178,6 +190,11 @@ class HealthUtils {
 
     // 5) Ordena por fecha de inicio
     processed.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    // 6) Si no hay puntos pero sí había resumen diario, devuelve el resumen diario
+    if (processed.isEmpty && dailySummaries.isNotEmpty) {
+      return dailySummaries;
+    }
 
     return processed.isEmpty ? [] : processed;
   }
