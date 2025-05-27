@@ -192,19 +192,40 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
               ),
             ),
           // GRÁFICA de volumen por entrenamiento
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ChartWidget(
-              title: 'Volumen por entrenamiento',
-              labels: chartData.map((m) => m['inicio'] as String).toList(),
-              values: chartData.map((m) => (m['volumen_total'] as num).toDouble()).toList(),
-              textNoResults: 'No hay entrenamientos aún.',
+          if (_hasChartDataWithValues())
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ChartWidget(
+                title: 'Volumen por entrenamiento',
+                labels: chartData.map((m) => m['inicio'] as String).toList(),
+                values: chartData.map((m) => (m['volumen_total'] as num).toDouble()).toList(),
+                textNoResults: 'Sin datos.',
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Center(
+                child: Text(
+                  'No hay entrenamientos aún.',
+                  style: const TextStyle(
+                    color: AppColors.textMedium,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ),
-          ),
           const SizedBox(height: 64),
         ],
       ),
     );
+  }
+
+  /// Devuelve true si hay datos y al menos un valor distinto de cero.
+  bool _hasChartDataWithValues() {
+    if (chartData.isEmpty) return false;
+    final values = chartData.map((m) => (m['volumen_total'] as num).toDouble());
+    return values.any((v) => v != 0);
   }
 
   Widget _buildSesionesPorTipo() {
