@@ -62,7 +62,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
           final totalMinutes = usuario.calculateTotalMinutes(slots);
 
-          if (slots.isNotEmpty) {
+          if (slots.isNotEmpty && usuario.isHealthConnectAvailable) {
             final mainSleepSlot = slots.first;
             Logger().w("Insertando sueño en HealthConnect");
             usuario.writeSleepData(

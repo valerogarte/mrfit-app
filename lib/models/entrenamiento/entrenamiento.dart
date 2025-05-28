@@ -343,24 +343,39 @@ class Entrenamiento {
     fin = DateTime.now();
     try {
       kcalConsumidas = await calcularKcal();
-      String idHealthConnect = await usuario.healthconnectRegistrarEntrenamiento(
-        titulo,
-        inicio,
-        fin ?? DateTime.now(),
-        kcalConsumidas,
-      );
-
       final db = await DatabaseHelper.instance.database;
-      await db.update(
-        'entrenamiento_entrenamiento',
-        {
-          'fin': fin!.toIso8601String(),
-          'kcal_consumidas': kcalConsumidas,
-          'id_health_connect': idHealthConnect,
-        },
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+
+      if (usuario.isHealthConnectAvailable) {
+        // Registra el entrenamiento en Health Connect y actualiza la base de datos con el id correspondiente.
+        final String nuevoIdHealthConnect = await usuario.healthconnectRegistrarEntrenamiento(
+          titulo,
+          inicio,
+          fin ?? DateTime.now(),
+          kcalConsumidas,
+        );
+        idHealthConnect = nuevoIdHealthConnect;
+        await db.update(
+          'entrenamiento_entrenamiento',
+          {
+            'fin': fin!.toIso8601String(),
+            'kcal_consumidas': kcalConsumidas,
+            'id_health_connect': idHealthConnect,
+          },
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+      } else {
+        // Actualiza la fecha de fin y las kcal consumidas en la base de datos.
+        await db.update(
+          'entrenamiento_entrenamiento',
+          {
+            'fin': fin!.toIso8601String(),
+            'kcal_consumidas': kcalConsumidas,
+          },
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+      }
     } catch (e, st) {
       final logger = Logger();
       logger.e('Error al finalizar entrenamiento $id: $e');

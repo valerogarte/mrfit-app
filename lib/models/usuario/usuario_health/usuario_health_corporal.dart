@@ -146,7 +146,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
 
   Future<double> getCurrentWeight() async {
     final defaultWeight = Usuario.getDefaultWeight();
-    if (weight > 0.0) return weight;
+    if (weight > 0.0 || !isHealthConnectAvailable) return weight;
     final weights = await getReadWeight(9999);
     if (weights.entries.isEmpty) {
       return defaultWeight;

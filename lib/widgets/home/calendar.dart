@@ -234,6 +234,10 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   Future<void> _loadData([DateTime? weekStart]) async {
     final usuario = ref.read(usuarioProvider);
 
+    if (!usuario.isHealthConnectAvailable) {
+      return;
+    }
+
     final stepsPerm = await usuario.checkPermissionsFor('STEPS');
     final kcalPerm = await usuario.checkPermissionsFor('TOTAL_CALORIES_BURNED');
     final activityPerm = await usuario.checkPermissionsFor('WORKOUT');

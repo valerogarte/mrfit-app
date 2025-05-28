@@ -257,27 +257,53 @@ extension UsuarioActivityExtension on Usuario {
     return merged;
   }
 
+  /// Obtiene la lista de actividades (entrenamientos y pasos) para una fecha dada.
+  /// Separa la lógica según la disponibilidad de Health Connect.
+  /// Evita solapamientos entre pasos y entrenamientos.
   Future<List<Map<String, dynamic>>> getActivity(String date) async {
+    final List<Map<String, dynamic>> activity = [];
+
+    // Si Health Connect no está disponible, solo se obtienen entrenamientos locales.
+    if (isHealthConnectAvailable == false) {
+      // Convierte la fecha en String a DateTime para la consulta local.
+      final day = DateTime.parse(date);
+      final entrenamientosMrFit = await getEjerciciosByDay(day);
+
+      for (var entrenamiento in entrenamientosMrFit) {
+        activity.add({
+          'uuid': "",
+          'type': 'workout_mrfit',
+          'start': entrenamiento.inicio,
+          'end': entrenamiento.fin,
+          'sourceName': "mrfit",
+          'activityType': '',
+        });
+      }
+
+      // Ordena las actividades por fecha de inicio descendente.
+      activity.sort((a, b) => (b['start'] as DateTime).compareTo(a['start'] as DateTime));
+      return activity;
+    }
+
+    // Si Health Connect está disponible, se obtienen pasos y entrenamientos de la plataforma.
     final steps = await getActivityFromSteps(date);
     final entrenamientos = await getDailyTrainingsByDate(date);
 
-    final List<Map<String, dynamic>> activity = [];
-
-    // Add workouts to the activity list
+    // Añade entrenamientos primero para evitar solapamientos posteriores.
     for (var entry in entrenamientos.entries) {
-      for (var workout in entry.value) {
+      for (var entrenamiento in entry.value) {
         activity.add({
-          'uuid': workout.uuid,
+          'uuid': entrenamiento.uuid,
           'type': 'workout',
-          'start': workout.dateFrom,
-          'end': workout.dateTo,
-          'sourceName': workout.sourceName,
-          'activityType': (workout.value as WorkoutHealthValue).workoutActivityType.toString(),
+          'start': entrenamiento.dateFrom,
+          'end': entrenamiento.dateTo,
+          'sourceName': entrenamiento.sourceName,
+          'activityType': (entrenamiento.value as WorkoutHealthValue).workoutActivityType.toString(),
         });
       }
     }
 
-    // Add steps only if they don't overlap with workouts
+    // Añade bloques de pasos solo si no solapan con entrenamientos.
     for (var step in steps) {
       final stepStart = step['start'] as DateTime;
       final stepEnd = step['end'] as DateTime;

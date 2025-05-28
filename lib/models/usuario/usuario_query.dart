@@ -106,6 +106,35 @@ extension UsuarioQueryExtension on Usuario {
     }
   }
 
+  /// Obtiene los entrenamientos realizados en un día específico.
+  /// [day] debe ser la fecha del día a consultar (solo la parte de fecha es relevante).
+  Future<List<Entrenamiento>> getEjerciciosByDay(DateTime day) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      // Se obtiene el rango de tiempo para el día especificado.
+      final startOfDay = DateTime(day.year, day.month, day.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+      final results = await db.rawQuery('''
+        SELECT id FROM entrenamiento_entrenamiento 
+        WHERE usuario_id = 1 AND inicio >= ? AND inicio < ?
+        ORDER BY id DESC
+      ''', [startOfDay.toIso8601String(), endOfDay.toIso8601String()]);
+
+      final List<Entrenamiento> entrenamientos = [];
+      for (final row in results) {
+        final int entrenamientoId = row['id'] as int;
+        final entrenamiento = await Entrenamiento.loadById(entrenamientoId);
+        if (entrenamiento != null) {
+          entrenamientos.add(entrenamiento);
+        }
+      }
+      return entrenamientos;
+    } catch (e) {
+      Logger().e('Error en getEjerciciosByDay: $e');
+      return [];
+    }
+  }
+
   // Método para calcular el gasto por músculo a partir de los entrenamientos recientes.
   Future<Map<String, double>> getGastoActualPorMusculoPorcentaje(List<Entrenamiento> entrenamientos, Usuario usuario) async {
     final Map<String, double> gastoPorMusculo = {};
