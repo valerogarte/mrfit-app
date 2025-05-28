@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/screens/home_manage_hc.dart';
 import 'package:mrfit/screens/home.dart';
 import 'package:mrfit/screens/usuario/usuario_config.dart';
 
@@ -22,25 +21,11 @@ class MyApp extends ConsumerWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final usuario = ref.watch(usuarioProvider);
+    // Siempre muestra InicioPage como pantalla principal.
     return MaterialApp(
       title: 'Mr Fit',
       theme: _buildTheme(),
-      home: FutureBuilder<bool>(
-        future: usuario.isHealthConnectAvailable(),
-        builder: (ctx, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          final child = snap.data == true
-              ? const InicioPage()
-              : HomeManageHCWidget(
-                  onInstallHealthConnect: () => usuario.installHealthConnect(),
-                  usuario: usuario,
-                );
-          return HomeShell(body: child);
-        },
-      ),
+      home: HomeShell(body: const InicioPage()),
     );
   }
 

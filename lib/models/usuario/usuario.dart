@@ -62,6 +62,7 @@ class Usuario {
   bool entrenadorActivo;
   TimeOfDay? horaFinSueno;
   TimeOfDay? horaInicioSueno;
+  bool isHealthConnectAvailable;
 
   final healthDataTypesString = ModeloDatos().healthDataTypesString;
   final healthDataPermissions = ModeloDatos().healthDataPermissions;
@@ -101,6 +102,7 @@ class Usuario {
     this.entrenadorActivo = false,
     this.horaFinSueno,
     this.horaInicioSueno,
+    this.isHealthConnectAvailable = false,
   });
 
   static final backup = UsuarioBackup();
@@ -148,6 +150,7 @@ class Usuario {
               minute: int.parse((json['hora_inicio_sueno'] as String).split(':')[1]),
             )
           : null,
+      isHealthConnectAvailable: json['is_health_connect_available'] ?? false,
     );
   }
 
@@ -184,9 +187,14 @@ class Usuario {
       'entrenador_activo': entrenadorActivo,
       'hora_fin_sueno': horaFinSueno != null ? '${horaFinSueno!.hour.toString().padLeft(2, '0')}:${horaFinSueno!.minute.toString().padLeft(2, '0')}' : null,
       'hora_inicio_sueno': horaInicioSueno != null ? '${horaInicioSueno!.hour.toString().padLeft(2, '0')}:${horaInicioSueno!.minute.toString().padLeft(2, '0')}' : null,
+      'is_health_connect_available': isHealthConnectAvailable,
     };
   }
 
+  bool setHealthConnectAvaliable(hcAvaliable) {
+    isHealthConnectAvailable = hcAvaliable;
+    return isHealthConnectAvailable;
+  }
   // Métodos set para actualizar campos en la tabla auth_user
 
   Future<bool> setAltura(int altura) async {
@@ -450,6 +458,9 @@ class Usuario {
               )
             : null,
       );
+
+      // Consultar si Health Connect está disponible y lo seteo en el usuario
+      await usuario.isHealthConnectAvailableUser();
 
       await usuario.getCurrentMrPoints();
 

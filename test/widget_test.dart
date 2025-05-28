@@ -5,7 +5,7 @@ import 'package:mrfit/main.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/screens/home.dart';
-import 'package:mrfit/screens/home_manage_hc.dart';
+import 'package:mrfit/widgets/home/daily_hc_disable.dart';
 
 // FakeUsuario implementa solo lo necesario para el test.
 // El resto de miembros se resuelve con noSuchMethod, útil para mocks en tests.

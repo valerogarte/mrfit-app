@@ -11,9 +11,13 @@ import 'package:mrfit/widgets/home/daily_trainings.dart';
 import 'package:mrfit/widgets/home/daily_physical.dart';
 import 'package:mrfit/widgets/home/daily_nutrition.dart';
 import 'package:mrfit/widgets/home/daily_hearth.dart';
+import 'package:mrfit/widgets/home/daily_hc_disable.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/home/daily_statistics.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
+import 'package:mrfit/models/cache/custom_cache.dart';
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
   const InicioPage({super.key});
@@ -27,6 +31,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   Set<DateTime> _diasEntrenados = {};
   final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
+  bool _showHcWarning = true;
 
   @override
   void initState() {
@@ -34,6 +39,17 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     DatabaseHelper.instance.database.then((db) {});
     initializeDateFormatting('es', null);
     _cargarResumenEntrenamientos();
+    _checkHcWarning();
+  }
+
+  Future<void> _checkHcWarning() async {
+    // Usar key y valor simple (0/1) en vez de JSON
+    final cache = await CustomCache.getByKey("warning_hc_disable");
+    if (cache != null && cache.value == "0") {
+      setState(() => _showHcWarning = false);
+      return;
+    }
+    setState(() => _showHcWarning = true);
   }
 
   Future<void> _cargarResumenEntrenamientos() async {
@@ -132,6 +148,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                       onRefresh: () async {
                         _reloadCalendarIfInCurrentWeek(_selectedDate);
                         await _cargarResumenEntrenamientos();
+                        await _checkHcWarning();
                         setState(() {});
                       },
                       child: GestureDetector(
@@ -139,26 +156,44 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         child: NotificationListener<ScrollNotification>(
                           child: SingleChildScrollView(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            // Añade padding inferior seguro para evitar que el contenido quede oculto tras la barra del sistema
                             padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
                             child: Column(
                               children: [
-                                dailyStatsWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
+                                if (!usuario.isHealthConnectAvailable && _showHcWarning) ...[
+                                  dailyHCDisableWidget(
+                                    usuario: usuario,
+                                    onInstallHealthConnect: () async {
+                                      // Abre la ficha de Health Connect en Play Store
+                                      const url = 'https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata';
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                      }
+                                    },
+                                    onClose: () async {
+                                      setState(() => _showHcWarning = false);
+                                    },
+                                  ),
+                                  const SizedBox(height: 15),
+                                ],
+                                if (usuario.isHealthConnectAvailable) ...[
+                                  dailyStatsWidget(day: _selectedDate, usuario: usuario),
+                                  const SizedBox(height: 15),
+                                ],
                                 DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
                                 const SizedBox(height: 15),
                                 dailySleepWidget(day: _selectedDate, usuario: usuario),
                                 const SizedBox(height: 15),
                                 DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
-                                dailyPhysicalWidget(),
-                                const SizedBox(height: 15),
-                                dailyHearthWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
-                                dailyVitalsWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
-                                StatisticsWidget(usuario: usuario),
-                                // Ajusta el espacio final sumando el safeBottom
+                                if (usuario.isHealthConnectAvailable) ...[
+                                  const SizedBox(height: 15),
+                                  dailyPhysicalWidget(),
+                                  const SizedBox(height: 15),
+                                  dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                                  const SizedBox(height: 15),
+                                  dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                                  const SizedBox(height: 15),
+                                  StatisticsWidget(usuario: usuario),
+                                ],
                                 SizedBox(height: 30 + MediaQuery.of(context).padding.bottom),
                               ],
                             ),
