@@ -121,7 +121,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(
-                      uuid: activity['uuid'],
+                      uuid: activity['uuid'] ?? "",
                       title: info["nombre"],
                       start: activity['start'],
                       end: activity['end'],

@@ -272,11 +272,11 @@ extension UsuarioActivityExtension on Usuario {
       for (var entrenamiento in entrenamientosMrFit) {
         activity.add({
           'uuid': "",
-          'type': 'workout_mrfit',
+          'type': 'workout',
           'start': entrenamiento.inicio,
           'end': entrenamiento.fin,
           'sourceName': "mrfit",
-          'activityType': '',
+          'activityType': "HealthWorkoutActivityType.WEIGHTLIFTING",
         });
       }
 
