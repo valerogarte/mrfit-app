@@ -115,14 +115,116 @@ class Rutina {
     );
   }
 
-  // Eliminar una rutina de la base de datos local
+  /// Elimina la rutina y todas sus dependencias directas en orden seguro.
+  /// Orden: series personalizadas → ejercicios personalizados → series realizadas → ejercicios realizados → entrenamientos → sesiones → rutina.
+  /// Previene errores de integridad referencial por claves foráneas.
   Future<bool> delete() async {
     final db = await DatabaseHelper.instance.database;
+
+    // Si algún usuario tiene rutina_actual_id igual a esta rutina, lo reseteamos a 0
+    final usuarios = await db.query(
+      'auth_user',
+      where: 'rutina_actual_id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (usuarios.isNotEmpty) {
+      await db.update(
+        'auth_user',
+        {'rutina_actual_id': null},
+        where: 'rutina_actual_id = ?',
+        whereArgs: [id],
+      );
+    }
+
+    // Obtener todas las sesiones asociadas a la rutina
+    final sesiones = await db.query(
+      'rutinas_sesion',
+      columns: ['id'],
+      where: 'rutina_id = ?',
+      whereArgs: [id],
+    );
+
+    for (final sesion in sesiones) {
+      final sesionId = sesion['id'] as int;
+
+      // Eliminar entrenamientos y sus dependencias para esta sesión
+      final entrenamientos = await db.query(
+        'entrenamiento_entrenamiento',
+        columns: ['id'],
+        where: 'sesion_id = ?',
+        whereArgs: [sesionId],
+      );
+      for (final entrenamiento in entrenamientos) {
+        final entrenamientoId = entrenamiento['id'] as int;
+
+        // Eliminar ejercicios realizados de este entrenamiento
+        final ejerciciosRealizados = await db.query(
+          'entrenamiento_ejerciciorealizado',
+          columns: ['id'],
+          where: 'entrenamiento_id = ?',
+          whereArgs: [entrenamientoId],
+        );
+        for (final ejercicioRealizado in ejerciciosRealizados) {
+          final ejercicioRealizadoId = ejercicioRealizado['id'] as int;
+
+          // Eliminar series realizadas asociadas
+          await db.delete(
+            'entrenamiento_serierealizada',
+            where: 'ejercicio_realizado_id = ?',
+            whereArgs: [ejercicioRealizadoId],
+          );
+        }
+        // Eliminar ejercicios realizados
+        await db.delete(
+          'entrenamiento_ejerciciorealizado',
+          where: 'entrenamiento_id = ?',
+          whereArgs: [entrenamientoId],
+        );
+        // Eliminar entrenamiento
+        await db.delete(
+          'entrenamiento_entrenamiento',
+          where: 'id = ?',
+          whereArgs: [entrenamientoId],
+        );
+      }
+
+      // Eliminar ejercicios personalizados y series personalizadas de la sesión
+      final ejercicios = await db.query(
+        'rutinas_ejerciciopersonalizado',
+        columns: ['id'],
+        where: 'sesion_id = ?',
+        whereArgs: [sesionId],
+      );
+      for (final ejercicio in ejercicios) {
+        final ejercicioId = ejercicio['id'] as int;
+        await db.delete(
+          'rutinas_seriepersonalizada',
+          where: 'ejercicio_personalizado_id = ?',
+          whereArgs: [ejercicioId],
+        );
+      }
+      await db.delete(
+        'rutinas_ejerciciopersonalizado',
+        where: 'sesion_id = ?',
+        whereArgs: [sesionId],
+      );
+    }
+
+    // Borrar sesiones de la rutina
+    await db.delete(
+      'rutinas_sesion',
+      where: 'rutina_id = ?',
+      whereArgs: [id],
+    );
+
+    // Finalmente, borrar la rutina
     final result = await db.delete(
       'rutinas_rutina',
       where: 'id = ?',
       whereArgs: [id],
     );
+
     return result > 0;
   }
 
