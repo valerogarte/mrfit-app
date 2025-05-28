@@ -37,6 +37,11 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
       if (entrenamiento != null) {
         title = entrenamiento.titulo;
       }
+    } else if (id != null && id > 0) {
+      final entrenamiento = await Entrenamiento.loadById(id);
+      if (entrenamiento != null) {
+        title = entrenamiento.titulo;
+      }
     }
     return InkWell(
       onTap: () {
