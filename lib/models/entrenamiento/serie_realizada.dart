@@ -127,7 +127,7 @@ class SerieRealizada {
 
   double calcularKcal(double pesoUsuario) {
     if (realizada == false) return 0;
-    if (rer == 0) rer = 2;
+    if (rer == 0) rer = 3;
     // MET = Metabolic Equivalent of Task
     // Kcal = MET × peso (kg) × duración (h)
     final duracion = calcularDuracionEjercicioSerie();
