@@ -186,7 +186,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                 DailyNutritionWidget(day: _selectedDate, usuario: usuario),
                                 if (usuario.isHealthConnectAvailable) ...[
                                   const SizedBox(height: 15),
-                                  dailyPhysicalWidget(),
+                                  dailyPhysicalWidget(usuario: usuario),
                                   const SizedBox(height: 15),
                                   dailyHearthWidget(day: _selectedDate, usuario: usuario),
                                   const SizedBox(height: 15),

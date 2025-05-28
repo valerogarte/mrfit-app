@@ -62,6 +62,11 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
           final totalMinutes = usuario.calculateTotalMinutes(slots);
 
+          // Si el tiempo total supera 24h, mostrar sin registros
+          if (totalMinutes > 1440) {
+            return _sleepPlaceholder(usuario);
+          }
+
           if (slots.isNotEmpty && usuario.isHealthConnectAvailable) {
             final mainSleepSlot = slots.first;
             usuario.writeSleepData(
