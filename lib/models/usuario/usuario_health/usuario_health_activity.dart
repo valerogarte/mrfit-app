@@ -258,33 +258,39 @@ extension UsuarioActivityExtension on Usuario {
     return merged;
   }
 
+  Future<List<Map<String, dynamic>>> getActivityMrFit(DateTime day) async {
+    List<Map<String, dynamic>> activity = [];
+
+    final entrenamientosMrFit = await getEjerciciosByDay(day);
+
+    for (var entrenamiento in entrenamientosMrFit) {
+      activity.add({
+        'uuid': "",
+        'id': entrenamiento.id,
+        'type': 'workout',
+        'start': entrenamiento.inicio,
+        'end': entrenamiento.fin,
+        'sourceName': "mrfit",
+        'activityType': "HealthWorkoutActivityType.WEIGHTLIFTING",
+      });
+    }
+
+    // Ordena las actividades por fecha de inicio descendente.
+    activity.sort((a, b) => (b['start'] as DateTime).compareTo(a['start'] as DateTime));
+    return activity;
+  }
+
   /// Obtiene la lista de actividades (entrenamientos y pasos) para una fecha dada.
   /// Separa la lógica según la disponibilidad de Health Connect.
   /// Evita solapamientos entre pasos y entrenamientos.
   Future<List<Map<String, dynamic>>> getActivity(String date) async {
-    final List<Map<String, dynamic>> activity = [];
+    List<Map<String, dynamic>> activity = [];
+    final day = DateTime.parse(date);
+    final entrenamientosMrFit = await getActivityMrFit(day);
 
     // Si Health Connect no está disponible, solo se obtienen entrenamientos locales.
     if (isHealthConnectAvailable == false) {
-      // Convierte la fecha en String a DateTime para la consulta local.
-      final day = DateTime.parse(date);
-      final entrenamientosMrFit = await getEjerciciosByDay(day);
-
-      for (var entrenamiento in entrenamientosMrFit) {
-        activity.add({
-          'uuid': "",
-          'id': entrenamiento.id,
-          'type': 'workout',
-          'start': entrenamiento.inicio,
-          'end': entrenamiento.fin,
-          'sourceName': "mrfit",
-          'activityType': "HealthWorkoutActivityType.WEIGHTLIFTING",
-        });
-      }
-
-      // Ordena las actividades por fecha de inicio descendente.
-      activity.sort((a, b) => (b['start'] as DateTime).compareTo(a['start'] as DateTime));
-      return activity;
+      return entrenamientosMrFit;
     }
 
     // Si Health Connect está disponible, se obtienen pasos y entrenamientos de la plataforma.
@@ -324,6 +330,28 @@ extension UsuarioActivityExtension on Usuario {
           'durationMin': step['durationMin'],
           'avgStepspm': step['avgStepspm'],
         });
+      }
+    }
+
+    // Mergeo con MrFit
+    final toleranciaSolapamientoActividadSegundos = 10;
+    for (var entrenamiento in entrenamientosMrFit) {
+      final start = entrenamiento['start'] as DateTime;
+      final end = entrenamiento['end'] as DateTime;
+
+      // Verifica si el entrenamiento de MrFit solapa con alguna actividad existente.
+      final overlaps = activity.any((act) {
+        final actStart = act['start'] as DateTime;
+        final actEnd = act['end'] as DateTime;
+
+        final startDiff = (start.difference(actStart)).inSeconds.abs();
+        final endDiff = (end.difference(actEnd)).inSeconds.abs();
+
+        return startDiff <= toleranciaSolapamientoActividadSegundos && endDiff <= toleranciaSolapamientoActividadSegundos;
+      });
+
+      if (!overlaps) {
+        activity.add(entrenamiento);
       }
     }
 
