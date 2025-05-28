@@ -71,6 +71,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<List<HealthDataPoint>> getReadHeartRate(DateTime date) async {
+    if (!await checkPermissionsFor("HEART_RATE")) return [];
     return _readHealthDataByDate(healthDataTypesString["HEART_RATE"]!, date);
   }
 

@@ -111,6 +111,7 @@ extension UsuarioActivityExtension on Usuario {
   }
 
   Future<int> getTotalStepsForCalendar(DateTime date) async {
+    if (!await checkPermissionsFor("STEPS")) return 0;
     final dataPointsRaw = await _readHealthDataByDate(HealthDataType.STEPS, date);
 
     final dataPoints = HealthUtils.customRemoveDuplicates(dataPointsRaw);
