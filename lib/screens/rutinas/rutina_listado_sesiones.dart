@@ -247,7 +247,12 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                                       await sesion.getEjercicios();
                                       final result = await Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (_) => SesionPage(sesion: sesion)),
+                                        MaterialPageRoute(
+                                          builder: (_) => SesionPage(
+                                            sesion: sesion,
+                                            rutina: widget.rutina,
+                                          ),
+                                        ),
                                       );
                                       if (result == true) {
                                         // Al volver, refrescar sesiones y cache

@@ -14,13 +14,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/screens/sesion/sesion_listado_ejercicios_serie.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
 
 class SesionListadoEjerciciosPage extends ConsumerStatefulWidget {
   final Sesion sesion;
+  final Rutina rutina;
 
   const SesionListadoEjerciciosPage({
     Key? key,
     required this.sesion,
+    required this.rutina,
   }) : super(key: key);
 
   @override
@@ -93,6 +96,9 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
 
   @override
   Widget build(BuildContext context) {
+    // Permite agregar ejercicios solo si la rutina pertenece a grupo 1 o 2
+    final bool puedeAgregarEjercicio = widget.rutina.grupoId == 1 || widget.rutina.grupoId == 2;
+
     return SafeArea(
         child: Stack(
       children: [
@@ -150,15 +156,17 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
               _buildTrainingButton(),
             ],
           ),
-        Positioned(
-          bottom: (_ejercicios.isEmpty) ? 16 : 90,
-          right: 16,
-          child: FloatingActionButton(
-            onPressed: _mostrarBusquedaEjercicios,
-            backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.accentColor,
-            child: const Icon(Icons.add, color: AppColors.background),
+        // Solo muestra el botón flotante si puede agregar ejercicios
+        if (puedeAgregarEjercicio)
+          Positioned(
+            bottom: (_ejercicios.isEmpty) ? 16 : 90,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _mostrarBusquedaEjercicios,
+              backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.accentColor,
+              child: const Icon(Icons.add, color: AppColors.background),
+            ),
           ),
-        ),
       ],
     ));
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/sesion/sesion_listado_ejercicios.dart';
 import 'sesion_detalle.dart';
@@ -8,10 +9,12 @@ import 'editar_sesion_page.dart';
 
 class SesionPage extends StatefulWidget {
   final Sesion sesion;
+  final Rutina rutina;
 
   const SesionPage({
     Key? key,
     required this.sesion,
+    required this.rutina,
   }) : super(key: key);
 
   @override
@@ -69,6 +72,9 @@ class _SesionPageState extends State<SesionPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Solo muestra el menú si la rutina no es de grupo 1 ni 2
+    final bool mostrarMenu = widget.rutina.grupoId == 1 || widget.rutina.grupoId == 2;
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -77,21 +83,22 @@ class _SesionPageState extends State<SesionPage> {
           title: Text(widget.sesion.titulo),
           backgroundColor: AppColors.background,
           actions: [
-            PopupMenuButton<int>(
-              color: AppColors.cardBackground,
-              icon: const Icon(Icons.more_vert, color: AppColors.textNormal),
-              onSelected: (v) async {
-                if (v == 0) {
-                  await _editarSesion();
-                } else if (v == 1) {
-                  await _eliminarSesion();
-                }
-              },
-              itemBuilder: (_) => [
-                const PopupMenuItem(value: 0, child: Text('Editar', style: TextStyle(color: AppColors.textNormal))),
-                const PopupMenuItem(value: 1, child: Text('Eliminar', style: TextStyle(color: AppColors.textNormal))),
-              ],
-            ),
+            if (mostrarMenu)
+              PopupMenuButton<int>(
+                color: AppColors.cardBackground,
+                icon: const Icon(Icons.more_vert, color: AppColors.textNormal),
+                onSelected: (v) async {
+                  if (v == 0) {
+                    await _editarSesion();
+                  } else if (v == 1) {
+                    await _eliminarSesion();
+                  }
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 0, child: Text('Editar', style: TextStyle(color: AppColors.textNormal))),
+                  const PopupMenuItem(value: 1, child: Text('Eliminar', style: TextStyle(color: AppColors.textNormal))),
+                ],
+              ),
           ],
           bottom: TabBar(
             dividerColor: Colors.transparent,
@@ -109,7 +116,10 @@ class _SesionPageState extends State<SesionPage> {
         ),
         body: TabBarView(
           children: [
-            SesionListadoEjerciciosPage(sesion: widget.sesion),
+            SesionListadoEjerciciosPage(
+              sesion: widget.sesion,
+              rutina: widget.rutina,
+            ),
             SesionMusculosInvolucradosPage(sesion: widget.sesion),
             SesionDetallePage(sesion: widget.sesion),
           ],
