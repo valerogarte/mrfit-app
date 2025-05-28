@@ -56,7 +56,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
             return _sleepPlaceholder(usuario);
           }
           if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
-            return _sleepPermission(context); // <-- pasa context aquí
+            return _sleepPermission(context);
           }
 
           final slots = usuario.filterAndMergeSlotsInactivity(slotSnapshot.data!, day);
@@ -64,7 +64,6 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
 
           if (slots.isNotEmpty && usuario.isHealthConnectAvailable) {
             final mainSleepSlot = slots.first;
-            Logger().w("Insertando sueño en HealthConnect");
             usuario.writeSleepData(
               timeInicio: mainSleepSlot.start,
               timeFin: mainSleepSlot.end,
@@ -77,7 +76,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
             firstSlot,
             "UsageStats",
             allSlots: slots,
-            usuario: usuario, // Pass usuario here
+            usuario: usuario,
           );
         },
       );

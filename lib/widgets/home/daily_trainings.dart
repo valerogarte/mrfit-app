@@ -22,6 +22,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
   // Se elimina el Padding interno y se retorna directamente el Row
   Future<Widget> _buildActivityRow({
     required String uuid,
+    int? id,
     required String title,
     required DateTime start,
     required DateTime end,
@@ -39,7 +40,17 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     }
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => EntrenamientoRealizadoPage(idHealthConnect: uuid, title: title, icon: icon, start: start, end: end)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => EntrenamientoRealizadoPage(
+                      idHealthConnect: uuid,
+                      id: id ?? 0,
+                      title: title,
+                      icon: icon,
+                      start: start,
+                      end: end,
+                    )));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,6 +133,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(
                       uuid: activity['uuid'] ?? "",
+                      id: activity['id'] ?? "",
                       title: info["nombre"],
                       start: activity['start'],
                       end: activity['end'],

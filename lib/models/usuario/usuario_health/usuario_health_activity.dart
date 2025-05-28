@@ -272,6 +272,7 @@ extension UsuarioActivityExtension on Usuario {
       for (var entrenamiento in entrenamientosMrFit) {
         activity.add({
           'uuid': "",
+          'id': entrenamiento.id,
           'type': 'workout',
           'start': entrenamiento.inicio,
           'end': entrenamiento.fin,

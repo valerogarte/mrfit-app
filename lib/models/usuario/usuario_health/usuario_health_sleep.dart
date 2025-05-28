@@ -248,6 +248,8 @@ extension UsuarioSleepExtension on Usuario {
         return false;
       }
 
+      Logger().w("Insertando sueño en HealthConnect");
+
       // Write sleep data
       final result = await _health.writeHealthData(
         value: 1, // For sleep data, the value is usually 1
