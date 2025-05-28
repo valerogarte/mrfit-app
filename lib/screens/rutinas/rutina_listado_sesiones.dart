@@ -387,11 +387,10 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
               ),
             )
           : null,
-      // Si no puede agregar sesión, muestra el botón "Iniciar Rutina" abajo
       bottomNavigationBar: !puedeAgregarSesion
           ? SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(20.0),
                 child: SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -400,7 +399,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                       backgroundColor: AppColors.mutedAdvertencia,
                       foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       elevation: 0,
                     ),
@@ -419,7 +418,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                       'Iniciar Rutina',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18,
                         color: AppColors.background,
                       ),
                     ),
