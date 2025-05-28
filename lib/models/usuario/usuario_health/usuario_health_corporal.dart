@@ -27,14 +27,14 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<bool> setHeight(int height) async {
     await _health.configure();
 
+    if (!await checkPermissionsFor("HEIGHT")) {
+      return false;
+    }
+
     double heightMeter = height / 100;
     final type = healthDataTypesString["HEIGHT"]!;
     var end = DateTime.now();
     var start = end.subtract(Duration(minutes: 1));
-
-    if (!await checkPermissionsFor("HEIGHT")) {
-      return false;
-    }
 
     bool success = await _health.writeHealthData(
       value: heightMeter,
@@ -122,6 +122,10 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<int> getCurrentHeight() async {
+    if (!await checkPermissionsFor("HEIGHT") || !isHealthConnectAvailable) {
+      return altura ?? 0;
+    }
+
     final userYears = DateTime.now().difference(fechaNacimiento).inDays ~/ 365;
     final heights = await getReadHeight(userYears * 365);
     if (heights.entries.isEmpty) {

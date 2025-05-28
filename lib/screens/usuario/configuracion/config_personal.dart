@@ -45,8 +45,8 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
     String currentValue = "";
     switch (widget.campo) {
       case 'Altura':
-        final altura = await user.getCurrentHeight(); // Cambia el valor predeterminado si es necesario
-        currentValue = altura > 0 ? altura.toString() : ""; // Asegúrate de que no sea 0
+        final altura = await user.getCurrentHeight();
+        currentValue = altura > 0 ? altura.toString() : "";
         break;
       case 'Género':
         currentValue = user.genero;

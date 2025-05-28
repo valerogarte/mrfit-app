@@ -202,8 +202,13 @@ class Usuario {
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'altura': altura}, where: 'id = ?', whereArgs: [1]);
     // Lo meto en HC
-    bool success = await setHeight(altura);
-    return count > 0 && success;
+    if (isHealthConnectAvailable) {
+      if (await checkPermissionsFor("HEIGHT")) {
+        bool success = await setHeight(altura);
+        return count > 0 && success;
+      }
+    }
+    return count > 0;
   }
 
   Future<bool> setAviso10Segundos(bool aviso10Segundos) async {
