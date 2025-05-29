@@ -138,7 +138,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
                   return FutureBuilder<Widget>(
                     future: _buildActivityRow(
                       uuid: activity['uuid'] ?? "",
-                      id: activity['id'] ?? "",
+                      id: activity['id'] ?? 0,
                       title: info["nombre"],
                       start: activity['start'],
                       end: activity['end'],
