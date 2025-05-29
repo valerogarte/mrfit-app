@@ -43,7 +43,7 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Resumen semanal',
+                    'Resumen entrenamientos',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -194,6 +194,40 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
+                ),
+              )
+            else
+              // Mensaje de felicitación si se cumplen ambos objetivos
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.mutedAdvertencia,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Text(
+                      '¡Felicidades!',
+                      style: TextStyle(
+                        color: AppColors.background,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Cumples con tus objetivos de entrenamiento.',
+                      style: TextStyle(
+                        color: AppColors.background,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
           ],

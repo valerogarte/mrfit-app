@@ -133,7 +133,7 @@ class CalendarHeaderWidget extends StatelessWidget {
                     Text(
                       '${_trainedLast7Days}/7',
                       style: TextStyle(
-                        color: _trainedLast7Days >= (usuario.objetivoEntrenamientoSemanal ?? 0) ? AppColors.accentColor : Colors.red,
+                        color: _trainedLast7Days >= (usuario.objetivoEntrenamientoSemanal ?? 0) ? AppColors.accentColor : AppColors.appBarBackground,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -149,7 +149,7 @@ class CalendarHeaderWidget extends StatelessWidget {
                     Text(
                       '${_trainedLast30Days}/30',
                       style: TextStyle(
-                        color: _trainedLast30Days >= (((usuario.objetivoEntrenamientoSemanal ?? 0) * 30) / 7).floor() ? AppColors.accentColor : Colors.red,
+                        color: _trainedLast30Days >= (((usuario.objetivoEntrenamientoSemanal ?? 0) * 30) / 7).floor() ? AppColors.accentColor : AppColors.appBarBackground,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
