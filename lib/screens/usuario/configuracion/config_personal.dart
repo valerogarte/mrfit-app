@@ -121,42 +121,77 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            Column(
-              children: experiencias.map((exp) {
-                return Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ChoiceChip(
-                    label: Container(
-                      width: double.infinity,
-                      child: Column(
+            ...experiencias.map((exp) {
+              final isSelected = _controller.text == exp['title'];
+              return Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.mutedAdvertencia : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      setState(() {
+                        _controller.text = isSelected ? '' : exp['title']!;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(exp['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(exp['desc']!, style: const TextStyle(fontSize: 12)),
+                          if (isSelected)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: Icon(
+                                Icons.check,
+                                size: 20,
+                                color: AppColors.background, // El color negro da apariencia de "negrita"
+                              ),
+                            ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  exp['title']!,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.background,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  exp['desc']!,
+                                  style: const TextStyle(
+                                    color: AppColors.background,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    selected: _controller.text == exp['title'],
-                    onSelected: (selected) {
-                      setState(() {
-                        _controller.text = selected ? exp['title']! : '';
-                      });
-                    },
-                    padding: const EdgeInsets.all(8),
-                    backgroundColor: Colors.grey[200],
-                    selectedColor: AppColors.mutedAdvertencia,
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            }).toList(),
             if (_controller.text.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 8.0),
-                child: Text('Seleccione una experiencia', style: TextStyle(color: Colors.red, fontSize: 12)),
+                child: Text(
+                  'Seleccione una experiencia',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
               ),
           ],
         );
+
       case 'Volumen Máximo':
         final user = ref.read(usuarioProvider);
         return FutureBuilder<Map<String, double>>(
