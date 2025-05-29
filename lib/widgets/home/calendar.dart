@@ -211,24 +211,26 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   @override
   void initState() {
     super.initState();
-    _baseDate = widget.selectedDate.startOfWeek;
-    _loadData();
+    _refresh(widget.selectedDate);
   }
 
   @override
   void didUpdateWidget(CalendarWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Si el día seleccionado cambia de semana, actualiza la semana base y la página del calendario.
-    // Esto asegura que el calendario muestre la semana correcta cuando el usuario selecciona un día de otra semana,
-    // por ejemplo, al cambiar de día tras las 00:00 o al navegar manualmente.
+    // Si el día seleccionado cambia de semana, refresca la semana base y la página del calendario.
     if (!widget.selectedDate.startOfWeek.isAtSameMomentAs(_baseDate)) {
-      setState(() {
-        _baseDate = widget.selectedDate.startOfWeek;
-        _currentPage = _basePage;
-      });
-      _pageController.jumpToPage(_basePage);
-      _loadData(_baseDate);
+      _refresh(widget.selectedDate);
     }
+  }
+
+  /// Centraliza la lógica de refresco de semana y recarga de datos.
+  void _refresh([DateTime? date]) {
+    setState(() {
+      if (date != null) _baseDate = date.startOfWeek;
+      _currentPage = _basePage;
+    });
+    _pageController.jumpToPage(_basePage);
+    _loadData(_baseDate);
   }
 
   Future<void> _loadData([DateTime? weekStart]) async {
@@ -327,22 +329,12 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   }
 
   void jumpToToday() {
-    final today = DateTime.now();
-    setState(() {
-      _baseDate = today.startOfWeek;
-      _currentPage = _basePage;
-    });
-    _pageController.animateToPage(
-      _basePage,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-    _loadData(_baseDate);
+    _refresh(DateTime.now());
   }
 
   /// Método público para recargar los datos de la semana actual.
   void reloadCurrentWeek() {
-    _loadData(_baseDate);
+    _refresh(_baseDate);
   }
 
   double _progress(double v, int t) => t == 0 ? 0 : (v / t).clamp(0, 1);
@@ -369,11 +361,8 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
               dragStartBehavior: DragStartBehavior.down,
               onPageChanged: (idx) {
                 final diff = idx - _currentPage;
-                setState(() {
-                  _baseDate = _baseDate.add(Duration(days: diff * 7));
-                  _currentPage = idx;
-                });
-                _loadData(_baseDate);
+                final newBaseDate = _baseDate.add(Duration(days: diff * 7));
+                _refresh(newBaseDate);
               },
               itemBuilder: (_, idx) {
                 final weekStart = _baseDate.add(Duration(days: (idx - _currentPage) * 7));
@@ -384,20 +373,26 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                   children: days.map((date) {
                     final dateString = date.toIso8601String().split('T').first;
                     final trained = widget.diasEntrenados.any((d) => d.year == date.year && d.month == date.month && d.day == date.day);
-                    return _DayCell(
-                      date: date,
-                      isSelected: date.year == widget.selectedDate.year && date.month == widget.selectedDate.month && date.day == widget.selectedDate.day,
-                      isToday: date.isToday,
-                      isFuture: date.isAfter(today),
-                      hasTrained: trained,
-                      stepsProgress: _hasStepsPermission ? _progress((_daysValues[dateString]?["steps"] as num? ?? 0).toDouble(), _targetSteps) : 0,
-                      minutosPercent: _hasActivityPermission ? _progress((_daysValues[dateString]?["minAct"] as num? ?? 0).toDouble(), _targetActivityMinutes) : 0,
-                      kcalProgress: _hasKcalPermission ? _progress((_daysValues[dateString]?["kcal"] as num? ?? 0).toDouble(), _targetKcal) : 0,
-                      onTap: () {
-                        if (!date.isAfter(DateTime.now())) {
-                          widget.onDateSelected(date);
-                        }
-                      },
+                    return RepaintBoundary(
+                      child: SizedBox(
+                        width: cellWidth,
+                        child: _DayCell(
+                          date: date,
+                          isSelected: date.year == widget.selectedDate.year && date.month == widget.selectedDate.month && date.day == widget.selectedDate.day,
+                          isToday: date.isToday,
+                          isFuture: date.isAfter(today),
+                          hasTrained: trained,
+                          stepsProgress: _hasStepsPermission ? _progress((_daysValues[dateString]?["steps"] as num? ?? 0).toDouble(), _targetSteps) : 0,
+                          minutosPercent: _hasActivityPermission ? _progress((_daysValues[dateString]?["minAct"] as num? ?? 0).toDouble(), _targetActivityMinutes) : 0,
+                          kcalProgress: _hasKcalPermission ? _progress((_daysValues[dateString]?["kcal"] as num? ?? 0).toDouble(), _targetKcal) : 0,
+                          onTap: () {
+                            if (!date.isAfter(DateTime.now())) {
+                              widget.onDateSelected(date);
+                            }
+                          },
+                          cellWidth: cellWidth, // Nuevo parámetro
+                        ),
+                      ),
                     );
                   }).toList(),
                 );
@@ -423,6 +418,7 @@ class _DayCell extends StatelessWidget {
   final double minutosPercent;
   final double kcalProgress;
   final VoidCallback onTap;
+  final double cellWidth; // Nuevo parámetro
 
   const _DayCell({
     required this.date,
@@ -434,50 +430,44 @@ class _DayCell extends StatelessWidget {
     required this.minutosPercent,
     required this.kcalProgress,
     required this.onTap,
+    required this.cellWidth, // Nuevo parámetro
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            LayoutBuilder(
-              builder: (context, c) => SizedBox(
-                width: c.maxWidth,
-                height: c.maxWidth,
-                child: Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.95,
-                    heightFactor: 0.95,
-                    child: CustomPaint(
-                      painter: TripleRingLoaderPainter(
-                        pasosPercent: stepsProgress,
-                        minutosPercent: minutosPercent,
-                        kcalPercent: kcalProgress,
-                        trainedToday: hasTrained,
-                        backgroundColorRing: AppColors.appBarBackground.withAlpha(100),
-                        showNumberLap: false,
-                      ),
-                    ),
-                  ),
+    return InkWell(
+      onTap: onTap,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: cellWidth,
+            height: cellWidth,
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: CustomPaint(
+                painter: TripleRingLoaderPainter(
+                  pasosPercent: stepsProgress,
+                  minutosPercent: minutosPercent,
+                  kcalPercent: kcalProgress,
+                  trainedToday: hasTrained,
+                  backgroundColorRing: AppColors.appBarBackground.withAlpha(100),
+                  showNumberLap: false,
                 ),
               ),
             ),
-            Text(
-              '${date.day}',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: _labelColor(),
-              ),
+          ),
+          Text(
+            '${date.day}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: _labelColor(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
