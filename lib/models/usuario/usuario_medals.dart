@@ -69,45 +69,79 @@ extension UsuarioMedalsExtension on Usuario {
     }
 
     // Top 5 pasos
-    final stepsDataPoints = await getStepsByDate(DateFormat('yyyy-MM-dd').format(fechaNacimiento), nDays: nDays);
-    final Map<DateTime, int> stepsByDay = {};
-    for (var dp in stepsDataPoints) {
-      final date = DateTime(dp.dateFrom.year, dp.dateFrom.month, dp.dateFrom.day);
-      final steps = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
-      stepsByDay[date] = (stepsByDay[date] ?? 0) + steps;
+    List<Map<String, Object>> topSteps = [];
+    if (isHealthConnectAvailable) {
+      final stepsDataPoints = await getStepsByDate(DateFormat('yyyy-MM-dd').format(fechaNacimiento), nDays: nDays);
+      final Map<DateTime, int> stepsByDay = {};
+      for (var dp in stepsDataPoints) {
+        final date = DateTime(dp.dateFrom.year, dp.dateFrom.month, dp.dateFrom.day);
+        final steps = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
+        stepsByDay[date] = (stepsByDay[date] ?? 0) + steps;
+      }
+      final stepsRecords = stepsByDay.entries
+          .where((e) => e.value > 0)
+          .map((e) => {
+                "value": e.value,
+                "date": e.key.toIso8601String(),
+              })
+          .toList();
+      stepsRecords.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+      topSteps = stepsRecords.take(5).toList();
+    } else {
+      topSteps = [
+        {"value": 0, "date": "1970-01-01"},
+      ];
     }
-    final stepsRecords = stepsByDay.entries.where((e) => e.value > 0).map((e) => {"value": e.value, "date": e.key}).toList();
-    stepsRecords.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    final topSteps = stepsRecords.take(5).toList();
 
     // Top 5 entrenamientos (minutos) por día (suma total de minutos por día)
-    final entrenosMap = await getDailyTrainingsByDate(DateFormat('yyyy-MM-dd').format(fechaNacimiento), nDays: nDays);
+    List<Map<String, Object>> topWorkouts = [];
     final Map<DateTime, int> workoutMinutesByDay = {};
     final List<Map<String, dynamic>> allSessions = [];
-    entrenosMap.forEach((_, sesiones) {
-      for (var dp in sesiones) {
-        final mins = dp.dateTo.difference(dp.dateFrom).inMinutes;
-        if (mins > 0) {
-          // Para sesiones individuales (para LONGEST_SESSIONS)
-          allSessions.add({
-            "value": mins,
-            "date": dp.dateFrom,
-            "start": dp.dateFrom,
-            "end": dp.dateTo,
-          });
-          // Para suma diaria (para WORKOUT)
-          final date = DateTime(dp.dateFrom.year, dp.dateFrom.month, dp.dateFrom.day);
-          workoutMinutesByDay[date] = (workoutMinutesByDay[date] ?? 0) + mins;
+    if (isHealthConnectAvailable) {
+      final entrenosMap = await getDailyTrainingsByDate(DateFormat('yyyy-MM-dd').format(fechaNacimiento), nDays: nDays);
+      entrenosMap.forEach((_, sesiones) {
+        for (var dp in sesiones) {
+          final mins = dp.dateTo.difference(dp.dateFrom).inMinutes;
+          if (mins > 0) {
+            // Para sesiones individuales (para LONGEST_SESSIONS)
+            allSessions.add({
+              "value": mins,
+              "date": dp.dateFrom.toIso8601String(),
+              "start": dp.dateFrom.toIso8601String(),
+              "end": dp.dateTo.toIso8601String(),
+            });
+            // Para suma diaria (para WORKOUT)
+            final date = DateTime(dp.dateFrom.year, dp.dateFrom.month, dp.dateFrom.day);
+            workoutMinutesByDay[date] = (workoutMinutesByDay[date] ?? 0) + mins;
+          }
         }
-      }
-    });
-    final workoutRecords = workoutMinutesByDay.entries.where((e) => e.value > 0).map((e) => {"value": e.value, "date": e.key}).toList();
-    workoutRecords.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    final topWorkouts = workoutRecords.take(5).toList();
+      });
+      final workoutRecords = workoutMinutesByDay.entries
+          .where((e) => e.value > 0)
+          .map((e) => {
+                "value": e.value,
+                "date": e.key.toIso8601String(), // Siempre string ISO
+              })
+          .toList();
+      workoutRecords.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+      topWorkouts = workoutRecords.take(5).toList();
+    } else {
+      topWorkouts = [
+        {"value": 0, "date": "1970-01-01"},
+      ];
+    }
 
     // Top 5 sesiones más largas de entrenamiento (LONGEST_SESSIONS)
-    allSessions.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
-    final topLongestSessions = allSessions.take(5).toList();
+    List<Map<String, dynamic>> topLongestSessions = [];
+    if (isHealthConnectAvailable && allSessions.isNotEmpty) {
+      allSessions.sort((a, b) => (b['value'] as int).compareTo(a['value'] as int));
+      // Ya están como string ISO arriba
+      topLongestSessions = allSessions.take(5).toList();
+    } else {
+      topLongestSessions = [
+        {"value": 0, "date": "1970-01-01", "start": "1970-01-01", "end": "1970-01-01"},
+      ];
+    }
 
     // Número de semanas seguidas cumpliendo el objetivo de entrenamiento semanal (WEEKLY_STREAK)
     final weeklyStreak = await fetchAndUpdateWeeklyStreaks();
@@ -139,7 +173,7 @@ extension UsuarioMedalsExtension on Usuario {
 
     await CustomCache.set("medals", jsonEncode(cacheSerializable));
 
-    return cache;
+    return cacheSerializable;
   }
 
   /// Verifica si el valor dado para la key es un récord, lo añade si corresponde y actualiza el cache.
@@ -213,68 +247,36 @@ extension UsuarioMedalsExtension on Usuario {
       return [];
     }
 
-    // Obtener cache actual
-    final cacheGet = await CustomCache.getByKey("medals");
+    // Obtener cache actual para depués buscar en bbdd desde la última fecha cacheada
     Map<String, List<Map<String, dynamic>>> cacheDecoded;
-    bool cacheWasEmpty = false;
-    DateTime? lastCachedDate;
 
-    if (cacheGet?.value == null || !(cacheGet!.value is String) || (cacheGet.value as String).trim().isEmpty) {
-      cacheDecoded = {
-        "STEPS": [],
-        "WORKOUT": [],
-        "LONGEST_SESSIONS": [],
-        "WEEKLY_STREAK": [],
-      };
-      cacheWasEmpty = true;
-    } else {
-      final raw = jsonDecode(cacheGet.value);
-      cacheDecoded = {
-        "STEPS": (raw["STEPS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "WORKOUT": (raw["WORKOUT"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "LONGEST_SESSIONS": (raw["LONGEST_SESSIONS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "WEEKLY_STREAK": (raw["WEEKLY_STREAK"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-      };
-      // Buscar la fecha más reciente en la caché de rachas
-      final weeklyStreakCache = cacheDecoded["WEEKLY_STREAK"];
-      if (weeklyStreakCache != null && weeklyStreakCache.isNotEmpty) {
-        final dates = weeklyStreakCache.map((e) => e['date']).where((d) => d != null).map((d) => d is DateTime ? d : DateTime.tryParse(d.toString())).where((d) => d != null).cast<DateTime>().toList();
-        if (dates.isNotEmpty) {
-          lastCachedDate = dates.reduce((a, b) => a.isAfter(b) ? a : b);
-        }
-      }
-    }
+    cacheDecoded = {
+      "STEPS": [],
+      "WORKOUT": [],
+      "LONGEST_SESSIONS": [],
+      "WEEKLY_STREAK": [],
+    };
 
     // Acceso a la base de datos usando DatabaseHelper
     final db = await DatabaseHelper.instance.database;
     List<Map<String, dynamic>> results;
 
-    if (lastCachedDate != null) {
-      results = await db.rawQuery(
-        '''
-        SELECT inicio, fin FROM entrenamiento_entrenamiento
-        WHERE usuario_id = ? AND inicio >= ?
-        ORDER BY inicio ASC
-        ''',
-        [id, lastCachedDate.toIso8601String()],
-      );
-    } else {
-      results = await db.rawQuery(
-        '''
+    results = await db.rawQuery(
+      '''
         SELECT inicio, fin FROM entrenamiento_entrenamiento
         WHERE usuario_id = ?
         ORDER BY inicio ASC
         ''',
-        [id],
-      );
-    }
+      [id],
+    );
 
-    if (results.isEmpty && !cacheWasEmpty) {
+    if (results.isEmpty) {
       return cacheDecoded["WEEKLY_STREAK"] ?? [];
     }
 
-    // Agrupar entrenamientos por semana
+    // Agrupa entrenamientos por semana, considerando que la semana inicia en lunes.
     final Map<int, int> entrenosPorSemana = {};
+    // Encuentra el lunes anterior o igual a la fecha de nacimiento.
     final birthMonday = fechaNacimiento.subtract(Duration(days: fechaNacimiento.weekday - 1));
     DateTime? lastEntrenamientoDate;
     bool entrenamientoActivo = false;
@@ -284,9 +286,11 @@ extension UsuarioMedalsExtension on Usuario {
       final fin = row['fin'];
       final date = inicio is DateTime ? inicio : DateTime.tryParse(inicio.toString());
       if (date != null) {
-        final weekNumber = date.difference(birthMonday).inDays ~/ 7;
+        // Calcula el lunes de la semana del entrenamiento.
+        final weekMonday = date.subtract(Duration(days: date.weekday - 1));
+        final weekNumber = weekMonday.difference(birthMonday).inDays ~/ 7;
         entrenosPorSemana[weekNumber] = (entrenosPorSemana[weekNumber] ?? 0) + 1;
-        // Guardar la fecha del último entrenamiento
+        // Guarda la fecha del último entrenamiento.
         if (lastEntrenamientoDate == null || date.isAfter(lastEntrenamientoDate)) {
           lastEntrenamientoDate = date;
           entrenamientoActivo = fin == null;
@@ -358,8 +362,8 @@ extension UsuarioMedalsExtension on Usuario {
       }
     }
 
-    // Actualizar cache si hay récord o estaba vacío
-    if (isRecord || cacheWasEmpty) {
+    // Actualizar cache si hay récord
+    if (isRecord) {
       cacheDecoded["WEEKLY_STREAK"] = top5.map((s) {
         final item = Map<String, dynamic>.from(s);
         if (item['date'] is DateTime) {

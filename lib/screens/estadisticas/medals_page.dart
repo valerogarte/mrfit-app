@@ -134,7 +134,12 @@ class _MedalsPageState extends State<MedalsPage> {
     final medals = <Map<String, dynamic>>[];
     for (var i = 0; i < topN.length; i++) {
       final rec = topN[i];
-      final date = DateFormat('d MMMM yyyy', 'es_ES').format(DateTime.parse(rec['date']));
+      dynamic date;
+      if (rec['date'] == "-") {
+        date = "-";
+      } else {
+        date = DateFormat('d MMMM yyyy', 'es_ES').format(DateTime.parse(rec['date']));
+      }
       String type = (i == 0)
           ? 'platinum'
           : (i == 1)

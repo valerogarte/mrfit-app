@@ -254,11 +254,10 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<double> getCurrentBasalMetabolicRate(int nDays) async {
-    if (!await checkPermissionsFor("BASAL_METABOLIC_RATE")) return 0.0;
+    if (!await checkPermissionsFor("BASAL_ENERGY_BURNED")) return 0.0;
 
-    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BASAL_METABOLIC_RATE"]!, nDays);
+    final dataPoints = await _readHealthDataFromNDaysAgoToNow(healthDataTypesString["BASAL_ENERGY_BURNED"]!, nDays);
     if (dataPoints.isEmpty) return 0.0;
-    // Tomar el último valor disponible
     final dp = dataPoints.last;
     final value = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue : 0.0;
     return double.parse(value.toStringAsFixed(2));
