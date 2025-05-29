@@ -211,7 +211,10 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   @override
   void initState() {
     super.initState();
-    _refresh(widget.selectedDate);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh(DateTime.now());
+    });
   }
 
   @override

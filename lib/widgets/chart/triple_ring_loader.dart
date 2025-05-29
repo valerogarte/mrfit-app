@@ -106,7 +106,6 @@ class TripleRingLoaderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant TripleRingLoaderPainter oldDelegate) {
-    print("REPINTA");
     return pasosPercent != oldDelegate.pasosPercent || minutosPercent != oldDelegate.minutosPercent || kcalPercent != oldDelegate.kcalPercent || trainedToday != oldDelegate.trainedToday;
   }
 }
