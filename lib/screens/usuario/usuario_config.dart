@@ -125,12 +125,12 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text(user.experiencia.isNotEmpty ? user.experiencia : 'Experiencia', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showConfigDialog('Experiencia', 'Editar Experiencia', ConfiguracionPersonalDialog(campo: 'Experiencia')),
           ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.trending_up, color: AppColors.accentColor),
-            title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => _showConfigDialog('Volumen Máximo', 'Volumen Máximo', ConfiguracionPersonalDialog(campo: 'Volumen Máximo')),
-          ),
+          // ListTile(
+          //   tileColor: AppColors.cardBackground,
+          //   leading: Icon(Icons.trending_up, color: AppColors.accentColor),
+          //   title: Text('Volumen Máximo', style: TextStyle(color: AppColors.textMedium)),
+          //   onTap: () => _showConfigDialog('Volumen Máximo', 'Volumen Máximo', ConfiguracionPersonalDialog(campo: 'Volumen Máximo')),
+          // ),
 
           // Objetivos
           const SectionHeader('Objetivos'),
