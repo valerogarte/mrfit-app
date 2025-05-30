@@ -116,7 +116,7 @@ Widget _sleepPermission(BuildContext context) {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: AppColors.appBarBackground.withAlpha(75),
+      color: AppColors.cardBackground,
       borderRadius: BorderRadius.circular(20),
     ),
     child: Column(
@@ -196,7 +196,7 @@ Widget _sleepBase({
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
     decoration: BoxDecoration(
-      color: AppColors.appBarBackground.withAlpha(75),
+      color: AppColors.cardBackground,
       borderRadius: BorderRadius.circular(20),
     ),
     child: Column(

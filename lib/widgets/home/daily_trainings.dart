@@ -167,7 +167,7 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
-            color: AppColors.appBarBackground.withAlpha(75),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(

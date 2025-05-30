@@ -285,7 +285,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                   ),
         floatingActionButton: FloatingActionButton(
           onPressed: _mostrarDialogoNuevoPlan,
-          backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.accentColor,
+          backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.appBarBackground,
           child: const Icon(Icons.add, color: AppColors.background),
         ),
       ),

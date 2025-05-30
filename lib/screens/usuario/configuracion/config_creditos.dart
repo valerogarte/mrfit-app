@@ -82,7 +82,7 @@ class ConfiguracionCreditosPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.appBarBackground,
+        backgroundColor: AppColors.cardBackground,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.textNormal),
@@ -102,7 +102,7 @@ class ConfiguracionCreditosPage extends StatelessWidget {
                   children: [
                     Container(
                       height: 100,
-                      color: AppColors.appBarBackground,
+                      color: AppColors.cardBackground,
                     ),
                     Positioned(
                       top: 50,

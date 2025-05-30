@@ -163,7 +163,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
             right: 16,
             child: FloatingActionButton(
               onPressed: _mostrarBusquedaEjercicios,
-              backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.accentColor,
+              backgroundColor: (_ejercicios.isEmpty || _ejercicios.any((e) => e.countSeriesPersonalizadas() == 0)) ? AppColors.mutedAdvertencia : AppColors.appBarBackground,
               child: const Icon(Icons.add, color: AppColors.background),
             ),
           ),
@@ -352,7 +352,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
         onPressed: _handleTrainingButton,
         style: ElevatedButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
-          backgroundColor: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.mutedAdvertencia : AppColors.accentColor,
+          backgroundColor: (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? AppColors.mutedAdvertencia : AppColors.appBarBackground,
         ),
         child: Text(
           (idEntrenandoAhora != null && idEntrenandoAhora > 0) ? 'Continuar' : 'Comenzar entrenamiento',

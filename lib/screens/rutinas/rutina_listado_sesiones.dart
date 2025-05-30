@@ -382,7 +382,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
           ? SafeArea(
               child: FloatingActionButton(
                 onPressed: _mostrarDialogoNuevaSesion,
-                backgroundColor: AppColors.accentColor,
+                backgroundColor: AppColors.appBarBackground,
                 child: const Icon(Icons.add, color: AppColors.background),
               ),
             )

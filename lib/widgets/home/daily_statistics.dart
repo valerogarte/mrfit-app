@@ -29,7 +29,7 @@ class _StatisticsWidgetState extends State<StatisticsWidget> {
       borderRadius: BorderRadius.circular(_outerRadius),
       child: Container(
         width: double.infinity,
-        color: AppColors.appBarBackground.withAlpha(75),
+        color: AppColors.cardBackground,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

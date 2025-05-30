@@ -116,6 +116,9 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
                     ref.read(usuarioProvider).setRutinaActual(v ? widget.rutina.id : null);
                   },
                   activeColor: AppColors.accentColor,
+                  activeTrackColor: AppColors.cardBackground,
+                  inactiveTrackColor: AppColors.background,
+                  inactiveThumbColor: AppColors.cardBackground,
                 ),
               ],
             ),
@@ -142,7 +145,7 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
                                   width: 30,
                                   height: 60,
                                   decoration: BoxDecoration(
-                                    color: i < dificultad ? AppColors.accentColor : AppColors.appBarBackground,
+                                    color: i < dificultad ? AppColors.accentColor : AppColors.cardBackground,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
