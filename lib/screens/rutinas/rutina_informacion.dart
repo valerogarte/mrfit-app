@@ -85,10 +85,50 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _buildPill('Total entrenamientos', Text('$totalEntrenos', style: _pillValueStyle), pillWidth),
-                    _buildPill('Tiempo total', Text(MrFunctions.formatDuration(Duration(seconds: tiempoTotalSeg)), style: _pillValueStyle), pillWidth),
-                    _buildPill('Duración media', Text(MrFunctions.formatDuration(Duration(seconds: duracionMediaSeg.round())), style: _pillValueStyle), pillWidth),
-                    _buildPill('Sets completados', Text('$totalSets', style: _pillValueStyle), pillWidth),
+                    _buildPill(
+                      'Total entrenamientos',
+                      Text('$totalEntrenos', style: _pillValueStyle),
+                      pillWidth,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(4),
+                        bottomLeft: Radius.circular(4),
+                        bottomRight: Radius.circular(4),
+                      ),
+                    ),
+                    _buildPill(
+                      'Tiempo total',
+                      Text(MrFunctions.formatDuration(Duration(seconds: tiempoTotalSeg)), style: _pillValueStyle),
+                      pillWidth,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(4),
+                        bottomRight: Radius.circular(4),
+                      ),
+                    ),
+                    _buildPill(
+                      'Duración media',
+                      Text(MrFunctions.formatDuration(Duration(seconds: duracionMediaSeg.round())), style: _pillValueStyle),
+                      pillWidth,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        topRight: Radius.circular(4),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(4),
+                      ),
+                    ),
+                    _buildPill(
+                      'Sets completados',
+                      Text('$totalSets', style: _pillValueStyle),
+                      pillWidth,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        topRight: Radius.circular(4),
+                        bottomLeft: Radius.circular(4),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
                   ],
                 );
               },
@@ -293,14 +333,15 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
 
   // función auxiliar para renderizar las “pills”
   TextStyle get _pillValueStyle => const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.background);
-  Widget _buildPill(String title, Widget value, double width) {
+
+  Widget _buildPill(String title, Widget value, double width, {BorderRadius? borderRadius}) {
     return Container(
       width: width,
       height: 80,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: AppColors.mutedAdvertencia,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: borderRadius ?? BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

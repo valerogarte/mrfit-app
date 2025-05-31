@@ -59,6 +59,12 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
                               ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.background)))
                               : Text(numeroSesiones, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.background)),
                           pillWidth,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(4),
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
+                          ),
                         ),
                         _buildPill(
                           'Tiempo total (horas)',
@@ -66,6 +72,12 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
                               ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.background)))
                               : Text(tiempoTotal, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.background)),
                           pillWidth,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
+                          ),
                         ),
                         _buildPill(
                           'Duración media',
@@ -73,6 +85,12 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
                               ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.background)))
                               : Text(duracionMedia, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.background)),
                           pillWidth,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(4),
+                          ),
                         ),
                         _buildPill(
                           'Sets completados',
@@ -80,6 +98,12 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
                               ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.background)))
                               : Text(setsCompletados, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.background)),
                           pillWidth,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
                       ],
                     );
@@ -118,14 +142,14 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
     );
   }
 
-  Widget _buildPill(String title, Widget valueWidget, double width) {
+  Widget _buildPill(String title, Widget valueWidget, double width, {BorderRadius? borderRadius}) {
     return Container(
       width: width,
       height: 80,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: AppColors.mutedAdvertencia,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: borderRadius ?? BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
