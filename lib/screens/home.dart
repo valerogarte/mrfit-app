@@ -123,10 +123,13 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               alignment: Alignment.centerLeft,
               child: CalendarHeaderWidget(
                 selectedDate: _selectedDate,
-                calendarKey: _calendarKey,
                 onDateChanged: (date) => setState(() => _selectedDate = date),
                 diasEntrenados: _diasEntrenados,
                 usuario: usuario,
+                onJumpToToday: () {
+                  CalendarWidget.jumpToToday(_calendarKey);
+                  setState(() => _selectedDate = DateTime.now());
+                },
               ),
             ),
             const SizedBox(height: 10),

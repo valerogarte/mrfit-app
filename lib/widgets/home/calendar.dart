@@ -49,18 +49,18 @@ typedef DateChangedCallback = void Function(DateTime);
 
 class CalendarHeaderWidget extends StatelessWidget {
   final DateTime selectedDate;
-  final GlobalKey<State<CalendarWidget>> calendarKey;
   final DateChangedCallback onDateChanged;
   final Set<DateTime> diasEntrenados;
   final Usuario usuario;
+  final VoidCallback onJumpToToday;
 
   const CalendarHeaderWidget({
     super.key,
     required this.selectedDate,
-    required this.calendarKey,
     required this.onDateChanged,
     required this.diasEntrenados,
     required this.usuario,
+    required this.onJumpToToday,
   });
 
   bool get _showGoToToday => !selectedDate.isToday;
@@ -96,10 +96,7 @@ class CalendarHeaderWidget extends StatelessWidget {
           ),
           if (_showGoToToday)
             TextButton(
-              onPressed: () {
-                CalendarWidget.jumpToToday(calendarKey);
-                onDateChanged(DateTime.now());
-              },
+              onPressed: onJumpToToday,
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -129,7 +126,6 @@ class CalendarHeaderWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Row(
                   children: [
-                    // Calcula el color según el objetivo semanal
                     Text(
                       '${_trainedLast7Days}/7',
                       style: TextStyle(
@@ -145,7 +141,6 @@ class CalendarHeaderWidget extends StatelessWidget {
                       size: 16,
                     ),
                     const SizedBox(width: 4),
-                    // Calcula el color según el objetivo mensual
                     Text(
                       '${_trainedLast30Days}/30',
                       style: TextStyle(
