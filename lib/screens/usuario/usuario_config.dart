@@ -213,6 +213,9 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             trailing: Switch(
               value: user.entrenadorActivo,
               activeColor: AppColors.mutedAdvertencia,
+              activeTrackColor: AppColors.background,
+              inactiveTrackColor: AppColors.background,
+              inactiveThumbColor: AppColors.cardBackground,
               onChanged: (value) async {
                 final success = await user.setEntrenadorActivo(value);
                 if (success) setState(() {});
@@ -253,6 +256,9 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             trailing: Switch(
               value: user.aviso10Segundos,
               activeColor: AppColors.mutedAdvertencia,
+              activeTrackColor: AppColors.background,
+              inactiveTrackColor: AppColors.background,
+              inactiveThumbColor: AppColors.cardBackground,
               onChanged: (value) async {
                 final success = await user.setAviso10Segundos(value);
                 if (success) setState(() {});
@@ -266,6 +272,9 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             trailing: Switch(
               value: user.avisoCuentaAtras,
               activeColor: AppColors.mutedAdvertencia,
+              activeTrackColor: AppColors.background,
+              inactiveTrackColor: AppColors.background,
+              inactiveThumbColor: AppColors.cardBackground,
               onChanged: (value) async {
                 final success = await user.setAvisoCuentaAtras(value);
                 if (success) setState(() {});

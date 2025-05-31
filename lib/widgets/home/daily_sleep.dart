@@ -212,26 +212,26 @@ Widget _sleepBase({
             ),
             // Espacio flexible para empujar la calidad a la derecha
             Expanded(child: Container()),
-            if (quality != null)
-              AnimatedOpacity(
-                opacity: 1.0,
-                duration: const Duration(milliseconds: 600),
-                curve: Curves.easeIn,
-                child: Row(
-                  children: [
-                    Icon(Icons.verified, color: AppColors.mutedAdvertencia, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${quality.toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                        color: AppColors.mutedAdvertencia,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            // if (quality != null)
+            // AnimatedOpacity(
+            //   opacity: 1.0,
+            //   duration: const Duration(milliseconds: 600),
+            //   curve: Curves.easeIn,
+            //   child: Row(
+            //     children: [
+            //       Icon(Icons.verified, color: AppColors.mutedAdvertencia, size: 18),
+            //       const SizedBox(width: 4),
+            //       Text(
+            //         '${quality.toStringAsFixed(1)}%',
+            //         style: const TextStyle(
+            //           color: AppColors.mutedAdvertencia,
+            //           fontSize: 15,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
         const SizedBox(height: 12),
