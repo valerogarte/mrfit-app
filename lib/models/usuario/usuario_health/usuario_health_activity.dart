@@ -334,23 +334,43 @@ extension UsuarioActivityExtension on Usuario {
     }
 
     // Mergeo con MrFit
-    final toleranciaSolapamientoActividadSegundos = 10;
+    // Si el entrenamiento de MrFit coincide en un 90% o más del tiempo con alguna actividad existente,
+    // se elimina la actividad existente y se agrega el de MrFit.
+    const porcentajeSolapamientoMinimo = 0.9;
+
     for (var entrenamiento in entrenamientosMrFit) {
       final start = entrenamiento['start'] as DateTime;
       final end = entrenamiento['end'] as DateTime;
+      final duracionEntrenamiento = end.difference(start).inSeconds;
 
-      // Verifica si el entrenamiento de MrFit solapa con alguna actividad existente.
-      final overlaps = activity.any((act) {
+      // Busca actividades existentes que solapen significativamente con el entrenamiento de MrFit
+      final indicesSolapados = <int>[];
+      for (int i = 0; i < activity.length; i++) {
+        final act = activity[i];
         final actStart = act['start'] as DateTime;
         final actEnd = act['end'] as DateTime;
 
-        final startDiff = (start.difference(actStart)).inSeconds.abs();
-        final endDiff = (end.difference(actEnd)).inSeconds.abs();
+        // Calcula el rango de solapamiento
+        final overlapStart = start.isAfter(actStart) ? start : actStart;
+        final overlapEnd = end.isBefore(actEnd) ? end : actEnd;
+        final overlapDuration = overlapEnd.isAfter(overlapStart) ? overlapEnd.difference(overlapStart).inSeconds : 0;
 
-        return startDiff <= toleranciaSolapamientoActividadSegundos && endDiff <= toleranciaSolapamientoActividadSegundos;
-      });
+        // Si el solapamiento es al menos el 90% de la duración del entrenamiento, marca para reemplazo
+        if (duracionEntrenamiento > 0 && overlapDuration / duracionEntrenamiento >= porcentajeSolapamientoMinimo) {
+          Logger().w("Actividad solapada en un ${((overlapDuration / duracionEntrenamiento) * 100).toStringAsFixed(2)}%");
+          indicesSolapados.add(i);
+        }
+      }
 
-      if (!overlaps) {
+      // Elimina las actividades solapadas y agrega el entrenamiento de MrFit
+      if (indicesSolapados.isNotEmpty) {
+        // Elimina de mayor a menor para evitar problemas de índices
+        for (final idx in indicesSolapados.reversed) {
+          activity.removeAt(idx);
+        }
+        activity.add(entrenamiento);
+      } else {
+        // Si no hay solapamiento significativo, simplemente agrega el entrenamiento
         activity.add(entrenamiento);
       }
     }
