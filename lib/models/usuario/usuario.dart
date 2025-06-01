@@ -39,6 +39,7 @@ class Usuario {
   int objetivoPasosDiarios;
   int objetivoEntrenamientoSemanal;
   int objetivoTiempoEntrenamiento;
+  int objetivoKcal;
   DateTime fechaNacimiento;
   String genero;
   List<dynamic> historiaLesiones;
@@ -54,7 +55,6 @@ class Usuario {
   int? altura;
   bool aviso10Segundos;
   bool avisoCuentaAtras;
-  int objetivoKcal;
   int primerDiaSemana;
   String unidadDistancia;
   String unidadTamano;

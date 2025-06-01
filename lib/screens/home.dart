@@ -159,26 +159,29 @@ class _InicioPageState extends ConsumerState<InicioPage> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: CalendarWidget(
                 key: _calendarKey,
+                usuario: usuario,
                 selectedDate: _selectedDate,
-                diasEntrenados: _diasEntrenados,
+                grantedPermissions: _grantedPermissions,
                 onDateSelected: (date) {
                   if (date.isAfter(DateTime.now())) return;
                   setState(() => _selectedDate = date);
                   final usuario = ref.read(usuarioProvider);
-                  _fetchAndSetDailyStatsData(usuario, date); // Actualiza datos al seleccionar día
+                  _fetchAndSetDailyStatsData(usuario, date);
                 },
               ),
             ),
             Align(
               alignment: Alignment.centerLeft,
-              child: CalendarHeaderWidget(
+              child: CalendarFooterWidget(
+                usuario: usuario,
                 selectedDate: _selectedDate,
                 onDateChanged: (date) => setState(() => _selectedDate = date),
                 diasEntrenados: _diasEntrenados,
-                usuario: usuario,
                 onJumpToToday: () {
                   CalendarWidget.jumpToToday(_calendarKey);
                   setState(() => _selectedDate = DateTime.now());
+                  final usuario = ref.read(usuarioProvider);
+                  _fetchAndSetDailyStatsData(usuario, _selectedDate);
                 },
               ),
             ),
@@ -240,22 +243,22 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   ),
                                   const SizedBox(height: 15),
                                 ],
-                                DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
-                                dailySleepWidget(day: _selectedDate, usuario: usuario),
-                                const SizedBox(height: 15),
-                                DailyNutritionWidget(day: _selectedDate, usuario: usuario),
-                                if (usuario.isHealthConnectAvailable) ...[
-                                  const SizedBox(height: 15),
-                                  dailyHearthWidget(day: _selectedDate, usuario: usuario),
-                                  const SizedBox(height: 15),
-                                  dailyVitalsWidget(day: _selectedDate, usuario: usuario),
-                                  const SizedBox(height: 15),
-                                  dailyPhysicalWidget(usuario: usuario),
-                                  const SizedBox(height: 15),
-                                  StatisticsWidget(usuario: usuario),
-                                ],
-                                SizedBox(height: 30 + MediaQuery.of(context).padding.bottom),
+                                // DailyTrainingsWidget(day: _selectedDate, usuario: usuario),
+                                // const SizedBox(height: 15),
+                                // dailySleepWidget(day: _selectedDate, usuario: usuario),
+                                // const SizedBox(height: 15),
+                                // DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                                // if (usuario.isHealthConnectAvailable) ...[
+                                //   const SizedBox(height: 15),
+                                //   dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                                //   const SizedBox(height: 15),
+                                //   dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                                //   const SizedBox(height: 15),
+                                //   dailyPhysicalWidget(usuario: usuario),
+                                //   const SizedBox(height: 15),
+                                //   StatisticsWidget(usuario: usuario),
+                                // ],
+                                // SizedBox(height: 30 + MediaQuery.of(context).padding.bottom),
                               ],
                             ),
                           ),
