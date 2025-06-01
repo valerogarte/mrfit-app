@@ -87,13 +87,28 @@ class ChartWidget extends StatelessWidget {
       }
     }
 
+    // Cálculo dinámico del ancho reservado para los valores del eje Y
+    final double reservedYAxisWidth = (() {
+      final yValues = [computedMinY, computedMaxY, minVal, maxVal, ...values];
+      final longest = yValues.map((v) => v.toStringAsFixed(1)).reduce((a, b) => a.length > b.length ? a : b);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: longest,
+          style: const TextStyle(fontSize: 10, color: Colors.grey),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final width = tp.width + 8;
+      return (width > 40 ? 40 : width).toDouble();
+    })();
+
     // Maquetación tipo HeartGrafica: Stack, sin bordes ni paddings extra
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (title != null && title!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+            padding: EdgeInsets.only(left: reservedYAxisWidth, bottom: 8.0),
             child: Text(
               title!,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -222,25 +237,7 @@ class ChartWidget extends StatelessWidget {
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
-                              // Cálculo dinámico del ancho reservado para los valores del eje Y
-                              reservedSize: (() {
-                                // Encuentra el valor más largo (en caracteres) entre los valores de Y
-                                final yValues = [computedMinY, computedMaxY, minVal, maxVal, ...values];
-                                final longest = yValues.map((v) => v.toStringAsFixed(1)).reduce((a, b) => a.length > b.length ? a : b);
-
-                                // Usa TextPainter para calcular el ancho real necesario
-                                final tp = TextPainter(
-                                  text: TextSpan(
-                                    text: longest,
-                                    style: const TextStyle(fontSize: 10, color: Colors.grey),
-                                  ),
-                                  textDirection: TextDirection.ltr,
-                                )..layout();
-
-                                // Limita el ancho máximo a 40 y asegura tipo double
-                                final width = tp.width + 8;
-                                return (width > 40 ? 40 : width).toDouble();
-                              })(),
+                              reservedSize: reservedYAxisWidth,
                               interval: computedInterval,
                               getTitlesWidget: (value, meta) {
                                 return Text(
