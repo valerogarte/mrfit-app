@@ -90,7 +90,7 @@ extension UsuarioHealthExtension on Usuario {
 
   /// Lee los datos de salud para un tipo específico en una fecha dada,
   /// desde las 00:00 hasta las 23:59:59 de ese día.
-  Future<List<HealthDataPoint>> _readHealthDataByDate(HealthDataType type, DateTime date) async {
+  Future<List<HealthDataPoint>> readHealthDataByDate(HealthDataType type, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 

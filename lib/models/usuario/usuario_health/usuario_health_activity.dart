@@ -110,21 +110,6 @@ extension UsuarioHCActivityExtension on Usuario {
     return caloriesByDay;
   }
 
-  Future<int> getTotalStepsForCalendar(DateTime date) async {
-    if (!await checkPermissionsFor("STEPS")) return 0;
-    final dataPointsRaw = await _readHealthDataByDate(HealthDataType.STEPS, date);
-
-    final dataPoints = HealthUtils.customRemoveDuplicates(dataPointsRaw);
-    int steps = 0;
-    for (var dp in dataPoints) {
-      if (dp.value is NumericHealthValue) {
-        steps += (dp.value as NumericHealthValue).numericValue.toInt();
-      }
-    }
-
-    return steps;
-  }
-
   Future<Map<DateTime, double>> getTotalCaloriesBurned({String? date, DateTime? startDate, int nDays = 1}) async {
     final parsedDate = date != null ? DateTime.parse(date) : startDate!;
     final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
@@ -139,8 +124,17 @@ extension UsuarioHCActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<int> getTimeActivityByDateForCalendar(String date) async {
-    final activities = await getActivity(date);
+  Future<int> getTimeActivityByDateForCalendar(
+    String date, {
+    List<HealthDataPoint>? steps,
+    Map<String, List<HealthDataPoint>>? entrenamientos,
+  }) async {
+    // Si steps o entrenamientos no se proporcionan, no los pasamos a getActivity para evitar lógica innecesaria.
+    final activities = await getActivity(
+      date,
+      stepsDataPoints: steps,
+      entrenamientos: entrenamientos,
+    );
 
     int minutes = 0;
     for (var activity in activities) {
@@ -176,11 +170,10 @@ extension UsuarioHCActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<List<Map<String, dynamic>>> getActivityFromSteps(String date) async {
+  Future<List<Map<String, dynamic>>> getActivityFromSteps(List<HealthDataPoint> dataPoints) async {
     final pasosPorMinuto = 70;
     final minutosActivos = 10;
     final descansoPermitido = 10;
-    final dataPoints = await getStepsByDate(date);
 
     // 1) Filtrar resúmenes diarios
     final segments = dataPoints.where((dp) => dp.dateFrom != dp.dateTo);
@@ -283,7 +276,11 @@ extension UsuarioHCActivityExtension on Usuario {
   /// Obtiene la lista de actividades (entrenamientos y pasos) para una fecha dada.
   /// Separa la lógica según la disponibilidad de Health Connect.
   /// Evita solapamientos entre pasos y entrenamientos.
-  Future<List<Map<String, dynamic>>> getActivity(String date) async {
+  Future<List<Map<String, dynamic>>> getActivity(
+    String date, {
+    List<HealthDataPoint>? stepsDataPoints,
+    Map<String, List<HealthDataPoint>>? entrenamientos,
+  }) async {
     List<Map<String, dynamic>> activity = [];
     final day = DateTime.parse(date);
     final entrenamientosMrFit = await getActivityMrFit(day);
@@ -293,9 +290,11 @@ extension UsuarioHCActivityExtension on Usuario {
       return entrenamientosMrFit;
     }
 
-    // Si Health Connect está disponible, se obtienen pasos y entrenamientos de la plataforma.
-    final steps = await getActivityFromSteps(date);
-    final entrenamientos = await getDailyTrainingsByDate(date);
+    // Obtengo pasos si no los he pasado
+    stepsDataPoints ??= await getStepsByDate(date);
+    final steps = await getActivityFromSteps(stepsDataPoints);
+    // Obtengo entrenamientos si no los he pasado
+    entrenamientos ??= await getDailyTrainingsByDate(date);
 
     // Añade entrenamientos primero para evitar solapamientos posteriores.
     for (var entry in entrenamientos.entries) {

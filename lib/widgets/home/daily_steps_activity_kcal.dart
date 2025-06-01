@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:health/health.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/health/health.dart';
 
 class DailyStats {
   final int steps;
@@ -34,11 +37,22 @@ Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
   final parsedDate = DateTime.parse(formattedDay);
 
   if (grantedPermissions['STEPS'] == true) {
-    steps = await usuario.getTotalStepsForCalendar(day);
-  }
-
-  if (grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true) {
-    minutes = await usuario.getTimeActivityByDateForCalendar(formattedDay);
+    final stepsHC = ModeloDatos().healthDataTypesString['STEPS'];
+    if (stepsHC == null) {
+      throw Exception('HealthDataType for STEPS is not defined.');
+    }
+    final dataPointsStepsRaw = await usuario.readHealthDataByDate(stepsHC, day);
+    final dataPointsSteps = HealthUtils.customRemoveDuplicates(dataPointsStepsRaw);
+    int steps = 0;
+    for (var dp in dataPointsSteps) {
+      if (dp.value is NumericHealthValue) {
+        steps += (dp.value as NumericHealthValue).numericValue.toInt();
+      }
+    }
+    if (grantedPermissions['WORKOUT'] == true) {
+      final entrenamientos = await usuario.getDailyTrainingsByDate(formattedDay);
+      minutes = await usuario.getTimeActivityByDateForCalendar(formattedDay, steps: dataPointsSteps, entrenamientos: entrenamientos);
+    }
   }
 
   if (grantedPermissions['TOTAL_CALORIES_BURNED'] == true) {
