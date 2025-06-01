@@ -2,12 +2,12 @@ import 'package:mrfit/models/modelo_datos.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'usuario_backup.dart';
 import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:health/health.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/data/database_helper.dart';
@@ -21,6 +21,7 @@ import 'package:mrfit/models/health/health.dart';
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';
 part 'usuario_medals.dart';
+part 'usuario_activity_recognition.dart';
 part 'usuario_health.dart';
 part 'usuario_health/usuario_health_activity.dart';
 part 'usuario_health/usuario_health_corporal.dart';
@@ -63,6 +64,7 @@ class Usuario {
   TimeOfDay? horaFinSueno;
   TimeOfDay? horaInicioSueno;
   bool isHealthConnectAvailable;
+  bool isActivityRecognitionAvailable = false;
 
   final healthDataTypesString = ModeloDatos().healthDataTypesString;
   final healthDataPermissions = ModeloDatos().healthDataPermissions;
@@ -194,6 +196,11 @@ class Usuario {
   bool setHealthConnectAvaliable(hcAvaliable) {
     isHealthConnectAvailable = hcAvaliable;
     return isHealthConnectAvailable;
+  }
+
+  bool setActivityRecognition(arAvaliable) {
+    isActivityRecognitionAvailable = arAvaliable;
+    return isActivityRecognitionAvailable;
   }
   // Métodos set para actualizar campos en la tabla auth_user
 
@@ -466,6 +473,9 @@ class Usuario {
 
       // Consultar si Health Connect está disponible y lo seteo en el usuario
       await usuario.isHealthConnectAvailableUser();
+
+      // Consultar si Activity Recognition está disponible y lo seteo en el usuario
+      await usuario.isActivityRecognitionAvailableUser();
 
       await usuario.getCurrentMrPoints();
 

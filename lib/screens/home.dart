@@ -16,7 +16,6 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/home/daily_statistics.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
-import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -43,7 +42,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   }
 
   Future<void> _checkHcWarning() async {
-    // Usar key y valor simple (0/1) en vez de JSON
     final cache = await CustomCache.getByKey("warning_hc_disable");
     if (cache != null && cache.value == "0") {
       setState(() => _showHcWarning = false);

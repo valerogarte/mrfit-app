@@ -193,15 +193,44 @@ Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
           );
         }
 
-        content = _buildStatsContainer(
-          children: statWidgets,
-          loader: AnimatedTripleRingLoader(
-            pasosPercent: hasStepsPermission && targetSteps > 0 ? stats.steps / targetSteps : 0,
-            minutosPercent: hasActivityPermission && targetMinActividad > 0 ? stats.minutes / targetMinActividad : 0,
-            kcalPercent: hasCaloriesPermission && targetKcalBurned > 0 ? stats.kcal / targetKcalBurned : 0,
-            trainedToday: hasStepsPermission || hasActivityPermission || hasCaloriesPermission,
-          ),
-          key: const ValueKey('loaded'),
+        content = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Solo muestra el botón si no está disponible el permiso de Activity Recognition.
+            if (!usuario.isActivityRecognitionAvailable)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.privacy_tip, color: AppColors.background),
+                  label: const Text(
+                    'Permisos para acceder a tu actividad',
+                    style: TextStyle(color: AppColors.background),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mutedAdvertencia,
+                    foregroundColor: AppColors.background,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  onPressed: () async {
+                    await usuario.ensurePermissions();
+                  },
+                ),
+              ),
+            const SizedBox(height: 16),
+            _buildStatsContainer(
+              children: statWidgets,
+              loader: AnimatedTripleRingLoader(
+                pasosPercent: hasStepsPermission && targetSteps > 0 ? stats.steps / targetSteps : 0,
+                minutosPercent: hasActivityPermission && targetMinActividad > 0 ? stats.minutes / targetMinActividad : 0,
+                kcalPercent: hasCaloriesPermission && targetKcalBurned > 0 ? stats.kcal / targetKcalBurned : 0,
+                trainedToday: hasStepsPermission || hasActivityPermission || hasCaloriesPermission,
+              ),
+              key: const ValueKey('loaded'),
+            ),
+          ],
         );
       }
 

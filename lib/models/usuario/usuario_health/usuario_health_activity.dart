@@ -1,6 +1,6 @@
 part of '../usuario.dart';
 
-extension UsuarioActivityExtension on Usuario {
+extension UsuarioHCActivityExtension on Usuario {
   Future<List<HealthDataPoint>> getStepsByDate(String date, {int nDays = 1}) async {
     if (!await checkPermissionsFor("STEPS")) return [];
 

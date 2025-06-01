@@ -88,7 +88,7 @@ Widget dailyHCDisableWidget({
                         const SnackBar(
                           content: Text(
                             'Health Connect no está disponible. Por favor, instálalo para continuar.',
-                            style: TextStyle(color: AppColors.textNormal),
+                            style: TextStyle(color: AppColors.background),
                           ),
                           backgroundColor: AppColors.mutedAdvertencia,
                         ),
