@@ -108,7 +108,7 @@ class ChartWidget extends StatelessWidget {
       children: [
         if (title != null && title!.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(left: reservedYAxisWidth, bottom: 8.0),
+            padding: EdgeInsets.only(left: reservedYAxisWidth, bottom: 16.0),
             child: Text(
               title!,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
