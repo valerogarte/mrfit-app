@@ -52,6 +52,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.3 # Icono de la app
   font_awesome_flutter: ^10.8.0 # Iconos
   url_launcher: ^6.3.1 # Lanzar URL
+  pedometer: 4.1.1 # Contador de pasos
 
 flutter_icons:
   android: true

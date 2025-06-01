@@ -72,6 +72,7 @@ class MedidasPage extends ConsumerWidget {
                                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color: AppColors.mutedAdvertencia,
+                                          fontSize: 18,
                                         ),
                                   ),
                                 ),
@@ -118,13 +119,10 @@ class MedidasPage extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 18),
+                            const SizedBox(height: 8),
                             Text(
                               '${snapshot.data!.toStringAsFixed(0)} kcal/día',
-                              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textMedium,
-                                  ),
+                              style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textMedium, fontSize: 20),
                             ),
                           ],
                         ),
@@ -147,16 +145,21 @@ class MedidasPage extends ConsumerWidget {
                   if (sortedData.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 24.0),
-                      child: Container(
-                        decoration: BoxDecoration(
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        color: AppColors.cardBackground,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        clipBehavior: Clip.hardEdge,
-                        child: ChartWidget(
-                          title: 'Peso',
-                          labels: const [],
-                          values: const [],
-                          textNoResults: 'Aún no te has pesado.',
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                          child: ChartWidget(
+                            title: 'Peso',
+                            labels: const [],
+                            values: const [],
+                            textNoResults: 'Aún no te has pesado.',
+                          ),
                         ),
                       ),
                     );
@@ -165,16 +168,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Peso',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Aún no te has pesado.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Peso',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Aún no te has pesado.',
+                        ),
                       ),
                     ),
                   );
@@ -196,16 +204,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Masa Muscular',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de masa muscular.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Masa Muscular',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de masa muscular.',
+                        ),
                       ),
                     ),
                   );
@@ -227,16 +240,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Masa Magra',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de masa magra.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Masa Magra',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de masa magra.',
+                        ),
                       ),
                     ),
                   );
@@ -258,16 +276,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Grasa Corporal (%)',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de grasa corporal.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Grasa Corporal (%)',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de grasa corporal.',
+                        ),
                       ),
                     ),
                   );
@@ -289,16 +312,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Índice de Masa Corporal (BMI)',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de IMC.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Índice de Masa Corporal (BMI)',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de IMC.',
+                        ),
                       ),
                     ),
                   );
@@ -319,16 +347,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Masa Muscular',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de huesos.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Masa Muscular',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de huesos.',
+                        ),
                       ),
                     ),
                   );
@@ -349,16 +382,21 @@ class MedidasPage extends ConsumerWidget {
                   final values = sortedData.map((e) => e.value).toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      color: AppColors.cardBackground,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: ChartWidget(
-                        title: 'Masa Muscular',
-                        labels: labels,
-                        values: values,
-                        textNoResults: 'Sin datos de huesos.',
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+                        child: ChartWidget(
+                          title: 'Masa Muscular',
+                          labels: labels,
+                          values: values,
+                          textNoResults: 'Sin datos de huesos.',
+                        ),
                       ),
                     ),
                   );
