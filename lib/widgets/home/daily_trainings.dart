@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:mrfit/screens/rutinas/rutinas_page.dart';
 import 'package:mrfit/screens/rutinas/rutina_detalle.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/models/modelo_datos.dart';
+import 'package:health/health.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/utils/constants.dart';
 import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 
 class DailyTrainingsWidget extends StatefulWidget {
   final DateTime day;
   final Usuario usuario;
+  final List<HealthDataPoint> dataPointsSteps;
+  final List<HealthDataPoint> dataPointsWorkout;
+  final List<Map<String, dynamic>> entrenamientosMrFit;
 
-  const DailyTrainingsWidget({Key? key, required this.day, required this.usuario}) : super(key: key);
+  const DailyTrainingsWidget({
+    Key? key,
+    required this.day,
+    required this.usuario,
+    required this.dataPointsSteps,
+    required this.dataPointsWorkout,
+    required this.entrenamientosMrFit,
+  }) : super(key: key);
 
   @override
   _DailyTrainingsWidgetState createState() => _DailyTrainingsWidgetState();
@@ -94,99 +105,94 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     final selectedDay = widget.day.toIso8601String().split('T').first;
     final isToday = selectedDay == DateTime.now().toIso8601String().split('T').first;
 
-    // TODO: IMPORTANTE REHACER
-    return const SizedBox.shrink();
+    // Usamos directamente los datos recibidos por parámetro
+    final steps = widget.dataPointsSteps;
+    final entrenamientos = widget.dataPointsWorkout;
+    final entrenamientosMrFit = widget.entrenamientosMrFit;
 
-    // return FutureBuilder<List<Map<String, dynamic>>>(
-    //   future: widget.usuario.getActivity(selectedDay),
-    //   builder: (context, snapshot) {
-    //     Widget dynamicContent;
+    final activities = widget.usuario.getActivity(
+      steps,
+      entrenamientos,
+      entrenamientosMrFit,
+    );
 
-    //     if (snapshot.connectionState != ConnectionState.done) {
-    //       dynamicContent = _buildPlaceholder("Cargando actividad", Icons.blur_on_sharp);
-    //     } else if (snapshot.hasError) {
-    //       dynamicContent = _buildPlaceholder("Error al cargar", Icons.error);
-    //     } else {
-    //       final activities = snapshot.data ?? [];
-    //       if (activities.isEmpty) {
-    //         dynamicContent = _buildPlaceholder("Sin actividad", Icons.blur_on_sharp);
-    //       } else {
-    //         dynamicContent = Column(
-    //           children: activities.asMap().entries.map((entry) {
-    //             final index = entry.key;
-    //             final activity = entry.value;
-    //             if (activity['type'] == 'steps') {
-    //               return FutureBuilder<Widget>(
-    //                 future: _buildActivityRow(
-    //                   uuid: "automatic",
-    //                   title: "Caminar (automático)",
-    //                   start: activity['start'],
-    //                   end: activity['end'],
-    //                   icon: Icons.directions_walk,
-    //                   iconColor: AppColors.mutedAdvertencia,
-    //                   iconBackgroundColor: AppColors.appBarBackground,
-    //                   timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
-    //                 ),
-    //                 builder: (context, snapshot) {
-    //                   if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-    //                     final rowWidget = snapshot.data!;
-    //                     return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-    //                   }
-    //                   return const SizedBox(height: 50);
-    //                 },
-    //               );
-    //             } else if (activity['type'] == 'workout') {
-    //               final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
-    //               final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
-    //               return FutureBuilder<Widget>(
-    //                 future: _buildActivityRow(
-    //                   uuid: activity['uuid'] ?? "",
-    //                   id: activity['id'] ?? 0,
-    //                   title: info["nombre"],
-    //                   start: activity['start'],
-    //                   end: activity['end'],
-    //                   icon: info["icon"],
-    //                   iconColor: AppColors.mutedAdvertencia,
-    //                   iconBackgroundColor: AppColors.appBarBackground,
-    //                   timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
-    //                   sourceName: activity['sourceName'],
-    //                 ),
-    //                 builder: (context, snapshot) {
-    //                   if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-    //                     final rowWidget = snapshot.data!;
-    //                     return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-    //                   }
-    //                   return const SizedBox(height: 50);
-    //                 },
-    //               );
-    //             }
-    //             return const SizedBox.shrink();
-    //           }).toList(),
-    //         );
-    //       }
-    //     }
+    Widget dynamicContent;
+    if (activities.isEmpty) {
+      dynamicContent = _buildPlaceholder("Sin actividad", Icons.blur_on_sharp);
+    } else {
+      dynamicContent = Column(
+        children: activities.asMap().entries.map((entry) {
+          final index = entry.key;
+          final activity = entry.value;
+          if (activity['type'] == 'steps') {
+            return FutureBuilder<Widget>(
+              future: _buildActivityRow(
+                uuid: "automatic",
+                title: "Caminar (automático)",
+                start: activity['start'],
+                end: activity['end'],
+                icon: Icons.directions_walk,
+                iconColor: AppColors.mutedAdvertencia,
+                iconBackgroundColor: AppColors.appBarBackground,
+                timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  final rowWidget = snapshot.data!;
+                  return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+                }
+                return const SizedBox(height: 50);
+              },
+            );
+          } else if (activity['type'] == 'workout') {
+            final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
+            final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
+            return FutureBuilder<Widget>(
+              future: _buildActivityRow(
+                uuid: activity['uuid'] ?? "",
+                id: activity['id'] ?? 0,
+                title: info["nombre"],
+                start: activity['start'],
+                end: activity['end'],
+                icon: info["icon"],
+                iconColor: AppColors.mutedAdvertencia,
+                iconBackgroundColor: AppColors.appBarBackground,
+                timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
+                sourceName: activity['sourceName'],
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  final rowWidget = snapshot.data!;
+                  return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+                }
+                return const SizedBox(height: 50);
+              },
+            );
+          }
+          return const SizedBox.shrink();
+        }).toList(),
+      );
+    }
 
-    //     return Container(
-    //       width: double.infinity,
-    //       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-    //       decoration: BoxDecoration(
-    //         color: AppColors.cardBackground,
-    //         borderRadius: BorderRadius.circular(20),
-    //       ),
-    //       child: Column(
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: [
-    //           AnimatedSwitcher(
-    //             duration: const Duration(milliseconds: 500),
-    //             child: dynamicContent,
-    //           ),
-    //           if (isToday) const SizedBox(height: 10),
-    //           if (isToday) _buildButtonsRow(),
-    //         ],
-    //       ),
-    //     );
-    //   },
-    // );
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: dynamicContent,
+          ),
+          if (isToday) const SizedBox(height: 10),
+          if (isToday) _buildButtonsRow(),
+        ],
+      ),
+    );
   }
 
   Widget _buildButtonsRow() {
