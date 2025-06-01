@@ -279,7 +279,9 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
       } else {
         if (stepsPerm) steps = await usuario.getTotalStepsByDateForCalendar(iso);
         if (kcalPerm) kcal = await usuario.getTotalCaloriesBurnedByDateForCalendar(iso);
-        if (activityPerm) minAct = await usuario.getTimeActivityByDateForCalendar(iso);
+        // TODO: REHACER IMPORTANTE
+        if (activityPerm) minAct = 0;
+        // await usuario.getTimeActivityByDateForCalendar(iso);
 
         // cacheo solo días pasados con datos
         if (!date.isToday && date.isBefore(today) && (steps > 0 || kcal > 0 || minAct > 0)) {
@@ -449,7 +451,7 @@ class _DayCell extends StatelessWidget {
                 painter: TripleRingLoaderPainter(
                   pasosPercent: stepsProgress,
                   minutosPercent: minutosPercent,
-                  kcalPercent: kcalProgress,
+                  horasActivo: kcalProgress,
                   trainedToday: hasTrained,
                   backgroundColorRing: AppColors.cardBackground,
                   showNumberLap: false,

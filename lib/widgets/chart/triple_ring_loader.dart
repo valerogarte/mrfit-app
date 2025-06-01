@@ -5,7 +5,7 @@ import 'package:mrfit/utils/colors.dart';
 class TripleRingLoaderPainter extends CustomPainter {
   final double pasosPercent;
   final double minutosPercent;
-  final double kcalPercent;
+  final double horasActivo;
   final bool trainedToday;
   final Color backgroundColorRing;
   final bool showNumberLap;
@@ -15,7 +15,7 @@ class TripleRingLoaderPainter extends CustomPainter {
   const TripleRingLoaderPainter({
     required this.pasosPercent,
     required this.minutosPercent,
-    required this.kcalPercent,
+    required this.horasActivo,
     required this.trainedToday,
     required this.backgroundColorRing,
     this.showNumberLap = true,
@@ -33,7 +33,7 @@ class TripleRingLoaderPainter extends CustomPainter {
     ];
 
     final ringWidths = List.filled(3, maxRadius * _strokeFactor);
-    final percentages = [pasosPercent, minutosPercent, kcalPercent];
+    final percentages = [pasosPercent, minutosPercent, horasActivo];
     final colors = [
       AppColors.accentColor,
       AppColors.mutedAdvertencia,
@@ -106,6 +106,6 @@ class TripleRingLoaderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant TripleRingLoaderPainter oldDelegate) {
-    return pasosPercent != oldDelegate.pasosPercent || minutosPercent != oldDelegate.minutosPercent || kcalPercent != oldDelegate.kcalPercent || trainedToday != oldDelegate.trainedToday;
+    return pasosPercent != oldDelegate.pasosPercent || minutosPercent != oldDelegate.minutosPercent || horasActivo != oldDelegate.horasActivo || trainedToday != oldDelegate.trainedToday;
   }
 }

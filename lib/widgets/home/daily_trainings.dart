@@ -94,96 +94,99 @@ class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     final selectedDay = widget.day.toIso8601String().split('T').first;
     final isToday = selectedDay == DateTime.now().toIso8601String().split('T').first;
 
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: widget.usuario.getActivity(selectedDay),
-      builder: (context, snapshot) {
-        Widget dynamicContent;
+    // TODO: IMPORTANTE REHACER
+    return const SizedBox.shrink();
 
-        if (snapshot.connectionState != ConnectionState.done) {
-          dynamicContent = _buildPlaceholder("Cargando actividad", Icons.blur_on_sharp);
-        } else if (snapshot.hasError) {
-          dynamicContent = _buildPlaceholder("Error al cargar", Icons.error);
-        } else {
-          final activities = snapshot.data ?? [];
-          if (activities.isEmpty) {
-            dynamicContent = _buildPlaceholder("Sin actividad", Icons.blur_on_sharp);
-          } else {
-            dynamicContent = Column(
-              children: activities.asMap().entries.map((entry) {
-                final index = entry.key;
-                final activity = entry.value;
-                if (activity['type'] == 'steps') {
-                  return FutureBuilder<Widget>(
-                    future: _buildActivityRow(
-                      uuid: "automatic",
-                      title: "Caminar (automático)",
-                      start: activity['start'],
-                      end: activity['end'],
-                      icon: Icons.directions_walk,
-                      iconColor: AppColors.mutedAdvertencia,
-                      iconBackgroundColor: AppColors.appBarBackground,
-                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                        final rowWidget = snapshot.data!;
-                        return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-                      }
-                      return const SizedBox(height: 50);
-                    },
-                  );
-                } else if (activity['type'] == 'workout') {
-                  final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
-                  final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
-                  return FutureBuilder<Widget>(
-                    future: _buildActivityRow(
-                      uuid: activity['uuid'] ?? "",
-                      id: activity['id'] ?? 0,
-                      title: info["nombre"],
-                      start: activity['start'],
-                      end: activity['end'],
-                      icon: info["icon"],
-                      iconColor: AppColors.mutedAdvertencia,
-                      iconBackgroundColor: AppColors.appBarBackground,
-                      timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
-                      sourceName: activity['sourceName'],
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                        final rowWidget = snapshot.data!;
-                        return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-                      }
-                      return const SizedBox(height: 50);
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              }).toList(),
-            );
-          }
-        }
+    // return FutureBuilder<List<Map<String, dynamic>>>(
+    //   future: widget.usuario.getActivity(selectedDay),
+    //   builder: (context, snapshot) {
+    //     Widget dynamicContent;
 
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child: dynamicContent,
-              ),
-              if (isToday) const SizedBox(height: 10),
-              if (isToday) _buildButtonsRow(),
-            ],
-          ),
-        );
-      },
-    );
+    //     if (snapshot.connectionState != ConnectionState.done) {
+    //       dynamicContent = _buildPlaceholder("Cargando actividad", Icons.blur_on_sharp);
+    //     } else if (snapshot.hasError) {
+    //       dynamicContent = _buildPlaceholder("Error al cargar", Icons.error);
+    //     } else {
+    //       final activities = snapshot.data ?? [];
+    //       if (activities.isEmpty) {
+    //         dynamicContent = _buildPlaceholder("Sin actividad", Icons.blur_on_sharp);
+    //       } else {
+    //         dynamicContent = Column(
+    //           children: activities.asMap().entries.map((entry) {
+    //             final index = entry.key;
+    //             final activity = entry.value;
+    //             if (activity['type'] == 'steps') {
+    //               return FutureBuilder<Widget>(
+    //                 future: _buildActivityRow(
+    //                   uuid: "automatic",
+    //                   title: "Caminar (automático)",
+    //                   start: activity['start'],
+    //                   end: activity['end'],
+    //                   icon: Icons.directions_walk,
+    //                   iconColor: AppColors.mutedAdvertencia,
+    //                   iconBackgroundColor: AppColors.appBarBackground,
+    //                   timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
+    //                 ),
+    //                 builder: (context, snapshot) {
+    //                   if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+    //                     final rowWidget = snapshot.data!;
+    //                     return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+    //                   }
+    //                   return const SizedBox(height: 50);
+    //                 },
+    //               );
+    //             } else if (activity['type'] == 'workout') {
+    //               final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
+    //               final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
+    //               return FutureBuilder<Widget>(
+    //                 future: _buildActivityRow(
+    //                   uuid: activity['uuid'] ?? "",
+    //                   id: activity['id'] ?? 0,
+    //                   title: info["nombre"],
+    //                   start: activity['start'],
+    //                   end: activity['end'],
+    //                   icon: info["icon"],
+    //                   iconColor: AppColors.mutedAdvertencia,
+    //                   iconBackgroundColor: AppColors.appBarBackground,
+    //                   timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
+    //                   sourceName: activity['sourceName'],
+    //                 ),
+    //                 builder: (context, snapshot) {
+    //                   if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+    //                     final rowWidget = snapshot.data!;
+    //                     return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+    //                   }
+    //                   return const SizedBox(height: 50);
+    //                 },
+    //               );
+    //             }
+    //             return const SizedBox.shrink();
+    //           }).toList(),
+    //         );
+    //       }
+    //     }
+
+    //     return Container(
+    //       width: double.infinity,
+    //       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+    //       decoration: BoxDecoration(
+    //         color: AppColors.cardBackground,
+    //         borderRadius: BorderRadius.circular(20),
+    //       ),
+    //       child: Column(
+    //         crossAxisAlignment: CrossAxisAlignment.start,
+    //         children: [
+    //           AnimatedSwitcher(
+    //             duration: const Duration(milliseconds: 500),
+    //             child: dynamicContent,
+    //           ),
+    //           if (isToday) const SizedBox(height: 10),
+    //           if (isToday) _buildButtonsRow(),
+    //         ],
+    //       ),
+    //     );
+    //   },
+    // );
   }
 
   Widget _buildButtonsRow() {

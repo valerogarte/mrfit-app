@@ -124,16 +124,104 @@ extension UsuarioHCActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<int> getTimeActivityByDateForCalendar(
-    String date, {
+  /// Calcula los pasos a partir de los dataPoints recibidos.
+  int getTotalSteps(List<HealthDataPoint> dataPointsSteps) {
+    int steps = 0;
+    for (var dp in dataPointsSteps) {
+      if (dp.value is NumericHealthValue) {
+        steps += (dp.value as NumericHealthValue).numericValue.toInt();
+      }
+    }
+    return steps;
+  }
+
+  /// Calcula el número de horas activas del usuario en base a entrenamientos y pasos.
+  /// Una hora se considera activa si:
+  /// - Hay un entrenamiento (o entrenamientoMrFit) de más de 5 minutos en esa hora, o
+  /// - Se han dado más de 400 pasos en esa hora.
+  int getTimeUserActivity({
     List<HealthDataPoint>? steps,
-    Map<String, List<HealthDataPoint>>? entrenamientos,
-  }) async {
+    List<HealthDataPoint>? entrenamientos,
+    List<Map<String, dynamic>>? entrenamientosMrFit,
+  }) {
+    final tiempoActivoMinimoEnEjercicio = 5;
+    final pasosMinimosPorHora = 400;
+    // Mapa para registrar si una hora específica es activa
+    final Map<DateTime, bool> horasActivas = {};
+
+    // Procesa entrenamientos (HealthDataPoint)
+    if (entrenamientos != null) {
+      for (var entrenamiento in entrenamientos) {
+        final start = entrenamiento.dateFrom;
+        final end = entrenamiento.dateTo;
+        final durationMin = end.difference(start).inMinutes;
+        if (durationMin > 5) {
+          // Marca todas las horas cubiertas por este entrenamiento como activas
+          DateTime current = DateTime(start.year, start.month, start.day, start.hour);
+          while (current.isBefore(end)) {
+            horasActivas[current] = true;
+            current = current.add(const Duration(hours: 1));
+          }
+        }
+      }
+    }
+
+    // Procesa entrenamientos MrFit (Map)
+    if (entrenamientosMrFit != null) {
+      for (var entrenamiento in entrenamientosMrFit) {
+        final start = entrenamiento['start'] as DateTime;
+        final end = entrenamiento['end'] as DateTime;
+        final durationMin = end.difference(start).inMinutes;
+        if (durationMin > tiempoActivoMinimoEnEjercicio) {
+          DateTime current = DateTime(start.year, start.month, start.day, start.hour);
+          while (current.isBefore(end)) {
+            horasActivas[current] = true;
+            current = current.add(const Duration(hours: 1));
+          }
+        }
+      }
+    }
+
+    // Procesa pasos
+    if (steps != null) {
+      // Agrupa pasos por hora
+      final Map<DateTime, int> pasosPorHora = {};
+      for (var dp in steps) {
+        if (dp.value is NumericHealthValue) {
+          final pasos = (dp.value as NumericHealthValue).numericValue.toInt();
+          final start = dp.dateFrom;
+          final end = dp.dateTo;
+          // Marca cada hora cubierta por el segmento de pasos
+          DateTime current = DateTime(start.year, start.month, start.day, start.hour);
+          while (current.isBefore(end)) {
+            pasosPorHora[current] = (pasosPorHora[current] ?? 0) + pasos;
+            current = current.add(const Duration(hours: 1));
+          }
+        }
+      }
+      // Marca como activa la hora si supera los 400 pasos y no fue marcada por entrenamiento
+      for (var entry in pasosPorHora.entries) {
+        if (entry.value > pasosMinimosPorHora) {
+          horasActivas[entry.key] = true;
+        }
+      }
+    }
+
+    // Devuelve el número de horas activas
+    return horasActivas.values.where((v) => v).length;
+  }
+
+  int getTimeActivityByDateForCalendar(
+    Map<String, bool> grantedPermissions,
+    List<HealthDataPoint> steps,
+    List<HealthDataPoint> entrenamientos,
+    List<Map<String, dynamic>> entrenamientosMrFit,
+  ) {
     // Si steps o entrenamientos no se proporcionan, no los pasamos a getActivity para evitar lógica innecesaria.
-    final activities = await getActivity(
-      date,
-      stepsDataPoints: steps,
-      entrenamientos: entrenamientos,
+    final activities = getActivity(
+      steps,
+      entrenamientos,
+      entrenamientosMrFit,
     );
 
     int minutes = 0;
@@ -170,7 +258,7 @@ extension UsuarioHCActivityExtension on Usuario {
     return tempMap;
   }
 
-  Future<List<Map<String, dynamic>>> getActivityFromSteps(List<HealthDataPoint> dataPoints) async {
+  List<Map<String, dynamic>> getActivityFromSteps(List<HealthDataPoint> dataPoints) {
     final pasosPorMinuto = 70;
     final minutosActivos = 10;
     final descansoPermitido = 10;
@@ -276,41 +364,26 @@ extension UsuarioHCActivityExtension on Usuario {
   /// Obtiene la lista de actividades (entrenamientos y pasos) para una fecha dada.
   /// Separa la lógica según la disponibilidad de Health Connect.
   /// Evita solapamientos entre pasos y entrenamientos.
-  Future<List<Map<String, dynamic>>> getActivity(
-    String date, {
-    List<HealthDataPoint>? stepsDataPoints,
-    Map<String, List<HealthDataPoint>>? entrenamientos,
-  }) async {
+  List<Map<String, dynamic>> getActivity(
+    List<HealthDataPoint> stepsDataPoints,
+    List<HealthDataPoint> entrenamientos,
+    List<Map<String, dynamic>> entrenamientosMrFit,
+  ) {
     List<Map<String, dynamic>> activity = [];
-    final day = DateTime.parse(date);
-    final entrenamientosMrFit = await getActivityMrFit(day);
 
-    // Si Health Connect no está disponible, solo se obtienen entrenamientos locales.
-    if (isHealthConnectAvailable == false) {
-      return entrenamientosMrFit;
-    }
-
-    // Obtengo pasos si no los he pasado
-    stepsDataPoints ??= await getStepsByDate(date);
-    final steps = await getActivityFromSteps(stepsDataPoints);
-    // Obtengo entrenamientos si no los he pasado
-    entrenamientos ??= await getDailyTrainingsByDate(date);
-
-    // Añade entrenamientos primero para evitar solapamientos posteriores.
-    for (var entry in entrenamientos.entries) {
-      for (var entrenamiento in entry.value) {
-        activity.add({
-          'uuid': entrenamiento.uuid,
-          'type': 'workout',
-          'start': entrenamiento.dateFrom,
-          'end': entrenamiento.dateTo,
-          'sourceName': entrenamiento.sourceName,
-          'activityType': (entrenamiento.value as WorkoutHealthValue).workoutActivityType.toString(),
-        });
-      }
+    for (var entrenamiento in entrenamientos) {
+      activity.add({
+        'uuid': entrenamiento.uuid,
+        'type': 'workout',
+        'start': entrenamiento.dateFrom,
+        'end': entrenamiento.dateTo,
+        'sourceName': entrenamiento.sourceName,
+        'activityType': (entrenamiento.value as WorkoutHealthValue).workoutActivityType.toString(),
+      });
     }
 
     // Añade bloques de pasos solo si no solapan con entrenamientos.
+    final steps = getActivityFromSteps(stepsDataPoints);
     for (var step in steps) {
       final stepStart = step['start'] as DateTime;
       final stepEnd = step['end'] as DateTime;

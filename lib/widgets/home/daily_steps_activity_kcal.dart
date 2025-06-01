@@ -1,259 +1,174 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:health/health.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
-import 'package:mrfit/models/modelo_datos.dart';
-import 'package:mrfit/models/health/health.dart';
 
-class DailyStats {
-  final int steps;
-  final int minutes;
-  final int kcal;
-  final Map<String, bool> permissions;
+// Duración unificada para animaciones de valor y ring.
+const Duration kStatsAnimationDuration = Duration(milliseconds: 1000);
 
-  DailyStats({
-    required this.steps,
-    required this.minutes,
-    required this.kcal,
-    required this.permissions,
-  });
-}
-
-Future<DailyStats> _loadDailyStats(Usuario usuario, DateTime day) async {
-  final Map<String, bool> grantedPermissions = {};
-
-  for (var key in usuario.healthDataTypesString.keys) {
-    final bool permissionGranted = await usuario.checkPermissionsFor(key);
-    grantedPermissions[key] = permissionGranted;
-  }
+// Widget principal que calcula y muestra las estadísticas diarias.
+// Unifica lógica y UI para mayor claridad y simplicidad.
+Widget dailyStatsWidget({
+  required Usuario usuario,
+  required Map<String, bool> grantedPermissions,
+  required List<HealthDataPoint> dataPointsSteps,
+  required List<HealthDataPoint> dataPointsWorkout,
+  required List<Map<String, dynamic>> entrenamientosMrFit,
+}) {
+  final int targetSteps = usuario.objetivoPasosDiarios;
+  final int targetMinActividad = usuario.objetivoTiempoEntrenamiento;
+  final int targetHorasActivo = usuario.objetivoKcal;
 
   int steps = 0;
   int minutes = 0;
-  int kcal = 0;
-
-  final String formattedDay = day.toIso8601String().split('T').first;
-  final parsedDate = DateTime.parse(formattedDay);
+  int horasActivo = 0;
 
   if (grantedPermissions['STEPS'] == true) {
-    final stepsHC = ModeloDatos().healthDataTypesString['STEPS'];
-    if (stepsHC == null) {
-      throw Exception('HealthDataType for STEPS is not defined.');
-    }
-    final dataPointsStepsRaw = await usuario.readHealthDataByDate(stepsHC, day);
-    final dataPointsSteps = HealthUtils.customRemoveDuplicates(dataPointsStepsRaw);
-    int steps = 0;
-    for (var dp in dataPointsSteps) {
-      if (dp.value is NumericHealthValue) {
-        steps += (dp.value as NumericHealthValue).numericValue.toInt();
-      }
-    }
-    if (grantedPermissions['WORKOUT'] == true) {
-      final entrenamientos = await usuario.getDailyTrainingsByDate(formattedDay);
-      minutes = await usuario.getTimeActivityByDateForCalendar(formattedDay, steps: dataPointsSteps, entrenamientos: entrenamientos);
-    }
+    steps = usuario.getTotalSteps(dataPointsSteps);
+  }
+  if (grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true) {
+    minutes = usuario.getTimeActivityByDateForCalendar(
+      grantedPermissions,
+      dataPointsSteps,
+      dataPointsWorkout,
+      entrenamientosMrFit,
+    );
+    horasActivo = usuario.getTimeUserActivity(
+      steps: dataPointsSteps,
+      entrenamientos: dataPointsWorkout,
+      entrenamientosMrFit: entrenamientosMrFit,
+    );
   }
 
-  if (grantedPermissions['TOTAL_CALORIES_BURNED'] == true) {
-    final Map<DateTime, double> kcalMap = await usuario.getTotalCaloriesBurned(date: formattedDay);
-    kcal = kcalMap[parsedDate]?.round() ?? 0;
-  }
+  final hasStepsPermission = grantedPermissions['STEPS'] == true;
+  final hasActivityPermission = grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true;
 
-  return DailyStats(steps: steps, minutes: minutes, kcal: kcal, permissions: grantedPermissions);
-}
+  final List<Widget> statWidgets = [];
 
-Widget permissionButton({
-  required Color color,
-  required IconData icon,
-  required VoidCallback onTap,
-}) {
-  return Row(
-    children: [
-      CircleAvatar(
-        radius: 16,
-        backgroundColor: color,
-        child: Icon(icon, color: AppColors.background, size: 18),
-      ),
-      const SizedBox(width: 12),
-      ElevatedButton.icon(
-        onPressed: onTap,
-        icon: const Icon(Icons.settings, size: 16),
-        label: const Text('Permisos'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color.withOpacity(0.2),
-          foregroundColor: color,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          minimumSize: const Size(0, 32),
+  // Steps widget
+  if (hasStepsPermission) {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: AnimatedInfoItem(
+          color: AppColors.accentColor,
+          icon: Icons.directions_walk,
+          finalValue: steps,
+          label: 'pasos',
+          duration: kStatsAnimationDuration, // Unifica duración
         ),
       ),
+    );
+  } else {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 0),
+        child: permissionButton(
+          color: AppColors.accentColor,
+          icon: Icons.directions_walk,
+          onTap: () => usuario.requestPermissions(),
+        ),
+      ),
+    );
+  }
+
+  // Activity minutes widget
+  if (hasActivityPermission) {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: AnimatedInfoItem(
+          color: AppColors.mutedAdvertencia,
+          icon: Icons.access_time,
+          finalValue: minutes,
+          label: 'min',
+          duration: kStatsAnimationDuration, // Unifica duración
+        ),
+      ),
+    );
+  } else {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 0),
+        child: permissionButton(
+          color: AppColors.mutedAdvertencia,
+          icon: Icons.access_time,
+          onTap: () async {
+            await usuario.requestPermissions();
+          },
+        ),
+      ),
+    );
+  }
+
+  // Calories widget
+  if (hasActivityPermission) {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: AnimatedInfoItem(
+          color: AppColors.mutedGreen,
+          icon: Icons.local_fire_department,
+          finalValue: horasActivo,
+          label: 'h activo',
+          duration: kStatsAnimationDuration,
+        ),
+      ),
+    );
+  } else {
+    statWidgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 0),
+        child: permissionButton(
+          color: AppColors.mutedGreen,
+          icon: Icons.local_fire_department,
+          onTap: () => usuario.requestPermissions(),
+        ),
+      ),
+    );
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Muestra el botón de permisos si no está disponible Activity Recognition.
+      if (!usuario.isActivityRecognitionAvailable) ...[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.privacy_tip, color: AppColors.background),
+            label: const Text(
+              'Permisos para acceder a tu actividad',
+              style: TextStyle(color: AppColors.background),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mutedAdvertencia,
+              foregroundColor: AppColors.background,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            onPressed: () async {
+              await usuario.ensurePermissions();
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+      _buildStatsContainer(
+        children: statWidgets,
+        loader: AnimatedTripleRingLoader(
+          pasosPercent: hasStepsPermission && targetSteps > 0 ? steps / targetSteps : 0,
+          minutosPercent: hasActivityPermission && targetMinActividad > 0 ? minutes / targetMinActividad : 0,
+          horasActivo: hasActivityPermission && targetHorasActivo > 0 ? horasActivo / targetHorasActivo : 0,
+          trainedToday: hasStepsPermission || hasActivityPermission || hasActivityPermission,
+          duration: kStatsAnimationDuration, // Unifica duración
+        ),
+        key: const ValueKey('loaded'),
+      ),
     ],
-  );
-}
-
-Widget dailyStatsWidget({required DateTime day, required Usuario usuario}) {
-  final int targetSteps = usuario.objetivoPasosDiarios;
-  final int targetMinActividad = usuario.objetivoTiempoEntrenamiento;
-  final int targetKcalBurned = usuario.objetivoKcal;
-
-  return FutureBuilder<DailyStats>(
-    future: _loadDailyStats(usuario, day),
-    builder: (context, snapshot) {
-      Widget content;
-
-      if (snapshot.connectionState != ConnectionState.done) {
-        final items = [
-          (AppColors.accentColor, Icons.directions_walk, 0, 'pasos', targetSteps),
-          (AppColors.mutedAdvertencia, Icons.access_time, 0, 'min', targetMinActividad),
-          (AppColors.mutedGreen, Icons.local_fire_department, 0, 'kcal', targetKcalBurned),
-        ];
-        content = _buildStatsContainer(
-          children: buildInfoItems(items: items, isAnimated: false),
-          loader: const _StaticTripleRingLoader(trainedToday: false),
-          key: const ValueKey('placeholder'),
-        );
-      } else if (snapshot.hasError) {
-        Logger().w('Error cargando datos diarios: ${snapshot.error}');
-        content = const SizedBox(key: ValueKey('error'));
-      } else {
-        final stats = snapshot.data!;
-
-        final hasStepsPermission = stats.permissions['STEPS'] == true;
-        final hasActivityPermission = stats.permissions['STEPS'] == true && stats.permissions['WORKOUT'] == true;
-        final hasCaloriesPermission = stats.permissions['TOTAL_CALORIES_BURNED'] == true;
-
-        final List<Widget> statWidgets = [];
-
-        // Steps widget
-        if (hasStepsPermission) {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: AnimatedInfoItem(
-                color: AppColors.accentColor,
-                icon: Icons.directions_walk,
-                finalValue: stats.steps,
-                label: 'pasos',
-                duration: const Duration(milliseconds: 500),
-              ),
-            ),
-          );
-        } else {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: permissionButton(
-                color: AppColors.accentColor,
-                icon: Icons.directions_walk,
-                onTap: () => usuario.requestPermissions(),
-              ),
-            ),
-          );
-        }
-
-        // Activity minutes widget
-        if (hasActivityPermission) {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: AnimatedInfoItem(
-                color: AppColors.mutedAdvertencia,
-                icon: Icons.access_time,
-                finalValue: stats.minutes,
-                label: 'min',
-                duration: const Duration(milliseconds: 500),
-              ),
-            ),
-          );
-        } else {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: permissionButton(
-                color: AppColors.mutedAdvertencia,
-                icon: Icons.access_time,
-                onTap: () async {
-                  await usuario.requestPermissions();
-                },
-              ),
-            ),
-          );
-        }
-
-        // Calories widget
-        if (hasCaloriesPermission) {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: AnimatedInfoItem(
-                color: AppColors.mutedGreen,
-                icon: Icons.local_fire_department,
-                finalValue: stats.kcal,
-                label: 'kcal',
-                duration: const Duration(milliseconds: 500),
-              ),
-            ),
-          );
-        } else {
-          statWidgets.add(
-            Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: permissionButton(
-                color: AppColors.mutedGreen,
-                icon: Icons.local_fire_department,
-                onTap: () => usuario.requestPermissions(),
-              ),
-            ),
-          );
-        }
-
-        content = Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Solo muestra el botón si no está disponible el permiso de Activity Recognition.
-            if (!usuario.isActivityRecognitionAvailable)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.privacy_tip, color: AppColors.background),
-                  label: const Text(
-                    'Permisos para acceder a tu actividad',
-                    style: TextStyle(color: AppColors.background),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.mutedAdvertencia,
-                    foregroundColor: AppColors.background,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () async {
-                    await usuario.ensurePermissions();
-                  },
-                ),
-              ),
-            const SizedBox(height: 16),
-            _buildStatsContainer(
-              children: statWidgets,
-              loader: AnimatedTripleRingLoader(
-                pasosPercent: hasStepsPermission && targetSteps > 0 ? stats.steps / targetSteps : 0,
-                minutosPercent: hasActivityPermission && targetMinActividad > 0 ? stats.minutes / targetMinActividad : 0,
-                kcalPercent: hasCaloriesPermission && targetKcalBurned > 0 ? stats.kcal / targetKcalBurned : 0,
-                trainedToday: hasStepsPermission || hasActivityPermission || hasCaloriesPermission,
-              ),
-              key: const ValueKey('loaded'),
-            ),
-          ],
-        );
-      }
-
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-        child: content,
-      );
-    },
   );
 }
 
@@ -364,12 +279,14 @@ class AnimatedInfoItem extends StatelessWidget {
     required this.icon,
     required this.finalValue,
     required this.label,
-    this.duration = const Duration(milliseconds: 500),
+    this.duration = kStatsAnimationDuration,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Usar ValueKey para reiniciar la animación cuando cambia el valor final
     return TweenAnimationBuilder<int>(
+      key: ValueKey(finalValue),
       tween: IntTween(begin: 0, end: finalValue),
       duration: duration,
       builder: (context, value, child) {
@@ -388,31 +305,39 @@ class AnimatedInfoItem extends StatelessWidget {
 class AnimatedTripleRingLoader extends StatelessWidget {
   final double pasosPercent;
   final double minutosPercent;
-  final double kcalPercent;
+  final double horasActivo;
   final bool trainedToday;
   final Duration duration;
 
   const AnimatedTripleRingLoader({
-    Key? key,
+    super.key,
     required this.pasosPercent,
     required this.minutosPercent,
-    required this.kcalPercent,
+    required this.horasActivo,
     required this.trainedToday,
-    this.duration = const Duration(milliseconds: 1000),
-  }) : super(key: key);
+    this.duration = kStatsAnimationDuration, // Usa duración unificada por defecto
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Animar cada anillo por separado para una animación fluida y predecible.
     return TweenAnimationBuilder<double>(
+      key: ValueKey('${pasosPercent}_${minutosPercent}_$horasActivo'),
       tween: Tween<double>(begin: 0.0, end: 1.0),
       duration: duration,
+      curve: Curves.easeOutCubic,
       builder: (context, animationValue, child) {
+        // Cada porcentaje se anima individualmente para evitar saltos.
+        // Importante: NO clampees aquí, deja que el painter reciba el valor real.
+        final animatedPasos = pasosPercent * animationValue;
+        final animatedMinutos = minutosPercent * animationValue;
+        final animatedHorasActivo = horasActivo * animationValue;
         return CustomPaint(
           size: const Size(125, 125),
           painter: TripleRingLoaderPainter(
-            pasosPercent: pasosPercent * animationValue,
-            minutosPercent: minutosPercent * animationValue,
-            kcalPercent: kcalPercent * animationValue,
+            pasosPercent: animatedPasos,
+            minutosPercent: animatedMinutos,
+            horasActivo: animatedHorasActivo,
             trainedToday: trainedToday,
             backgroundColorRing: AppColors.background,
             showNumberLap: true,
@@ -423,22 +348,30 @@ class AnimatedTripleRingLoader extends StatelessWidget {
   }
 }
 
-class _StaticTripleRingLoader extends StatelessWidget {
-  final bool trainedToday;
-  const _StaticTripleRingLoader({this.trainedToday = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(125, 125),
-      painter: TripleRingLoaderPainter(
-        pasosPercent: 0,
-        minutosPercent: 0,
-        kcalPercent: 0,
-        trainedToday: trainedToday,
-        backgroundColorRing: AppColors.background,
-        showNumberLap: true,
+Widget permissionButton({
+  required Color color,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return Row(
+    children: [
+      CircleAvatar(
+        radius: 16,
+        backgroundColor: color,
+        child: Icon(icon, color: AppColors.background, size: 18),
       ),
-    );
-  }
+      const SizedBox(width: 12),
+      ElevatedButton.icon(
+        onPressed: onTap,
+        icon: const Icon(Icons.settings, size: 16),
+        label: const Text('Permisos'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color.withOpacity(0.2),
+          foregroundColor: color,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          minimumSize: const Size(0, 32),
+        ),
+      ),
+    ],
+  );
 }
