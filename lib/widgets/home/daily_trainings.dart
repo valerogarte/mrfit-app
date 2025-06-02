@@ -9,6 +9,23 @@ import 'package:mrfit/utils/constants.dart';
 import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 
+Widget _buildPlaceholder(String text, IconData icon) {
+  return Row(
+    children: [
+      CircleAvatar(
+        radius: 16,
+        backgroundColor: AppColors.appBarBackground,
+        child: Icon(icon, size: 18, color: AppColors.mutedAdvertencia),
+      ),
+      const SizedBox(width: 12),
+      Text(
+        text,
+        style: const TextStyle(color: AppColors.textMedium, fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    ],
+  );
+}
+
 class DailyTrainingsWidget extends StatefulWidget {
   final DateTime day;
   final Usuario usuario;
@@ -247,23 +264,6 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildPlaceholder(String text, IconData icon) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: AppColors.appBarBackground,
-          child: Icon(icon, size: 18, color: AppColors.mutedAdvertencia),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          text,
-          style: const TextStyle(color: AppColors.textMedium, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ],
     );
   }
 }
