@@ -169,11 +169,6 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    _entrenadora.detener(); // Detener TTS al pulsar atrás
-    return true; // Permitir la navegación hacia atrás
-  }
-
   @override
   void dispose() {
     // Cancelar el temporizador cuando se destruya el widget
@@ -316,8 +311,11 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   @override
   Widget build(BuildContext context) {
     final ejercicios = widget.entrenamiento.ejercicios;
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        _entrenadora.detener(); // Detener TTS al pulsar atrás
+      },
       child: ScaffoldMessenger(
         key: _scaffoldMessengerKey,
         child: Scaffold(

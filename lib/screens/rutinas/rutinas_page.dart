@@ -130,21 +130,6 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
     );
   }
 
-  Future<bool> _handleWillPop() async {
-    // Maneja el evento de retroceso físico (WillPopScope).
-    if (Navigator.of(context).canPop()) {
-      // Permite retroceder si hay rutas en el stack.
-      return true;
-    }
-    // Si no hay rutas previas, navega a la raíz y limpia el stack.
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MyApp()),
-      (route) => false,
-    );
-    // Evita el cierre de la app, ya que se redirige a la raíz.
-    return false;
-  }
-
   void _handleBackButton() {
     // Maneja el evento de retroceso personalizado (por ejemplo, botón en UI).
     if (Navigator.of(context).canPop()) {
@@ -161,8 +146,20 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _handleWillPop,
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        // Permite retroceder si hay rutas en el stack.
+        if (Navigator.of(context).canPop()) {
+          return;
+        }
+        // Si no hay rutas previas, navega a la raíz y limpia el stack.
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MyApp()),
+          (route) => false,
+        );
+        // No se cierra la app, se redirige a la raíz.
+      },
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
