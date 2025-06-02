@@ -13,7 +13,7 @@ class MedalCard extends StatelessWidget {
   static const double _aspectRatio = 0.75;
 
   const MedalCard({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     required this.icon,
@@ -21,8 +21,7 @@ class MedalCard extends StatelessWidget {
     required this.units,
     required this.date,
     required this.type,
-  })  : assert((width != null) ^ (height != null), 'Debes proporcionar width o height, no ambos.'),
-        super(key: key);
+  }) : assert((width != null) ^ (height != null), 'Debes proporcionar width o height, no ambos.');
 
   @override
   Widget build(BuildContext context) {
@@ -86,12 +85,12 @@ class MedalCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(13),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withAlpha(100),
               blurRadius: 0,
               offset: Offset(-1, -1),
             ),
             BoxShadow(
-              color: AppColors.textNormal.withOpacity(0.3),
+              color: AppColors.textNormal.withAlpha(75),
               blurRadius: 0,
               offset: Offset(1, 1),
             ),
@@ -113,12 +112,12 @@ class MedalCard extends StatelessWidget {
                         Shadow(
                           offset: Offset(1, 1),
                           blurRadius: 0,
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withAlpha(75),
                         ),
                         Shadow(
                           offset: Offset(-0.75, -0.75),
                           blurRadius: 2,
-                          color: AppColors.textNormal.withOpacity(0.5),
+                          color: AppColors.textNormal.withAlpha(100),
                         ),
                       ],
                     ),
@@ -185,12 +184,12 @@ class MedalCard extends StatelessWidget {
               Shadow(
                 offset: Offset(0.5, 0.5),
                 blurRadius: 0,
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withAlpha(80),
               ),
               Shadow(
                 offset: Offset(-0.25, -0.25),
                 blurRadius: 2,
-                color: AppColors.textNormal.withOpacity(0.5),
+                color: AppColors.textNormal.withAlpha(125),
               ),
             ],
           ),

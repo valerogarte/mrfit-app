@@ -89,27 +89,23 @@ extension EntrenadoraHelpers on Entrenadora {
               if (!await waitWhileInterrupted()) return;
               var nuevoPeso = primeraSerieNoRealizada.peso;
 
-              if (ejercicioR.ejercicio.equipamiento != null) {
-                // 1="Solo cuerpo" y 3="Otros"
-                if ({1, 3}.contains(equipamiento.id)) {
-                  // NO DIGO NADA, solo se usa el cuerpo u equipamiento genérico
-                } else {
-                  if (equipamiento.titulo != ejercicioRAnterior.ejercicio.equipamiento.titulo) {
-                    if (nuevoPeso == 0) {
-                      await _flutterTts!.speak('Cambia a ${equipamiento.titulo} sin peso.');
-                    } else {
-                      await _flutterTts!.speak('Cambia a ${equipamiento.titulo} con ${pesoLiteral(nuevoPeso)}.');
-                    }
+              // 1="Solo cuerpo" y 3="Otros"
+              if ({1, 3}.contains(equipamiento.id)) {
+                // NO DIGO NADA, solo se usa el cuerpo u equipamiento genérico
+              } else {
+                if (equipamiento.titulo != ejercicioRAnterior.ejercicio.equipamiento.titulo) {
+                  if (nuevoPeso == 0) {
+                    await _flutterTts!.speak('Cambia a ${equipamiento.titulo} sin peso.');
                   } else {
-                    if (nuevoPeso == 0) {
-                      await _flutterTts!.speak('Quita el peso.');
-                    } else {
-                      await _flutterTts!.speak('Atención, ve cambiando el peso a ${pesoLiteral(nuevoPeso)}.');
-                    }
+                    await _flutterTts!.speak('Cambia a ${equipamiento.titulo} con ${pesoLiteral(nuevoPeso)}.');
+                  }
+                } else {
+                  if (nuevoPeso == 0) {
+                    await _flutterTts!.speak('Quita el peso.');
+                  } else {
+                    await _flutterTts!.speak('Atención, ve cambiando el peso a ${pesoLiteral(nuevoPeso)}.');
                   }
                 }
-              } else {
-                Logger().w('No hay equipamiento');
               }
 
               if (!await waitWhileInterrupted()) return;
@@ -396,7 +392,7 @@ extension EntrenadoraHelpers on Entrenadora {
 
   String generarMensajeSeries(EjercicioRealizado ejercicioR) {
     // Filtramos solo las series no realizadas
-    final seriesNoRealizadas = ejercicioR.series.where((s) => s.deleted != true && !(s.realizada ?? false)).toList();
+    final seriesNoRealizadas = ejercicioR.series.where((s) => s.deleted != true && !(s.realizada)).toList();
 
     List<String> gruposTextos = [];
     int i = 0;
@@ -428,13 +424,11 @@ extension EntrenadoraHelpers on Entrenadora {
         // Agrupamos por repeticiones
         final repFijas = repActual;
         List<double> pesos = [];
-        int count = 0;
         int j = i;
 
         // Mientras se mantengan las mismas repes
         while (j < seriesNoRealizadas.length && seriesNoRealizadas[j].repeticiones == repFijas) {
           pesos.add(seriesNoRealizadas[j].peso);
-          count++;
           j++;
         }
 
@@ -447,13 +441,11 @@ extension EntrenadoraHelpers on Entrenadora {
         // Agrupamos por peso
         final pesoFijo = pesoActual;
         List<int> repes = [];
-        int count = 0;
         int j = i;
 
         // Mientras se mantenga el mismo peso
         while (j < seriesNoRealizadas.length && seriesNoRealizadas[j].peso == pesoFijo) {
           repes.add(seriesNoRealizadas[j].repeticiones);
-          count++;
           j++;
         }
 
@@ -497,7 +489,7 @@ extension EntrenadoraHelpers on Entrenadora {
       if (p == 0) return 'sin peso';
       return 'y ${pesoLiteral(p)}';
     }).toList();
-    final pesosFinal = (pesosText.length == 1) ? pesosText.first : pesosText.sublist(0, pesosText.length - 1).join(', ') + ' y ' + pesosText.last;
+    final pesosFinal = (pesosText.length == 1) ? pesosText.first : '${pesosText.sublist(0, pesosText.length - 1).join(', ')} y ${pesosText.last}';
 
     return "$seriesText a $literalRep $pesosFinal";
   }
@@ -512,7 +504,7 @@ extension EntrenadoraHelpers on Entrenadora {
     }).toList();
 
     // Unimos las repeticiones con "y"
-    final repesFinal = (repesText.length == 1) ? repesText.first : repesText.sublist(0, repesText.length - 1).join(', ') + ' y ' + repesText.last;
+    final repesFinal = (repesText.length == 1) ? repesText.first : '${repesText.sublist(0, repesText.length - 1).join(', ')} y ${repesText.last}';
 
     final pesoText = (pesoFijo == 0) ? 'sin peso' : pesoLiteral(pesoFijo);
 
@@ -552,7 +544,7 @@ extension EntrenadoraHelpers on Entrenadora {
       return elementos.join(' y ');
     } else {
       String last = elementos.removeLast();
-      return elementos.join(', ') + ' y ' + last;
+      return '${elementos.join(', ')} y $last';
     }
   }
 

@@ -21,10 +21,10 @@ class SesionListadoEjerciciosPage extends ConsumerStatefulWidget {
   final Rutina rutina;
 
   const SesionListadoEjerciciosPage({
-    Key? key,
+    super.key,
     required this.sesion,
     required this.rutina,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SesionListadoEjerciciosPage> createState() => _SesionListadoEjerciciosPageState();
@@ -42,7 +42,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
   }
 
   void _initializeSesion() {
-    _ejercicios = widget.sesion.ejerciciosPersonalizados ?? [];
+    _ejercicios = widget.sesion.ejerciciosPersonalizados;
     widget.sesion.getEjerciciosCount().then((count) {
       setState(() {});
     });
@@ -261,7 +261,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
                             children: [
                               Align(
                                 alignment: Alignment.center,
-                                child: Container(
+                                child: SizedBox(
                                   width: 40,
                                   child: Text(
                                     '$seriesCount',
@@ -309,6 +309,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
   Future<void> _navigateToExerciseDetail(Ejercicio ejercicio) async {
     final updatedExercise = await Ejercicio.loadById(ejercicio.id);
     Navigator.push(
+      // ignore: use_build_context_synchronously
       context,
       MaterialPageRoute(
         builder: (context) => EjercicioDetallePage(ejercicio: updatedExercise),
@@ -328,7 +329,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.mutedAdvertencia.withOpacity(0.5)),
+            border: Border.all(color: AppColors.mutedAdvertencia.withAlpha(125)),
           ),
           child: Row(
             children: [

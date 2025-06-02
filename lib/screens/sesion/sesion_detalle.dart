@@ -9,9 +9,9 @@ class SesionDetallePage extends ConsumerStatefulWidget {
   final Sesion sesion;
 
   const SesionDetallePage({
-    Key? key,
+    super.key,
     required this.sesion,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SesionDetallePage> createState() => _SesionDetallePageState();
@@ -41,7 +41,7 @@ class _SesionDetallePageState extends ConsumerState<SesionDetallePage> with Tick
                 }
 
                 // Ensure the list has the required number of elements
-                final String numeroSesiones = !loading && data != null && data.length > 0 ? data[0]['numero_sesiones'] : '';
+                final String numeroSesiones = !loading && data != null && data.isNotEmpty ? data[0]['numero_sesiones'] : '';
                 final String tiempoTotal = !loading && data != null && data.length > 1 ? data[1]['tiempo_total'] : '';
                 final String duracionMedia = !loading && data != null && data.length > 2 ? data[2]['duración_media'] : '';
                 final String setsCompletados = !loading && data != null && data.length > 3 ? data[3]['sets_completados'] : '';

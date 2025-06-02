@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/main.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/models/health/health.dart';
-import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/usuario/usuario.dart'; // Importa el modelo Usuario
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
@@ -169,7 +168,7 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
     if (usuario.isHealthConnectAvailable) {
       entrenamiento = await Entrenamiento.loadByUuid(idHealthConnect).catchError((_) => null);
 
-      healthSummary = await HealthSummary(usuario).getSummaryByDateRange(start, end).catchError((_) => null);
+      healthSummary = await HealthSummary(usuario).getSummaryByDateRange(start, end).catchError((_) => <String, dynamic>{});
     } else {
       entrenamiento = await Entrenamiento.loadById(id).catchError((_) => null);
     }
@@ -187,6 +186,7 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
             await ent.delete();
             // Volvemos al inicio usando Navigator
             Navigator.pushAndRemoveUntil(
+              // ignore: use_build_context_synchronously
               context,
               MaterialPageRoute(builder: (_) => const MyApp()),
               (route) => false,

@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
-import 'package:mrfit/utils/mr_functions.dart';
 
 class ChartWidget extends StatelessWidget {
   final String? title;
@@ -12,12 +11,12 @@ class ChartWidget extends StatelessWidget {
   final String textNoResults;
 
   const ChartWidget({
-    Key? key,
+    super.key,
     this.title,
     required this.labels,
     required this.values,
     this.textNoResults = '',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

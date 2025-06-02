@@ -10,21 +10,13 @@ import 'package:mrfit/utils/mr_functions.dart';
 
 class RutinaInformacionPage extends StatefulWidget {
   final Rutina rutina;
-  const RutinaInformacionPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaInformacionPage({super.key, required this.rutina});
 
   @override
-  _SesionListadoInformacionState createState() => _SesionListadoInformacionState();
+  SesionListadoInformacionState createState() => SesionListadoInformacionState();
 }
 
-// Clase interna para los datos de la serie temporal
-class _ChartEntry {
-  final DateTime dia;
-  final int cantidad;
-  _ChartEntry(this.dia, this.cantidad);
-}
-
-class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
-  // NUEVAS PROPIEDADES
+class SesionListadoInformacionState extends State<RutinaInformacionPage> {
   int totalEntrenos = 0;
   int tiempoTotalSeg = 0;
   double duracionMediaSeg = 0;
@@ -71,7 +63,7 @@ class _SesionListadoInformacionState extends State<RutinaInformacionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final fecha = widget.rutina.fechaCreacion != null ? DateFormat('dd/MM/yyyy').format(widget.rutina.fechaCreacion!.toLocal()) : 'N/A';
+    final fecha = DateFormat('dd/MM/yyyy').format(widget.rutina.fechaCreacion.toLocal());
     return SingleChildScrollView(
       child: Column(
         children: [

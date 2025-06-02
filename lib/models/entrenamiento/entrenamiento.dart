@@ -1,10 +1,10 @@
 import 'dart:math' as math;
-import 'package:logger/logger.dart';
 import 'package:health/health.dart';
+import 'package:logger/logger.dart';
 import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'ejercicio_realizado.dart';
-import 'serie_realizada.dart';
+import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
+import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 
 class Entrenamiento {

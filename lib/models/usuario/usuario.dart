@@ -1,22 +1,21 @@
-import 'package:mrfit/models/modelo_datos.dart';
-import 'dart:io' show Platform;
-import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'usuario_backup.dart';
-import 'package:logger/logger.dart';
-import 'package:health/health.dart';
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-
-import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'package:mrfit/data/database_helper.dart';
-import 'package:mrfit/models/rutina/rutina.dart';
-import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:flutter/material.dart';
+import 'package:health/health.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:mrfit/channel/channel_inactividad.dart';
-import 'package:mrfit/utils/constants.dart';
+import 'package:mrfit/data/database_helper.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/models/health/health.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/rutina/rutina.dart';
+import 'package:mrfit/models/usuario/usuario_backup.dart';
+import 'package:mrfit/utils/constants.dart';
+import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:permission_handler/permission_handler.dart';
 
 part 'usuario_query.dart';
 part 'usuario_mrpoints.dart';

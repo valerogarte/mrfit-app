@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ConfiguracionCreditosPage extends StatelessWidget {
-  const ConfiguracionCreditosPage({Key? key}) : super(key: key);
+  const ConfiguracionCreditosPage({super.key});
 
   /// Abre el cliente de correo con la dirección predefinida.
   /// Utiliza la API recomendada de url_launcher para mayor compatibilidad.
@@ -64,17 +64,6 @@ class ConfiguracionCreditosPage extends StatelessWidget {
       if (!await launchUrl(githubWebUri, mode: LaunchMode.externalApplication)) {
         debugPrint('No se pudo abrir GitHub en el navegador.');
       }
-    }
-  }
-
-  /// Abre la página de calificación de la app en Google Play Store.
-  Future<void> _calificarApp() async {
-    final String url = 'https://play.google.com/store/apps/details?id=${AppConstants.domainNameApp}';
-    final Uri playStoreUri = Uri.parse(url);
-
-    // Intenta abrir la URL en el navegador externo
-    if (!await launchUrl(playStoreUri, mode: LaunchMode.externalApplication)) {
-      debugPrint('No se pudo abrir la página de calificación en Play Store.');
     }
   }
 

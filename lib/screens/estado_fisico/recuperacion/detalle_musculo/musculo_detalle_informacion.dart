@@ -11,17 +11,16 @@ class DetalleMusculoInformacion extends StatefulWidget {
   final List<Entrenamiento> entrenamientos;
 
   const DetalleMusculoInformacion({
-    Key? key,
+    super.key,
     required this.musculo,
     required this.entrenamientos,
-  }) : super(key: key);
+  });
 
   @override
   State<DetalleMusculoInformacion> createState() => _DetalleMusculoInformacionState();
 }
 
 class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
-  Musculo? _musculo;
   List<Map<String, dynamic>> _volumenes = [];
   List<Ejercicio> _ejerciciosPrincipalesMasUsados = [];
   List<Ejercicio> _ejerciciosSecundariosMasUsados = []; // Nueva lista para secundarios
@@ -42,7 +41,6 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
       final ejerciciosPrincipalesMasUsados = await musculo.getEjerciciosPrincipalMasUsados();
       final ejerciciosSecundariosMasUsados = await musculo.getEjerciciosSecundarioMasUsados();
       setState(() {
-        _musculo = musculo;
         _volumenes = volumenes;
         _ejerciciosPrincipalesMasUsados = ejerciciosPrincipalesMasUsados;
         _ejerciciosSecundariosMasUsados = ejerciciosSecundariosMasUsados;
@@ -50,7 +48,6 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
       });
     } else {
       setState(() {
-        _musculo = null;
         _volumenes = [];
         _ejerciciosPrincipalesMasUsados = [];
         _ejerciciosSecundariosMasUsados = [];

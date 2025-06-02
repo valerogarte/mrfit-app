@@ -7,16 +7,13 @@ import 'package:mrfit/screens/estado_fisico/recuperacion/musculo_detalle.dart';
 /// Gráfico circular + acordeón de músculos, solo un panel abierto.
 class GraficoCircularMusculosInvolucrados extends StatefulWidget {
   final Ejercicio ejercicio;
-  const GraficoCircularMusculosInvolucrados({Key? key, required this.ejercicio})
-      : super(key: key);
+  const GraficoCircularMusculosInvolucrados({super.key, required this.ejercicio});
 
   @override
-  State<GraficoCircularMusculosInvolucrados> createState() =>
-      _GraficoCircularMusculosInvolucradosState();
+  State<GraficoCircularMusculosInvolucrados> createState() => _GraficoCircularMusculosInvolucradosState();
 }
 
-class _GraficoCircularMusculosInvolucradosState
-    extends State<GraficoCircularMusculosInvolucrados> {
+class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMusculosInvolucrados> {
   late final Map<String, List<MusculoInvolucrado>> _groups;
   String? _openPanel;
 
@@ -26,8 +23,7 @@ class _GraficoCircularMusculosInvolucradosState
     _groups = _groupByType(widget.ejercicio.musculosInvolucrados);
   }
 
-  Map<String, List<MusculoInvolucrado>> _groupByType(
-      List<MusculoInvolucrado> list) {
+  Map<String, List<MusculoInvolucrado>> _groupByType(List<MusculoInvolucrado> list) {
     final map = <String, List<MusculoInvolucrado>>{};
     for (var mi in list) {
       map.putIfAbsent(mi.tipoString, () => []).add(mi);
@@ -61,14 +57,11 @@ class _GraficoCircularMusculosInvolucradosState
               final bool isExpanded = _openPanel == entry.key;
               return ExpansionPanelRadio(
                 value: entry.key,
-                backgroundColor: isExpanded
-                    ? AppColors.mutedAdvertencia
-                    : AppColors.appBarBackground, // pinta toda la fila
+                backgroundColor: isExpanded ? AppColors.mutedAdvertencia : AppColors.appBarBackground, // pinta toda la fila
                 headerBuilder: (context, _) {
                   return Container(
                     margin: EdgeInsets.only(bottom: isExpanded ? 0 : 8),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     // solo bordes superiores cuando está expandido,
                     // todos los bordes cuando está cerrado.
                     decoration: BoxDecoration(
@@ -77,9 +70,7 @@ class _GraficoCircularMusculosInvolucradosState
                     child: Text(
                       entry.key,
                       style: TextStyle(
-                        color: isExpanded
-                            ? AppColors.background
-                            : AppColors.textMedium,
+                        color: isExpanded ? AppColors.background : AppColors.textMedium,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -88,29 +79,21 @@ class _GraficoCircularMusculosInvolucradosState
                 body: Container(
                   decoration: const BoxDecoration(
                     color: AppColors.mutedAdvertencia,
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
                   ),
                   child: Column(
                     children: entry.value.map((mi) {
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 16),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                         title: Text(
                           mi.musculo.titulo,
-                          style: const TextStyle(
-                              color: AppColors.cardBackground,
-                              fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: AppColors.cardBackground, fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(mi.descripcionImplicacion,
-                            style: const TextStyle(
-                                color: AppColors.cardBackground)),
+                        subtitle: Text(mi.descripcionImplicacion, style: const TextStyle(color: AppColors.cardBackground)),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => MusculoDetallePage(
-                                musculo: mi.musculo.titulo,
-                                entrenamientos: const []),
+                            builder: (_) => MusculoDetallePage(musculo: mi.musculo.titulo, entrenamientos: const []),
                           ),
                         ),
                       );
@@ -145,8 +128,7 @@ class _PieChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double total = datos.fold(
-        0.0, (double sum, item) => sum + item.porcentajeImplicacion.toDouble());
+    final double total = datos.fold(0.0, (double sum, item) => sum + item.porcentajeImplicacion.toDouble());
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width, size.height) / 2;
     final strokeWidth = radius * 0.7;
@@ -161,35 +143,19 @@ class _PieChartPainter extends CustomPainter {
 
     for (var i = 0; i < datos.length; i++) {
       final item = datos[i];
-      final double sweep = total > 0
-          ? (item.porcentajeImplicacion.toDouble() / total) * 2 * pi
-          : 0.0;
+      final double sweep = total > 0 ? (item.porcentajeImplicacion.toDouble() / total) * 2 * pi : 0.0;
       paint.color = colors[i % colors.length];
 
-      canvas.drawArc(
-          Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
-          startAngle,
-          sweep,
-          false,
-          paint);
-      _drawLabel(
-          canvas, center, radius, strokeWidth, startAngle, sweep, item);
+      canvas.drawArc(Rect.fromCircle(center: center, radius: radius - strokeWidth / 2), startAngle, sweep, false, paint);
+      _drawLabel(canvas, center, radius, strokeWidth, startAngle, sweep, item);
       startAngle += sweep;
     }
   }
 
-  void _drawLabel(
-      Canvas canvas,
-      Offset center,
-      double radius,
-      double strokeWidth,
-      double startAngle,
-      double sweepAngle,
-      MusculoInvolucrado item) {
+  void _drawLabel(Canvas canvas, Offset center, double radius, double strokeWidth, double startAngle, double sweepAngle, MusculoInvolucrado item) {
     final double midAngle = startAngle + sweepAngle / 2;
     final double labelRadius = radius - strokeWidth / 2;
-    final Offset labelPos = Offset(center.dx + labelRadius * cos(midAngle),
-        center.dy + labelRadius * sin(midAngle));
+    final Offset labelPos = Offset(center.dx + labelRadius * cos(midAngle), center.dy + labelRadius * sin(midAngle));
 
     const double minArcLength = 50.0;
     final double arcLength = sweepAngle * labelRadius;
@@ -197,39 +163,24 @@ class _PieChartPainter extends CustomPainter {
 
     final textSpan = TextSpan(
       children: [
-        TextSpan(
-            text: '${item.porcentajeImplicacion}%',
-            style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.mutedAdvertencia)),
-        TextSpan(
-            text: '\n${item.musculo.titulo}',
-            style:
-                const TextStyle(fontSize: 14, color: AppColors.textNormal)),
+        TextSpan(text: '${item.porcentajeImplicacion}%', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.mutedAdvertencia)),
+        TextSpan(text: '\n${item.musculo.titulo}', style: const TextStyle(fontSize: 14, color: AppColors.textNormal)),
       ],
     );
-    final textPainter =
-        TextPainter(text: textSpan, textDirection: TextDirection.ltr)
-          ..layout();
+    final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr)..layout();
 
     if (inside) {
-      final offset =
-          labelPos - Offset(textPainter.width / 2, textPainter.height / 2);
+      final offset = labelPos - Offset(textPainter.width / 2, textPainter.height / 2);
       textPainter.paint(canvas, offset);
     } else {
       const double extra = 30.0;
-      final Offset outside = Offset(
-          center.dx + (radius + extra) * cos(midAngle),
-          center.dy + (radius + extra) * sin(midAngle));
-      final offset =
-          outside - Offset(textPainter.width / 2, textPainter.height / 2);
+      final Offset outside = Offset(center.dx + (radius + extra) * cos(midAngle), center.dy + (radius + extra) * sin(midAngle));
+      final offset = outside - Offset(textPainter.width / 2, textPainter.height / 2);
       textPainter.paint(canvas, offset);
       final Paint linePaint = Paint()
         ..strokeWidth = 1.0
         ..color = AppColors.textNormal;
-      canvas.drawLine(offset + Offset(textPainter.width / 2,
-          textPainter.height / 2), labelPos, linePaint);
+      canvas.drawLine(offset + Offset(textPainter.width / 2, textPainter.height / 2), labelPos, linePaint);
     }
   }
 

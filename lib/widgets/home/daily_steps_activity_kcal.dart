@@ -274,13 +274,13 @@ class AnimatedInfoItem extends StatelessWidget {
   final Duration duration;
 
   const AnimatedInfoItem({
-    Key? key,
+    super.key,
     required this.color,
     required this.icon,
     required this.finalValue,
     required this.label,
     this.duration = kStatsAnimationDuration,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +366,7 @@ Widget permissionButton({
         icon: const Icon(Icons.settings, size: 16),
         label: const Text('Permisos'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withAlpha(50),
           foregroundColor: color,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           minimumSize: const Size(0, 32),

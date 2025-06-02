@@ -4,13 +4,13 @@ import 'package:mrfit/utils/colors.dart';
 class BlinkingBar extends StatefulWidget {
   final double width;
   final double height;
-  const BlinkingBar({Key? key, required this.width, required this.height}) : super(key: key);
+  const BlinkingBar({super.key, required this.width, required this.height});
 
   @override
-  _BlinkingBarState createState() => _BlinkingBarState();
+  BlinkingBarState createState() => BlinkingBarState();
 }
 
-class _BlinkingBarState extends State<BlinkingBar> with SingleTickerProviderStateMixin {
+class BlinkingBarState extends State<BlinkingBar> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override

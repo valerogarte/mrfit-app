@@ -12,11 +12,11 @@ class StatItemCard extends StatelessWidget {
   final String subtitle;
 
   const StatItemCard({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
     required this.subtitle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +24,13 @@ class StatItemCard extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          Container(
+          SizedBox(
             width: 100,
             height: 100,
             child: image,
           ),
           const SizedBox(height: 4),
-          Container(
+          SizedBox(
             width: 100,
             child: Text(
               title,
@@ -41,7 +41,7 @@ class StatItemCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Container(
+          SizedBox(
             width: 100,
             child: Text(
               subtitle,
@@ -69,12 +69,12 @@ class FutureHorizontalList<T> extends StatelessWidget {
   final Widget Function(T data) itemBuilder;
 
   const FutureHorizontalList({
-    Key? key,
+    super.key,
     required this.future,
     required this.errorMessage,
     required this.emptyMessage,
     required this.itemBuilder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class FutureHorizontalList<T> extends StatelessWidget {
           } else if (!snapshot.hasData || (snapshot.data is Iterable && (snapshot.data as Iterable).isEmpty)) {
             return Center(child: Text(emptyMessage));
           }
-          return itemBuilder(snapshot.data!);
+          return itemBuilder(snapshot.data as T);
         },
       ),
     );
@@ -98,7 +98,7 @@ class FutureHorizontalList<T> extends StatelessWidget {
 }
 
 class EstadisticasPage extends ConsumerStatefulWidget {
-  const EstadisticasPage({Key? key}) : super(key: key);
+  const EstadisticasPage({super.key});
 
   @override
   ConsumerState<EstadisticasPage> createState() => _EstadisticasPageState();

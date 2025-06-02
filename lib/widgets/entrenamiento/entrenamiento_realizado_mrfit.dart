@@ -84,7 +84,7 @@ class EntrenamientoMrFitWidget extends StatelessWidget {
                 }).toList(),
               ),
             );
-          }).toList(),
+          }),
       ],
     );
   }

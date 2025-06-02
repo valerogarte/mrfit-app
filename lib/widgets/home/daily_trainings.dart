@@ -17,19 +17,19 @@ class DailyTrainingsWidget extends StatefulWidget {
   final List<Map<String, dynamic>> entrenamientosMrFit;
 
   const DailyTrainingsWidget({
-    Key? key,
+    super.key,
     required this.day,
     required this.usuario,
     required this.dataPointsSteps,
     required this.dataPointsWorkout,
     required this.entrenamientosMrFit,
-  }) : super(key: key);
+  });
 
   @override
-  _DailyTrainingsWidgetState createState() => _DailyTrainingsWidgetState();
+  DailyTrainingsWidgetState createState() => DailyTrainingsWidgetState();
 }
 
-class _DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
+class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
   // Se elimina el Padding interno y se retorna directamente el Row
   Future<Widget> _buildActivityRow({
     required String uuid,

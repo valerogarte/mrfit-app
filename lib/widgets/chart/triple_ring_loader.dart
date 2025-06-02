@@ -74,7 +74,7 @@ class TripleRingLoaderPainter extends CustomPainter {
           Offset(dx, dy),
           ringWidths[i] * 0.5,
           Paint()
-            ..color = AppColors.textMedium.withOpacity(0.75)
+            ..color = AppColors.textMedium.withAlpha(200)
             ..style = PaintingStyle.fill,
         );
       }

@@ -15,7 +15,7 @@ import 'package:mrfit/models/usuario/usuario.dart';
 
 class RutinaListadoSesionesPage extends ConsumerStatefulWidget {
   final Rutina rutina;
-  const RutinaListadoSesionesPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaListadoSesionesPage({super.key, required this.rutina});
 
   @override
   ConsumerState<RutinaListadoSesionesPage> createState() => _RutinaListadoSesionesPageState();
@@ -155,6 +155,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                   onPressed: () async {
                     if (nuevoTitulo.isNotEmpty) {
                       final Sesion sesionCreada = await widget.rutina.insertarSesion(nuevoTitulo, dificultad);
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context, sesionCreada);
                     }
                   },
@@ -246,6 +247,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                                     onTap: () async {
                                       await sesion.getEjercicios();
                                       final result = await Navigator.push(
+                                        // ignore: use_build_context_synchronously
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => SesionPage(
@@ -409,6 +411,7 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                       await usuario.setRutinaActual(rutinaNueva.id);
                       if (!mounted) return;
                       // Navega a RutinasPage y elimina el stack hasta la raíz
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const RutinasPage()),
                         (route) => false,

@@ -8,8 +8,8 @@ class NotFoundData extends StatelessWidget {
   const NotFoundData({
     required this.title,
     this.textNoResults,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

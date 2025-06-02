@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'package:mrfit/models/modelo_datos.dart';
-import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/data/database_helper.dart';
+import 'package:mrfit/models/ejercicio/ejercicio.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 
 class SerieRealizada {
   final int id;
@@ -44,9 +44,9 @@ class SerieRealizada {
       id: json['id'],
       ejercicioRealizado: json['ejercicio_realizado_id'],
       repeticiones: json['repeticiones'],
-      repeticionesObjetivo: json['repeticiones_objetivo'] ?? json['repeticiones'], // agregado
+      repeticionesObjetivo: json['repeticiones_objetivo'] ?? json['repeticiones'],
       peso: (json['peso'] ?? 0).toDouble(),
-      pesoObjetivo: (json['peso_objetivo'] ?? json['peso'] ?? 0).toDouble(), // agregado
+      pesoObjetivo: (json['peso_objetivo'] ?? json['peso'] ?? 0).toDouble(),
       velocidadRepeticion: (json['velocidad_repeticion'] ?? 0).toDouble(),
       descanso: json['descanso'],
       rer: json['rer'],
@@ -64,9 +64,9 @@ class SerieRealizada {
       'id': id,
       'ejercicio_realizado_id': ejercicioRealizado,
       'repeticiones': repeticiones,
-      'repeticiones_objetivo': repeticionesObjetivo, // agregado
+      'repeticiones_objetivo': repeticionesObjetivo,
       'peso': peso,
-      'peso_objetivo': pesoObjetivo, // agregado
+      'peso_objetivo': pesoObjetivo,
       'velocidad_repeticion': velocidadRepeticion,
       'descanso': descanso,
       'rer': rer,
@@ -158,13 +158,8 @@ class SerieRealizada {
     deleted = true;
   }
 
-  // Nuevo método save: actualiza en la base de datos los campos modificables
   Future<void> save() async {
-    // Obtener la conexión a la base de datos.
-    // Se asume que DatabaseHelper.instance.db devuelve la instancia de la base de datos.
     final db = await DatabaseHelper.instance.database;
-
-    // Construir el mapa de campos a actualizar (excluyendo id, ejercicioRealizado, velocidadRepeticion e inicio)
     final data = {
       'repeticiones': repeticiones,
       'peso': peso,
@@ -175,8 +170,6 @@ class SerieRealizada {
       'extra': extra,
       'deleted': deleted,
     };
-
-    // Ejecutar la actualización en la tabla 'entrenamiento_serierealizada'
     await db.update(
       'entrenamiento_serierealizada',
       data,
@@ -187,7 +180,6 @@ class SerieRealizada {
 
   Future<void> setInicio() async {
     inicio = DateTime.now();
-
     final db = await DatabaseHelper.instance.database;
     await db.update(
       'entrenamiento_serierealizada',
@@ -199,10 +191,8 @@ class SerieRealizada {
     );
   }
 
-  // Nuevo método setRealizada: asigna realizada = true y actualiza en la BBDD
   Future<void> setRealizada() async {
     realizada = true;
-    // Agregado: asignar fin con la fecha actual.
     fin = DateTime.now();
     final db = await DatabaseHelper.instance.database;
     await db.update(
@@ -218,10 +208,8 @@ class SerieRealizada {
     );
   }
 
-  // Nuevo método setRealizada: asigna realizada = true y actualiza en la BBDD
   Future<void> setRer(int repsEnReserva) async {
     rer = repsEnReserva;
-
     final db = await DatabaseHelper.instance.database;
     await db.update(
       'entrenamiento_serierealizada',
@@ -233,10 +221,8 @@ class SerieRealizada {
     );
   }
 
-  // Nuevo método setRealizada: asigna realizada = true y actualiza en la BBDD
   Future<void> updateRepesPeso() async {
     realizada = true;
-    // Agregado: asignar fin con la fecha actual.
     fin = DateTime.now();
     final db = await DatabaseHelper.instance.database;
     await db.update(

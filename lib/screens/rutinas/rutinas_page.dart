@@ -11,7 +11,7 @@ import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/main.dart';
 
 class RutinasPage extends ConsumerStatefulWidget {
-  const RutinasPage({Key? key}) : super(key: key);
+  const RutinasPage({super.key});
   @override
   ConsumerState<RutinasPage> createState() => _RutinasPageState();
 }
@@ -35,13 +35,13 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
     final fetchedRutinas = await usuario.getRutinas();
 
     if (fetchedRutinas != null) {
-      final ids = fetchedRutinas.where((r) => r.grupoId != null).map((r) => r.grupoId!).toSet();
+      final ids = fetchedRutinas.map((r) => r.grupoId).toSet();
       final gruposList = await Future.wait(ids.map((id) => Grupo.loadById(id)));
       final gruposMap = {for (var g in gruposList.whereType<Grupo>()) g.id: g};
 
       final temp = <Grupo, List<Rutina>>{};
       for (var r in fetchedRutinas) {
-        if (r.grupoId != null && gruposMap.containsKey(r.grupoId)) {
+        if (gruposMap.containsKey(r.grupoId)) {
           temp.putIfAbsent(gruposMap[r.grupoId]!, () => []).add(r);
         }
       }
@@ -50,7 +50,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
 
       final sortedMap = <Grupo, List<Rutina>>{};
       for (var g in gruposOrdenados) {
-        temp[g]!..sort((r1, r2) => (r2.peso ?? 0).compareTo(r1.peso ?? 0));
+        temp[g]!.sort((r1, r2) => (r2.peso).compareTo(r1.peso));
         sortedMap[g] = temp[g]!;
       }
 
@@ -60,6 +60,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
       });
     } else {
       setState(() => isLoading = false);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al cargar los datos.')),
       );
@@ -88,7 +89,9 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
       ));
     }
     setState(() => gruposConRutinas[grupo] = updated);
-    for (var r in updated) r.setPeso(r.peso!);
+    for (var r in updated) {
+      r.setPeso(r.peso);
+    }
   }
 
   Future<void> _mostrarDialogoNuevoPlan() async {
@@ -197,7 +200,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                           ),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            child: Container(
+                            child: SizedBox(
                               height: 120,
                               child: grupo.id == 1
                                   ? ReorderableListView(

@@ -12,12 +12,12 @@ class HeartGrafica extends StatelessWidget {
 
   /// [startDate] y [endDate] son opcionales. Si se proporcionan, el eje X se ajusta al rango horario entre ambas.
   const HeartGrafica({
-    Key? key,
+    super.key,
     required this.dataPoints,
     required this.granularity,
     this.startDate,
     this.endDate,
-  }) : super(key: key);
+  });
 
   /// Convierte HealthDataPoint a FlSpot y segmenta por saltos grandes.
   List<List<FlSpot>> _buildSpotSegments() {

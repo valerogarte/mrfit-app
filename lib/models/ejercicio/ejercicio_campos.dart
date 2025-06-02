@@ -24,9 +24,7 @@ class Musculo {
   }
 
   static Future<Musculo?> getByName(String nombre) async {
-    // Permite obtener un músculo por su nombre, útil para evitar duplicados y mantener consistencia.
     final db = await DatabaseHelper.instance.database;
-    // Búsqueda insensible a mayúsculas/minúsculas para evitar duplicados por casing.
     final result = await db.rawQuery(
       'SELECT * FROM ejercicios_musculo WHERE LOWER(titulo) = LOWER(?) LIMIT 1',
       [nombre],
@@ -44,9 +42,6 @@ class Musculo {
     return result;
   }
 
-  /// Devuelve una lista de los ejercicios más usados para este músculo.
-  /// El criterio es la cantidad de veces que el ejercicio aparece en el historial de ejercicios realizados.
-  /// Esto ayuda a sugerir ejercicios populares o efectivos para el usuario.
   Future<List<Ejercicio>> getEjerciciosPrincipalMasUsados({int limit = 5}) async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.rawQuery('''
@@ -123,7 +118,6 @@ class MusculoInvolucrado {
     this.descripcionImplicacion = '',
   });
 
-  // Nuevo getter para mapear el campo "tipo" a "tipoString"
   String get tipoString {
     switch (tipo.toUpperCase()) {
       case 'P':

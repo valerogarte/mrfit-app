@@ -12,16 +12,16 @@ class SesionPage extends StatefulWidget {
   final Rutina rutina;
 
   const SesionPage({
-    Key? key,
+    super.key,
     required this.sesion,
     required this.rutina,
-  }) : super(key: key);
+  });
 
   @override
-  _SesionPageState createState() => _SesionPageState();
+  SesionPageState createState() => SesionPageState();
 }
 
-class _SesionPageState extends State<SesionPage> {
+class SesionPageState extends State<SesionPage> {
   @override
   void dispose() {
     super.dispose();
@@ -39,6 +39,7 @@ class _SesionPageState extends State<SesionPage> {
         widget.sesion.titulo = result;
       });
       // Notifica a la pantalla anterior que hubo un cambio
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, true);
     }
   }

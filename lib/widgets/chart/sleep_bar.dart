@@ -41,13 +41,13 @@ const Map<String, String> _kTypeLabel = {
 
 class SleepBar extends StatelessWidget {
   const SleepBar({
-    Key? key,
+    super.key,
     required this.realStart,
     required this.realEnd,
     required this.horaInicioRutina,
     required this.horaFinRutina,
     this.typeSlots = const [],
-  }) : super(key: key);
+  });
 
   final DateTime realStart;
   final DateTime realEnd;

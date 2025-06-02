@@ -2,8 +2,8 @@ import 'package:logger/logger.dart';
 import 'package:mrfit/data/database_helper.dart';
 import 'ejercicio_personalizado.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/mr_functions.dart';
 
 class Sesion {
@@ -29,7 +29,6 @@ class Sesion {
     );
   }
 
-  // Nuevo método estático para cargar una sesión por id
   static Future<Sesion?> loadById(int id) async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(
@@ -50,7 +49,6 @@ class Sesion {
     return sesion;
   }
 
-  // Nuevo método para serializar la instancia de Sesion
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -61,7 +59,6 @@ class Sesion {
     };
   }
 
-  // Nuevo método para renombrar la sesión en la base de datos local
   Future<int> rename(String nuevoTitulo) async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.update(
@@ -73,7 +70,6 @@ class Sesion {
     return result;
   }
 
-  // Método para eliminar una sesión de la rutina usando la base de datos local
   Future<int> delete() async {
     final db = await DatabaseHelper.instance.database;
     return await db.delete(
@@ -83,7 +79,6 @@ class Sesion {
     );
   }
 
-  // Método actualizado para recuperar e inicializar ejerciciosPersonalizados
   Future<List<EjercicioPersonalizado>> getEjercicios() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -105,7 +100,6 @@ class Sesion {
     return ejerciciosPersonalizados;
   }
 
-  // Agregar método que retorna el número de ejercicios en formato string
   Future<int> getEjerciciosCount() async {
     if (ejerciciosPersonalizados.isEmpty) {
       await getEjercicios();
@@ -148,7 +142,6 @@ class Sesion {
     return result;
   }
 
-  // Método para actualizar la dificultad de la sesión
   Future<int> setDificultad(int nuevaDificultad) async {
     final db = await DatabaseHelper.instance.database;
     dificultad = nuevaDificultad;
@@ -161,10 +154,8 @@ class Sesion {
     return result;
   }
 
-  // Inserta un ejercicio personalizado en la base de datos, asociado a esta sesión
   Future<int> insertarEjercicioPersonalizado(Ejercicio ejercicio) async {
     final db = await DatabaseHelper.instance.database;
-    // Consulta el peso máximo actual y le suma 1
     final result = await db.rawQuery(
       'SELECT COALESCE(MAX(peso_orden), 0) as maxPeso FROM rutinas_ejerciciopersonalizado WHERE sesion_id = ?',
       [id],
@@ -181,7 +172,6 @@ class Sesion {
     );
   }
 
-  // Método para comprobar si tiene un entrenamiento activo (sin fecha de fin)
   Future<int?> isEntrenandoAhora() async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.rawQuery(
@@ -197,9 +187,7 @@ class Sesion {
   Future<Entrenamiento?> empezarEntrenamiento(Usuario usuario) async {
     final db = await DatabaseHelper.instance.database;
     final nowStr = DateTime.now().toIso8601String();
-
     final pesoUsuario = await usuario.getCurrentWeight();
-
     final entrenamientoId = await db.insert(
       'entrenamiento_entrenamiento',
       {
@@ -211,11 +199,9 @@ class Sesion {
         'peso_usuario': pesoUsuario,
       },
     );
-
     if (ejerciciosPersonalizados.isEmpty) {
       await getEjercicios();
     }
-
     int pesoOrden = 0;
     for (var ejercicioP in ejerciciosPersonalizados) {
       final ejercicioRealizadoId = await db.insert(
@@ -226,11 +212,9 @@ class Sesion {
           'peso_orden': pesoOrden,
         },
       );
-
       if (ejercicioP.seriesPersonalizadas == null || ejercicioP.seriesPersonalizadas!.isEmpty) {
         await ejercicioP.getSeriesPersonalizadas();
       }
-
       for (var serieP in ejercicioP.seriesPersonalizadas!) {
         await db.insert(
           'entrenamiento_serierealizada',
@@ -253,7 +237,6 @@ class Sesion {
       }
       pesoOrden++;
     }
-
     return Entrenamiento.loadById(entrenamientoId);
   }
 
@@ -279,7 +262,6 @@ class Sesion {
         'porcentaje': porcentaje.toStringAsFixed(2),
       });
     });
-    // Ordenar el resultado por porcentaje de mayor a menor
     result.sort((a, b) => double.parse(b['porcentaje']).compareTo(double.parse(a['porcentaje'])));
     return result;
   }
@@ -292,23 +274,16 @@ class Sesion {
       where: 'sesion_id = ?',
       whereArgs: [id],
     );
-
     if (result.isEmpty) return [];
-
     final nSesions = result.length;
-
     int totalSeconds = 0;
     for (final row in result) {
       final inicio = DateTime.parse(row['inicio'] as String);
-      // Si 'fin' es null, usamos el momento actual.
       final fin = row['fin'] != null ? DateTime.parse(row['fin'] as String) : DateTime.now();
       totalSeconds += fin.difference(inicio).inSeconds;
     }
-
     final tiempoTotal = MrFunctions.formatDuration(Duration(seconds: totalSeconds));
-
     final avgDuration = nSesions > 0 ? MrFunctions.formatDuration(Duration(seconds: totalSeconds ~/ nSesions)) : '00:00';
-
     final setsResult = await db.rawQuery(
       '''
     SELECT COUNT(*) as totalSets FROM entrenamiento_serierealizada
@@ -323,7 +298,6 @@ class Sesion {
       [id],
     );
     final setsCompleted = setsResult.first['totalSets'] as int;
-
     return [
       {'numero_sesiones': nSesions.toString()},
       {'tiempo_total': tiempoTotal},
@@ -346,7 +320,6 @@ class Sesion {
     ''',
       [id],
     );
-
     List<String> labels = [];
     List<double> values = [];
     for (final row in result) {
@@ -366,7 +339,6 @@ class Sesion {
     };
   }
 
-  /// Devuelve la fecha de fin del último entrenamiento o null si no hay registros.
   Future<DateTime?> getTimeUltimoEntrenamiento() async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(
@@ -377,7 +349,6 @@ class Sesion {
       orderBy: 'fin DESC',
       limit: 1,
     );
-
     if (result.isEmpty) return null;
     final fin = result.first['fin'];
     if (fin == null) return null;

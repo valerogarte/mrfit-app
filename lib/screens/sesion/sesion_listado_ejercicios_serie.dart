@@ -10,10 +10,10 @@ class SesionGestionSeriesPage extends StatefulWidget {
   final VoidCallback? onSeriesChanged;
 
   const SesionGestionSeriesPage({
-    Key? key,
+    super.key,
     required this.ejercicioPersonalizado,
     this.onSeriesChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<SesionGestionSeriesPage> createState() => _SesionGestionSeriesPageState();
@@ -209,7 +209,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
               OutlinedButton.icon(
                 onPressed: () async {
                   await _agregarSerieAlEjercicioEnRutina(ejercicioPersonalizado);
-                  if (localSetState != null) localSetState(() {});
+                  localSetState(() {});
                   if (onSeriesChanged != null) onSeriesChanged();
                 },
                 icon: const Icon(Icons.add, color: AppColors.textMedium, size: 18),

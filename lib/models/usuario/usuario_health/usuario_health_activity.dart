@@ -15,22 +15,17 @@ extension UsuarioHCActivityExtension on Usuario {
     );
 
     final dataPointsRaw = _health.removeDuplicates(dataPoints);
-
     final dataPointsClean = HealthUtils.customRemoveDuplicates(dataPointsRaw);
-
     return dataPointsClean;
   }
 
   Future<int> getTotalStepsByDateForCalendar(String date, {int nDays = 1}) async {
     final dataPoints = await getStepsByDate(date, nDays: nDays);
     int stepsByDay = 0;
-
     for (var dp in dataPoints) {
       final steps = dp.value is NumericHealthValue ? (dp.value as NumericHealthValue).numericValue.toInt() : 0;
-
       stepsByDay = stepsByDay + steps;
     }
-
     return stepsByDay;
   }
 

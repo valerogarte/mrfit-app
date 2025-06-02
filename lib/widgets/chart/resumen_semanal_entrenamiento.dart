@@ -8,16 +8,16 @@ class ResumenSemanalEntrenamientosWidget extends StatelessWidget {
   final int daysTrainedLast7Days;
 
   const ResumenSemanalEntrenamientosWidget({
-    Key? key,
+    super.key,
     required this.usuario,
     required this.daysTrainedLast30Days,
     required this.daysTrainedLast7Days,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     // Obtiene el objetivo semanal del usuario
-    final int objetivoSemanal = usuario.objetivoEntrenamientoSemanal ?? 0;
+    final int objetivoSemanal = usuario.objetivoEntrenamientoSemanal;
 
     // Calcula el objetivo mensual basado en el objetivo semanal
     final int objetivoMensual = ((objetivoSemanal * 30) / 7).floor();

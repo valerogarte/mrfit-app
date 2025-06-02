@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/screens/ejercicios/buscar/ejercicios_buscar.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/animated_image.dart';
-import 'package:mrfit/screens/ejercicios/buscar/ejercicios_buscar.dart';
 
 class EditarEntrenamientoPage extends StatefulWidget {
   final Entrenamiento entrenamiento;
 
-  const EditarEntrenamientoPage({Key? key, required this.entrenamiento}) : super(key: key);
+  const EditarEntrenamientoPage({super.key, required this.entrenamiento});
 
   @override
-  _EditarEntrenamientoPageState createState() => _EditarEntrenamientoPageState();
+  EditarEntrenamientoPageState createState() => EditarEntrenamientoPageState();
 }
 
-class _EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
+class EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +116,7 @@ class _EditarEntrenamientoPageState extends State<EditarEntrenamientoPage> {
                                   setState(() {
                                     widget.entrenamiento.ejercicios.remove(ejercicioARemover);
                                   });
+                                  // ignore: use_build_context_synchronously
                                   Navigator.of(ctx).pop();
                                 },
                               ),

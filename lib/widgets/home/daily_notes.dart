@@ -4,7 +4,7 @@ import 'package:mrfit/utils/colors.dart';
 class NotesWidget extends StatefulWidget {
   final String initialNote;
 
-  const NotesWidget({Key? key, required this.initialNote}) : super(key: key);
+  const NotesWidget({super.key, required this.initialNote});
 
   @override
   State<NotesWidget> createState() => _NotesWidgetState();
@@ -69,7 +69,7 @@ class _NotesWidgetState extends State<NotesWidget> {
             maxLines: 5,
             decoration: InputDecoration(
               hintText: "Escribe tus notas aquí...",
-              hintStyle: TextStyle(color: AppColors.textMedium.withOpacity(0.5)),
+              hintStyle: TextStyle(color: AppColors.textMedium.withAlpha(125)),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(

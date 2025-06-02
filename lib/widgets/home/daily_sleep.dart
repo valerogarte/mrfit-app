@@ -1,8 +1,5 @@
-// daily_sleep.dart
-
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
-import 'package:logger/logger.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/channel/channel_inactividad.dart';
@@ -99,11 +96,12 @@ Widget _sleepPlaceholder(Usuario usuario) {
 
 Widget _sleepPermission(BuildContext context) {
   // Maneja la apertura de ajustes de permisos con control de errores
-  Future<void> _handleOpenUsageStatsSettings() async {
+  Future<void> handleOpenUsageStatsSettings() async {
     try {
       await UsageStats.openUsageStatsSettings();
     } catch (e) {
       // Informa al usuario si ocurre un error al abrir los ajustes
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No se pudo abrir los ajustes de permisos.'),
@@ -138,7 +136,7 @@ Widget _sleepPermission(BuildContext context) {
         Padding(
           padding: const EdgeInsets.only(left: 0),
           child: ElevatedButton.icon(
-            onPressed: _handleOpenUsageStatsSettings,
+            onPressed: handleOpenUsageStatsSettings,
             icon: const Icon(Icons.settings, color: AppColors.background),
             label: const Text(
               'Permisos',
@@ -190,7 +188,7 @@ Widget _sleepBase({
   required List<SleepSlot> slots,
   List<SleepSlot>? typeSlots,
   required Usuario usuario,
-  double? quality, // Nuevo parámetro para calidad
+  double? quality,
 }) {
   return Container(
     width: double.infinity,

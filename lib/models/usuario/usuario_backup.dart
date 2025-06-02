@@ -223,12 +223,14 @@ class UsuarioBackup {
         if (sql.isNotEmpty) await db.execute(sql);
       }
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Importación completada.')),
       );
       client.close();
     } catch (e, stack) {
       logger.e('Error durante la importación', error: e, stackTrace: stack);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error durante la importación.')),
       );

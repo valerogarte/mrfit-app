@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mrfit/screens/estado_fisico/recuperacion/musculo_detalle.dart';
+import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
+import 'package:mrfit/models/modelo_datos.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'musculo_detalle.dart';
-import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/models/modelo_datos.dart';
 
 class RecuperacionPage extends ConsumerStatefulWidget {
   const RecuperacionPage({super.key});
@@ -21,7 +21,6 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
   List<Entrenamiento> _resumenEntrenamientos = [];
   Map<String, Map<String, dynamic>> _musculosRecuperacion = {};
 
-  // Nuevos campos para salud
   double? _realHeight;
   dynamic _realWeight;
 
@@ -29,10 +28,9 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
   void initState() {
     super.initState();
     _cargarDisponibilidadMuscular();
-    _cargarHealthData(); // Llamada para obtener datos reales
+    _cargarHealthData();
   }
 
-  // Nuevo método para cargar datos de Health Connect
   void _cargarHealthData() async {
     final usuario = ref.read(usuarioProvider);
     final heightData = await usuario.getReadHeight(9999);

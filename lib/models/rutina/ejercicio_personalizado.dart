@@ -12,7 +12,6 @@ class EjercicioPersonalizado {
 
   EjercicioPersonalizado({required this.id, required this.ejercicio, required this.sesion, required this.orden});
 
-  // Cambia el factory a async para esperar loadById
   static Future<EjercicioPersonalizado> fromJson(Map<String, dynamic> json) async {
     return EjercicioPersonalizado(
       id: json['id'],
@@ -35,9 +34,7 @@ class EjercicioPersonalizado {
     }
   }
 
-  // Método que retorna las seriesPersonalizadas asociadas a este ejercicio personalizado.
   Future<List<SeriePersonalizada>> getSeriesPersonalizadas() async {
-    // Si ya se inicializó, retorna directamente
     if (seriesPersonalizadas != null) return seriesPersonalizadas!;
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(
@@ -49,7 +46,6 @@ class EjercicioPersonalizado {
     return seriesPersonalizadas!;
   }
 
-  // Método para eliminar el ejercicio personalizado de la base de datos
   Future<void> delete() async {
     final db = await DatabaseHelper.instance.database;
     await db.delete(
@@ -60,7 +56,6 @@ class EjercicioPersonalizado {
   }
 
   Future<SeriePersonalizada> insertSeriePersonalizada() async {
-    // Aseguramos que seriesPersonalizadas esté cargada
     if (seriesPersonalizadas == null) {
       await getSeriesPersonalizadas();
     }
@@ -111,14 +106,11 @@ class EjercicioPersonalizado {
   Future<double> calcularVolumen() async {
     try {
       double totalVolumen = 0.0;
-
       final seriesP = await getSeriesPersonalizadas();
-
       for (var serieP in seriesP) {
         double tiempoSerieP = serieP.repeticiones * serieP.peso;
         totalVolumen += tiempoSerieP;
       }
-
       return totalVolumen;
     } catch (e, st) {
       Logger().i('Error al calcular volumen: $e');
@@ -127,11 +119,9 @@ class EjercicioPersonalizado {
     }
   }
 
-  // Nuevo método de nivel superior para calcular el tiempo de entrenamiento
   Future<int> calcularTiempo() async {
     try {
       int totalTiempo = 0;
-
       final seriesP = await getSeriesPersonalizadas();
       for (var serieP in seriesP) {
         int repeticiones = serieP.repeticiones;

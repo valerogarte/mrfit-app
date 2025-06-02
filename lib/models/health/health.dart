@@ -1,5 +1,5 @@
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:health/health.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/constants.dart';
 
 /// Clase para obtener un resumen de salud del usuario en un rango de fechas o por UUID.

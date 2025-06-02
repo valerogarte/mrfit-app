@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/widgets/chart/medal_card.dart';
 import 'package:mrfit/screens/estadisticas/medals_page.dart';
 
 class StatisticsWidget extends StatefulWidget {
@@ -10,10 +8,10 @@ class StatisticsWidget extends StatefulWidget {
   final int lookbackDays;
 
   const StatisticsWidget({
-    Key? key,
+    super.key,
     required this.usuario,
     this.lookbackDays = 30,
-  }) : super(key: key);
+  });
 
   @override
   State<StatisticsWidget> createState() => _StatisticsWidgetState();
@@ -21,7 +19,6 @@ class StatisticsWidget extends StatefulWidget {
 
 class _StatisticsWidgetState extends State<StatisticsWidget> {
   static const double _outerRadius = 20;
-  static const double _aspectRatio = 0.75;
 
   @override
   Widget build(BuildContext context) {

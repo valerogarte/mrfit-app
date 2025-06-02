@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added import
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/providers/usuario_provider.dart'; // Added import
 
 class ConfiguracionAjustesPage extends ConsumerStatefulWidget {
   // Changed to ConsumerStatefulWidget
@@ -10,12 +8,12 @@ class ConfiguracionAjustesPage extends ConsumerStatefulWidget {
   const ConfiguracionAjustesPage({super.key, required this.campo});
 
   @override
-  _ConfiguracionAjustesPageState createState() => _ConfiguracionAjustesPageState();
+  ConfiguracionAjustesPageState createState() => ConfiguracionAjustesPageState();
 }
 
-class _ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesPage> {
+class ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesPage> {
   // Changed to ConsumerState
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   late TextEditingController _controller;
   String? selectedGender;
 
@@ -28,7 +26,6 @@ class _ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesP
 
   void _fetchInitialValue() {
     dynamic currentValue = "";
-    // final usuario = ref.read(usuarioProvider);
     switch (widget.campo) {
       case 'Entrenador':
         currentValue = true;
@@ -60,7 +57,7 @@ class _ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesP
   }
 
   void _guardar() async {
-    if (_formKey.currentState!.validate()) {
+    if (formKey.currentState!.validate()) {
       // final user = ref.read(usuarioProvider);
       // final String value = _controller.text.trim();
 
@@ -71,7 +68,7 @@ class _ConfiguracionAjustesPageState extends ConsumerState<ConfiguracionAjustesP
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

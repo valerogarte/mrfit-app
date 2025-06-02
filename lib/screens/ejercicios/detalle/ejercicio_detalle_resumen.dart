@@ -9,7 +9,7 @@ import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repetic
 class EjercicioResumen extends StatelessWidget {
   final Ejercicio ejercicio;
 
-  const EjercicioResumen({Key? key, required this.ejercicio}) : super(key: key);
+  const EjercicioResumen({super.key, required this.ejercicio});
 
   @override
   Widget build(BuildContext context) {

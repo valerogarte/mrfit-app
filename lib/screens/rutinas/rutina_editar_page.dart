@@ -6,7 +6,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 
 class EditarRutinaPage extends ConsumerStatefulWidget {
   final Rutina rutina;
-  const EditarRutinaPage({Key? key, required this.rutina}) : super(key: key);
+  const EditarRutinaPage({super.key, required this.rutina});
 
   @override
   ConsumerState<EditarRutinaPage> createState() => _EditarRutinaPageState();
@@ -63,10 +63,13 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
               );
               if (confirma == true) {
                 final ok = await widget.rutina.delete();
-                if (ok)
+                if (ok) {
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
-                else
+                } else {
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al eliminar la rutina.')));
+                }
               }
             },
           ),
@@ -182,6 +185,7 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
                 if (dificultad != widget.rutina.dificultad) {
                   await widget.rutina.setDificultad(dificultad);
                 }
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context, true); // <-- Devuelve true para indicar cambios
               },
               child: const Text('Guardar'),

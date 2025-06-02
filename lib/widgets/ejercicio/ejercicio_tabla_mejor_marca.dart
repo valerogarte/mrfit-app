@@ -4,7 +4,7 @@ import 'package:mrfit/utils/colors.dart';
 class EjercicioTablaMejorMarca extends StatelessWidget {
   final Map<String, dynamic> data;
 
-  const EjercicioTablaMejorMarca({Key? key, required this.data}) : super(key: key);
+  const EjercicioTablaMejorMarca({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +76,7 @@ class EjercicioTablaMejorMarca extends StatelessWidget {
                 const Text('Máx Repes'),
               ],
             ),
+            // ignore: prefer_interpolation_to_compose_strings
             Text("${data['maxReps']['repeticiones']} repes con " + data['maxReps']['peso'].toStringAsFixed(1) + " kg"),
           ],
         ),

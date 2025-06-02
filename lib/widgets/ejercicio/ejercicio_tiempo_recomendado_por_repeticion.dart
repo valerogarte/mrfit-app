@@ -4,7 +4,7 @@ import 'package:mrfit/utils/colors.dart';
 
 class EjercicioTiempoRecomendadoPorRepeticion extends StatelessWidget {
   final Ejercicio ejercicio;
-  const EjercicioTiempoRecomendadoPorRepeticion({Key? key, required this.ejercicio}) : super(key: key);
+  const EjercicioTiempoRecomendadoPorRepeticion({super.key, required this.ejercicio});
 
   @override
   Widget build(BuildContext context) {

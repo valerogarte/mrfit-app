@@ -7,11 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/widgets/animated_image.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/ejercicios/detalle/ejercicio_detalle.dart';
-import 'finalizar.dart';
-import 'entrenamiento_series/entrenamiento_series.dart';
-import 'entrenadora.dart';
+import 'package:mrfit/screens/entrenamiento/finalizar.dart';
+import 'package:mrfit/screens/entrenamiento/entrenamiento_series/entrenamiento_series.dart';
+import 'package:mrfit/screens/entrenamiento/entrenadora.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
-import 'entrenamiento_editar/entrenamiento_editar.dart';
+import 'package:mrfit/screens/entrenamiento/entrenamiento_editar/entrenamiento_editar.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/mr_functions.dart';
@@ -19,7 +19,7 @@ import 'package:mrfit/utils/mr_functions.dart';
 class EntrenamientoPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
 
-  const EntrenamientoPage({Key? key, required this.entrenamiento}) : super(key: key);
+  const EntrenamientoPage({super.key, required this.entrenamiento});
 
   @override
   ConsumerState<EntrenamientoPage> createState() => _EntrenamientoPageState();
@@ -182,8 +182,12 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
 
     // Limpia controladores de texto y paginador
     _pageController.dispose();
-    _repsControllers.values.forEach((controller) => controller.dispose());
-    _weightControllers.values.forEach((controller) => controller.dispose());
+    for (var controller in _repsControllers.values) {
+      controller.dispose();
+    }
+    for (var controller in _weightControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -460,6 +464,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       final usuario = ref.read(usuarioProvider);
                       await widget.entrenamiento.finalizar(usuario);
                       Navigator.pushReplacement(
+                        // ignore: use_build_context_synchronously
                         context,
                         MaterialPageRoute(
                           builder: (context) => FinalizarPage(entrenamiento: widget.entrenamiento),

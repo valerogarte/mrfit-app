@@ -15,7 +15,7 @@ class SesionGestionSerieDetalle extends StatefulWidget {
   final VoidCallback onToggleExpand;
 
   const SesionGestionSerieDetalle({
-    Key? key,
+    super.key,
     required this.setIndex,
     required this.serieP,
     required this.ejercicioP,
@@ -23,13 +23,13 @@ class SesionGestionSerieDetalle extends StatefulWidget {
     required this.onSave,
     required this.isExpanded,
     required this.onToggleExpand,
-  }) : super(key: key);
+  });
 
   @override
-  _SesionGestionSerieDetalleState createState() => _SesionGestionSerieDetalleState();
+  SesionGestionSerieDetalleState createState() => SesionGestionSerieDetalleState();
 }
 
-class _SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class SesionGestionSerieDetalleState extends State<SesionGestionSerieDetalle> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 

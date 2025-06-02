@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 
 class ConfiguracionUnidadesPage extends ConsumerStatefulWidget {
@@ -9,11 +8,11 @@ class ConfiguracionUnidadesPage extends ConsumerStatefulWidget {
   const ConfiguracionUnidadesPage({super.key, required this.campo});
 
   @override
-  _ConfiguracionUnidadesPageState createState() => _ConfiguracionUnidadesPageState();
+  ConfiguracionUnidadesPageState createState() => ConfiguracionUnidadesPageState();
 }
 
-class _ConfiguracionUnidadesPageState extends ConsumerState<ConfiguracionUnidadesPage> {
-  final _formKey = GlobalKey<FormState>();
+class ConfiguracionUnidadesPageState extends ConsumerState<ConfiguracionUnidadesPage> {
+  final formKey = GlobalKey<FormState>();
   String? _selected;
 
   static const Map<String, List<Map<String, String>>> _options = {
@@ -79,9 +78,12 @@ class _ConfiguracionUnidadesPageState extends ConsumerState<ConfiguracionUnidade
         break;
     }
     if (success) {
+      // ignore: unused_result
       ref.refresh(usuarioProvider);
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, _selected);
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al guardar')));
     }
   }

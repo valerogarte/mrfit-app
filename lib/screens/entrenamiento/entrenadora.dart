@@ -29,9 +29,6 @@ class Entrenadora {
   // Referencia estática privada para el singleton
   static Entrenadora? _singletonInstance;
 
-  // Singleton: Instancia única estática
-  static final Entrenadora _instance = Entrenadora._internal();
-
   // Constructor factory que retorna la instancia única
   factory Entrenadora() {
     // Si ya existe una instancia, la destruimos antes de crear una nueva

@@ -8,21 +8,21 @@ class AnimatedImage extends StatefulWidget {
   final Ejercicio ejercicio;
   final double width;
   final double? height;
-  final bool showCopyRight; // Nuevo campo para mostrar copyright
+  final bool showCopyRight;
 
   const AnimatedImage({
-    Key? key,
+    super.key,
     required this.ejercicio,
     required this.width,
     this.height,
-    this.showCopyRight = false, // Valor por defecto
-  }) : super(key: key);
+    this.showCopyRight = false,
+  });
 
   @override
-  _AnimatedImageState createState() => _AnimatedImageState();
+  AnimatedImageState createState() => AnimatedImageState();
 }
 
-class _AnimatedImageState extends State<AnimatedImage> with SingleTickerProviderStateMixin {
+class AnimatedImageState extends State<AnimatedImage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   bool showFirstImage = true;
 

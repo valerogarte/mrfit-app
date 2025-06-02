@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
@@ -6,22 +5,20 @@ import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'configuracion/config_app.dart';
 import 'configuracion/config_personal.dart';
-import 'configuracion/config_ajustes.dart';
 import 'configuracion/config_creditos.dart';
 import 'configuracion/config_objetivos.dart';
-import 'configuracion/config_unidades.dart';
 import 'configuracion/config_entrenador.dart';
 import 'package:mrfit/widgets/custom_bottom_sheet.dart';
 
 class UsuarioConfigPage extends ConsumerStatefulWidget {
-  const UsuarioConfigPage({Key? key}) : super(key: key);
+  const UsuarioConfigPage({super.key});
 
   @override
   ConsumerState<UsuarioConfigPage> createState() => _UsuarioConfigPageState();
 }
 
 class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
-  static const List<String> semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  // static const List<String> semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   bool _isHealthConnctLinked = false;
 
   @override
@@ -137,6 +134,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
+            // ignore: unnecessary_null_comparison
             title: Text(user.objetivoPasosDiarios != null ? '${user.objetivoPasosDiarios} pasos diarios' : 'Objetivo Pasos', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showConfigDialog('Objetivo Pasos', 'Editar Objetivo Pasos', ConfiguracionObjetivosPage(campo: 'Objetivo Pasos')),
           ),
@@ -228,7 +226,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text(
               'Voz del Entrenador',
               style: TextStyle(
-                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withOpacity(0.4),
+                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withAlpha(100),
               ),
             ),
             enabled: user.entrenadorActivo,
@@ -240,7 +238,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text(
               'Volumen del Entrenador',
               style: TextStyle(
-                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withOpacity(0.4),
+                color: user.entrenadorActivo ? AppColors.textMedium : AppColors.textMedium.withAlpha(100),
               ),
             ),
             enabled: user.entrenadorActivo,
@@ -335,7 +333,7 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
 
 class SectionHeader extends StatelessWidget {
   final String text;
-  const SectionHeader(this.text, {Key? key}) : super(key: key);
+  const SectionHeader(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) => Padding(

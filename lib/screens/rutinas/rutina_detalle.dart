@@ -10,7 +10,7 @@ import 'rutina_editar_page.dart';
 // Cambia a ConsumerStatefulWidget para acceder a providers
 class RutinaPage extends ConsumerStatefulWidget {
   final Rutina rutina;
-  const RutinaPage({Key? key, required this.rutina}) : super(key: key);
+  const RutinaPage({super.key, required this.rutina});
 
   @override
   ConsumerState<RutinaPage> createState() => _RutinaPageState();
@@ -74,12 +74,15 @@ class _RutinaPageState extends ConsumerState<RutinaPage> {
                     );
                     if (confirma == true) {
                       final ok = await widget.rutina.delete();
-                      if (ok)
+                      if (ok) {
+                        // ignore: use_build_context_synchronously
                         Navigator.pop(context, true); // Notifica a la pantalla anterior que hubo un cambio
-                      else
+                      } else {
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Error al eliminar la rutina.')),
                         );
+                      }
                     }
                   } else if (v == 2) {
                     // Archivar o Restaurar según grupo
@@ -119,6 +122,7 @@ class _RutinaPageState extends ConsumerState<RutinaPage> {
                       } else {
                         await widget.rutina.restaurar();
                       }
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context, true);
                     }
                   }

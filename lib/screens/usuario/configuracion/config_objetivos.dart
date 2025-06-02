@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 
 class ConfiguracionObjetivosPage extends ConsumerStatefulWidget {
   final String campo;
-  const ConfiguracionObjetivosPage({Key? key, required this.campo}) : super(key: key);
+  const ConfiguracionObjetivosPage({super.key, required this.campo});
 
   @override
   ConsumerState<ConfiguracionObjetivosPage> createState() => _ConfiguracionObjetivosPageState();
 }
 
 class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjetivosPage> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   late TextEditingController _controller;
   late FocusNode _timeFieldFocusNode; // Add a FocusNode for time fields
   bool _isInitialized = false;
@@ -53,7 +52,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
     String current = '';
     switch (widget.campo) {
       case 'Objetivo Pasos':
-        current = user.objetivoPasosDiarios?.toString() ?? '';
+        current = user.objetivoPasosDiarios.toString();
         break;
       case 'Objetivo Actividad':
         current = user.objetivoTiempoEntrenamiento > 0 ? user.objetivoTiempoEntrenamiento.toString() : '';
@@ -62,7 +61,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
         current = user.objetivoEntrenamientoSemanal > 0 ? user.objetivoEntrenamientoSemanal.toString() : '';
         break;
       case 'Objetivo Kcal':
-        current = user.objetivoKcal?.toString() ?? '';
+        current = user.objetivoKcal.toString();
         break;
       default:
         current = '';
@@ -86,7 +85,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
   }
 
   Future<void> _guardar() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) return;
     final user = ref.read(usuarioProvider);
     final val = _controller.text.trim();
     bool ok = false;
@@ -109,9 +108,12 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
         break;
     }
     if (ok) {
+      // ignore: unused_result
       ref.refresh(usuarioProvider);
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, _controller.text.trim());
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al guardar')),
       );
@@ -135,7 +137,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
         top: 16,
       ),
       child: Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

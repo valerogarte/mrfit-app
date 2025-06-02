@@ -11,11 +11,13 @@ abstract class _EjerciciosBuscarFields {
   List<Categoria> get _categorias;
   set _categorias(List<Categoria> value);
 
+  // ignore: unused_element
   bool get _isLoading;
   set _isLoading(bool value);
 
   TextEditingController get _nombreController;
 
+  // ignore: unused_element
   List<Ejercicio> get _ejercicios;
   set _ejercicios(List<Ejercicio> value);
 
@@ -159,7 +161,7 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
                             ),
                             onTap: () => Navigator.pop(context, item),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),
@@ -319,10 +321,12 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
       }
     }
     if (errorOcurrido) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al agregar los ejercicios.')),
       );
     } else {
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     }
   }

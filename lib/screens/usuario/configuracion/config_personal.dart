@@ -10,7 +10,7 @@ class ConfiguracionPersonalDialog extends ConsumerStatefulWidget {
   const ConfiguracionPersonalDialog({super.key, required this.campo});
 
   @override
-  _ConfiguracionPersonalDialogState createState() => _ConfiguracionPersonalDialogState();
+  ConfiguracionPersonalDialogState createState() => ConfiguracionPersonalDialogState();
 
   static Future<void> selectBirthDate(BuildContext context, WidgetRef ref) async {
     final usuario = ref.read(usuarioProvider);
@@ -23,13 +23,14 @@ class ConfiguracionPersonalDialog extends ConsumerStatefulWidget {
     );
     if (picked != null && picked != initialDate) {
       await usuario.setFechaNacimiento(picked);
+      // ignore: unused_result
       ref.refresh(usuarioProvider);
     }
   }
 }
 
-class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPersonalDialog> {
-  final _formKey = GlobalKey<FormState>();
+class ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPersonalDialog> {
+  final formKey = GlobalKey<FormState>();
   late TextEditingController _controller;
   String? selectedGender;
 
@@ -89,7 +90,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ChoiceChip(
-                    label: Container(
+                    label: SizedBox(
                       width: double.infinity,
                       child: Text(gen, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
@@ -180,7 +181,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
                   ),
                 ),
               );
-            }).toList(),
+            }),
             if (_controller.text.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 8.0),
@@ -263,7 +264,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
   }
 
   void _guardar() async {
-    if (_formKey.currentState!.validate()) {
+    if (formKey.currentState!.validate()) {
       final user = ref.read(usuarioProvider);
       final String value = _controller.text.trim();
       bool success = false;
@@ -286,9 +287,12 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
           break;
       }
       if (success) {
+        // ignore: unused_result
         ref.refresh(usuarioProvider);
+        // ignore: use_build_context_synchronously
         Navigator.pop(context, _controller.text);
       } else {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al guardar")));
       }
     }
@@ -301,7 +305,7 @@ class _ConfiguracionPersonalDialogState extends ConsumerState<ConfiguracionPerso
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

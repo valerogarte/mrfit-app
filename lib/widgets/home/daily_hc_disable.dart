@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
-import 'dart:convert';
 
 /// Widget funcional para mostrar el aviso de Health Connect no instalado.
 /// Permite ser insertado fácilmente como bloque en otras pantallas.
@@ -82,8 +81,10 @@ Widget dailyHCDisableWidget({
                     // Verifica si Health Connect está disponible antes de continuar
                     final isAvailable = await usuario.isHealthConnectAvailableUser();
                     if (isAvailable) {
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushReplacementNamed('/');
                     } else {
+                      // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(

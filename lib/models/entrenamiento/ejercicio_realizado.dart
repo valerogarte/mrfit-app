@@ -1,7 +1,8 @@
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'serie_realizada.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/data/database_helper.dart';
+
+import 'serie_realizada.dart';
 
 class EjercicioRealizado {
   final int id;
@@ -158,7 +159,6 @@ class EjercicioRealizado {
     }
   }
 
-  // Nuevo método para añadir una nueva SerieRealizada
   Future<SerieRealizada> insertSerieRealizada() async {
     final db = await DatabaseHelper.instance.database;
     final lastSerieRealizada = series.reversed.firstWhere(

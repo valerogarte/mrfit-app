@@ -6,7 +6,7 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/grafica.dart';
 
 class MedidasPage extends ConsumerWidget {
-  const MedidasPage({Key? key}) : super(key: key);
+  const MedidasPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

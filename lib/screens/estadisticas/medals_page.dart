@@ -7,7 +7,7 @@ import 'package:mrfit/models/usuario/usuario.dart';
 class MedalsPage extends StatefulWidget {
   final Usuario usuario;
 
-  const MedalsPage({Key? key, required this.usuario}) : super(key: key);
+  const MedalsPage({super.key, required this.usuario});
 
   @override
   State<MedalsPage> createState() => _MedalsPageState();
@@ -44,10 +44,12 @@ class _MedalsPageState extends State<MedalsPage> {
       resultMsg = "KO";
     }
     if (mounted) {
+      // ignore: use_build_context_synchronously
       Navigator.of(context, rootNavigator: true).pop();
       // Actualiza el estado para refrescar las medallas tras recalcular
       setState(() {});
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: AppColors.cardBackground,

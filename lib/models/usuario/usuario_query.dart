@@ -80,7 +80,6 @@ extension UsuarioQueryExtension on Usuario {
     );
   }
 
-  // Nuevo método para obtener entrenamientos de los últimos 5 días.
   Future<List<Entrenamiento>?> getEjerciciosLastDias(int daysAgo) async {
     try {
       final db = await DatabaseHelper.instance.database;

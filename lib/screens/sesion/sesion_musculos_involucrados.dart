@@ -7,15 +7,16 @@ class SesionMusculosInvolucradosPage extends ConsumerStatefulWidget {
   final Sesion sesion;
 
   const SesionMusculosInvolucradosPage({
-    Key? key,
+    super.key,
     required this.sesion,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SesionMusculosInvolucradosPage> createState() => _SesionMusculosInvolucradosPageState();
 }
 
 class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosInvolucradosPage> {
+  // ignore: prefer_final_fields
   bool _showFrontImage = true;
 
   @override
@@ -89,7 +90,6 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
                           itemCount: musculos.length,
                           itemBuilder: (context, index) {
                             final m = musculos[index];
-                            if (m == null) return const SizedBox.shrink();
                             return MusclesListWidget(
                               musculo: m,
                               maxPercentage: maxPercentage,
@@ -114,10 +114,10 @@ class MusclesListWidget extends StatelessWidget {
   final double maxPercentage;
 
   const MusclesListWidget({
-    Key? key,
+    super.key,
     required this.musculo,
     required this.maxPercentage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +191,7 @@ class MusclesListWidget extends StatelessWidget {
 }
 
 class LegendWidget extends StatelessWidget {
-  const LegendWidget({Key? key}) : super(key: key);
+  const LegendWidget({super.key});
 
   Widget _buildLegendItem(Color color, String label) {
     return Row(

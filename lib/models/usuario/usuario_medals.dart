@@ -1,24 +1,12 @@
 part of 'usuario.dart';
 
-class _TimeSection {
-  DateTime start;
-  DateTime end;
-  List<HealthDataPoint> points;
-
-  // Inicializa la sección con el primer datapoint
-  _TimeSection(HealthDataPoint p)
-      : start = p.dateFrom,
-        end = p.dateTo,
-        points = [p];
-}
-
 extension UsuarioMedalsExtension on Usuario {
   /// Devuelve los 5 valores más altos de: STEPS, DISTANCE_DELTA, WORKOUT (min), TOTAL_CALORIES_BURNED
   Future<Map<String, List<Map<String, dynamic>>>> getTop5Records({bool getFromCache = true}) async {
     if (getFromCache) {
       final cacheGet = await CustomCache.getByKey("medals");
       final cacheValue = cacheGet?.value;
-      if (cacheValue != null && cacheValue is String && cacheValue.trim().isNotEmpty) {
+      if (cacheValue != null && cacheValue.trim().isNotEmpty) {
         final cacheDecoded = jsonDecode(cacheValue);
         final cacheGetter = {
           "STEPS": (cacheDecoded["STEPS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
@@ -183,7 +171,7 @@ extension UsuarioMedalsExtension on Usuario {
     Map<String, List<Map<String, dynamic>>> cacheDecoded;
     bool cacheWasEmpty = false;
 
-    if (cacheGet?.value == null || !(cacheGet!.value is String) || (cacheGet.value as String).trim().isEmpty) {
+    if (cacheGet?.value == null || (cacheGet?.value)?.trim().isEmpty == true) {
       // Inicializar cache vacío
       cacheDecoded = {
         "STEPS": [],
@@ -193,12 +181,12 @@ extension UsuarioMedalsExtension on Usuario {
       };
       cacheWasEmpty = true;
     } else {
-      final raw = jsonDecode(cacheGet.value);
+      final raw = jsonDecode(cacheGet?.value ?? '{}');
       cacheDecoded = {
-        "STEPS": (raw["STEPS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "WORKOUT": (raw["WORKOUT"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "LONGEST_SESSIONS": (raw["LONGEST_SESSIONS"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
-        "WEEKLY_STREAK": (raw["WEEKLY_STREAK"] as List).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "STEPS": (raw["STEPS"] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WORKOUT": (raw["WORKOUT"] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "LONGEST_SESSIONS": (raw["LONGEST_SESSIONS"] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
+        "WEEKLY_STREAK": (raw["WEEKLY_STREAK"] as List? ?? []).map((e) => Map<String, dynamic>.from(e)).toList(),
       };
     }
 
@@ -242,7 +230,7 @@ extension UsuarioMedalsExtension on Usuario {
 
   /// Actualiza la racha semanal de entrenamientos y devuelve los resultados.
   Future<List<Map<String, dynamic>>> fetchAndUpdateWeeklyStreaks() async {
-    final objetivo = objetivoEntrenamientoSemanal ?? 0;
+    final objetivo = objetivoEntrenamientoSemanal;
     if (objetivo <= 0) {
       return [];
     }

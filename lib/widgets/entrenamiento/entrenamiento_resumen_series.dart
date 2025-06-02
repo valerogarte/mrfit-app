@@ -8,7 +8,7 @@ class ResumenSerie extends StatelessWidget {
   final SerieRealizada serie;
   final double pesoUsuario;
 
-  const ResumenSerie({Key? key, required this.index, required this.serie, required this.pesoUsuario}) : super(key: key);
+  const ResumenSerie({super.key, required this.index, required this.serie, required this.pesoUsuario});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class ResumenSerie extends StatelessWidget {
     }
     final diferenciaPesoObjetivo = peso - pesoObjetivo;
     final diferenciaRepeticionesObjetivo = repeticiones - repeticionesObjetivo;
-    final extra = serie.extra == 1 ? true : false;
+    final extra = serie.extra == true ? true : false;
 
     if (!serie.realizada) {
       return Container();
@@ -66,7 +66,7 @@ class ResumenSerie extends StatelessWidget {
               )
             else
               Text(
-                '(${(diferenciaPesoObjetivo >= 0 ? '+' : '')}${diferenciaPesoObjetivo} kg, ${(diferenciaRepeticionesObjetivo >= 0 ? '+' : '')}${diferenciaRepeticionesObjetivo} repes)',
+                '(${(diferenciaPesoObjetivo >= 0 ? '+' : '')}$diferenciaPesoObjetivo kg, ${(diferenciaRepeticionesObjetivo >= 0 ? '+' : '')}$diferenciaRepeticionesObjetivo repes)',
                 style: TextStyle(
                   color: (diferenciaPesoObjetivo >= 0 && diferenciaRepeticionesObjetivo >= 0) ? AppColors.accentColor : AppColors.mutedRed,
                 ),

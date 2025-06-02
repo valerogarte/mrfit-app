@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
 import 'package:mrfit/widgets/chart/resumen_semanal_entrenamiento.dart';
 import 'package:mrfit/models/health/health.dart';
@@ -351,9 +350,9 @@ class CalendarFooterWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      '${_trainedLast7Days}/7',
+                      '$_trainedLast7Days/7',
                       style: TextStyle(
-                        color: _trainedLast7Days >= (usuario.objetivoEntrenamientoSemanal ?? 0) ? AppColors.accentColor : AppColors.appBarBackground,
+                        color: _trainedLast7Days >= usuario.objetivoEntrenamientoSemanal ? AppColors.accentColor : AppColors.appBarBackground,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -366,9 +365,9 @@ class CalendarFooterWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${_trainedLast30Days}/30',
+                      '$_trainedLast30Days/30',
                       style: TextStyle(
-                        color: _trainedLast30Days >= (((usuario.objetivoEntrenamientoSemanal ?? 0) * 30) / 7).floor() ? AppColors.accentColor : AppColors.appBarBackground,
+                        color: _trainedLast30Days >= ((usuario.objetivoEntrenamientoSemanal * 30) / 7).floor() ? AppColors.accentColor : AppColors.appBarBackground,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -451,7 +450,7 @@ class _DayCell extends StatelessWidget {
   }
 
   Color _labelColor() {
-    if (isFuture) return AppColors.appBarBackground.withOpacity(0.5);
+    if (isFuture) return AppColors.appBarBackground.withAlpha(125);
     if (isSelected) return AppColors.mutedAdvertencia;
     return AppColors.appBarBackground;
   }
@@ -474,7 +473,7 @@ extension DateTimeUtils on DateTime {
 
 class CustomPageScrollPhysics extends PageScrollPhysics {
   final double dragThreshold;
-  const CustomPageScrollPhysics({ScrollPhysics? parent, this.dragThreshold = 80}) : super(parent: parent);
+  const CustomPageScrollPhysics({super.parent, this.dragThreshold = 80});
 
   @override
   double get dragStartDistanceMotionThreshold => dragThreshold;

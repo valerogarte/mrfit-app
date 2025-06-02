@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:dartssh2/dartssh2.dart';
@@ -9,7 +8,7 @@ import 'package:mrfit/models/usuario/usuario_backup.dart';
 
 class ConfiguracionApp {
   static Future<void> openFTPConfig(BuildContext context) async {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final hostController = TextEditingController();
     final portController = TextEditingController();
     final userController = TextEditingController();
@@ -31,6 +30,7 @@ class ConfiguracionApp {
     remoteDirController.text = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
 
     await showModalBottomSheet(
+      // ignore: use_build_context_synchronously
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -50,7 +50,7 @@ class ConfiguracionApp {
                     right: 16,
                   ),
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -127,10 +127,12 @@ class ConfiguracionApp {
                           onPressed: () async {
                             try {
                               await UsuarioBackup.export();
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Exportación realizada.')),
                               );
                             } catch (_) {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Error durante la exportación.')),
                               );
@@ -150,13 +152,14 @@ class ConfiguracionApp {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
+                                  if (formKey.currentState!.validate()) {
                                     await prefs.setString('ftp_host', hostController.text.trim());
                                     await prefs.setString('ftp_port', portController.text.trim());
                                     await prefs.setString('ftp_user', userController.text.trim());
                                     await prefs.setString('ftp_pwd', pwdController.text.trim());
                                     await prefs.setString('ftp_frequency', selectedFrequency);
                                     await prefs.setString('sftp_remoteDirPath', remoteDirController.text.trim());
+                                    // ignore: use_build_context_synchronously
                                     Navigator.pop(sheetContext);
                                   }
                                 },
@@ -258,9 +261,11 @@ class ConfiguracionApp {
     );
 
     final backupFiles = await UsuarioBackup.listBackupFiles();
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
 
     if (backupFiles.isEmpty) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No se encontraron archivos de respaldo.')),
       );
@@ -270,6 +275,7 @@ class ConfiguracionApp {
     final deleting = <String, bool>{};
 
     final selectedFile = await showDialog<String>(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
@@ -322,6 +328,7 @@ class ConfiguracionApp {
                                 setState(() => backupFiles.remove(fileName));
                               } else {
                                 showDialog(
+                                  // ignore: use_build_context_synchronously
                                   context: context,
                                   builder: (_) => AlertDialog(
                                     backgroundColor: AppColors.cardBackground,
@@ -352,6 +359,7 @@ class ConfiguracionApp {
 
     // Confirmar importación
     final confirm = await showDialog<bool>(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
@@ -371,6 +379,7 @@ class ConfiguracionApp {
 
     // Loader de importación
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
@@ -387,7 +396,9 @@ class ConfiguracionApp {
       ),
     );
 
+    // ignore: use_build_context_synchronously
     await UsuarioBackup.importSelectedBackup(context, selectedFile);
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
 }

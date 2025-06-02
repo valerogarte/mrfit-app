@@ -9,16 +9,16 @@ class MusculoDetallePage extends StatefulWidget {
   final List<Entrenamiento> entrenamientos;
 
   const MusculoDetallePage({
-    Key? key,
+    super.key,
     required this.musculo,
     required this.entrenamientos,
-  }) : super(key: key);
+  });
 
   @override
-  _MusculoDetallePageState createState() => _MusculoDetallePageState();
+  MusculoDetallePageState createState() => MusculoDetallePageState();
 }
 
-class _MusculoDetallePageState extends State<MusculoDetallePage> {
+class MusculoDetallePageState extends State<MusculoDetallePage> {
   double globalRecoveryPercentage = 100.0;
 
   void updatePercentage(double percentage) {

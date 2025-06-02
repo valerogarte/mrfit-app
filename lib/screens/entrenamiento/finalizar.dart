@@ -1,15 +1,15 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/main.dart';
-import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/models/modelo_datos.dart';
-import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
-import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
-import 'package:confetti/confetti.dart';
-import 'dart:async';
-import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
+import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
+import 'dart:async';
 
 class FinalizarPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
@@ -234,6 +234,7 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               : () async {
                   await widget.entrenamiento.setSensacion(_ratingValue.toInt());
                   Navigator.pushAndRemoveUntil(
+                    // ignore: use_build_context_synchronously
                     context,
                     MaterialPageRoute(builder: (context) => const MyApp()),
                     (Route<dynamic> route) => false,

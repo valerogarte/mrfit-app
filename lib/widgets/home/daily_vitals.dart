@@ -14,7 +14,7 @@ Widget dailyVitalsWidget({required DateTime day, required Usuario usuario}) {
         return const Center(child: CircularProgressIndicator());
       }
       final spo2 = snap.data![0] as int;
-      final stress = snap.data![1] as int;
+      // final stress = snap.data![1] as int;
       final stairs = snap.data![2] as int;
 
       return Container(

@@ -7,10 +7,10 @@ class DailyNutritionWidget extends StatefulWidget {
   final Usuario usuario;
 
   const DailyNutritionWidget({
-    Key? key,
+    super.key,
     required this.day,
     required this.usuario,
-  }) : super(key: key);
+  });
 
   @override
   State<DailyNutritionWidget> createState() => _DailyNutritionWidgetState();
@@ -18,7 +18,6 @@ class DailyNutritionWidget extends StatefulWidget {
 
 class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
   late Future<void> _initialization;
-  double _progress = 0.0;
   int _currentCalories = 0;
 
   @override
@@ -41,14 +40,12 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
     final kcal = await widget.usuario.getByDate(widget.day);
     setState(() {
       _currentCalories = kcal?.round() ?? 0;
-      _progress = (_currentCalories + 2000) / 4000;
     });
   }
 
   Future<void> _updateCaloricDifference(int delta) async {
     setState(() {
       _currentCalories += delta;
-      _progress = (_currentCalories + 2000) / 4000;
     });
     await widget.usuario.setDiferenciaCalorica(
       widget.day,
@@ -132,7 +129,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
           child: Text(
             label,
             style: TextStyle(
-              color: enabled ? AppColors.mutedGreen : AppColors.textMedium.withOpacity(0.5),
+              color: enabled ? AppColors.mutedGreen : AppColors.textMedium.withAlpha(125),
               fontSize: 14,
             ),
           ),

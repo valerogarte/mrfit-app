@@ -13,11 +13,11 @@ class DetalleMusculoGasto extends ConsumerWidget {
   final Function(double) onPercentageCalculated;
 
   const DetalleMusculoGasto({
-    Key? key,
+    super.key,
     required this.musculo,
     required this.entrenamientos,
     required this.onPercentageCalculated,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

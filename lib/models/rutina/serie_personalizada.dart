@@ -35,13 +35,8 @@ class SeriePersonalizada {
     };
   }
 
-  // Nuevo método save: actualiza en la base de datos los campos modificables
   Future<void> save() async {
-    // Obtener la conexión a la base de datos.
-    // Se asume que DatabaseHelper.instance.db devuelve la instancia de la base de datos.
     final db = await DatabaseHelper.instance.database;
-
-    // Construir el mapa de campos a actualizar (excluyendo id, ejercicioRealizado, velocidadRepeticion e inicio)
     final data = {
       'repeticiones': repeticiones,
       'peso': peso,
@@ -49,8 +44,6 @@ class SeriePersonalizada {
       'descanso': descanso,
       'rer': rer,
     };
-
-    // Ejecutar la actualización en la tabla 'rutina_seriepersonalizada'
     await db.update(
       'rutinas_seriepersonalizada',
       data,
@@ -59,7 +52,6 @@ class SeriePersonalizada {
     );
   }
 
-  // Nuevo método delete: elimina la serie personalizada de la base de datos
   Future<void> delete() async {
     final db = await DatabaseHelper.instance.database;
     await db.delete(

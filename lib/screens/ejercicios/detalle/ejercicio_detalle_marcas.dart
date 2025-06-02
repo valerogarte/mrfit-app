@@ -6,7 +6,7 @@ import 'package:mrfit/widgets/ejercicio/ejercicio_grafica_progresion_marca.dart'
 class EjercicioMarcas extends StatelessWidget {
   final Ejercicio ejercicio;
 
-  const EjercicioMarcas({Key? key, required this.ejercicio}) : super(key: key);
+  const EjercicioMarcas({super.key, required this.ejercicio});
 
   @override
   Widget build(BuildContext context) {

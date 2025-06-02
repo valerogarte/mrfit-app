@@ -22,10 +22,10 @@ class EjerciciosBuscarPage extends StatefulWidget {
   }) : assert(sesion != null || entrenamiento != null, 'Debe proporcionar session o entrenamiento');
 
   @override
-  _EjerciciosBuscarPageState createState() => _EjerciciosBuscarPageState();
+  EjerciciosBuscarPageState createState() => EjerciciosBuscarPageState();
 }
 
-class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with EjerciciosBuscarLogic {
+class EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with EjerciciosBuscarLogic {
   // Variables y controladores
   @override
   List<Ejercicio> _ejercicios = [];
@@ -223,6 +223,7 @@ class _EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejerci
                                         onTap: () async {
                                           final loadedEjercicio = await Ejercicio.loadById(ejercicio.id);
                                           Navigator.push(
+                                            // ignore: use_build_context_synchronously
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => EjercicioDetallePage(

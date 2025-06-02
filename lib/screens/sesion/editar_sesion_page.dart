@@ -4,7 +4,7 @@ import 'package:mrfit/utils/colors.dart';
 
 class EditarSesionPage extends StatefulWidget {
   final Sesion sesion;
-  const EditarSesionPage({Key? key, required this.sesion}) : super(key: key);
+  const EditarSesionPage({super.key, required this.sesion});
 
   @override
   State<EditarSesionPage> createState() => _EditarSesionPageState();
@@ -39,9 +39,11 @@ class _EditarSesionPageState extends State<EditarSesionPage> {
       if (_dificultad != widget.sesion.dificultad) {
         await widget.sesion.setDificultad(_dificultad);
       }
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, nuevoTitulo);
     } catch (_) {
       setState(() => _saving = false);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al actualizar el día de entrenamiento.')),
       );

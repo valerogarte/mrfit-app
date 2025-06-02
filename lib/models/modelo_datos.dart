@@ -1,8 +1,9 @@
-import 'package:logger/logger.dart';
-import 'package:mrfit/data/database_helper.dart';
-import 'ejercicio/ejercicio.dart';
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
+import 'package:logger/logger.dart';
+
+import 'ejercicio/ejercicio.dart';
+import 'package:mrfit/data/database_helper.dart';
 
 class ModeloDatos {
   Future<Map<String, dynamic>?> getDatosFiltrosEjercicios() async {

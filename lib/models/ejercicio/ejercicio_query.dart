@@ -26,13 +26,12 @@ extension EjercicioQuery on Ejercicio {
     double bestRM = 0.0;
     Map<String, dynamic> bestReps = {'peso': 0.0, 'repeticiones': 0};
     double bestVolumen = 0.0;
-    double pesoMaximo = 0.0; // Nueva variable para el peso máximo
-    int seriesRealizadas = 0; // Nueva variable para el número total de series realizadas
+    double pesoMaximo = 0.0;
+    int seriesRealizadas = 0;
 
     for (final row in result) {
       final peso = (row['peso'] as num).toDouble();
       final reps = (row['repeticiones'] as num).toInt();
-      // Calcular 1 RM estimado usando fórmula de Epley
       final rm = peso * (1 + reps / 30.0);
 
       if (rm > bestRM) bestRM = rm;
@@ -42,7 +41,7 @@ extension EjercicioQuery on Ejercicio {
       final volumen = peso * reps;
       if (volumen > bestVolumen) bestVolumen = volumen;
       if (peso > pesoMaximo) pesoMaximo = peso;
-      seriesRealizadas++; // Incrementar el contador de series realizadas
+      seriesRealizadas++;
     }
 
     return {
@@ -50,7 +49,7 @@ extension EjercicioQuery on Ejercicio {
       'maxReps': bestReps,
       'volumenMaximo': bestVolumen,
       'pesoMaximo': pesoMaximo,
-      'seriesRealizadas': seriesRealizadas, // Añadir el número total de series realizadas al resultado
+      'seriesRealizadas': seriesRealizadas,
     };
   }
 
@@ -67,8 +66,6 @@ extension EjercicioQuery on Ejercicio {
       return {};
     }
 
-    // print('-Ejercicios realizados: ${erRecords.length}');
-
     final erIds = erRecords.map((row) => row['id'] as int).toList();
     final placeholders = List.filled(erIds.length, '?').join(', ');
 
@@ -81,16 +78,12 @@ extension EjercicioQuery on Ejercicio {
         AND deleted = 0
     ''', erIds);
 
-    // print('--Series realizadas: ${seriesResult.length}');
-
     // Agrupar por ejercicio_realizado_id
     final Map<int, List<Map<String, dynamic>>> groups = {};
     for (final row in seriesResult) {
       final erId = row['ejercicio_realizado_id'] as int;
       groups.putIfAbsent(erId, () => []).add(row);
     }
-
-    // print('--- Grupos: ${groups.length}');
 
     // Calcular para cada entrenamiento los valores deseados
     final Map<String, Map<String, dynamic>> progression = {};
@@ -101,7 +94,6 @@ extension EjercicioQuery on Ejercicio {
       double maxVolumen = 0.0;
       String fechaInicioEx = '';
 
-      // print('---- Con ${rows.length} series');
       for (final row in rows) {
         final peso = (row['peso'] as num).toDouble();
         final reps = (row['reps'] as num).toInt();
@@ -112,13 +104,10 @@ extension EjercicioQuery on Ejercicio {
         final volumen = peso * reps;
         if (volumen > maxVolumen) maxVolumen = volumen;
         final currentInicio = row['inicio'] as String? ?? '';
-        // print('-----' + row.toString());
         if (currentInicio.compareTo(fechaInicioEx) > 0) {
           fechaInicioEx = currentInicio;
         }
       }
-
-      // print('${fechaInicioEx.toString()}, $bestRM, $maxReps, $maxPeso, $maxVolumen');
 
       progression[fechaInicioEx] = {
         'rm': bestRM,
@@ -127,8 +116,6 @@ extension EjercicioQuery on Ejercicio {
         'volumenMaximo': maxVolumen,
       };
     });
-
-    // print('Progresión: ${progression.length}');
 
     return progression;
   }

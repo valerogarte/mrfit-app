@@ -3,20 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'dart:convert'; // <-- nuevo
+import 'dart:convert';
 
 class ConfiguracionEntrenadorPage extends ConsumerStatefulWidget {
   final String campo;
-  const ConfiguracionEntrenadorPage({Key? key, required this.campo}) : super(key: key);
+  const ConfiguracionEntrenadorPage({super.key, required this.campo});
 
   @override
-  _ConfiguracionEntrenadorPageState createState() => _ConfiguracionEntrenadorPageState();
+  ConfiguracionEntrenadorPageState createState() => ConfiguracionEntrenadorPageState();
 }
 
-class _ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntrenadorPage> {
+class ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntrenadorPage> {
   String? _selected;
-  final FlutterTts _flutterTts = FlutterTts(); // instancia de TTS
-  List<Map<String, String>> _voiceOptions = []; // opciones cargadas
+  final FlutterTts _flutterTts = FlutterTts();
+  List<Map<String, String>> _voiceOptions = [];
 
   static const Map<String, List<Map<String, String>>> _presetOptions = {
     'Entrenador Activo': [
@@ -81,13 +81,12 @@ class _ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntre
       _voiceOptions = voices.where((v) => (v['name'] as String).toLowerCase().startsWith('es')).map<Map<String, String>>((v) {
         final features = (v['features'] as String?)?.toLowerCase() ?? '';
         final genderField = (v['gender'] as String?)?.toLowerCase();
-        final gender = genderField != null
-            ? genderField
-            : features.contains('gender=female')
+        final gender = genderField ??
+            (features.contains('gender=female')
                 ? 'female'
                 : features.contains('gender=male')
                     ? 'male'
-                    : '';
+                    : '');
         String label;
         if (gender == 'female') {
           _missCounter++;
@@ -144,9 +143,12 @@ class _ConfiguracionEntrenadorPageState extends ConsumerState<ConfiguracionEntre
         break;
     }
     if (success) {
+      // ignore: unused_result
       ref.refresh(usuarioProvider);
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, _selected);
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al guardar')),
       );

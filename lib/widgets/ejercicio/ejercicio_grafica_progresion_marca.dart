@@ -6,7 +6,7 @@ import 'package:mrfit/widgets/chart/grafica.dart';
 class EjercicioGraficaProgresionMarca extends StatefulWidget {
   final Ejercicio ejercicio;
 
-  const EjercicioGraficaProgresionMarca({Key? key, required this.ejercicio}) : super(key: key);
+  const EjercicioGraficaProgresionMarca({super.key, required this.ejercicio});
 
   @override
   State<EjercicioGraficaProgresionMarca> createState() => _EjercicioGraficaProgresionMarcaState();

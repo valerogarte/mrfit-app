@@ -3,7 +3,6 @@ import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
-import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 
 class EntrenamientoSeries extends StatefulWidget {
   final String setIndex;
@@ -19,7 +18,7 @@ class EntrenamientoSeries extends StatefulWidget {
   final EjercicioRealizado ejercicioRealizado;
 
   const EntrenamientoSeries({
-    Key? key,
+    super.key,
     required this.setIndex,
     required this.set,
     required this.repsController,
@@ -31,13 +30,13 @@ class EntrenamientoSeries extends StatefulWidget {
     required this.onComplete,
     required this.onUpdate,
     required this.ejercicioRealizado,
-  }) : super(key: key);
+  });
 
   @override
-  _EntrenamientoSeriesState createState() => _EntrenamientoSeriesState();
+  EntrenamientoSeriesState createState() => EntrenamientoSeriesState();
 }
 
-class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTickerProviderStateMixin {
+class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTickerProviderStateMixin {
   bool isEditing = false;
   Color _selectedEmojiColor = AppColors.textMedium;
   List<Map<String, dynamic>>? _avgRerLabel;
@@ -91,11 +90,6 @@ class _EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTi
     if (oldWidget.set.realizada != widget.set.realizada) {
       setState(() {});
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   // Función para mostrar el modal bottom sheet de dificultad
