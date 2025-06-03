@@ -284,7 +284,6 @@ class AnimatedInfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usar ValueKey para reiniciar la animación cuando cambia el valor final
     return TweenAnimationBuilder<int>(
       key: ValueKey(finalValue),
       tween: IntTween(begin: 0, end: finalValue),

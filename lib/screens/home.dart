@@ -39,6 +39,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   List<HealthDataPoint> _dataPointsSteps = [];
   List<HealthDataPoint> _dataPointsWorkout = [];
   List<Map<String, dynamic>> _entrenamientosMrFit = [];
+  Future<List<SleepSlot>>? _sleepFuture;
 
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
@@ -46,6 +47,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       _dataPointsSteps = [];
       _dataPointsWorkout = [];
       _entrenamientosMrFit = [];
+      _sleepFuture = null;
     });
 
     final Map<String, bool> grantedPermissions = {};
@@ -60,6 +62,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     final stepsHC = usuario.healthDataTypesString['STEPS'];
     final workoutHC = usuario.healthDataTypesString['WORKOUT'];
+    // final sleepHC = usuario.healthDataTypesString['SLEEP'];
 
     if (stepsHC != null && grantedPermissions['STEPS'] == true) {
       final rawSteps = await usuario.readHealthDataByDate(stepsHC, day);
@@ -70,6 +73,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     }
     entrenamientosMrFit = await usuario.getActivityMrFit(day);
 
+    // if (sleepHC != null && grantedPermissions['SLEEP'] == true) {
+    //   _sleepFuture = usuario.getSleepSessionByDate(day);
+    // }
+
     // Actualiza los estados locales
     if (!mounted) return;
     setState(() {
@@ -77,6 +84,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       _dataPointsSteps = dataPointsSteps;
       _dataPointsWorkout = dataPointsWorkout;
       _entrenamientosMrFit = entrenamientosMrFit;
+      _sleepFuture = _sleepFuture;
     });
   }
 
@@ -87,6 +95,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     initializeDateFormatting('es', null);
     _cargarResumenEntrenamientos();
     _checkHcWarning();
+    final usuario = ref.read(usuarioProvider);
+    _fetchAndSetDailyStatsData(usuario, _selectedDate);
   }
 
   Future<void> _checkHcWarning() async {
@@ -207,7 +217,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                         await _checkHcWarning();
                         final usuario = ref.read(usuarioProvider);
                         await _fetchAndSetDailyStatsData(usuario, _selectedDate);
-                        setState(() {});
                       },
                       child: GestureDetector(
                         onHorizontalDragEnd: _onHorizontalDrag,

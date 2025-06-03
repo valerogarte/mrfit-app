@@ -153,11 +153,13 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
         if (Navigator.of(context).canPop()) {
           return;
         }
-        // Si no hay rutas previas, navega a la raíz y limpia el stack.
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const MyApp()),
-          (route) => false,
-        );
+        // Navegación diferida para evitar el lock del Navigator.
+        Future.microtask(() {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MyApp()),
+            (route) => false,
+          );
+        });
         // No se cierra la app, se redirige a la raíz.
       },
       child: Scaffold(
