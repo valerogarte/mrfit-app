@@ -18,7 +18,7 @@ Widget dailyStatsWidget({
 }) {
   final int targetSteps = usuario.objetivoPasosDiarios;
   final int targetMinActividad = usuario.objetivoTiempoEntrenamiento;
-  final int targetHorasActivo = usuario.objetivoKcal;
+  final int targetHorasActivo = usuario.objetivoTiempoActivo;
 
   int steps = 0;
   int minutes = 0;

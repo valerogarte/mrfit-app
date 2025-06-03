@@ -63,6 +63,9 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
       case 'Objetivo Kcal':
         current = user.objetivoKcal.toString();
         break;
+      case 'Objetivo Tiempo Activo':
+        current = user.objetivoTiempoActivo > 0 ? user.objetivoTiempoActivo.toString() : '';
+        break;
       default:
         current = '';
     }
@@ -71,6 +74,24 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
 
   Widget _buildInput() {
     switch (widget.campo) {
+      case 'Objetivo Tiempo Activo':
+        return TextFormField(
+          controller: _controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: widget.campo,
+            border: const OutlineInputBorder(),
+            suffixText: 'horas',
+          ),
+          validator: (v) {
+            if (v == null || v.isEmpty) return 'Ingrese un valor';
+            final num? value = num.tryParse(v.replaceAll(',', '.'));
+            if (value == null) return 'Ingrese un número válido';
+            if (value <= 0) return 'Debe ser mayor que 0';
+            if (value > 24) return 'No puede superar 24 horas';
+            return null;
+          },
+        );
       default:
         return TextFormField(
           controller: _controller,
@@ -105,6 +126,11 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
       case 'Objetivo Kcal':
         final intVal = int.tryParse(val) ?? 0;
         ok = await user.setObjetivoKcal(intVal);
+        break;
+      case 'Objetivo Tiempo Activo':
+        // Guarda como horas, pero internamente almacena en minutos para mayor precisión si lo deseas
+        final num horas = num.tryParse(val.replaceAll(',', '.')) ?? 0;
+        ok = await user.setObjetivoTiempoActivo(horas > 24 ? 24 : horas);
         break;
     }
     if (ok) {

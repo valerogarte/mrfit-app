@@ -144,12 +144,16 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text(user.objetivoTiempoEntrenamiento > 0 ? '${user.objetivoTiempoEntrenamiento} minutos diarios' : 'Objetivo Actividad', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showConfigDialog('Objetivo Actividad', 'Editar Objetivo Actividad', ConfiguracionObjetivosPage(campo: 'Objetivo Actividad')),
           ),
-          // ListTile(
-          //   tileColor: AppColors.cardBackground,
-          //   leading: Icon(Icons.local_fire_department, color: AppColors.accentColor),
-          //   title: Text(user.objetivoKcal != null ? '${user.objetivoKcal} kcal diarias' : 'Objetivo Kcal', style: TextStyle(color: AppColors.textMedium)),
-          //   onTap: () => _showConfigDialog('Objetivo Kcal', 'Editar Objetivo Kcal', ConfiguracionObjetivosPage(campo: 'Objetivo Kcal')),
-          // ),
+          // Campo para Objetivo Tiempo Activo
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.timelapse, color: AppColors.accentColor),
+            title: Text(
+              user.objetivoTiempoActivo > 0 ? '${user.objetivoTiempoActivo} horas activas diarias' : 'Horas Activo',
+              style: TextStyle(color: AppColors.textMedium),
+            ),
+            onTap: () => _showConfigDialog('Objetivo Tiempo Activo', 'Editar Objetivo Tiempo Activo', ConfiguracionObjetivosPage(campo: 'Objetivo Tiempo Activo')),
+          ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.calendar_view_week, color: AppColors.accentColor),

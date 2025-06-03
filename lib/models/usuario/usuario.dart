@@ -39,6 +39,7 @@ class Usuario {
   int objetivoEntrenamientoSemanal;
   int objetivoTiempoEntrenamiento;
   int objetivoKcal;
+  int objetivoTiempoActivo;
   DateTime fechaNacimiento;
   String genero;
   List<dynamic> historiaLesiones;
@@ -95,6 +96,7 @@ class Usuario {
     this.aviso10Segundos = false,
     this.avisoCuentaAtras = false,
     this.objetivoKcal = 0,
+    this.objetivoTiempoActivo = 0,
     this.primerDiaSemana = 1,
     this.unidadDistancia = '',
     this.unidadTamano = '',
@@ -120,6 +122,7 @@ class Usuario {
       objetivoPasosDiarios: json['objetivo_pasos_diarios'] ?? 0,
       objetivoTiempoEntrenamiento: json['objetivo_tiempo_entrenamiento'] ?? 0,
       objetivoKcal: json['objetivo_kcal'] ?? 0,
+      objetivoTiempoActivo: json['objetivo_tiempo_activo'] ?? 0,
       objetivoEntrenamientoSemanal: json['objetivo_entrenamiento_semanal'] ?? 0,
       fechaNacimiento: DateTime.parse(json['fecha_nacimiento']),
       genero: json['genero'] ?? '',
@@ -167,6 +170,7 @@ class Usuario {
       'objetivo_pasos_diarios': objetivoPasosDiarios,
       'objetivo_entrenamiento_semanal': objetivoEntrenamientoSemanal,
       'objetivo_tiempo_entrenamiento': objetivoTiempoEntrenamiento,
+      'objetivo_tiempo_activo': objetivoTiempoActivo,
       'fecha_nacimiento': fechaNacimiento.toIso8601String(),
       'genero': genero,
       'historia_lesiones': historiaLesiones,
@@ -175,7 +179,7 @@ class Usuario {
       'unidades': unidades,
       'entrenador_volumen': entrenadorVolumen,
       'tiempo_descanso': tiempoDescanso,
-      'rutina_actual_id': rutinaActualId, // Incluir el nuevo campo en el JSON
+      'rutina_actual_id': rutinaActualId,
       'altura': altura,
       'aviso_10_segundos': aviso10Segundos,
       'aviso_cuenta_atras': avisoCuentaAtras,
@@ -419,6 +423,21 @@ class Usuario {
     return count > 0;
   }
 
+  // Setter asíncrono para actualizar el objetivo de tiempo activo en la base de datos
+  Future<bool> setObjetivoTiempoActivo(num objetivoTiempoActivo) async {
+    // Limita el valor a 24 horas por coherencia de negocio
+    final double horas = objetivoTiempoActivo > 24 ? 24 : objetivoTiempoActivo.toDouble();
+    this.objetivoTiempoActivo = horas.toInt();
+    final db = await DatabaseHelper.instance.database;
+    int count = await db.update(
+      'auth_user',
+      {'objetivo_tiempo_activo': this.objetivoTiempoActivo},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+    return count > 0;
+  }
+
   static Future<Usuario> load() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -468,6 +487,7 @@ class Usuario {
                 minute: int.parse((row['hora_inicio_sueno'] as String).split(':')[1]),
               )
             : null,
+        objetivoTiempoActivo: row['objetivo_tiempo_activo'] is int ? row['objetivo_tiempo_activo'] as int : (int.tryParse(row['objetivo_tiempo_activo']?.toString() ?? '') ?? 0),
       );
 
       // Consultar si Health Connect está disponible y lo seteo en el usuario

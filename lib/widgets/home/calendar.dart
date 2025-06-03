@@ -182,7 +182,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     // 4) Guardo en el state
     setState(() {
       _targetSteps = usuario.objetivoPasosDiarios;
-      _targetHorasActivo = usuario.objetivoKcal;
+      _targetHorasActivo = usuario.objetivoTiempoActivo;
       _targetActivityMinutes = usuario.objetivoTiempoEntrenamiento;
       _daysValues = daysValues;
     });
@@ -244,7 +244,7 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
                           stepsProgress: (widget.grantedPermissions['STEPS'] ?? false) ? _porcentajeAvance((_daysValues[dateString]?["steps"] as num? ?? 0).toDouble(), _targetSteps) : 0,
                           minutosEntrenandoPercent:
                               (widget.grantedPermissions['STEPS'] == true && widget.grantedPermissions['WORKOUT'] == true) ? _porcentajeAvance((_daysValues[dateString]?["minEntrenando"] as num? ?? 0).toDouble(), _targetActivityMinutes) : 0,
-                          horasActivoPercent: (widget.grantedPermissions['STEPS'] == true && widget.grantedPermissions['WORKOUT'] == true) ? _porcentajeAvance((_daysValues[dateString]?["kcal"] as num? ?? 0).toDouble(), _targetHorasActivo) : 0,
+                          horasActivoPercent: (widget.grantedPermissions['STEPS'] == true && widget.grantedPermissions['WORKOUT'] == true) ? _porcentajeAvance((_daysValues[dateString]?["horasAct"] as num? ?? 0).toDouble(), _targetHorasActivo) : 0,
                           onTap: () {
                             if (!date.isAfter(DateTime.now())) {
                               widget.onDateSelected(date);
