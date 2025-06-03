@@ -88,21 +88,24 @@ extension UsuarioHealthExtension on Usuario {
     }
   }
 
-  /// Lee los datos de salud para un tipo específico en una fecha dada,
+  /// Lee los datos de salud para una lista de tipos específicos en una fecha dada,
   /// desde las 00:00 hasta las 23:59:59 de ese día.
-  Future<List<HealthDataPoint>> readHealthDataByDate(HealthDataType type, DateTime date) async {
+  Future<List<HealthDataPoint>> readHealthDataByDate(
+    List<HealthDataType> types,
+    DateTime date,
+  ) async {
     final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
     try {
-      List<HealthDataPoint> results = await _health.getHealthDataFromTypes(
+      final results = await _health.getHealthDataFromTypes(
         startTime: startOfDay,
         endTime: endOfDay,
-        types: [type],
+        types: types,
       );
       return results;
     } catch (e) {
-      // En caso de error, retorna una lista vacía
+      // Retorna una lista vacía si ocurre algún error al consultar los datos.
       return [];
     }
   }

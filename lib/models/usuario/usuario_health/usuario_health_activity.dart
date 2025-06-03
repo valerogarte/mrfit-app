@@ -400,11 +400,53 @@ extension UsuarioHCActivityExtension on Usuario {
       }
     }
 
+    const porcentajeSolapamientoMinimo = 0.9;
+
+    // Mergeo si hay entrenamientos que coinciden con sí mismos
+    // Fusiona actividades que se solapan en al menos porcentajeSolapamientoMinimo
+    final indicesToRemove = <int>{};
+    for (int i = 0; i < activity.length; i++) {
+      final actA = activity[i];
+      final startA = actA['start'] as DateTime;
+      final endA = actA['end'] as DateTime;
+      final durationA = endA.difference(startA).inSeconds;
+
+      for (int j = i + 1; j < activity.length; j++) {
+        if (indicesToRemove.contains(j)) continue;
+        final actB = activity[j];
+        final startB = actB['start'] as DateTime;
+        final endB = actB['end'] as DateTime;
+        final durationB = endB.difference(startB).inSeconds;
+
+        // Calcula el rango de solapamiento
+        final overlapStart = startA.isAfter(startB) ? startA : startB;
+        final overlapEnd = endA.isBefore(endB) ? endA : endB;
+        final overlapDuration = overlapEnd.isAfter(overlapStart) ? overlapEnd.difference(overlapStart).inSeconds : 0;
+
+        // Si el solapamiento es al menos el porcentaje mínimo para cualquiera de las dos actividades, elimina la más corta
+        if (durationA > 0 && durationB > 0) {
+          final overlapA = overlapDuration / durationA;
+          final overlapB = overlapDuration / durationB;
+          if (overlapA >= porcentajeSolapamientoMinimo || overlapB >= porcentajeSolapamientoMinimo) {
+            // Elimina la actividad más corta para evitar duplicidad
+            if (durationA <= durationB) {
+              indicesToRemove.add(i);
+            } else {
+              indicesToRemove.add(j);
+            }
+          }
+        }
+      }
+    }
+    // Elimina las actividades marcadas para eliminar
+    activity = [
+      for (int i = 0; i < activity.length; i++)
+        if (!indicesToRemove.contains(i)) activity[i]
+    ];
+
     // Mergeo con MrFit
     // Si el entrenamiento de MrFit coincide en un 90% o más del tiempo con alguna actividad existente,
     // se elimina la actividad existente y se agrega el de MrFit.
-    const porcentajeSolapamientoMinimo = 0.9;
-
     for (var entrenamiento in entrenamientosMrFit) {
       final start = entrenamiento['start'] as DateTime;
       final end = entrenamiento['end'] as DateTime;
@@ -424,7 +466,6 @@ extension UsuarioHCActivityExtension on Usuario {
 
         // Si el solapamiento es al menos el 90% de la duración del entrenamiento, marca para reemplazo
         if (duracionEntrenamiento > 0 && overlapDuration / duracionEntrenamiento >= porcentajeSolapamientoMinimo) {
-          Logger().w("Actividad solapada en un ${((overlapDuration / duracionEntrenamiento) * 100).toStringAsFixed(2)}%");
           indicesSolapados.add(i);
         }
       }

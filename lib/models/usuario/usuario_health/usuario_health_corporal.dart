@@ -72,14 +72,15 @@ extension UsuarioHealthCorporalExtension on Usuario {
 
   Future<List<HealthDataPoint>> getReadHeartRate(DateTime date) async {
     if (!await checkPermissionsFor("HEART_RATE")) return [];
-    return readHealthDataByDate(healthDataTypesString["HEART_RATE"]!, date);
+    // Ahora se pasa una lista de tipos, no un solo tipo
+    return readHealthDataByDate([healthDataTypesString["HEART_RATE"]!], date);
   }
 
   Future<int> getDailySpo2(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("BLOOD_OXYGEN")) return 0;
     // lee últimas 24 h
-    final raw = await readHealthDataByDate(healthDataTypesString["BLOOD_OXYGEN"]!, date);
+    final raw = await readHealthDataByDate([healthDataTypesString["BLOOD_OXYGEN"]!], date);
     if (raw.isEmpty) return 0;
     final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
     return avg.round();
@@ -88,7 +89,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<int> getDailyStress(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("HEART_RATE_VARIABILITY_RMSSD")) return 0;
-    final raw = await readHealthDataByDate(healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!, date);
+    final raw = await readHealthDataByDate([healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!], date);
     if (raw.isEmpty) return 0;
     final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
     return avg.round(); // RMSSD en ms, pero lo usas como “estrés”
@@ -97,7 +98,7 @@ extension UsuarioHealthCorporalExtension on Usuario {
   Future<int> getDailyStairsClimbed(DateTime date) async {
     await _health.configure();
     if (!await checkPermissionsFor("FLIGHTS_CLIMBED")) return 0;
-    final raw = await readHealthDataByDate(healthDataTypesString["FLIGHTS_CLIMBED"]!, date);
+    final raw = await readHealthDataByDate([healthDataTypesString["FLIGHTS_CLIMBED"]!], date);
     if (raw.isEmpty) return 0;
     return raw.map((dp) => (dp.value as NumericHealthValue).numericValue.toInt()).reduce((a, b) => a + b);
   }

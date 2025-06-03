@@ -122,10 +122,10 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
           final workoutHC = usuario.healthDataTypesString['WORKOUT'];
           if (healthDataType != null && workoutHC != null) {
             // Rescato los STEPS
-            final rawSteps = await usuario.readHealthDataByDate(healthDataType, date);
+            final rawSteps = await usuario.readHealthDataByDate([healthDataType], date);
             final dataPointsSteps = HealthUtils.customRemoveDuplicates(rawSteps);
             // Rescato los WORKOUTS
-            final dataPointsWorkout = await usuario.readHealthDataByDate(workoutHC, date);
+            final dataPointsWorkout = await usuario.readHealthDataByDate([workoutHC], date);
             // Rescato los Entrenamientos MrFit
             final entrenamientosMrFit = await usuario.getActivityMrFit(date);
 

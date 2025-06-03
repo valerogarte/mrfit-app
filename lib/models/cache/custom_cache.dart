@@ -4,11 +4,15 @@ class CustomCache {
   final int id;
   final String key;
   final String value;
+  final DateTime created; // Fecha de creación del registro
+  final DateTime? validUntil; // Fecha de expiración opcional
 
   CustomCache({
     required this.id,
     required this.key,
     required this.value,
+    required this.created,
+    this.validUntil,
   });
 
   factory CustomCache.fromJson(Map<String, dynamic> json) {
@@ -16,6 +20,8 @@ class CustomCache {
       id: json['id'],
       key: json['key'] ?? '',
       value: json['value'] ?? '',
+      created: DateTime.parse(json['created']),
+      validUntil: json['valid_until'] != null ? DateTime.tryParse(json['valid_until']) : null,
     );
   }
 
@@ -24,6 +30,8 @@ class CustomCache {
       'id': id,
       'key': key,
       'value': value,
+      'created': created.toIso8601String(),
+      'valid_until': validUntil?.toIso8601String(),
     };
   }
 
@@ -39,21 +47,32 @@ class CustomCache {
     return CustomCache.fromJson(result.first);
   }
 
-  static Future<void> set(String key, String value) async {
+  /// Guarda o actualiza un registro de caché.
+  /// Si existe, actualiza value, valid_until y mantiene created.
+  /// Si no existe, crea uno nuevo con la fecha actual.
+  static Future<void> set(String key, String value, {DateTime? validUntil}) async {
     final db = await DatabaseHelper.instance.database;
     final existingEntry = await getByKey(key);
 
     if (existingEntry != null) {
       await db.update(
         'custom_cache_cacheentry',
-        {'value': value},
+        {
+          'value': value,
+          'valid_until': validUntil?.toIso8601String(),
+        },
         where: 'key = ?',
         whereArgs: [key],
       );
     } else {
       await db.insert(
         'custom_cache_cacheentry',
-        {'key': key, 'value': value},
+        {
+          'key': key,
+          'value': value,
+          'created': DateTime.now().toIso8601String(),
+          'valid_until': validUntil?.toIso8601String(),
+        },
       );
     }
   }

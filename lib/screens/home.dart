@@ -39,15 +39,16 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   List<HealthDataPoint> _dataPointsSteps = [];
   List<HealthDataPoint> _dataPointsWorkout = [];
   List<Map<String, dynamic>> _entrenamientosMrFit = [];
-  Future<List<SleepSlot>>? _sleepFuture;
 
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
+    // Medimos el tiempo de ejecución para monitorear el performance de la función.
+    final stopwatch = Stopwatch()..start();
+
     setState(() {
       _dataPointsSteps = [];
       _dataPointsWorkout = [];
       _entrenamientosMrFit = [];
-      _sleepFuture = null;
     });
 
     final Map<String, bool> grantedPermissions = {};
@@ -62,29 +63,44 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     final stepsHC = usuario.healthDataTypesString['STEPS'];
     final workoutHC = usuario.healthDataTypesString['WORKOUT'];
-    // final sleepHC = usuario.healthDataTypesString['SLEEP'];
 
-    if (stepsHC != null && grantedPermissions['STEPS'] == true) {
-      final rawSteps = await usuario.readHealthDataByDate(stepsHC, day);
-      dataPointsSteps = HealthUtils.customRemoveDuplicates(rawSteps);
-    }
-    if (workoutHC != null && grantedPermissions['WORKOUT'] == true) {
-      dataPointsWorkout = await usuario.readHealthDataByDate(workoutHC, day);
-    }
-    entrenamientosMrFit = await usuario.getActivityMrFit(day);
+    final bool hasSteps = stepsHC != null && grantedPermissions['STEPS'] == true;
+    final bool hasWorkout = workoutHC != null && grantedPermissions['WORKOUT'] == true;
 
-    // if (sleepHC != null && grantedPermissions['SLEEP'] == true) {
-    //   _sleepFuture = usuario.getSleepSessionByDate(day);
-    // }
+    // Ejecuta las llamadas en paralelo para mejorar el rendimiento.
+    final futures = <Future>[];
+
+    if (hasSteps) {
+      futures.add(
+        usuario.readHealthDataByDate([stepsHC], day).then((rawSteps) {
+          dataPointsSteps = HealthUtils.customRemoveDuplicates(rawSteps);
+        }),
+      );
+    }
+    if (hasWorkout) {
+      futures.add(
+        usuario.readHealthDataByDate([workoutHC], day).then((result) {
+          dataPointsWorkout = result;
+        }),
+      );
+    }
+    futures.add(
+      usuario.getActivityMrFit(day).then((result) {
+        entrenamientosMrFit = result;
+      }),
+    );
+
+    await Future.wait(futures);
 
     // Actualiza los estados locales
     if (!mounted) return;
+    final elapsed = stopwatch.elapsedMilliseconds;
+    print("Tiempo: ${elapsed}ms");
     setState(() {
       _grantedPermissions = grantedPermissions;
       _dataPointsSteps = dataPointsSteps;
       _dataPointsWorkout = dataPointsWorkout;
       _entrenamientosMrFit = entrenamientosMrFit;
-      _sleepFuture = _sleepFuture;
     });
   }
 

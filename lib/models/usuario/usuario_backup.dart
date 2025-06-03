@@ -1,22 +1,19 @@
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:mrfit/data/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
+import 'package:mrfit/data/database_helper.dart';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 
 class UsuarioBackup {
-  static Future<void> export() async {
+  static Future<void> exportar() async {
     final logger = Logger();
     logger.i('Inicio de exportación');
 
-    // 1. Obtener la base de datos.
-    logger.i('Obteniendo base de datos');
     final db = await DatabaseHelper.instance.database;
-    logger.i('Base de datos obtenida');
+    logger.i('Base de datos lista');
 
-    // 2. Tablas a procesar.
-    final tables = [
+    final tablas = <String>[
       'auth_user',
       'accounts_historiallesiones',
       'accounts_volumenmaximo',
@@ -26,234 +23,198 @@ class UsuarioBackup {
       'entrenamiento_ejerciciorealizado',
       'entrenamiento_serierealizada',
       'nutricion_diferenciacalorica',
-      // Rutinas Personalizadas
       'rutinas_rutina',
       'rutinas_sesion',
       'rutinas_ejerciciopersonalizado',
       'rutinas_seriepersonalizada',
     ];
 
-    final List<String> sqlToExecute = [];
-    final List<int> rutinaIds = [];
-    final List<int> sesionIds = [];
-    final List<int> ejercicioPersIds = [];
+    final sqls = <String>[];
+    final rutinaIds = <int>[];
+    final sesionIds = <int>[];
+    final ejercPersIds = <int>[];
 
-    for (var table in tables) {
-      logger.i('Procesando tabla: $table');
-      List<Map<String, dynamic>> rows = [];
-
-      if (table == 'rutinas_rutina') {
-        rows = await db.query(
-          table,
-          where: 'grupo_id IN (?, ?)',
-          whereArgs: [1, 2],
-        );
-        rutinaIds.addAll(rows.map((r) => r['id'] as int));
-        sqlToExecute.add('DELETE FROM "$table" WHERE grupo_id IN (1, 2);');
-      } else if (table == 'rutinas_sesion') {
-        if (rutinaIds.isNotEmpty) {
-          final ph = List.filled(rutinaIds.length, '?').join(',');
-          rows = await db.query(
-            table,
-            where: 'rutina_id IN ($ph)',
-            whereArgs: rutinaIds,
-          );
-          sesionIds.addAll(rows.map((r) => r['id'] as int));
-          final idList = rutinaIds.join(',');
-          sqlToExecute.add('DELETE FROM "$table" WHERE rutina_id IN ($idList);');
-        }
-      } else if (table == 'rutinas_ejerciciopersonalizado') {
-        if (sesionIds.isNotEmpty) {
-          final ph = List.filled(sesionIds.length, '?').join(',');
-          rows = await db.query(
-            table,
-            where: 'sesion_id IN ($ph)',
-            whereArgs: sesionIds,
-          );
-          ejercicioPersIds.addAll(rows.map((r) => r['id'] as int));
-          final idList = sesionIds.join(',');
-          sqlToExecute.add('DELETE FROM "$table" WHERE sesion_id IN ($idList);');
-        }
-      } else if (table == 'rutinas_seriepersonalizada') {
-        if (ejercicioPersIds.isNotEmpty) {
-          final ph = List.filled(ejercicioPersIds.length, '?').join(',');
-          rows = await db.query(
-            table,
-            where: 'ejercicio_personalizado_id IN ($ph)',
-            whereArgs: ejercicioPersIds,
-          );
-          final idList = ejercicioPersIds.join(',');
-          sqlToExecute.add('DELETE FROM "$table" WHERE ejercicio_personalizado_id IN ($idList);');
-        }
-      } else {
-        rows = await db.query(table);
-        sqlToExecute.add('DELETE FROM "$table";');
+    for (var tabla in tablas) {
+      List<Map<String, dynamic>> filas = [];
+      switch (tabla) {
+        case 'rutinas_rutina':
+          filas = await db.query(tabla, where: 'grupo_id IN (?, ?)', whereArgs: [1, 2]);
+          rutinaIds.addAll(filas.map((r) => r['id'] as int));
+          sqls.add("DELETE FROM \"$tabla\" WHERE grupo_id IN (1, 2);");
+          break;
+        case 'rutinas_sesion':
+          if (rutinaIds.isNotEmpty) {
+            final ph = List.filled(rutinaIds.length, '?').join(',');
+            filas = await db.query(tabla, where: 'rutina_id IN ($ph)', whereArgs: rutinaIds);
+            sesionIds.addAll(filas.map((r) => r['id'] as int));
+            sqls.add("DELETE FROM \"$tabla\" WHERE rutina_id IN (${rutinaIds.join(',')});");
+          }
+          break;
+        case 'rutinas_ejerciciopersonalizado':
+          if (sesionIds.isNotEmpty) {
+            final ph = List.filled(sesionIds.length, '?').join(',');
+            filas = await db.query(tabla, where: 'sesion_id IN ($ph)', whereArgs: sesionIds);
+            ejercPersIds.addAll(filas.map((r) => r['id'] as int));
+            sqls.add("DELETE FROM \"$tabla\" WHERE sesion_id IN (${sesionIds.join(',')});");
+          }
+          break;
+        case 'rutinas_seriepersonalizada':
+          if (ejercPersIds.isNotEmpty) {
+            final ph = List.filled(ejercPersIds.length, '?').join(',');
+            filas = await db.query(tabla, where: 'ejercicio_personalizado_id IN ($ph)', whereArgs: ejercPersIds);
+            sqls.add("DELETE FROM \"$tabla\" WHERE ejercicio_personalizado_id IN (${ejercPersIds.join(',')});");
+          }
+          break;
+        default:
+          filas = await db.query(tabla);
+          sqls.add("DELETE FROM \"$tabla\";");
       }
 
-      // Reset de secuencia
-      sqlToExecute.add("DELETE FROM sqlite_sequence WHERE name='$table';");
+      sqls.add("DELETE FROM sqlite_sequence WHERE name='$tabla';");
 
-      if (rows.isNotEmpty) {
-        final columns = rows.first.keys.join(', ');
-        final List<String> tuples = [];
-        for (var row in rows) {
-          final values = row.values
-              .map((v) => v == null
-                  ? 'NULL'
-                  : v is String
-                      ? "'${v.replaceAll("'", "''")}'"
-                      : '$v')
-              .join(', ');
-          tuples.add('($values)');
-        }
-        sqlToExecute.add(
-          "INSERT INTO $table ($columns) VALUES ${tuples.join(', ')};",
-        );
+      if (filas.isNotEmpty) {
+        final columnas = filas.first.keys.join(', ');
+        final valores = filas.map((fila) {
+          final v = fila.values.map((valor) {
+            if (valor == null) return 'NULL';
+            if (valor is String) return "'${valor.replaceAll("'", "''")}'";
+            return valor.toString();
+          }).join(', ');
+          return '($v)';
+        }).join(', ');
+        sqls.add("INSERT INTO $tabla ($columnas) VALUES $valores;");
       }
     }
 
-    // antes de generar el script, prepend y append de transacción y FK pragma
-    sqlToExecute.insertAll(0, ['PRAGMA foreign_keys=OFF;', 'BEGIN TRANSACTION;']);
-    sqlToExecute.addAll(['COMMIT;', 'PRAGMA foreign_keys=ON;']);
+    sqls.insertAll(0, ['PRAGMA foreign_keys=OFF;', 'BEGIN TRANSACTION;']);
+    sqls.addAll(['COMMIT;', 'PRAGMA foreign_keys=ON;']);
 
-    final sqlScript = sqlToExecute.join('\n');
+    final script = sqls.join('\n');
     logger.i('Script SQL generado');
 
-    // 3. Conexión SFTP y subida
-    logger.i('Recuperando credenciales SFTP');
     final prefs = await SharedPreferences.getInstance();
     final host = prefs.getString('ftp_host') ?? '';
     final port = int.tryParse(prefs.getString('ftp_port') ?? '22') ?? 22;
     final user = prefs.getString('ftp_user') ?? '';
     final pwd = prefs.getString('ftp_pwd') ?? '';
-    final remoteDirPath = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
-    logger.i('Credenciales recuperadas');
+    final remoteDir = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
 
-    final now = DateTime.now();
-    final fileName = '${now.year.toString().padLeft(4, '0')}'
-        '${now.month.toString().padLeft(2, '0')}'
-        '${now.day.toString().padLeft(2, '0')}'
-        '${now.hour.toString().padLeft(2, '0')}'
-        '${now.minute.toString().padLeft(2, '0')}'
-        '${now.second.toString().padLeft(2, '0')}-MrFit.sql';
+    final ahora = DateTime.now();
+    final fileName =
+        '${ahora.year.toString().padLeft(4, '0')}${ahora.month.toString().padLeft(2, '0')}${ahora.day.toString().padLeft(2, '0')}${ahora.hour.toString().padLeft(2, '0')}${ahora.minute.toString().padLeft(2, '0')}${ahora.second.toString().padLeft(2, '0')}-MrFit.sql';
 
     try {
-      logger.i('Conectando via SSH SFTP');
+      logger.i('Conectando SFTP');
       final socket = await SSHSocket.connect(host, port);
       final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
       final sftp = await client.sftp();
-      logger.i('Conexión SFTP establecida');
 
-      logger.i('Listando backups en: $remoteDirPath');
-      final allFiles = await sftp.listdir(remoteDirPath);
-      final backupFiles = allFiles.where((f) => RegExp(r'^\d{14}-MrFit\.sql$').hasMatch(f.filename)).toList()..sort((a, b) => a.filename.compareTo(b.filename));
-      if (backupFiles.length >= 10) {
-        final oldest = backupFiles.first;
-        logger.i('Borrando backup más antiguo: ${oldest.filename}');
-        await sftp.remove('$remoteDirPath/${oldest.filename}');
+      final archivos = await sftp.listdir(remoteDir);
+      final backups = archivos.where((f) => RegExp(r'^\d{14}-MrFit\.sql$').hasMatch(f.filename)).toList()..sort((a, b) => a.filename.compareTo(b.filename));
+
+      if (backups.length >= 10) {
+        final antiguo = backups.first;
+        logger.i('Borrando backup más antiguo: ${antiguo.filename}');
+        await sftp.remove('$remoteDir/${antiguo.filename}');
       }
 
-      final remoteFilePath = '$remoteDirPath/$fileName';
+      final rutaRemota = '$remoteDir/$fileName';
       logger.i('Subiendo $fileName');
-      final remoteFile = await sftp.open(
-        remoteFilePath,
+      final remoto = await sftp.open(
+        rutaRemota,
         mode: SftpFileOpenMode.create | SftpFileOpenMode.write | SftpFileOpenMode.truncate,
       );
-      await remoteFile.write(Stream.value(utf8.encode(sqlScript)));
-      await remoteFile.close();
+      await remoto.write(Stream.value(utf8.encode(script)));
+      await remoto.close();
       client.close();
       logger.i('Exportación completada');
-    } catch (e, stack) {
-      logger.e('Error durante la exportación', error: e, stackTrace: stack);
+    } catch (e, s) {
+      logger.e('Error exportación', error: e, stackTrace: s);
+      rethrow;
     }
   }
 
-  static Future<List<String>> listBackupFiles() async {
+  static Future<List<String>> listarBackups() async {
     final prefs = await SharedPreferences.getInstance();
     final host = prefs.getString('ftp_host') ?? '';
     final port = int.tryParse(prefs.getString('ftp_port') ?? '22') ?? 22;
     final user = prefs.getString('ftp_user') ?? '';
     final pwd = prefs.getString('ftp_pwd') ?? '';
-    final remoteDirPath = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
+    final remoteDir = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
 
     try {
       final socket = await SSHSocket.connect(host, port);
       final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
       final sftp = await client.sftp();
 
-      final files = await sftp.listdir(remoteDirPath);
-      final backupFiles = files.where((f) => RegExp(r'^\d{14}-MrFit\.sql$').hasMatch(f.filename)).toList()..sort((a, b) => b.filename.compareTo(a.filename));
+      final archivos = await sftp.listdir(remoteDir);
+      final backups = archivos.where((f) => RegExp(r'^\d{14}-MrFit\.sql$').hasMatch(f.filename)).toList()..sort((a, b) => b.filename.compareTo(a.filename));
 
       client.close();
-      return backupFiles.map((f) => f.filename).toList();
+      return backups.map((f) => f.filename).toList();
     } catch (e) {
-      Logger().e('Error listando archivos SFTP', error: e);
+      Logger().e('Error listando backups: $e');
       return [];
     }
   }
 
-  static Future<void> importSelectedBackup(BuildContext context, String selectedFile) async {
-    final logger = Logger();
-    logger.i('Importando desde: $selectedFile');
+  static Future<bool> borrarBackup(String fileName) async {
     final prefs = await SharedPreferences.getInstance();
     final host = prefs.getString('ftp_host') ?? '';
     final port = int.tryParse(prefs.getString('ftp_port') ?? '22') ?? 22;
     final user = prefs.getString('ftp_user') ?? '';
     final pwd = prefs.getString('ftp_pwd') ?? '';
-    final remoteDirPath = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
+    final remoteDir = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
 
     try {
       final socket = await SSHSocket.connect(host, port);
       final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
       final sftp = await client.sftp();
-
-      final remoteFilePath = '$remoteDirPath/$selectedFile';
-      final remoteFile = await sftp.open(
-        remoteFilePath,
-        mode: SftpFileOpenMode.read,
-      );
-      final rawChunks = await remoteFile.read().toList();
-      await remoteFile.close();
-      final sqlScript = utf8.decode(rawChunks.expand((x) => x).toList());
-      logger.i('Archivo leído correctamente');
-
-      final db = await DatabaseHelper.instance.database;
-      for (var cmd in sqlScript.split(';')) {
-        final sql = cmd.trim();
-        if (sql.isNotEmpty) await db.execute(sql);
-      }
-
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Importación completada.')),
-      );
-      client.close();
-    } catch (e, stack) {
-      logger.e('Error durante la importación', error: e, stackTrace: stack);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error durante la importación.')),
-      );
-    }
-  }
-
-  static Future<bool> deleteBackupFile(String fileName) async {
-    final prefs = await SharedPreferences.getInstance();
-    final host = prefs.getString('ftp_host') ?? '';
-    final port = int.tryParse(prefs.getString('ftp_port') ?? '22') ?? 22;
-    final user = prefs.getString('ftp_user') ?? '';
-    final pwd = prefs.getString('ftp_pwd') ?? '';
-    final remoteDirPath = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
-
-    try {
-      final socket = await SSHSocket.connect(host, port);
-      final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
-      final sftp = await client.sftp();
-      await sftp.remove('$remoteDirPath/$fileName');
+      await sftp.remove('$remoteDir/$fileName');
       client.close();
       return true;
     } catch (e) {
-      Logger().e('Error borrando $fileName', error: e);
+      Logger().e('Error borrando $fileName: $e');
+      return false;
+    }
+  }
+
+  /// Devuelve `true` si pudo importar, `false` si hubo error.
+  static Future<bool> importarBackupSeleccionado(BuildContext context, String seleccionado) async {
+    final logger = Logger();
+    logger.i('💡 Importando $seleccionado');
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final host = prefs.getString('ftp_host') ?? '';
+      final port = int.tryParse(prefs.getString('ftp_port') ?? '22') ?? 22;
+      final user = prefs.getString('ftp_user') ?? '';
+      final pwd = prefs.getString('ftp_pwd') ?? '';
+      final remoteDir = prefs.getString('sftp_remoteDirPath') ?? '/home/Documentos/MrFit';
+
+      final socket = await SSHSocket.connect(host, port);
+      final client = SSHClient(socket, username: user, onPasswordRequest: () => pwd);
+      final sftp = await client.sftp();
+
+      final rutaRemota = '$remoteDir/$seleccionado';
+      final remoto = await sftp.open(rutaRemota, mode: SftpFileOpenMode.read);
+      final chunks = await remoto.read().toList();
+      await remoto.close();
+      final script = utf8.decode(chunks.expand((x) => x).toList());
+      logger.i('💡 Archivo leído');
+
+      final db = await DatabaseHelper.instance.database;
+      for (var sql in script.split(';')) {
+        final cmd = sql.trim();
+        if (cmd.isNotEmpty) {
+          await db.execute(cmd);
+        }
+      }
+
+      client.close();
+      return true;
+    } catch (e, s) {
+      logger.e('⛔ Error importación', error: e, stackTrace: s);
       return false;
     }
   }
