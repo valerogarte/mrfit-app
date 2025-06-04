@@ -81,7 +81,6 @@ class ConfiguracionCreditosPage extends StatelessWidget {
       body: Stack(
         children: [
           SingleChildScrollView(
-            // Añadido para permitir scroll
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

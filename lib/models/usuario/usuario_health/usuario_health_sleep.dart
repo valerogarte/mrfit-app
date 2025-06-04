@@ -3,7 +3,7 @@ part of '../usuario.dart';
 class SleepSlot {
   final DateTime start;
   final DateTime end;
-  final String type; // NUEVO
+  final String type;
   final String sourceName;
   int get duration => end.difference(start).inMinutes;
 

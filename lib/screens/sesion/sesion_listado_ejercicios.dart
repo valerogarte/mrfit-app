@@ -245,7 +245,7 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
                               fontSize: 15,
                               color: AppColors.textNormal,
                             ),
-                            maxLines: 3, // Modificado de 2 a 3
+                            maxLines: 3,
                           ),
                         ),
                       ),

@@ -20,7 +20,6 @@ class Entrenadora {
   bool _isPaused = false;
   bool _borrarSpeaker = false;
 
-  // new user preference fields
   bool aviso10Segundos = false;
   bool avisoCuentaAtras = false;
   String entrenadorVoz = '';

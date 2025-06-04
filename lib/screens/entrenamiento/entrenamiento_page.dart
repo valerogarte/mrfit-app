@@ -33,7 +33,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   final Map<String, TextEditingController> _weightControllers = {};
   final Map<String, bool> _expandedStates = {};
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  late Usuario usuario; // Add a variable to hold the user instance
+  late Usuario usuario;
 
   // Variables para el temporizador
   DateTime? _inicio; // Fecha y hora de inicio del entrenamiento
@@ -50,7 +50,6 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   void initState() {
     super.initState();
 
-    // initialize usuario early so build() can read it
     usuario = ref.read(usuarioProvider);
 
     // Habilitar la lectura
@@ -325,7 +324,6 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Botón de retroceso: agregado _entrenadora.detener() antes de Navigator.pop
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () {

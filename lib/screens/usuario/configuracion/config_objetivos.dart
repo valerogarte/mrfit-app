@@ -14,14 +14,14 @@ class ConfiguracionObjetivosPage extends ConsumerStatefulWidget {
 class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjetivosPage> {
   final formKey = GlobalKey<FormState>();
   late TextEditingController _controller;
-  late FocusNode _timeFieldFocusNode; // Add a FocusNode for time fields
+  late FocusNode _timeFieldFocusNode;
   bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _timeFieldFocusNode = FocusNode(); // Initialize the FocusNode
+    _timeFieldFocusNode = FocusNode();
     _timeFieldFocusNode.addListener(() async {
       if (_timeFieldFocusNode.hasFocus) {
         final time = await showTimePicker(
@@ -33,7 +33,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
             _controller.text = time.format(context);
           });
         }
-        _timeFieldFocusNode.unfocus(); // Unfocus after selecting time
+        _timeFieldFocusNode.unfocus();
       }
     });
   }
@@ -148,7 +148,7 @@ class _ConfiguracionObjetivosPageState extends ConsumerState<ConfiguracionObjeti
 
   @override
   void dispose() {
-    _timeFieldFocusNode.dispose(); // Dispose the FocusNode
+    _timeFieldFocusNode.dispose();
     _controller.dispose();
     super.dispose();
   }

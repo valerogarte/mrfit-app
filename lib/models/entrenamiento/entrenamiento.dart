@@ -256,7 +256,6 @@ class Entrenamiento {
       final inicio = row['inicio'] != null ? DateTime.parse(row['inicio'] as String) : DateTime.now();
       final fin = row['fin'] != null ? DateTime.parse(row['fin'] as String) : DateTime.now();
       final sesionId = row['sesion_id'];
-      // Updated to handle null or zero
       final double pesoUsuarioDefault = Usuario.getDefaultWeight();
       final double pesoUsuario = (row['peso_usuario'] != null && (row['peso_usuario'] as num) != 0) ? (row['peso_usuario'] as num).toDouble() : pesoUsuarioDefault;
       final ejerciciosData = await db.query(

@@ -23,7 +23,7 @@ class DetalleMusculoInformacion extends StatefulWidget {
 class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
   List<Map<String, dynamic>> _volumenes = [];
   List<Ejercicio> _ejerciciosPrincipalesMasUsados = [];
-  List<Ejercicio> _ejerciciosSecundariosMasUsados = []; // Nueva lista para secundarios
+  List<Ejercicio> _ejerciciosSecundariosMasUsados = [];
   bool _loading = true;
 
   @override
@@ -229,7 +229,6 @@ class _DetalleMusculoInformacionState extends State<DetalleMusculoInformacion> {
                         ),
                       ),
               ),
-              // Nueva sección: Ejercicios secundarios
               buildSection(
                 "Ejercicios más usados como secundario",
                 _ejerciciosSecundariosMasUsados.isEmpty
