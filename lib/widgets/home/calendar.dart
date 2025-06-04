@@ -33,10 +33,16 @@ class CalendarWidget extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<CalendarWidget> createState() => _CalendarWidgetState();
+  CalendarWidgetStateBase createState() => _CalendarWidgetState();
 }
 
-class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
+// Clase base pública para exponer solo la API necesaria del estado.
+abstract class CalendarWidgetStateBase extends ConsumerState<CalendarWidget> {
+  void reloadCurrentWeek();
+  void jumpToToday();
+}
+
+class _CalendarWidgetState extends CalendarWidgetStateBase {
   static const int _basePage = 10000;
 
   final PageController _pageController = PageController(initialPage: _basePage);
@@ -52,9 +58,10 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refresh(DateTime.now());
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(_basePage);
+      }
     });
   }
 
@@ -65,15 +72,20 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     if (!widget.selectedDate.startOfWeek.isAtSameMomentAs(_baseDate)) {
       _refresh(widget.selectedDate);
     }
+    // Si los permisos han cambiado de vacío a no vacío, recarga los datos.
+    else if (oldWidget.grantedPermissions.isEmpty && widget.grantedPermissions.isNotEmpty) {
+      _loadData(_baseDate);
+    }
   }
 
   /// Centraliza la lógica de refresco de semana y recarga de datos.
   void _refresh([DateTime? date]) {
     setState(() {
       if (date != null) _baseDate = date.startOfWeek;
-      _currentPage = _basePage;
+      // Solo resetea la página si cambia la semana base.
+      // No llama a jumpToPage si ya estamos en la página correcta.
+      // _currentPage se actualiza en onPageChanged.
     });
-    _pageController.jumpToPage(_basePage);
     _loadData(_baseDate);
   }
 
@@ -188,11 +200,12 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
     });
   }
 
+  @override
   void jumpToToday() {
     _refresh(DateTime.now());
   }
 
-  /// Método público para recargar los datos de la semana actual.
+  @override
   void reloadCurrentWeek() {
     _refresh(_baseDate);
   }
@@ -221,8 +234,11 @@ class _CalendarWidgetState extends ConsumerState<CalendarWidget> {
               dragStartBehavior: DragStartBehavior.down,
               onPageChanged: (idx) {
                 final diff = idx - _currentPage;
-                final newBaseDate = _baseDate.add(Duration(days: diff * 7));
-                _refresh(newBaseDate);
+                if (diff != 0) {
+                  final newBaseDate = _baseDate.add(Duration(days: diff * 7));
+                  _currentPage = idx;
+                  _refresh(newBaseDate);
+                }
               },
               itemBuilder: (_, idx) {
                 final weekStart = _baseDate.add(Duration(days: (idx - _currentPage) * 7));

@@ -168,7 +168,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     final startOfWeek = now.subtract(Duration(days: now.weekday - DateTime.monday));
     final endOfWeek = startOfWeek.add(const Duration(days: 6));
     if (!date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)) {
-      (_calendarKey.currentState as dynamic)?.reloadCurrentWeek();
+      final state = _calendarKey.currentState;
+      if (state is CalendarWidgetStateBase) {
+        state.reloadCurrentWeek();
+      }
     }
   }
 
@@ -204,7 +207,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 onDateChanged: (date) => setState(() => _selectedDate = date),
                 diasEntrenados: _diasEntrenados,
                 onJumpToToday: () {
-                  CalendarWidget.jumpToToday(_calendarKey);
+                  final state = _calendarKey.currentState;
+                  if (state is CalendarWidgetStateBase) {
+                    state.jumpToToday();
+                  }
                   setState(() => _selectedDate = DateTime.now());
                   final usuario = ref.read(usuarioProvider);
                   _fetchAndSetDailyStatsData(usuario, _selectedDate);
