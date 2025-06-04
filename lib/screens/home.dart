@@ -40,16 +40,18 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   List<HealthDataPoint> _dataPointsWorkout = [];
   List<Map<String, dynamic>> _entrenamientosMrFit = [];
 
+  void _clearDailyStatsData() {
+    _grantedPermissions = {};
+    _dataPointsSteps = [];
+    _dataPointsWorkout = [];
+    _entrenamientosMrFit = [];
+  }
+
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
     // Medimos el tiempo de ejecución para monitorear el performance de la función.
     final stopwatch = Stopwatch()..start();
 
-    setState(() {
-      _dataPointsSteps = [];
-      _dataPointsWorkout = [];
-      _entrenamientosMrFit = [];
-    });
 
     final Map<String, bool> grantedPermissions = {};
     for (var key in usuario.healthDataTypesString.keys) {
@@ -156,7 +158,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       return;
     }
 
-    setState(() => _selectedDate = nextDate);
+    setState(() {
+      _selectedDate = nextDate;
+      _clearDailyStatsData();
+    });
     final usuario = ref.read(usuarioProvider);
     _fetchAndSetDailyStatsData(usuario, nextDate);
     _reloadCalendarIfInCurrentWeek(nextDate);
@@ -193,7 +198,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 grantedPermissions: _grantedPermissions,
                 onDateSelected: (date) {
                   if (date.isAfter(DateTime.now())) return;
-                  setState(() => _selectedDate = date);
+                  setState(() {
+                    _selectedDate = date;
+                    _clearDailyStatsData();
+                  });
                   final usuario = ref.read(usuarioProvider);
                   _fetchAndSetDailyStatsData(usuario, date);
                 },
@@ -211,7 +219,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                   if (state is CalendarWidgetStateBase) {
                     state.jumpToToday();
                   }
-                  setState(() => _selectedDate = DateTime.now());
+                  setState(() {
+                    _selectedDate = DateTime.now();
+                    _clearDailyStatsData();
+                  });
                   final usuario = ref.read(usuarioProvider);
                   _fetchAndSetDailyStatsData(usuario, _selectedDate);
                 },
@@ -234,6 +245,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     child: RefreshIndicator(
                       key: _refreshKey,
                       onRefresh: () async {
+                        setState(_clearDailyStatsData);
                         _reloadCalendarIfInCurrentWeek(_selectedDate);
                         await _cargarResumenEntrenamientos();
                         await _checkHcWarning();
