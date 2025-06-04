@@ -48,7 +48,7 @@ class DailyTrainingsWidget extends StatefulWidget {
 
 class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
   // Se elimina el Padding interno y se retorna directamente el Row
-  Future<Widget> _buildActivityRow({
+  Widget _buildActivityRow({
     required String uuid,
     int? id,
     required String title,
@@ -59,7 +59,7 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     required Color iconBackgroundColor,
     required String timeInfo,
     String? sourceName,
-  }) async {
+  }) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -131,49 +131,37 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
           final index = entry.key;
           final activity = entry.value;
           if (activity['type'] == 'steps') {
-            return FutureBuilder<Widget>(
-              future: _buildActivityRow(
-                uuid: "automatic",
-                title: "Caminar (automático)",
-                start: activity['start'],
-                end: activity['end'],
-                icon: Icons.directions_walk,
-                iconColor: AppColors.mutedAdvertencia,
-                iconBackgroundColor: AppColors.appBarBackground,
-                timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                  final rowWidget = snapshot.data!;
-                  return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-                }
-                return const SizedBox(height: 50);
-              },
+            final rowWidget = _buildActivityRow(
+              uuid: "automatic",
+              title: "Caminar (automático)",
+              start: activity['start'],
+              end: activity['end'],
+              icon: Icons.directions_walk,
+              iconColor: AppColors.mutedAdvertencia,
+              iconBackgroundColor: AppColors.appBarBackground,
+              timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
             );
+            return index == activities.length - 1
+                ? rowWidget
+                : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
           } else if (activity['type'] == 'workout') {
             final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
             final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
-            return FutureBuilder<Widget>(
-              future: _buildActivityRow(
-                uuid: activity['uuid'] ?? "",
-                id: activity['id'] ?? 0,
-                title: activity["title"] ?? info["nombre"],
-                start: activity['start'],
-                end: activity['end'],
-                icon: info["icon"],
-                iconColor: AppColors.mutedAdvertencia,
-                iconBackgroundColor: AppColors.appBarBackground,
-                timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
-                sourceName: activity['sourceName'],
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                  final rowWidget = snapshot.data!;
-                  return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
-                }
-                return const SizedBox(height: 50);
-              },
+            final rowWidget = _buildActivityRow(
+              uuid: activity['uuid'] ?? "",
+              id: activity['id'] ?? 0,
+              title: activity["title"] ?? info["nombre"],
+              start: activity['start'],
+              end: activity['end'],
+              icon: info["icon"],
+              iconColor: AppColors.mutedAdvertencia,
+              iconBackgroundColor: AppColors.appBarBackground,
+              timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
+              sourceName: activity['sourceName'],
             );
+            return index == activities.length - 1
+                ? rowWidget
+                : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
           }
           return const SizedBox.shrink();
         }).toList(),

@@ -95,10 +95,14 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     await Future.wait(futures);
 
+    stopwatch.stop();
+
     // Actualiza los estados locales solo si hay cambios
     if (!mounted) return;
     final elapsed = stopwatch.elapsedMilliseconds;
-    print("Tiempo: ${elapsed}ms");
+    if (kDebugMode) {
+      debugPrint('Tiempo: ${elapsed}ms');
+    }
 
     final bool permissionsChanged =
         !mapEquals(_grantedPermissions, grantedPermissions);

@@ -38,15 +38,20 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
 
   Future<void> _loadCaloricDifference() async {
     final kcal = await widget.usuario.getByDate(widget.day);
+    if (!mounted) return;
     setState(() {
       _currentCalories = kcal?.round() ?? 0;
     });
   }
 
   Future<void> _updateCaloricDifference(int delta) async {
-    setState(() {
+    if (mounted) {
+      setState(() {
+        _currentCalories += delta;
+      });
+    } else {
       _currentCalories += delta;
-    });
+    }
     await widget.usuario.setDiferenciaCalorica(
       widget.day,
       _currentCalories.toDouble(),

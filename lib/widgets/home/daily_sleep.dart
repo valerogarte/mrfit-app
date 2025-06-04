@@ -7,7 +7,7 @@ import 'package:mrfit/widgets/chart/sleep_bar.dart';
 import 'package:mrfit/widgets/common/cached_future_builder.dart';
 
 Widget _bedtimeIcon() {
-  return CircleAvatar(
+  return const CircleAvatar(
     radius: 16,
     backgroundColor: AppColors.background,
     child: Icon(Icons.bedtime, color: AppColors.accentColor, size: 18),
