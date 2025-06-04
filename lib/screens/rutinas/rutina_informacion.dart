@@ -198,7 +198,6 @@ class SesionListadoInformacionState extends State<RutinaInformacionPage> {
               ],
             ),
           const SizedBox(height: 16),
-          // NUEVO: Tabla de sesiones por tipo
           if (sesionesPorTipo.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

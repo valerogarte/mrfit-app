@@ -281,7 +281,6 @@ class EjerciciosBuscarPageState extends State<EjerciciosBuscarPage> with Ejercic
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                // Nueva fila con el nombre y el widget pills a la derecha
                                                 Row(
                                                   crossAxisAlignment: CrossAxisAlignment.start, // Forzar alineación superior
                                                   children: [

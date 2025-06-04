@@ -172,8 +172,8 @@ Widget _sleepStats(
   SleepSlot? slot,
   String fromWhere, {
   List<SleepSlot>? allSlots,
-  List<SleepSlot>? typeSlots, // NUEVO parámetro
-  required Usuario usuario, // Add usuario parameter
+  List<SleepSlot>? typeSlots,
+  required Usuario usuario,
   required DateTime day,
 }) {
   final hours = totalMinutes ~/ 60;

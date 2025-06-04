@@ -451,8 +451,8 @@ class DetalleMusculoGasto extends ConsumerWidget {
     required IconData icon,
     required Color iconColor,
     List<Map<String, dynamic>>? difficultyLegend,
-    List<String>? formula, // Ahora es una lista de strings
-    String? imageAsset, // Nueva propiedad opcional para la imagen
+    List<String>? formula,
+    String? imageAsset,
   }) {
     showDialog(
       context: context,
