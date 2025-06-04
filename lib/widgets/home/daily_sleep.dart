@@ -4,6 +4,7 @@ import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/channel/channel_inactividad.dart';
 import 'package:mrfit/widgets/chart/sleep_bar.dart';
+import 'package:mrfit/widgets/common/cached_future_builder.dart';
 
 Widget _bedtimeIcon() {
   return CircleAvatar(
@@ -18,8 +19,9 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
   if (day.hour < horaLevantarse && day.day == DateTime.now().day) {
     return _sleepPlaceholder(usuario);
   }
-  return FutureBuilder<List<SleepSlot>>(
-    future: usuario.getSleepSessionByDate(day),
+  return CachedFutureBuilder<List<SleepSlot>>(
+    futureBuilder: () => usuario.getSleepSessionByDate(day),
+    keys: [day, usuario.id],
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return _sleepPlaceholder(usuario);
@@ -27,8 +29,10 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
         final firstSlot = snapshot.data!.first;
         final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
-        return FutureBuilder<List<SleepSlot>>(
-          future: usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
+        return CachedFutureBuilder<List<SleepSlot>>(
+          futureBuilder: () =>
+              usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
+          keys: [firstSlot.start, firstSlot.end, usuario.id],
           builder: (ctx2, typeSnap) {
             if (typeSnap.connectionState != ConnectionState.done) {
               return _sleepStats(totalMinutes, firstSlot, "HealthConnect", usuario: usuario);
@@ -46,8 +50,9 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
         );
       }
       // rama original de UsageStats
-      return FutureBuilder<List<SleepSlot>>(
-        future: usuario.getSleepSlotsForDay(day),
+      return CachedFutureBuilder<List<SleepSlot>>(
+        futureBuilder: () => usuario.getSleepSlotsForDay(day),
+        keys: [day, usuario.id],
         builder: (context, slotSnapshot) {
           if (slotSnapshot.connectionState != ConnectionState.done) {
             return _sleepPlaceholder(usuario);

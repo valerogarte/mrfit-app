@@ -3,13 +3,15 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/widgets/chart/heart_grafica.dart';
 import 'package:health/health.dart';
+import 'package:mrfit/widgets/common/cached_future_builder.dart';
 
 Widget dailyHearthWidget({
   required DateTime day,
   required Usuario usuario,
 }) {
-  return FutureBuilder<List<HealthDataPoint>>(
-    future: usuario.getReadHeartRate(day),
+  return CachedFutureBuilder<List<HealthDataPoint>>(
+    futureBuilder: () => usuario.getReadHeartRate(day),
+    keys: [day, usuario.id],
     builder: (context, snapshot) {
       final List<HealthDataPoint> heartRatePoints = snapshot.data ?? [];
       Widget content;

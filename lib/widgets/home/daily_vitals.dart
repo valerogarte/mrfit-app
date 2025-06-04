@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/widgets/common/cached_future_builder.dart';
 
 Widget dailyVitalsWidget({required DateTime day, required Usuario usuario}) {
-  return FutureBuilder<List<dynamic>>(
-    future: Future.wait([
+  return CachedFutureBuilder<List<dynamic>>(
+    futureBuilder: () => Future.wait([
       usuario.getDailySpo2(day),
       usuario.getDailyStress(day),
       usuario.getDailyStairsClimbed(day),
     ]),
+    keys: [day, usuario.id],
     builder: (context, snap) {
       if (snap.connectionState != ConnectionState.done) {
         return const Center(child: CircularProgressIndicator());
