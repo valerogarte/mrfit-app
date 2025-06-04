@@ -31,7 +31,6 @@ class _NotesWidgetState extends State<NotesWidget> {
     setState(() {
       _savedNote = _controller.text;
     });
-    // Add any additional logic for saving the note, such as storing it in a database or shared preferences.
   }
 
   @override

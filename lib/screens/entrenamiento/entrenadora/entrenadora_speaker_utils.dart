@@ -1,6 +1,4 @@
 part of '../entrenadora.dart';
-
-// Add the lists here
 final List<String> completionMessages = [
   '¡Serie completada!',
   '¡Finalizada!',

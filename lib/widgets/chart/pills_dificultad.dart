@@ -3,7 +3,7 @@ import 'package:mrfit/utils/colors.dart';
 
 Widget buildDificultadPills(int dificultad, double width, double height) {
   return Row(
-    mainAxisAlignment: MainAxisAlignment.center, // added to center the pills
+    mainAxisAlignment: MainAxisAlignment.center,
     children: List.generate(
       5,
       (index) => Container(

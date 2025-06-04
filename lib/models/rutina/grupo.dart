@@ -3,7 +3,7 @@ import 'package:mrfit/data/database_helper.dart';
 class Grupo {
   final int id;
   final String titulo;
-  final int? peso; // New field
+  final int? peso;
 
   Grupo({
     required this.id,

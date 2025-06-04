@@ -164,7 +164,6 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
               ],
             ),
             const SizedBox(height: 24),
-            // NUEVO: botón Guardar al final
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accentColor,

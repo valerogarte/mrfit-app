@@ -205,13 +205,10 @@ class Usuario {
     isActivityRecognitionAvailable = arAvaliable;
     return isActivityRecognitionAvailable;
   }
-  // Métodos set para actualizar campos en la tabla auth_user
-
   Future<bool> setAltura(int altura) async {
     this.altura = altura;
     final db = await DatabaseHelper.instance.database;
     int count = await db.update('auth_user', {'altura': altura}, where: 'id = ?', whereArgs: [1]);
-    // Lo meto en HC
     if (isHealthConnectAvailable) {
       if (await checkPermissionsFor("HEIGHT")) {
         bool success = await setHeight(altura);
@@ -459,12 +456,12 @@ class Usuario {
         fechaNacimiento: row['fecha_nacimiento'] != null ? DateTime.parse(row['fecha_nacimiento'].toString()) : DateTime.now().subtract(const Duration(days: 365 * 30)),
         genero: row['genero']?.toString() ?? '',
         historiaLesiones: historiaLesiones,
-        equipoEnCasa: [], // default empty list
+        equipoEnCasa: [],
         experiencia: row['experiencia']?.toString() ?? '',
         unidades: row['unidades']?.toString() ?? '',
         entrenadorVolumen: row['entrenador_volumen'] is int ? row['entrenador_volumen'] as int : (int.tryParse(row['entrenador_volumen']?.toString() ?? '') ?? 0),
         tiempoDescanso: row['tiempo_descanso'] is int ? row['tiempo_descanso'] as int : (int.tryParse(row['tiempo_descanso']?.toString() ?? '') ?? 0),
-        rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '')), // Cargar rutina_actual_id
+        rutinaActualId: row['rutina_actual_id'] is int ? row['rutina_actual_id'] as int : (int.tryParse(row['rutina_actual_id']?.toString() ?? '')),
         altura: row['altura'] != null ? (row['altura'] as num).toInt() : null,
         aviso10Segundos: row['aviso_10_segundos'] == 1,
         avisoCuentaAtras: row['aviso_cuenta_atras'] == 1,
