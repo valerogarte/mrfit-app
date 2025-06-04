@@ -42,7 +42,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   List<Map<String, dynamic>> _entrenamientosMrFit = [];
 
   void _clearDailyStatsData() {
-    _grantedPermissions = {};
     _dataPointsSteps = [];
     _dataPointsWorkout = [];
     _entrenamientosMrFit = [];
