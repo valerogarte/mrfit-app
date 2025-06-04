@@ -20,10 +20,10 @@ const Map<String, int> _kTypeValue = {
   'SLEEP_LIGHT': 3,
   'SLEEP_ASLEEP': 3,
   'SLEEP_IN_BED': 3,
+  'SLEEP_OUT_OF_BED': 2,
   'SLEEP_AWAKE_IN_BED': 1,
   'SLEEP_AWAKE': 1,
-  'SLEEP_OUT_OF_BED': 2,
-  'SLEEP_UNKNOWN': 0,
+  'SLEEP_UNKNOWN': 1,
 };
 
 // Mapa de etiquetas legibles para cada tipo de sueño
@@ -33,9 +33,9 @@ const Map<String, String> _kTypeLabel = {
   'SLEEP_LIGHT': 'Ligero',
   'SLEEP_ASLEEP': 'Dormido',
   'SLEEP_IN_BED': 'En cama',
+  'SLEEP_OUT_OF_BED': 'Fuera de cama',
   'SLEEP_AWAKE_IN_BED': 'Despierto en cama',
   'SLEEP_AWAKE': 'Despierto',
-  'SLEEP_OUT_OF_BED': 'Fuera de cama',
   'SLEEP_UNKNOWN': 'Desconocido',
 };
 
@@ -183,15 +183,11 @@ class SleepBar extends StatelessWidget {
           final realRightOffset = cons.maxWidth - (realLeft + realWidthPx);
 
           return Stack(children: [
-            _buildRoutineLabels(
-                routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
+            _buildRoutineLabels(routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
             _buildRoutineZone(routineLeft, routineWidthPx),
-            if (realWidthPx > 0)
-              _buildSessionBar(realLeft, realWidthPx, accentHeight),
-            if (showSessionLabels)
-              _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
-            if (stepSpots.isNotEmpty)
-              _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart),
+            if (realWidthPx > 0) _buildSessionBar(realLeft, realWidthPx, accentHeight),
+            if (showSessionLabels) _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
+            if (stepSpots.isNotEmpty) _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart),
           ]);
         },
       ),

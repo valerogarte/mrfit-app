@@ -352,10 +352,9 @@ class HeartGrafica extends StatelessWidget {
               minY: minY,
               maxY: maxY,
               lineBarsData: [
-                // Pinta cada segmento como una línea independiente
                 ...spotSegments.map((segment) => LineChartBarData(
                       spots: segment,
-                      isCurved: true,
+                      isCurved: false,
                       color: AppColors.mutedRed,
                       barWidth: 1,
                       isStrokeCapRound: true,
