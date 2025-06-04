@@ -29,6 +29,25 @@ extension UsuarioHCActivityExtension on Usuario {
     return stepsByDay;
   }
 
+  Future<bool> addSteps(int steps, {DateTime? start, DateTime? end}) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("STEPS")) {
+      return false;
+    }
+    end ??= DateTime.now();
+    start ??= end.subtract(const Duration(minutes: 1));
+    final type = healthDataTypesString["STEPS"]!;
+    final success = await _health.writeHealthData(
+      value: steps,
+      unit: HealthDataUnit.COUNT,
+      type: type,
+      startTime: start,
+      endTime: end,
+      recordingMethod: RecordingMethod.manual,
+    );
+    return success;
+  }
+
   Future<Map<String, List<HealthDataPoint>>> getDailyTrainingsByDate(String date, {int nDays = 1}) async {
     if (!await checkPermissionsFor("WORKOUT")) return {};
 

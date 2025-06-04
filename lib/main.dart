@@ -5,10 +5,16 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/home.dart';
 import 'package:mrfit/screens/usuario/usuario_config.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:mrfit/services/pedometer_sync.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final usuario = await Usuario.load();
+  final status = await Permission.activityRecognition.request();
+  if (status.isGranted) {
+    await initializePedometerService();
+  }
   runApp(
     ProviderScope(
       overrides: [usuarioProvider.overrideWithValue(usuario)],
