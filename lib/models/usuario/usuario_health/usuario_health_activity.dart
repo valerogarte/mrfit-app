@@ -38,7 +38,7 @@ extension UsuarioHCActivityExtension on Usuario {
     start ??= end.subtract(const Duration(minutes: 1));
     final type = healthDataTypesString["STEPS"]!;
     final success = await _health.writeHealthData(
-      value: steps,
+      value: steps.toDouble(),
       unit: HealthDataUnit.COUNT,
       type: type,
       startTime: start,

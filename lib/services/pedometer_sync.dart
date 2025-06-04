@@ -12,6 +12,7 @@ Future<void> initializePedometerService() async {
       onStart: _onStart,
       isForegroundMode: true,
       autoStart: true,
+      foregroundServiceTypes: [AndroidForegroundType.dataSync],
     ),
     iosConfiguration: IosConfiguration(
       onForeground: _onStart,
