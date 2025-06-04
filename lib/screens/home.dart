@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -94,16 +95,31 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     await Future.wait(futures);
 
-    // Actualiza los estados locales
+    // Actualiza los estados locales solo si hay cambios
     if (!mounted) return;
     final elapsed = stopwatch.elapsedMilliseconds;
     print("Tiempo: ${elapsed}ms");
-    setState(() {
-      _grantedPermissions = grantedPermissions;
-      _dataPointsSteps = dataPointsSteps;
-      _dataPointsWorkout = dataPointsWorkout;
-      _entrenamientosMrFit = entrenamientosMrFit;
-    });
+
+    final bool permissionsChanged =
+        !mapEquals(_grantedPermissions, grantedPermissions);
+    final bool stepsChanged =
+        !listEquals(_dataPointsSteps, dataPointsSteps);
+    final bool workoutsChanged =
+        !listEquals(_dataPointsWorkout, dataPointsWorkout);
+    final bool entrenamientosChanged =
+        !listEquals(_entrenamientosMrFit, entrenamientosMrFit);
+
+    if (permissionsChanged ||
+        stepsChanged ||
+        workoutsChanged ||
+        entrenamientosChanged) {
+      setState(() {
+        _grantedPermissions = grantedPermissions;
+        _dataPointsSteps = dataPointsSteps;
+        _dataPointsWorkout = dataPointsWorkout;
+        _entrenamientosMrFit = entrenamientosMrFit;
+      });
+    }
   }
 
   @override
@@ -197,7 +213,12 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 selectedDate: _selectedDate,
                 grantedPermissions: _grantedPermissions,
                 onDateSelected: (date) {
-                  if (date.isAfter(DateTime.now())) return;
+                  if (date.isAfter(DateTime.now()) ||
+                      date.year == _selectedDate.year &&
+                          date.month == _selectedDate.month &&
+                          date.day == _selectedDate.day) {
+                    return;
+                  }
                   setState(() {
                     _selectedDate = date;
                     _clearDailyStatsData();
@@ -219,8 +240,14 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                   if (state is CalendarWidgetStateBase) {
                     state.jumpToToday();
                   }
+                  final today = DateTime.now();
+                  if (today.year == _selectedDate.year &&
+                      today.month == _selectedDate.month &&
+                      today.day == _selectedDate.day) {
+                    return;
+                  }
                   setState(() {
-                    _selectedDate = DateTime.now();
+                    _selectedDate = today;
                     _clearDailyStatsData();
                   });
                   final usuario = ref.read(usuarioProvider);
