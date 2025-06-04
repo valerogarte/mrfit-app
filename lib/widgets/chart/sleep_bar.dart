@@ -171,12 +171,15 @@ class SleepBar extends StatelessWidget {
           final realRightOffset = cons.maxWidth - (realLeft + realWidthPx);
 
           return Stack(children: [
-            _buildRoutineLabels(routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
+            _buildRoutineLabels(
+                routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
             _buildRoutineZone(routineLeft, routineWidthPx),
-            _buildSessionBar(realLeft, realWidthPx, accentHeight),
+            if (realWidthPx > 0)
+              _buildSessionBar(realLeft, realWidthPx, accentHeight),
             if (showSessionLabels)
               _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
-            _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart), // Usar stepSpots
+            if (stepSpots.isNotEmpty)
+              _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart),
           ]);
         },
       ),

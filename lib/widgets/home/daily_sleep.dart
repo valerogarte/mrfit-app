@@ -258,8 +258,8 @@ Widget _sleepBase({
                   (day ?? DateTime.now()).year,
                   (day ?? DateTime.now()).month,
                   (day ?? DateTime.now()).day,
-                  (usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)).hour,
-                  (usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)).minute,
+                  0,
+                  0,
                 ),
           realEnd: slots.isNotEmpty
               ? slots.first.end
@@ -267,12 +267,16 @@ Widget _sleepBase({
                   (day ?? DateTime.now()).year,
                   (day ?? DateTime.now()).month,
                   (day ?? DateTime.now()).day,
-                  (usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)).hour,
-                  (usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)).minute,
+                  0,
+                  0,
                 ),
           typeSlots: typeSlots ?? [],
-          horaInicioRutina: usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0),
-          horaFinRutina: usuario.horaFinSueno ?? const TimeOfDay(hour: 0, minute: 0),
+          horaInicioRutina: slots.isNotEmpty
+              ? usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)
+              : const TimeOfDay(hour: 0, minute: 0),
+          horaFinRutina: slots.isNotEmpty
+              ? usuario.horaFinSueno ?? const TimeOfDay(hour: 23, minute: 59)
+              : const TimeOfDay(hour: 23, minute: 59),
           showSessionLabels: slots.isNotEmpty,
         ),
       ],
