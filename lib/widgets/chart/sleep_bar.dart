@@ -69,6 +69,15 @@ class SleepBar extends StatelessWidget {
     return 'SLEEP_UNKNOWN';
   }
 
+  // Obtiene el tipo de sueño basándose en el valor del eje Y
+  String _getSleepTypeByLevel(double level) {
+    final rounded = level.round();
+    for (final entry in _kTypeValue.entries) {
+      if (entry.value == rounded) return entry.key;
+    }
+    return 'SLEEP_UNKNOWN';
+  }
+
   // Devuelve la etiqueta legible para el tipo de sueño
   String _getSleepTypeLabel(String type) {
     return _kTypeLabel[type] ?? type;
@@ -82,6 +91,7 @@ class SleepBar extends StatelessWidget {
     DateTime realStart,
     DateTime realEnd,
   ) {
+    const double epsilon = 0.0001; // pequeño desplazamiento para evitar x duplicados
     final List<FlSpot> stepSpots = [];
     if (slots.isEmpty) return stepSpots;
 
@@ -112,10 +122,12 @@ class SleepBar extends StatelessWidget {
       // Si el slot no empieza donde terminó el anterior, agregar transición vertical
       if (stepSpots.isNotEmpty && stepSpots.last.x != startX) {
         stepSpots.add(FlSpot(startX, stepSpots.last.y));
+        // pequeño desplazamiento para el punto vertical
+        stepSpots.add(FlSpot(startX + epsilon, y));
+      } else {
+        stepSpots.add(FlSpot(startX, y));
       }
 
-      // Punto horizontal hasta el final del slot (dentro del rango real)
-      stepSpots.add(FlSpot(startX, y));
       stepSpots.add(FlSpot(endX, y));
     }
 
@@ -294,11 +306,7 @@ class SleepBar extends StatelessWidget {
               getTooltipItems: (touchedSpots) {
                 // Añade la hora al final de la etiqueta del tipo de sueño
                 return touchedSpots.map((touchedSpot) {
-                  final sleepType = _getSleepTypeByMinute(
-                    touchedSpot.x,
-                    typeSlots,
-                    graphStart,
-                  );
+                  final sleepType = _getSleepTypeByLevel(touchedSpot.y);
                   final label = _getSleepTypeLabel(sleepType);
                   // Calcula la hora correspondiente al punto seleccionado
                   final pointTime = graphStart.add(Duration(minutes: touchedSpot.x.round()));
