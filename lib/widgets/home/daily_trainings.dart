@@ -60,17 +60,6 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
     required String timeInfo,
     String? sourceName,
   }) async {
-    if (sourceName != null && sourceName == AppConstants.domainNameApp) {
-      final entrenamiento = await Entrenamiento.loadByUuid(uuid);
-      if (entrenamiento != null) {
-        title = entrenamiento.titulo;
-      }
-    } else if (id != null && id > 0) {
-      final entrenamiento = await Entrenamiento.loadById(id);
-      if (entrenamiento != null) {
-        title = entrenamiento.titulo;
-      }
-    }
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -168,7 +157,7 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               future: _buildActivityRow(
                 uuid: activity['uuid'] ?? "",
                 id: activity['id'] ?? 0,
-                title: info["nombre"],
+                title: activity["title"] ?? info["nombre"],
                 start: activity['start'],
                 end: activity['end'],
                 icon: info["icon"],

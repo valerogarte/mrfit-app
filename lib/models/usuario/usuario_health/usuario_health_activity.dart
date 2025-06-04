@@ -346,7 +346,8 @@ extension UsuarioHCActivityExtension on Usuario {
         'type': 'workout',
         'start': entrenamiento.inicio,
         'end': entrenamiento.fin,
-        'sourceName': "mrfit",
+        'sourceName': AppConstants.domainNameApp,
+        'title': entrenamiento.titulo,
         'activityType': "HealthWorkoutActivityType.WEIGHTLIFTING",
       });
     }
