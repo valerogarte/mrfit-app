@@ -21,7 +21,7 @@ Widget dailySleepWidget({
 }) {
   int horaLevantarse = usuario.horaFinSueno?.hour ?? 0;
   if (day.hour < horaLevantarse && day.day == DateTime.now().day) {
-    return _sleepPlaceholder(usuario);
+    return _sleepPlaceholder(usuario, day);
   }
   return CachedFutureBuilder<List<SleepSlot>>(
     key: const ValueKey('sleep_session'),
@@ -29,7 +29,7 @@ Widget dailySleepWidget({
     keys: [day, usuario.id, refreshKey],
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
-        return _sleepPlaceholder(usuario);
+        return _sleepPlaceholder(usuario, day);
       }
       if (snapshot.data != null && snapshot.data!.isNotEmpty) {
         final firstSlot = snapshot.data!.first;
@@ -41,7 +41,7 @@ Widget dailySleepWidget({
           keys: [firstSlot.start, firstSlot.end, usuario.id, refreshKey],
           builder: (ctx2, typeSnap) {
             if (typeSnap.connectionState != ConnectionState.done) {
-              return _sleepStats(totalMinutes, firstSlot, "HealthConnect", usuario: usuario);
+              return _sleepStats(totalMinutes, firstSlot, "HealthConnect", usuario: usuario, day: day);
             }
             final typeSlots = typeSnap.data ?? [];
             return _sleepStats(
@@ -51,6 +51,7 @@ Widget dailySleepWidget({
               allSlots: snapshot.data,
               typeSlots: typeSlots,
               usuario: usuario, // Pass usuario here
+              day: day,
             );
           },
         );
@@ -62,7 +63,7 @@ Widget dailySleepWidget({
         keys: [day, usuario.id, refreshKey],
         builder: (context, slotSnapshot) {
           if (slotSnapshot.connectionState != ConnectionState.done) {
-            return _sleepPlaceholder(usuario);
+            return _sleepPlaceholder(usuario, day);
           }
           if (slotSnapshot.data == null || slotSnapshot.data!.isEmpty) {
             return _sleepPermission(context);
@@ -73,7 +74,7 @@ Widget dailySleepWidget({
 
           // Si el tiempo total supera 24h, mostrar sin registros
           if (totalMinutes > 1440) {
-            return _sleepPlaceholder(usuario);
+            return _sleepPlaceholder(usuario, day);
           }
 
           if (slots.isNotEmpty && usuario.isHealthConnectAvailable) {
@@ -91,6 +92,7 @@ Widget dailySleepWidget({
             "UsageStats",
             allSlots: slots,
             usuario: usuario,
+            day: day,
           );
         },
       );
@@ -98,11 +100,12 @@ Widget dailySleepWidget({
   );
 }
 
-Widget _sleepPlaceholder(Usuario usuario) {
+Widget _sleepPlaceholder(Usuario usuario, DateTime day) {
   return _sleepBase(
     mainText: '0h 0m',
     slots: [],
     usuario: usuario,
+    day: day,
   );
 }
 
@@ -171,6 +174,7 @@ Widget _sleepStats(
   List<SleepSlot>? allSlots,
   List<SleepSlot>? typeSlots, // NUEVO parámetro
   required Usuario usuario, // Add usuario parameter
+  required DateTime day,
 }) {
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
@@ -191,6 +195,7 @@ Widget _sleepStats(
     typeSlots: typeSlots ?? [],
     usuario: usuario,
     quality: quality,
+    day: day,
   );
 }
 
@@ -201,6 +206,7 @@ Widget _sleepBase({
   List<SleepSlot>? typeSlots,
   required Usuario usuario,
   double? quality,
+  DateTime? day,
 }) {
   return Container(
     width: double.infinity,
@@ -245,26 +251,34 @@ Widget _sleepBase({
           ],
         ),
         const SizedBox(height: 12),
-        slots.isEmpty
-            ? Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(20),
+        SleepBar(
+          realStart: slots.isNotEmpty
+              ? slots.first.start
+              : DateTime(
+                  (day ?? DateTime.now()).year,
+                  (day ?? DateTime.now()).month,
+                  (day ?? DateTime.now()).day,
+                  0,
+                  0,
                 ),
-                child: const Text(
-                  'Sin sueño registrado',
-                  style: TextStyle(color: AppColors.accentColor, fontSize: 14, fontWeight: FontWeight.bold),
+          realEnd: slots.isNotEmpty
+              ? slots.first.end
+              : DateTime(
+                  (day ?? DateTime.now()).year,
+                  (day ?? DateTime.now()).month,
+                  (day ?? DateTime.now()).day,
+                  0,
+                  0,
                 ),
-              )
-            : SleepBar(
-                realStart: slots.first.start,
-                realEnd: slots.first.end,
-                typeSlots: typeSlots ?? [],
-                horaInicioRutina: usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0),
-                horaFinRutina: usuario.horaFinSueno ?? const TimeOfDay(hour: 0, minute: 0),
-              ),
+          typeSlots: typeSlots ?? [],
+          horaInicioRutina: slots.isNotEmpty
+              ? usuario.horaInicioSueno ?? const TimeOfDay(hour: 0, minute: 0)
+              : const TimeOfDay(hour: 0, minute: 0),
+          horaFinRutina: slots.isNotEmpty
+              ? usuario.horaFinSueno ?? const TimeOfDay(hour: 23, minute: 59)
+              : const TimeOfDay(hour: 23, minute: 59),
+          showSessionLabels: slots.isNotEmpty,
+        ),
       ],
     ),
   );

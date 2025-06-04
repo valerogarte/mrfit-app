@@ -47,6 +47,7 @@ class SleepBar extends StatelessWidget {
     required this.horaInicioRutina,
     required this.horaFinRutina,
     this.typeSlots = const [],
+    this.showSessionLabels = true,
   });
 
   final DateTime realStart;
@@ -54,6 +55,7 @@ class SleepBar extends StatelessWidget {
   final TimeOfDay horaInicioRutina;
   final TimeOfDay horaFinRutina;
   final List<SleepSlot> typeSlots;
+  final bool showSessionLabels;
 
   // Método auxiliar para obtener el tipo de sueño según el minuto (x)
   String _getSleepTypeByMinute(double minute, List<SleepSlot> slots, DateTime graphStart) {
@@ -169,11 +171,15 @@ class SleepBar extends StatelessWidget {
           final realRightOffset = cons.maxWidth - (realLeft + realWidthPx);
 
           return Stack(children: [
-            _buildRoutineLabels(routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
+            _buildRoutineLabels(
+                routineStart, routineEnd, routineLeft, routineWidthPx, cons.maxWidth),
             _buildRoutineZone(routineLeft, routineWidthPx),
-            _buildSessionBar(realLeft, realWidthPx, accentHeight),
-            _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
-            _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart), // Usar stepSpots
+            if (realWidthPx > 0)
+              _buildSessionBar(realLeft, realWidthPx, accentHeight),
+            if (showSessionLabels)
+              _buildSessionLabels(realStart, realEnd, realLeft, realRightOffset),
+            if (stepSpots.isNotEmpty)
+              _buildSleepLine(stepSpots, totalMinutes, accentHeight, graphStart),
           ]);
         },
       ),
