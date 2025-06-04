@@ -82,6 +82,7 @@ class SleepBar extends StatelessWidget {
     DateTime realStart,
     DateTime realEnd,
   ) {
+    const double epsilon = 0.0001; // pequeño desplazamiento para evitar x duplicados
     final List<FlSpot> stepSpots = [];
     if (slots.isEmpty) return stepSpots;
 
@@ -112,10 +113,12 @@ class SleepBar extends StatelessWidget {
       // Si el slot no empieza donde terminó el anterior, agregar transición vertical
       if (stepSpots.isNotEmpty && stepSpots.last.x != startX) {
         stepSpots.add(FlSpot(startX, stepSpots.last.y));
+        // pequeño desplazamiento para el punto vertical
+        stepSpots.add(FlSpot(startX + epsilon, y));
+      } else {
+        stepSpots.add(FlSpot(startX, y));
       }
 
-      // Punto horizontal hasta el final del slot (dentro del rango real)
-      stepSpots.add(FlSpot(startX, y));
       stepSpots.add(FlSpot(endX, y));
     }
 
