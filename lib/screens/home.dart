@@ -34,6 +34,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
   bool _showHcWarning = true;
+  int _refreshCounter = 0;
 
   // Estados para los datos diarios
   Map<String, bool> _grantedPermissions = {};
@@ -271,7 +272,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     child: RefreshIndicator(
                       key: _refreshKey,
                       onRefresh: () async {
-                        setState(_clearDailyStatsData);
+                        setState(() {
+                          _refreshCounter++;
+                          _clearDailyStatsData();
+                        });
                         _reloadCalendarIfInCurrentWeek(_selectedDate);
                         await _cargarResumenEntrenamientos();
                         await _checkHcWarning();
@@ -320,14 +324,26 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   entrenamientosMrFit: _entrenamientosMrFit,
                                 ),
                                 const SizedBox(height: 15),
-                                dailySleepWidget(day: _selectedDate, usuario: usuario),
+                                dailySleepWidget(
+                                  day: _selectedDate,
+                                  usuario: usuario,
+                                  refreshKey: _refreshCounter,
+                                ),
                                 const SizedBox(height: 15),
                                 DailyNutritionWidget(day: _selectedDate, usuario: usuario),
                                 if (usuario.isHealthConnectAvailable) ...[
                                   const SizedBox(height: 15),
-                                  dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                                  dailyHearthWidget(
+                                    day: _selectedDate,
+                                    usuario: usuario,
+                                    refreshKey: _refreshCounter,
+                                  ),
                                   const SizedBox(height: 15),
-                                  dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                                  dailyVitalsWidget(
+                                    day: _selectedDate,
+                                    usuario: usuario,
+                                    refreshKey: _refreshCounter,
+                                  ),
                                   const SizedBox(height: 15),
                                   dailyPhysicalWidget(usuario: usuario),
                                   const SizedBox(height: 15),

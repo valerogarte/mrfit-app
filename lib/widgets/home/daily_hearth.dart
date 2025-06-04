@@ -8,11 +8,12 @@ import 'package:mrfit/widgets/common/cached_future_builder.dart';
 Widget dailyHearthWidget({
   required DateTime day,
   required Usuario usuario,
+  int refreshKey = 0,
 }) {
   return CachedFutureBuilder<List<HealthDataPoint>>(
     key: const ValueKey('daily_hearth'),
     futureBuilder: () => usuario.getReadHeartRate(day),
-    keys: [day, usuario.id],
+    keys: [day, usuario.id, refreshKey],
     builder: (context, snapshot) {
       final List<HealthDataPoint> heartRatePoints = snapshot.data ?? [];
       Widget content;

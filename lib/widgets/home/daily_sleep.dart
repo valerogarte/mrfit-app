@@ -14,7 +14,11 @@ Widget _bedtimeIcon() {
   );
 }
 
-Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
+Widget dailySleepWidget({
+  required DateTime day,
+  required Usuario usuario,
+  int refreshKey = 0,
+}) {
   int horaLevantarse = usuario.horaFinSueno?.hour ?? 0;
   if (day.hour < horaLevantarse && day.day == DateTime.now().day) {
     return _sleepPlaceholder(usuario);
@@ -22,7 +26,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
   return CachedFutureBuilder<List<SleepSlot>>(
     key: const ValueKey('sleep_session'),
     futureBuilder: () => usuario.getSleepSessionByDate(day),
-    keys: [day, usuario.id],
+    keys: [day, usuario.id, refreshKey],
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return _sleepPlaceholder(usuario);
@@ -34,7 +38,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
           key: const ValueKey('sleep_type'),
           futureBuilder: () =>
               usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
-          keys: [firstSlot.start, firstSlot.end, usuario.id],
+          keys: [firstSlot.start, firstSlot.end, usuario.id, refreshKey],
           builder: (ctx2, typeSnap) {
             if (typeSnap.connectionState != ConnectionState.done) {
               return _sleepStats(totalMinutes, firstSlot, "HealthConnect", usuario: usuario);
@@ -55,7 +59,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
       return CachedFutureBuilder<List<SleepSlot>>(
         key: const ValueKey('sleep_slots'),
         futureBuilder: () => usuario.getSleepSlotsForDay(day),
-        keys: [day, usuario.id],
+        keys: [day, usuario.id, refreshKey],
         builder: (context, slotSnapshot) {
           if (slotSnapshot.connectionState != ConnectionState.done) {
             return _sleepPlaceholder(usuario);
