@@ -53,6 +53,70 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
     );
   }
 
+  Widget _buildContent(bool isLoading, bool isToday) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.background,
+                child: Icon(
+                  Icons.restaurant,
+                  color: AppColors.mutedGreen,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Diferencia calórica',
+                style: TextStyle(
+                  color: AppColors.textMedium,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildButton(
+                '--',
+                () => _updateCaloricDifference(-100),
+                isToday && !isLoading,
+              ),
+              _buildButton(
+                '-',
+                () => _updateCaloricDifference(-25),
+                isToday && !isLoading,
+              ),
+              _buildDisplay(isLoading ? '-' : '$_currentCalories'),
+              _buildButton(
+                '+',
+                () => _updateCaloricDifference(25),
+                isToday && !isLoading,
+              ),
+              _buildButton(
+                '++',
+                () => _updateCaloricDifference(100),
+                isToday && !isLoading,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -61,57 +125,12 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
     return FutureBuilder<void>(
       future: _initialization,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+        if (snapshot.hasError) {
           return const Center(child: Text('Error loading data'));
         }
 
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.background,
-                    child: Icon(
-                      Icons.restaurant,
-                      color: AppColors.mutedGreen,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Diferencia calórica',
-                    style: TextStyle(
-                      color: AppColors.textMedium,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildButton('--', () => _updateCaloricDifference(-100), isToday),
-                  _buildButton('-', () => _updateCaloricDifference(-25), isToday),
-                  _buildDisplay(),
-                  _buildButton('+', () => _updateCaloricDifference(25), isToday),
-                  _buildButton('++', () => _updateCaloricDifference(100), isToday),
-                ],
-              ),
-            ],
-          ),
-        );
+        return _buildContent(isLoading, isToday);
       },
     );
   }
@@ -138,7 +157,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
     );
   }
 
-  Widget _buildDisplay() {
+  Widget _buildDisplay(String value) {
     return Expanded(
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.2,
@@ -147,7 +166,7 @@ class _DailyNutritionWidgetState extends State<DailyNutritionWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '$_currentCalories',
+                value,
                 style: const TextStyle(
                   color: AppColors.mutedGreen,
                   fontSize: 20,
