@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -33,6 +34,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
   bool _showHcWarning = true;
+  int _refreshCounter = 0;
 
   // Estados para los datos diarios
   Map<String, bool> _grantedPermissions = {};
@@ -40,16 +42,17 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   List<HealthDataPoint> _dataPointsWorkout = [];
   List<Map<String, dynamic>> _entrenamientosMrFit = [];
 
+  void _clearDailyStatsData() {
+    _dataPointsSteps = [];
+    _dataPointsWorkout = [];
+    _entrenamientosMrFit = [];
+  }
+
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
     // Medimos el tiempo de ejecución para monitorear el performance de la función.
     final stopwatch = Stopwatch()..start();
 
-    setState(() {
-      _dataPointsSteps = [];
-      _dataPointsWorkout = [];
-      _entrenamientosMrFit = [];
-    });
 
     final Map<String, bool> grantedPermissions = {};
     for (var key in usuario.healthDataTypesString.keys) {
@@ -92,16 +95,31 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     await Future.wait(futures);
 
-    // Actualiza los estados locales
+    // Actualiza los estados locales solo si hay cambios
     if (!mounted) return;
     final elapsed = stopwatch.elapsedMilliseconds;
     print("Tiempo: ${elapsed}ms");
-    setState(() {
-      _grantedPermissions = grantedPermissions;
-      _dataPointsSteps = dataPointsSteps;
-      _dataPointsWorkout = dataPointsWorkout;
-      _entrenamientosMrFit = entrenamientosMrFit;
-    });
+
+    final bool permissionsChanged =
+        !mapEquals(_grantedPermissions, grantedPermissions);
+    final bool stepsChanged =
+        !listEquals(_dataPointsSteps, dataPointsSteps);
+    final bool workoutsChanged =
+        !listEquals(_dataPointsWorkout, dataPointsWorkout);
+    final bool entrenamientosChanged =
+        !listEquals(_entrenamientosMrFit, entrenamientosMrFit);
+
+    if (permissionsChanged ||
+        stepsChanged ||
+        workoutsChanged ||
+        entrenamientosChanged) {
+      setState(() {
+        _grantedPermissions = grantedPermissions;
+        _dataPointsSteps = dataPointsSteps;
+        _dataPointsWorkout = dataPointsWorkout;
+        _entrenamientosMrFit = entrenamientosMrFit;
+      });
+    }
   }
 
   @override
@@ -156,7 +174,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       return;
     }
 
-    setState(() => _selectedDate = nextDate);
+    setState(() {
+      _selectedDate = nextDate;
+      _clearDailyStatsData();
+    });
     final usuario = ref.read(usuarioProvider);
     _fetchAndSetDailyStatsData(usuario, nextDate);
     _reloadCalendarIfInCurrentWeek(nextDate);
@@ -192,8 +213,16 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 selectedDate: _selectedDate,
                 grantedPermissions: _grantedPermissions,
                 onDateSelected: (date) {
-                  if (date.isAfter(DateTime.now())) return;
-                  setState(() => _selectedDate = date);
+                  if (date.isAfter(DateTime.now()) ||
+                      date.year == _selectedDate.year &&
+                          date.month == _selectedDate.month &&
+                          date.day == _selectedDate.day) {
+                    return;
+                  }
+                  setState(() {
+                    _selectedDate = date;
+                    _clearDailyStatsData();
+                  });
                   final usuario = ref.read(usuarioProvider);
                   _fetchAndSetDailyStatsData(usuario, date);
                 },
@@ -211,7 +240,16 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                   if (state is CalendarWidgetStateBase) {
                     state.jumpToToday();
                   }
-                  setState(() => _selectedDate = DateTime.now());
+                  final today = DateTime.now();
+                  if (today.year == _selectedDate.year &&
+                      today.month == _selectedDate.month &&
+                      today.day == _selectedDate.day) {
+                    return;
+                  }
+                  setState(() {
+                    _selectedDate = today;
+                    _clearDailyStatsData();
+                  });
                   final usuario = ref.read(usuarioProvider);
                   _fetchAndSetDailyStatsData(usuario, _selectedDate);
                 },
@@ -234,6 +272,10 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     child: RefreshIndicator(
                       key: _refreshKey,
                       onRefresh: () async {
+                        setState(() {
+                          _refreshCounter++;
+                          _clearDailyStatsData();
+                        });
                         _reloadCalendarIfInCurrentWeek(_selectedDate);
                         await _cargarResumenEntrenamientos();
                         await _checkHcWarning();
@@ -282,14 +324,26 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   entrenamientosMrFit: _entrenamientosMrFit,
                                 ),
                                 const SizedBox(height: 15),
-                                dailySleepWidget(day: _selectedDate, usuario: usuario),
+                                dailySleepWidget(
+                                  day: _selectedDate,
+                                  usuario: usuario,
+                                  refreshKey: _refreshCounter,
+                                ),
                                 const SizedBox(height: 15),
                                 DailyNutritionWidget(day: _selectedDate, usuario: usuario),
                                 if (usuario.isHealthConnectAvailable) ...[
                                   const SizedBox(height: 15),
-                                  dailyHearthWidget(day: _selectedDate, usuario: usuario),
+                                  dailyHearthWidget(
+                                    day: _selectedDate,
+                                    usuario: usuario,
+                                    refreshKey: _refreshCounter,
+                                  ),
                                   const SizedBox(height: 15),
-                                  dailyVitalsWidget(day: _selectedDate, usuario: usuario),
+                                  dailyVitalsWidget(
+                                    day: _selectedDate,
+                                    usuario: usuario,
+                                    refreshKey: _refreshCounter,
+                                  ),
                                   const SizedBox(height: 15),
                                   dailyPhysicalWidget(usuario: usuario),
                                   const SizedBox(height: 15),
