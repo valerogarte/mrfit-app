@@ -453,7 +453,7 @@ class _DayCell extends StatelessWidget {
             ),
           ),
           Text(
-            '${date.day}',
+            _getDayLabel(date),
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -463,6 +463,16 @@ class _DayCell extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Devuelve el número del día o las tres primeras letras del mes en español si es día 1.
+  String _getDayLabel(DateTime date) {
+    if (date.day == 1) {
+      // Obtiene el nombre del mes en español y lo recorta a 3 letras.
+      final mes = DateFormat.MMM('es').format(date);
+      return mes.substring(0, 3).toLowerCase();
+    }
+    return '${date.day}';
   }
 
   Color _labelColor() {
