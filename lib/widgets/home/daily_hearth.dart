@@ -10,6 +10,7 @@ Widget dailyHearthWidget({
   required Usuario usuario,
 }) {
   return CachedFutureBuilder<List<HealthDataPoint>>(
+    key: const ValueKey('daily_hearth'),
     futureBuilder: () => usuario.getReadHeartRate(day),
     keys: [day, usuario.id],
     builder: (context, snapshot) {

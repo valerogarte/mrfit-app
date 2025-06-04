@@ -20,6 +20,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
     return _sleepPlaceholder(usuario);
   }
   return CachedFutureBuilder<List<SleepSlot>>(
+    key: const ValueKey('sleep_session'),
     futureBuilder: () => usuario.getSleepSessionByDate(day),
     keys: [day, usuario.id],
     builder: (context, snapshot) {
@@ -30,6 +31,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
         final firstSlot = snapshot.data!.first;
         final totalMinutes = usuario.calculateTotalMinutes(snapshot.data!);
         return CachedFutureBuilder<List<SleepSlot>>(
+          key: const ValueKey('sleep_type'),
           futureBuilder: () =>
               usuario.getTypeSleepByDate(firstSlot.start, firstSlot.end),
           keys: [firstSlot.start, firstSlot.end, usuario.id],
@@ -51,6 +53,7 @@ Widget dailySleepWidget({required DateTime day, required Usuario usuario}) {
       }
       // rama original de UsageStats
       return CachedFutureBuilder<List<SleepSlot>>(
+        key: const ValueKey('sleep_slots'),
         futureBuilder: () => usuario.getSleepSlotsForDay(day),
         keys: [day, usuario.id],
         builder: (context, slotSnapshot) {

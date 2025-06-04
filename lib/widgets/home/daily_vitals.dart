@@ -5,6 +5,7 @@ import 'package:mrfit/widgets/common/cached_future_builder.dart';
 
 Widget dailyVitalsWidget({required DateTime day, required Usuario usuario}) {
   return CachedFutureBuilder<List<dynamic>>(
+    key: const ValueKey('daily_vitals'),
     futureBuilder: () => Future.wait([
       usuario.getDailySpo2(day),
       usuario.getDailyStress(day),
