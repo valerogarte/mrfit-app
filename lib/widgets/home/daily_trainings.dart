@@ -190,9 +190,15 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: dynamicContent,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: dynamicContent,
+            ),
           ),
           if (isToday) const SizedBox(height: 10),
           if (isToday) _buildButtonsRow(),
