@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <!-- Permiso para reconocer actividades físicas del usuario -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <!-- Necesario para servicios en primer plano como el contador de pasos -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Tipo de servicio en primer plano usado para sincronización de datos -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <!-- Permiso para acceder a la ubicación precisa del dispositivo -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Acceso a uso del dispositvo -->
@@ -143,6 +147,12 @@
                 <!-- <action android:name="androidx.health.ACTION_BIND_HEALTH_CONNECT_SERVICE"/> -->
             </intent-filter>
         </service>
+
+        <!-- Servicio en primer plano para sincronizar los pasos -->
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <!-- Otros servicios y receptores -->
         <service
