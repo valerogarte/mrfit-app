@@ -54,6 +54,7 @@ dependencies:
   url_launcher: ^6.3.1 # Lanzar URL
   permission_handler: ^12.0.0 # Permisos
   pedometer: ^4.1.1 # Contador de pasos
+  flutter_background_service: ^5.1.0 # Servicio en segundo plano
   device_info_plus: ^11.4.0 # Información del dispositivo
   path: ^1.9.1 # Manejo de rutas
 

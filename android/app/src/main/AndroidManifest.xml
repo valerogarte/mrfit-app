@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <!-- Permiso para programar alarmas exactas -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Permiso para servicios en primer plano -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <!-- Permiso para acceder a los sensores corporales -->
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <!-- Permiso para reconocer actividades físicas del usuario -->
@@ -149,6 +151,10 @@
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="physicalActivity" />
         <receiver
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
             android:exported="false"/>
