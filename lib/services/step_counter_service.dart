@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mrfit/generated_plugin_registrant.dart';
 import 'dart:io' show Platform;
 
 /// Service that records steps using the pedometer plugin.
