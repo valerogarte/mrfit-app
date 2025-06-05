@@ -35,6 +35,7 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
 ### Permisos necesarios
 Al iniciar la app se solicitará el permiso de reconocimiento de actividad (Android) o el permiso de Movimiento y Fitness (iOS).
 En Android, además se necesita permitir el servicio en primer plano (`FOREGROUND_SERVICE`).
+Desde Android 14 también se requiere autorizar `FOREGROUND_SERVICE_HEALTH` para cualquier actividad relacionada con salud.
 Es obligatorio concederlos para contar los pasos en segundo plano.
 
 ## Ejecución

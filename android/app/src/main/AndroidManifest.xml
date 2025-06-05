@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <!-- Permiso para servicios en primer plano -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- Permiso específico para servicios relacionados con salud -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
     <!-- Permiso para acceder a los sensores corporales -->
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <!-- Permiso para reconocer actividades físicas del usuario -->
@@ -155,7 +157,7 @@
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:exported="false"
-            android:foregroundServiceType="physicalActivity"
+            android:foregroundServiceType="health"
             tools:replace="android:exported" />
         <receiver
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
