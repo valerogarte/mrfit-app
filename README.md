@@ -14,6 +14,7 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
 - Integración con voz para indicar repeticiones, peso y series a realizar.
 - SQLite para guardar y consultar ejercicios.
 - Interfaz intuitiva con animaciones y filtros avanzados para encontrar ejercicios.
+- Registro de pasos en segundo plano mediante el podómetro.
 
 ## Requisitos
 - Flutter SDK instalado.
@@ -30,6 +31,12 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
    ```
    flutter doctor
    ```
+
+### Permisos necesarios
+Al iniciar la app se solicitará el permiso de reconocimiento de actividad (Android) o el permiso de Movimiento y Fitness (iOS).
+En Android, además se necesita permitir el servicio en primer plano (`FOREGROUND_SERVICE`).
+Desde Android 14 también se requiere autorizar `FOREGROUND_SERVICE_HEALTH` para cualquier actividad relacionada con salud.
+Es obligatorio concederlos para contar los pasos en segundo plano.
 
 ## Ejecución
 1. Conecta un dispositivo o emulador.

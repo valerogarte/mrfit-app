@@ -5,9 +5,11 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/home.dart';
 import 'package:mrfit/screens/usuario/usuario_config.dart';
+import 'package:mrfit/services/step_counter_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await StepCounterService.initialize();
   final usuario = await Usuario.load();
   runApp(
     ProviderScope(
