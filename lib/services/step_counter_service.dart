@@ -51,7 +51,10 @@ class StepCounterService {
           initialNotificationContent: 'Contando pasos en segundo plano',
           foregroundServiceNotificationId: 888,
         ),
-        iosConfiguration: const IosConfiguration(),
+        iosConfiguration: IosConfiguration(
+          autoStart: true,
+          onForeground: backgroundCallback,
+        ),
       );
       await service.startService();
     }
