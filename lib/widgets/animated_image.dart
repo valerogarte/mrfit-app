@@ -122,29 +122,40 @@ class AnimatedImageState extends State<AnimatedImage> with SingleTickerProviderS
         children: [
           imageWidget,
           Positioned(
-            bottom: 4,
-            left: 8,
+            bottom: 0,
+            left: 0,
             right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    widget.ejercicio.imagenCopyright,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      // Se usa withAlpha para ajustar la opacidad del color.
-                      color: Colors.grey.withAlpha(100),
-                      fontSize: 12,
-                      shadows: const [
-                        Shadow(
-                          color: Colors.black54,
-                          offset: Offset(0, 0),
-                          blurRadius: 1,
-                        ),
-                      ],
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5), // Fondo negro con 50% de transparencia
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(20), // Esquina superior derecha redondeada
                     ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '© ${widget.ejercicio.imagenCopyright}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[500],
+                          fontSize: 8,
+                          shadows: const [
+                            Shadow(
+                              color: Colors.black54,
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8), // Espacio horizontal después del texto
+                    ],
                   ),
                 ),
               ],

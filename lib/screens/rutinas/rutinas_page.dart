@@ -216,9 +216,10 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                           margin: const EdgeInsets.only(right: 10),
                                           child: Card(
                                             margin: EdgeInsets.zero, // <-- quitamos margen
-                                            color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
+                                            color: AppColors.cardBackground, // Siempre el color de fondo de la tarjeta
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(20),
+                                              side: esActual ? const BorderSide(color: AppColors.mutedAdvertencia, width: 2) : BorderSide.none,
                                             ),
                                             shadowColor: Colors.transparent,
                                             elevation: esActual ? 8 : 4,
@@ -252,9 +253,10 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                             child: Card(
                                               shadowColor: Colors.transparent,
                                               margin: EdgeInsets.zero,
-                                              color: esActual ? AppColors.mutedAdvertencia : AppColors.cardBackground,
+                                              color: AppColors.cardBackground, // Siempre el color de fondo de la tarjeta
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(20),
+                                                side: esActual ? const BorderSide(color: AppColors.mutedAdvertencia, width: 2) : BorderSide.none,
                                               ),
                                               elevation: esActual ? 8 : 4,
                                               child: InkWell(
@@ -309,7 +311,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: esActual ? AppColors.background : AppColors.textNormal,
+                    color: AppColors.textNormal,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -322,7 +324,7 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                       "Rutina Actual",
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.background,
+                        color: AppColors.mutedAdvertencia, // Color del texto "Rutina Actual"
                         fontStyle: FontStyle.italic,
                       ),
                     ),
