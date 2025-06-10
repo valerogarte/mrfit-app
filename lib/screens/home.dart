@@ -22,6 +22,7 @@ import 'package:mrfit/widgets/home/daily_hearth.dart';
 import 'package:mrfit/widgets/home/daily_statistics.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
 import 'package:mrfit/services/step_counter_service.dart';
+import 'package:mrfit/providers/walking_provider.dart';
 import 'package:mrfit/screens/estadisticas/actividad_page.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
@@ -127,14 +128,17 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       _stepCounterService = StepCounterService(
         usuario: usuario,
         onError: (error) => print("Error en el podómetro: $error"),
+        onStatusChanged: (walking) =>
+            ref.read(walkingProvider.notifier).state = walking,
       );
-      _stepCounterService!.start();
+      Future.microtask(() => _stepCounterService!.start());
     }
   }
 
   @override
   void dispose() {
     _stepCounterService?.dispose();
+    ref.read(walkingProvider.notifier).state = false;
     super.dispose();
   }
 

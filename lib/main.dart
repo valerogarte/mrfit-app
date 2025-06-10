@@ -5,6 +5,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/screens/home.dart';
 import 'package:mrfit/screens/usuario/usuario_config.dart';
+import 'package:mrfit/providers/walking_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,12 +79,13 @@ class MyApp extends ConsumerWidget {
 }
 
 /// Scaffold común con AppBar
-class HomeShell extends StatelessWidget {
+class HomeShell extends ConsumerWidget {
   final Widget body;
   const HomeShell({super.key, required this.body});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isWalking = ref.watch(walkingProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -97,6 +99,12 @@ class HomeShell extends StatelessWidget {
           ),
         ),
         actions: [
+          if (isWalking)
+            const Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Icon(Icons.directions_walk,
+                  color: AppColors.mutedAdvertencia),
+            ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
