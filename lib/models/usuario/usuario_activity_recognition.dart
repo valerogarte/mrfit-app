@@ -23,6 +23,18 @@ extension UsuarioActivityRecognitionExtension on Usuario {
       }
     }
     final status = await Permission.activityRecognition.status;
+
     return setActivityRecognition(status.isGranted);
+  }
+
+  /// Solicita el permiso de Activity Recognition al usuario y retorna si fue concedido.
+  Future<bool> requestActivityRecognitionPermission() async {
+    // Solicita el permiso y, si fue concedido, actualiza el estado en el usuario.
+    final status = await Permission.activityRecognition.request();
+    if (status == PermissionStatus.granted) {
+      setActivityRecognition(true);
+      return true;
+    }
+    return false;
   }
 }

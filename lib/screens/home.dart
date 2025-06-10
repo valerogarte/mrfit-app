@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +21,8 @@ import 'package:mrfit/widgets/home/daily_nutrition.dart';
 import 'package:mrfit/widgets/home/daily_hearth.dart';
 import 'package:mrfit/widgets/home/daily_statistics.dart';
 import 'package:mrfit/widgets/home/daily_vitals.dart';
+import 'package:mrfit/services/step_counter_service.dart';
+import 'package:mrfit/screens/estadisticas/actividad_page.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
   const InicioPage({super.key});
@@ -35,6 +38,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
   bool _showHcWarning = true;
   int _refreshCounter = 0;
+  StepCounterService? _stepCounterService;
 
   // Estados para los datos diarios
   Map<String, bool> _grantedPermissions = {};
@@ -50,10 +54,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
-    // Medimos el tiempo de ejecución para monitorear el performance de la función.
-    final stopwatch = Stopwatch()..start();
-
-
     final Map<String, bool> grantedPermissions = {};
     for (var key in usuario.healthDataTypesString.keys) {
       final bool permissionGranted = await usuario.checkPermissionsFor(key);
@@ -95,28 +95,12 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
     await Future.wait(futures);
 
-    stopwatch.stop();
+    final bool permissionsChanged = !mapEquals(_grantedPermissions, grantedPermissions);
+    final bool stepsChanged = !listEquals(_dataPointsSteps, dataPointsSteps);
+    final bool workoutsChanged = !listEquals(_dataPointsWorkout, dataPointsWorkout);
+    final bool entrenamientosChanged = !listEquals(_entrenamientosMrFit, entrenamientosMrFit);
 
-    // Actualiza los estados locales solo si hay cambios
-    if (!mounted) return;
-    final elapsed = stopwatch.elapsedMilliseconds;
-    if (kDebugMode) {
-      debugPrint('Tiempo: ${elapsed}ms');
-    }
-
-    final bool permissionsChanged =
-        !mapEquals(_grantedPermissions, grantedPermissions);
-    final bool stepsChanged =
-        !listEquals(_dataPointsSteps, dataPointsSteps);
-    final bool workoutsChanged =
-        !listEquals(_dataPointsWorkout, dataPointsWorkout);
-    final bool entrenamientosChanged =
-        !listEquals(_entrenamientosMrFit, entrenamientosMrFit);
-
-    if (permissionsChanged ||
-        stepsChanged ||
-        workoutsChanged ||
-        entrenamientosChanged) {
+    if (permissionsChanged || stepsChanged || workoutsChanged || entrenamientosChanged) {
       setState(() {
         _grantedPermissions = grantedPermissions;
         _dataPointsSteps = dataPointsSteps;
@@ -135,6 +119,23 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     _checkHcWarning();
     final usuario = ref.read(usuarioProvider);
     _fetchAndSetDailyStatsData(usuario, _selectedDate);
+
+    // Inicializa el servicio de conteo de pasos si está disponible
+    if (!usuario.isActivityRecognitionAvailable) {
+      usuario.requestActivityRecognitionPermission();
+    } else {
+      _stepCounterService = StepCounterService(
+        usuario: usuario,
+        onError: (error) => print("Error en el podómetro: $error"),
+      );
+      _stepCounterService!.start();
+    }
+  }
+
+  @override
+  void dispose() {
+    _stepCounterService?.dispose();
+    super.dispose();
   }
 
   Future<void> _checkHcWarning() async {
@@ -217,10 +218,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                 selectedDate: _selectedDate,
                 grantedPermissions: _grantedPermissions,
                 onDateSelected: (date) {
-                  if (date.isAfter(DateTime.now()) ||
-                      date.year == _selectedDate.year &&
-                          date.month == _selectedDate.month &&
-                          date.day == _selectedDate.day) {
+                  if (date.isAfter(DateTime.now()) || date.year == _selectedDate.year && date.month == _selectedDate.month && date.day == _selectedDate.day) {
                     return;
                   }
                   setState(() {
@@ -245,9 +243,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                     state.jumpToToday();
                   }
                   final today = DateTime.now();
-                  if (today.year == _selectedDate.year &&
-                      today.month == _selectedDate.month &&
-                      today.day == _selectedDate.day) {
+                  if (today.year == _selectedDate.year && today.month == _selectedDate.month && today.day == _selectedDate.day) {
                     return;
                   }
                   setState(() {
@@ -311,12 +307,22 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   const SizedBox(height: 15),
                                 ],
                                 if (usuario.isHealthConnectAvailable) ...[
-                                  dailyStatsWidget(
-                                    usuario: usuario,
-                                    grantedPermissions: _grantedPermissions,
-                                    dataPointsSteps: _dataPointsSteps,
-                                    dataPointsWorkout: _dataPointsWorkout,
-                                    entrenamientosMrFit: _entrenamientosMrFit,
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Navega a la página de actividad al pulsar el widget
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const ActividadPage(),
+                                        ),
+                                      );
+                                    },
+                                    child: dailyStatsWidget(
+                                      usuario: usuario,
+                                      grantedPermissions: _grantedPermissions,
+                                      dataPointsSteps: _dataPointsSteps,
+                                      dataPointsWorkout: _dataPointsWorkout,
+                                      entrenamientosMrFit: _entrenamientosMrFit,
+                                    ),
                                   ),
                                   const SizedBox(height: 15),
                                 ],

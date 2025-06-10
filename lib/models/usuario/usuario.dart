@@ -205,6 +205,7 @@ class Usuario {
     isActivityRecognitionAvailable = arAvaliable;
     return isActivityRecognitionAvailable;
   }
+
   Future<bool> setAltura(int altura) async {
     this.altura = altura;
     final db = await DatabaseHelper.instance.database;
