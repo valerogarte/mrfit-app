@@ -90,6 +90,7 @@ class DetalleMusculoGasto extends ConsumerWidget {
     );
   }
 
+  /// Muestra un mensaje centrado cuando el músculo está completamente recuperado.
   Widget _buildMensajeMusculoListo() {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -98,12 +99,13 @@ class DetalleMusculoGasto extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle, color: AppColors.background, size: 32),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle, color: AppColors.background, size: 32),
+                const SizedBox(width: 10),
+                Text(
                   '¡Músculo listo para entrenar!',
                   style: TextStyle(
                     color: AppColors.background,
@@ -111,8 +113,8 @@ class DetalleMusculoGasto extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

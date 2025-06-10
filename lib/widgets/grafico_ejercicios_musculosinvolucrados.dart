@@ -34,81 +34,127 @@ class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMus
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      // Padding vertical general para todo el widget
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 50),
-          SizedBox(
-            width: 200,
-            height: 200,
-            child: CustomPaint(
-              painter: _PieChartPainter(widget.ejercicio.musculosInvolucrados),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ExpansionPanelList.radio(
-            elevation: 0,
-            initialOpenPanelValue: _openPanel,
-            expandedHeaderPadding: EdgeInsets.zero,
-            dividerColor: Colors.transparent,
-            materialGapSize: 0, // elimina el “hueco” blanco
-            children: _groups.entries.map((entry) {
-              final bool isExpanded = _openPanel == entry.key;
-              return ExpansionPanelRadio(
-                value: entry.key,
-                backgroundColor: isExpanded ? AppColors.mutedAdvertencia : AppColors.appBarBackground, // pinta toda la fila
-                headerBuilder: (context, _) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: isExpanded ? 0 : 8),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    // solo bordes superiores cuando está expandido,
-                    // todos los bordes cuando está cerrado.
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      entry.key,
-                      style: TextStyle(
-                        color: isExpanded ? AppColors.background : AppColors.textMedium,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                },
-                body: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.mutedAdvertencia,
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-                  ),
-                  child: Column(
-                    children: entry.value.map((mi) {
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                        title: Text(
-                          mi.musculo.titulo,
-                          style: const TextStyle(color: AppColors.cardBackground, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(mi.descripcionImplicacion, style: const TextStyle(color: AppColors.cardBackground)),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MusculoDetallePage(musculo: mi.musculo.titulo, entrenamientos: const []),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+          Padding(
+            // Padding específico para el gráfico y el espacio superior
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 50),
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: CustomPaint(
+                    painter: _PieChartPainter(widget.ejercicio.musculosInvolucrados),
                   ),
                 ),
-                canTapOnHeader: true,
-              );
-            }).toList(),
-            expansionCallback: (index, isOpen) {
-              setState(() {
-                final key = _groups.keys.elementAt(index);
-                _openPanel = isOpen ? null : key;
-              });
-            },
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+          // ExpansionPanelList.radio ahora se expandirá horizontalmente
+          // al ancho del widget padre de GraficoCircularMusculosInvolucrados,
+          // ya que no está restringido por un padding horizontal aquí.
+          Theme(
+            data: Theme.of(context).copyWith(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+            ),
+            child: ExpansionPanelList.radio(
+              elevation: 0,
+              initialOpenPanelValue: _openPanel,
+              expandedHeaderPadding: EdgeInsets.zero, // Controla el padding interno del header por defecto.
+              dividerColor: Colors.transparent,
+              materialGapSize: 0,
+              expandIconColor: Colors.transparent, // Oculta el icono de expansión por defecto del ExpansionPanelList.
+              children: _groups.entries.map((entry) {
+                final bool isExpanded = _openPanel == entry.key;
+                return ExpansionPanelRadio(
+                  value: entry.key,
+                  backgroundColor: Colors.transparent,
+                  headerBuilder: (context, isPanelExpanded) {
+                    // Este Container es el que da estilo al header.
+                    // Se expandirá al ancho del ExpansionPanelRadio.
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16.0).copyWith(bottom: 8.0), // Margen horizontal para el header si se desea que no pegue a los bordes de la pantalla
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: isPanelExpanded ? AppColors.accentColor : AppColors.cardBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry.key,
+                              style: TextStyle(
+                                color: isPanelExpanded ? AppColors.cardBackground : AppColors.textNormal,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            isPanelExpanded ? Icons.expand_less : Icons.expand_more,
+                            color: isPanelExpanded ? AppColors.cardBackground : AppColors.textMedium,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  body: Container(
+                    // El margen del body debe coincidir con el del header para alineación.
+                    margin: const EdgeInsets.symmetric(horizontal: 16.0).copyWith(bottom: 8.0, left: 16.0 + 4.0, right: 16.0 + 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.accentColor.withOpacity(0.5))),
+                    child: Column(
+                      children: entry.value.map((mi) {
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          title: Text(
+                            mi.musculo.titulo,
+                            style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            mi.descripcionImplicacion,
+                            style: TextStyle(color: AppColors.textMedium, fontSize: 12),
+                          ),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MusculoDetallePage(musculo: mi.musculo.titulo, entrenamientos: const []),
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          // Efecto visual al hacer hover o tap
+                          hoverColor: AppColors.accentColor.withOpacity(0.1),
+                          splashColor: AppColors.accentColor.withOpacity(0.2),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  canTapOnHeader: true,
+                );
+              }).toList(),
+              expansionCallback: (index, isOpen) {
+                setState(() {
+                  final key = _groups.keys.elementAt(index);
+                  _openPanel = isOpen ? null : key;
+                });
+              },
+            ),
           ),
         ],
       ),
