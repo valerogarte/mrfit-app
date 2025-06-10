@@ -163,8 +163,8 @@ class HealthUtils {
     for (var p in processed) {
       bool added = false;
       for (var section in sections) {
-        // Si el inicio de el dataPoint es el final de una section, todo OK
-        if (p.dateFrom.isAtSameMomentAs(section.end)) {
+        // Si el inicio de el dataPoint es el final de una section, o hay una dierencia de 2ms todo OK
+        if ((p.dateFrom.difference(section.end).inMilliseconds).abs() <= 2) {
           section.points.add(p);
           section.end = p.dateTo.isAfter(section.end) ? p.dateTo : section.end;
           added = true;

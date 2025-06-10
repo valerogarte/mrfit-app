@@ -312,7 +312,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                       // Navega a la página de actividad al pulsar el widget
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => const ActividadPage(),
+                                          builder: (_) => ActividadPage(selectedDate: _selectedDate),
                                         ),
                                       );
                                     },

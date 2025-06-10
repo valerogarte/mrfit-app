@@ -8,32 +8,34 @@ import 'package:mrfit/utils/colors.dart'; // Importa los colores personalizados
 
 // Página de actividad: muestra el listado de pasos del día.
 class ActividadPage extends ConsumerWidget {
-  const ActividadPage({super.key});
+  final DateTime selectedDate;
 
-  // Obtiene la fecha de hoy en formato yyyy-MM-dd
-  String _getTodayString() {
-    final now = DateTime.now();
-    return DateFormat('yyyy-MM-dd').format(now);
+  const ActividadPage({super.key, required this.selectedDate});
+
+  // Obtiene la fecha seleccionada en formato yyyy-MM-dd
+  String _getSelectedDateString() {
+    return DateFormat('yyyy-MM-dd').format(selectedDate);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usuario = ref.read(usuarioProvider);
-    final today = _getTodayString();
+    final dateString = _getSelectedDateString();
+    final formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pasos del día'),
+        title: Text('Pasos del día: $formattedDate'),
         backgroundColor: AppColors.appBarBackground, // Color del AppBar
       ),
       backgroundColor: AppColors.background, // Fondo principal
       body: FutureBuilder<List<List<HealthDataPoint>>>(
         // Se ejecutan ambas llamadas en paralelo.
         future: Future.wait([
-          usuario.getStepsByDate(today),
+          usuario.getStepsByDate(dateString),
           (() async {
             // Se usa HealthFactory para obtener los datos crudos.
-            final parsedDate = DateTime.parse(today);
+            final parsedDate = selectedDate; // Usar selectedDate directamente
             final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
             final end = start.add(const Duration(days: 1));
             final health = Health();
@@ -66,10 +68,10 @@ class ActividadPage extends ConsumerWidget {
           // Se ordena según fecha
           rawSteps.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
           if (rawSteps.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'No hay pasos registrados hoy.',
-                style: TextStyle(color: AppColors.mutedSilver),
+                'No hay pasos registrados para el $formattedDate.',
+                style: const TextStyle(color: AppColors.mutedSilver),
               ),
             );
           }
