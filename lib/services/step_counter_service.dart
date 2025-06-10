@@ -104,8 +104,12 @@ class StepCounterService {
     _persistLastInfo();
   }
 
+  /// Maneja el cambio de estado del usuario detectado por el podómetro.
+  /// Se utiliza el valor de `status.status` para determinar si el usuario está caminando.
+  /// Esto permite desacoplar la lógica de comparación del tipo concreto de PedestrianStatus.
   void _onPedestrianStatus(PedestrianStatus status) {
-    final walking = status == PedestrianStatus.walking;
+    // Compara contra el valor de estado definido en PedestrianStatus
+    final walking = status.status == 'walking';
     _isWalking = walking;
     onStatusChanged?.call(walking);
   }

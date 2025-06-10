@@ -101,9 +101,8 @@ class HomeShell extends ConsumerWidget {
         actions: [
           if (isWalking)
             const Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Icon(Icons.directions_walk,
-                  color: AppColors.mutedAdvertencia),
+              padding: EdgeInsets.only(right: 16.0),
+              child: Icon(Icons.directions_walk, color: AppColors.mutedAdvertencia),
             ),
           IconButton(
             icon: const Icon(Icons.settings),
