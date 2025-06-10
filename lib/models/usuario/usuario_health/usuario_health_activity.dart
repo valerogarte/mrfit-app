@@ -523,4 +523,29 @@ extension UsuarioHCActivityExtension on Usuario {
 
     return workoutId;
   }
+
+  Future<bool> healthconnectRegistrarPasos(
+    int steps,
+    DateTime inicio,
+    DateTime fin,
+  ) async {
+    await _health.configure();
+    if (!await checkPermissionsFor("STEPS")) {
+      return false;
+    }
+
+    try {
+      final type = healthDataTypesString["STEPS"]!;
+      return await _health.writeHealthData(
+        value: steps.toDouble(),
+        type: type,
+        startTime: inicio,
+        endTime: fin,
+        recordingMethod: RecordingMethod.manual,
+      );
+    } catch (e) {
+      Logger().e('Error writing steps to Health Connect: $e');
+      return false;
+    }
+  }
 }
