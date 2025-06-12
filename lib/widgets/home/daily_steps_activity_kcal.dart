@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:health/health.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/triple_ring_loader.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Duración unificada para animaciones de valor y ring.
 const Duration kStatsAnimationDuration = Duration(milliseconds: 1000);
@@ -40,14 +42,14 @@ Widget dailyStatsWidget({
       entrenamientosMrFit: entrenamientosMrFit,
     );
   }
-
+  final permissionChecked = grantedPermissions.isNotEmpty;
   final hasStepsPermission = grantedPermissions['STEPS'] == true;
   final hasActivityPermission = grantedPermissions['STEPS'] == true && grantedPermissions['WORKOUT'] == true;
 
   final List<Widget> statWidgets = [];
 
   // Steps widget
-  if (hasStepsPermission) {
+  if ((hasStepsPermission && hasActivityPermission) || !permissionChecked) {
     statWidgets.add(
       Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -60,21 +62,6 @@ Widget dailyStatsWidget({
         ),
       ),
     );
-  } else {
-    statWidgets.add(
-      Padding(
-        padding: const EdgeInsets.only(bottom: 0),
-        child: permissionButton(
-          color: AppColors.accentColor,
-          icon: Icons.directions_walk,
-          onTap: () => usuario.requestPermissions(),
-        ),
-      ),
-    );
-  }
-
-  // Activity minutes widget
-  if (hasActivityPermission) {
     statWidgets.add(
       Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -87,23 +74,6 @@ Widget dailyStatsWidget({
         ),
       ),
     );
-  } else {
-    statWidgets.add(
-      Padding(
-        padding: const EdgeInsets.only(bottom: 0),
-        child: permissionButton(
-          color: AppColors.mutedAdvertencia,
-          icon: Icons.access_time,
-          onTap: () async {
-            await usuario.requestPermissions();
-          },
-        ),
-      ),
-    );
-  }
-
-  // Calories widget
-  if (hasActivityPermission) {
     statWidgets.add(
       Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -116,60 +86,104 @@ Widget dailyStatsWidget({
         ),
       ),
     );
-  } else {
-    statWidgets.add(
-      Padding(
-        padding: const EdgeInsets.only(bottom: 0),
-        child: permissionButton(
-          color: AppColors.mutedGreen,
-          icon: Icons.local_fire_department,
-          onTap: () => usuario.requestPermissions(),
-        ),
-      ),
-    );
-  }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      // Muestra el botón de permisos si no está disponible Activity Recognition.
-      if (!usuario.isActivityRecognitionAvailable) ...[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0),
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.privacy_tip, color: AppColors.background),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Muestra el botón de permisos si no está disponible Activity Recognition.
+        if (!usuario.isActivityRecognitionAvailable) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.privacy_tip, color: AppColors.background),
+              label: const Text(
+                'Permisos para acceder a tu actividad',
+                style: TextStyle(color: AppColors.background),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mutedAdvertencia,
+                foregroundColor: AppColors.background,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              onPressed: () async {
+                await usuario.ensurePermissions();
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+        _buildStatsContainer(
+          children: statWidgets,
+          loader: AnimatedTripleRingLoader(
+            pasosPercent: hasStepsPermission && targetSteps > 0 ? steps / targetSteps : 0,
+            minutosPercent: hasActivityPermission && targetMinActividad > 0 ? minutes / targetMinActividad : 0,
+            horasActivo: hasActivityPermission && targetHorasActivo > 0 ? horasActivo / targetHorasActivo : 0,
+            trainedToday: hasStepsPermission || hasActivityPermission || hasActivityPermission,
+            duration: kStatsAnimationDuration, // Unifica duración
+          ),
+          key: const ValueKey('loaded'),
+        ),
+      ],
+    );
+  } else {
+    // Devuelve un mensaje en que expliques que tiene que abrir abrir la app Health Connect para conceder permisos.
+    // Muestra mensaje claro y botón para gestionar permisos, con fondo de advertencia.
+    return Container(
+      key: const ValueKey('no_permissions'),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.mutedAdvertencia, // Fondo de advertencia
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(Icons.privacy_tip, color: AppColors.background, size: 40),
+          const SizedBox(height: 16),
+          const Text(
+            'Para ver tus estadísticas diarias, abre la app Health Connect y concede los permisos necesarios a MrFit.',
+            style: TextStyle(
+              color: AppColors.background,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.settings, color: AppColors.mutedAdvertencia),
             label: const Text(
-              'Permisos para acceder a tu actividad',
-              style: TextStyle(color: AppColors.background),
+              'Conceder permisos',
+              style: TextStyle(color: AppColors.mutedAdvertencia),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.mutedAdvertencia,
-              foregroundColor: AppColors.background,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: AppColors.background,
+              foregroundColor: AppColors.mutedAdvertencia,
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
+              elevation: 0,
             ),
             onPressed: () async {
-              await usuario.ensurePermissions();
+              final info = await DeviceInfoPlugin().androidInfo;
+              if (info.version.sdkInt > 29) {
+                await usuario.requestPermissions();
+              } else {
+                const url = 'https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata';
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                }
+              }
             },
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
-      _buildStatsContainer(
-        children: statWidgets,
-        loader: AnimatedTripleRingLoader(
-          pasosPercent: hasStepsPermission && targetSteps > 0 ? steps / targetSteps : 0,
-          minutosPercent: hasActivityPermission && targetMinActividad > 0 ? minutes / targetMinActividad : 0,
-          horasActivo: hasActivityPermission && targetHorasActivo > 0 ? horasActivo / targetHorasActivo : 0,
-          trainedToday: hasStepsPermission || hasActivityPermission || hasActivityPermission,
-          duration: kStatsAnimationDuration, // Unifica duración
-        ),
-        key: const ValueKey('loaded'),
+        ],
       ),
-    ],
-  );
+    );
+  }
 }
 
 Widget infoItem({

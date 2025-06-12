@@ -9,12 +9,12 @@ import 'package:fl_chart/fl_chart.dart';
 
 class ActividadPage extends ConsumerStatefulWidget {
   final DateTime selectedDate;
-  final bool showDataPoints; // Permite mostrar/ocultar detalles
+  final bool showDataPoints;
 
   const ActividadPage({
     super.key,
     required this.selectedDate,
-    this.showDataPoints = false, // Por defecto, no muestra detalles
+    this.showDataPoints = true,
   });
 
   @override
@@ -93,7 +93,7 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                   child: BarChart(
                     BarChartData(
                       barTouchData: BarTouchData(
-                        enabled: widget.showDataPoints, // Solo permite interacción si showDataPoints es true
+                        enabled: widget.showDataPoints,
                         touchCallback: widget.showDataPoints
                             ? (e, resp) {
                                 if (resp != null && resp.spot != null) {
@@ -107,7 +107,7 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                           sideTitles: SideTitles(
                             showTitles: true,
                             getTitlesWidget: (v, _) {
-                              final h = v.toInt(); // 0–23
+                              final h = v.toInt();
                               // Muestra label si la hora es múltiplo de 6 o es la última (23)
                               if (h % 6 == 0 || h == 23) {
                                 return Text(h.toString().padLeft(2, '0'));
@@ -124,10 +124,10 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
                       gridData: FlGridData(
-                        show: false, // Oculta todas las líneas de grid
+                        show: false,
                       ),
                       borderData: FlBorderData(
-                        show: false, // Elimina el borde del gráfico
+                        show: false,
                       ),
                       barGroups: List.generate(24, (i) {
                         return BarChartGroupData(
