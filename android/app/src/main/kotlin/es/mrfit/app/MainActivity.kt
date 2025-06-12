@@ -8,10 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import es.mrfit.app.services.BackgroundStepCounterService
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -25,11 +27,47 @@ class MainActivity : FlutterFragmentActivity() {
     private val SCREEN_CHANNEL = "es.mrfit.app/screen_state"
     private val USAGE_CHANNEL = "es.mrfit.app/usage_stats"
     private val HEALTH_CHANNEL = "es.mrfit.app/health"
+    private val STEP_COUNTER_CHANNEL = "background_step_counter" // Same as in Dart and Service
     private val REQUEST_CODE = 1001
     private var screenStateReceiver: BroadcastReceiver? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        android.util.Log.d("MainActivity", "configureFlutterEngine CALLED for main UI engine.")
+
+        // Channel for BackgroundStepCounterService control
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, STEP_COUNTER_CHANNEL).setMethodCallHandler { call, result ->
+            android.util.Log.d("MainActivity", "Method call received on STEP_COUNTER_CHANNEL: ${call.method}")
+            when (call.method) {
+                "startStepCounter" -> {
+                    android.util.Log.d("MainActivity", "startStepCounter called from Dart, preparing to start service.")
+                    val intent = Intent(this, BackgroundStepCounterService::class.java).apply {
+                        action = BackgroundStepCounterService.ACTION_START_COUNTING
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent)
+                    } else {
+                        startService(intent)
+                    }
+                    result.success("Step counter service started or requested to start.")
+                }
+                "stopStepCounter" -> {
+                    android.util.Log.d("MainActivity", "stopStepCounter called from Dart, preparing to stop service.")
+                    val intent = Intent(this, BackgroundStepCounterService::class.java).apply {
+                        action = BackgroundStepCounterService.ACTION_STOP_COUNTING
+                    }
+                    // The service will call stopSelf() and stopForeground()
+                    // We just need to send the intent to trigger the action.
+                    startService(intent)
+                    result.success("Step counter service requested to stop.")
+                }
+                else -> {
+                    android.util.Log.d("MainActivity", "Method ${call.method} not implemented on STEP_COUNTER_CHANNEL.")
+                    result.notImplemented()
+                }
+            }
+        }
+        android.util.Log.d("MainActivity", "MethodChannel for STEP_COUNTER_CHANNEL ('$STEP_COUNTER_CHANNEL') SET UP in MainActivity.")
 
         // Canal para el API de UsageStats
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, USAGE_CHANNEL).setMethodCallHandler { call, result ->

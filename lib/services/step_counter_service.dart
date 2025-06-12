@@ -1,54 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
-import 'package:mrfit/models/cache/custom_cache.dart';
 
-/// Servicio dedicado a gestionar el conteo de pasos y su registro.
-/// Agrupa los pasos y los inserta periódicamente para optimizar recursos.
 class StepCounterService {
-  static const Duration _batchDuration = Duration(minutes: 1);
-  static const String _cacheKey = 'step_counter_last';
+  static const _channel = MethodChannel('background_step_counter');
 
   final Usuario usuario;
   final void Function(dynamic error)? onError;
   final void Function(bool walking)? onStatusChanged;
-
-  StreamSubscription<StepCount>? _stepCountSub;
   StreamSubscription<PedestrianStatus>? _statusSub;
-  Timer? _flushTimer;
-  int _lastStepsValue = 0;
-  DateTime? _lastStepTime;
-  bool _isWalking = false;
-  bool get isWalking => _isWalking;
-
-  int _pendingSteps = 0;
-  DateTime? _pendingStartTime;
-  DateTime? _pendingEndTime;
-
-  Future<void> _loadLastInfo() async {
-    final cache = await CustomCache.getByKey(_cacheKey);
-    if (cache != null) {
-      try {
-        final data = jsonDecode(cache.value) as Map<String, dynamic>;
-        _lastStepsValue = data['value'] as int? ?? 0;
-        final timeStr = data['time'] as String?;
-        if (timeStr != null && timeStr.isNotEmpty) {
-          _lastStepTime = DateTime.tryParse(timeStr);
-        }
-      } catch (_) {}
-    }
-  }
-
-  Future<void> _persistLastInfo() async {
-    await CustomCache.set(
-      _cacheKey,
-      jsonEncode({
-        'value': _lastStepsValue,
-        'time': _lastStepTime?.toIso8601String() ?? '',
-      }),
-    );
-  }
 
   StepCounterService({
     required this.usuario,
@@ -57,68 +18,76 @@ class StepCounterService {
   });
 
   Future<void> start() async {
-    await _loadLastInfo();
-    _stepCountSub = Pedometer.stepCountStream.listen(
-      _onStepCount,
-      onError: onError,
-    );
+    // print('[StepCounterService] start() called.');
+    // 1) Escuchar status para el icono de “andando”
+    _statusSub?.cancel(); // Cancelar suscripción anterior si existe
     _statusSub = Pedometer.pedestrianStatusStream.listen(
-      _onPedestrianStatus,
-      onError: (_) {},
+      (s) {
+        final isWalking = s.status == 'walking';
+        // print('[StepCounterService] Pedestrian status changed: ${s.status}. Is walking: $isWalking');
+        onStatusChanged?.call(isWalking);
+      },
+      onError: (error) {
+        // print('[StepCounterService] Error in pedestrianStatusStream: $error');
+        onError?.call(error);
+      },
     );
-    _flushTimer = Timer.periodic(_batchDuration, (_) => _flushSteps());
+
+    // 2) Registrar callback nativo para pasos
+    // print('[StepCounterService] Setting MethodCallHandler...');
+    _channel.setMethodCallHandler((call) async {
+      // print('[StepCounterService] Received method call from native: ${call.method}');
+      if (call.method == 'registerSteps') {
+        final pasos = call.arguments as int;
+        final fin = DateTime.now();
+        // Se asume que los pasos son del último minuto, como en el servicio nativo.
+        final inicio = fin.subtract(const Duration(minutes: 1));
+        // print('[StepCounterService] registerSteps: $pasos pasos from $inicio to $fin');
+        usuario.healthconnectRegistrarPasos(pasos, inicio, fin);
+      }
+    });
+    // print('[StepCounterService] MethodCallHandler set.');
+
+    // 3) Arrancar el foreground service en el lado nativo
+    try {
+      // print('[StepCounterService] Invoking native startStepCounter...');
+      await _channel.invokeMethod('startStepCounter');
+      // print('[StepCounterService] Native startStepCounter invoked successfully.');
+    } catch (e) {
+      // print('[StepCounterService] Error invoking startStepCounter: $e');
+      onError?.call(e);
+    }
   }
 
-  void _onStepCount(StepCount event) {
-    final currentSteps = event.steps;
-    final timestamp = event.timeStamp;
-
-    if (_lastStepTime == null) {
-      _lastStepsValue = currentSteps;
-      _lastStepTime = timestamp;
-      return;
+  Future<void> stopService() async {
+    // print('[StepCounterService] stopService() called.');
+    await _statusSub?.cancel();
+    _statusSub = null;
+    try {
+      // print('[StepCounterService] Invoking native stopStepCounter...');
+      await _channel.invokeMethod('stopStepCounter');
+      // print('[StepCounterService] Native stopStepCounter invoked successfully.');
+    } catch (e) {
+      // print('[StepCounterService] Error invoking stopStepCounter: $e');
+      onError?.call(e);
+      // Incluso si hay un error, intentamos limpiar el handler
+      _channel.setMethodCallHandler(null);
+      // print('[StepCounterService] MethodCallHandler cleared due to error in stopService.');
     }
-
-    int newSteps = currentSteps - _lastStepsValue;
-    if (newSteps < 0) {
-      // El contador se reinició (posible reinicio del dispositivo)
-      newSteps = currentSteps;
-      _pendingStartTime = timestamp;
-    }
-    if (newSteps > 0) {
-      _pendingSteps += newSteps;
-      _pendingStartTime ??= _lastStepTime;
-      _pendingEndTime = timestamp;
-    }
-    _lastStepsValue = currentSteps;
-    _lastStepTime = timestamp;
+    // Limpiar el handler después de detener el servicio exitosamente también
+    _channel.setMethodCallHandler(null);
+    // print('[StepCounterService] MethodCallHandler cleared after stopService.');
   }
 
-  void _flushSteps() {
-    if (_pendingSteps > 0 && _pendingStartTime != null && _pendingEndTime != null) {
-      usuario.healthconnectRegistrarPasos(_pendingSteps, _pendingStartTime!, _pendingEndTime!);
-      _pendingSteps = 0;
-      _pendingStartTime = null;
-      _pendingEndTime = null;
-    }
-    _persistLastInfo();
-  }
-
-  /// Maneja el cambio de estado del usuario detectado por el podómetro.
-  /// Se utiliza el valor de `status.status` para determinar si el usuario está caminando.
-  /// Esto permite desacoplar la lógica de comparación del tipo concreto de PedestrianStatus.
-  void _onPedestrianStatus(PedestrianStatus status) {
-    // Compara contra el valor de estado definido en PedestrianStatus
-    final walking = status.status == 'walking';
-    _isWalking = walking;
-    onStatusChanged?.call(walking);
-  }
-
+  /// Cancela las suscripciones locales sin detener el servicio nativo.
   void dispose() {
-    _stepCountSub?.cancel();
+    // print('[StepCounterService] dispose() called.');
     _statusSub?.cancel();
-    _flushTimer?.cancel();
-    _flushSteps();
-    _persistLastInfo();
+    _statusSub = null;
+    // No se detiene el servicio nativo aquí para permitir que siga en background.
+    // El MethodCallHandler se mantiene para recibir pasos si el servicio sigue corriendo.
+    // Si se quisiera limpiar el handler al hacer dispose de esta instancia de servicio Dart:
+    // _channel.setMethodCallHandler(null);
+    // // print('[StepCounterService] MethodCallHandler potentially cleared in dispose (if uncommented).');
   }
 }

@@ -89,6 +89,10 @@
     <uses-permission android:name="android.permission.health.WRITE_BODY_WATER_MASS"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY_RMSSD"/>
     <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY_RMSSD"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
 
     <application
         android:label="mrfit"
@@ -160,6 +164,23 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
+        <!-- Receptor para reiniciar el servicio de conteo de pasos tras el reinicio del dispositivo -->
+        <receiver
+            android:name=".services.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Servicio en segundo plano para el conteo de pasos -->
+        <service
+            android:name=".services.BackgroundStepCounterService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="health|dataSync" />
 
         <!-- Meta-datos para Flutter -->
         <meta-data

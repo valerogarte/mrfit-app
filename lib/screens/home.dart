@@ -127,9 +127,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
     } else {
       _stepCounterService = StepCounterService(
         usuario: usuario,
-        onError: (error) => print("Error en el podómetro: $error"),
-        onStatusChanged: (walking) =>
-            ref.read(walkingProvider.notifier).state = walking,
+        // onError: (error) => print("Error en el podómetro: $error"),
+        onStatusChanged: (walking) => ref.read(walkingProvider.notifier).state = walking,
       );
       Future.microtask(() => _stepCounterService!.start());
     }
@@ -138,7 +137,9 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   @override
   void dispose() {
     _stepCounterService?.dispose();
-    ref.read(walkingProvider.notifier).state = false;
+    if (mounted) {
+      ref.read(walkingProvider.notifier).state = false;
+    }
     super.dispose();
   }
 

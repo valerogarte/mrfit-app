@@ -210,7 +210,7 @@ class ConfiguracionApp {
 
 class _FTPConfigScreen extends StatefulWidget {
   final SharedPreferences prefs;
-  const _FTPConfigScreen({Key? key, required this.prefs}) : super(key: key);
+  const _FTPConfigScreen({required this.prefs});
 
   @override
   State<_FTPConfigScreen> createState() => _FTPConfigScreenState();

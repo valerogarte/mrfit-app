@@ -10,6 +10,7 @@ import 'package:mrfit/providers/walking_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final usuario = await Usuario.load();
+
   runApp(
     ProviderScope(
       overrides: [usuarioProvider.overrideWithValue(usuario)],

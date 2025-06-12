@@ -7,11 +7,11 @@ class CachedFutureBuilder<T> extends StatefulWidget {
   final List<Object?> keys;
 
   const CachedFutureBuilder({
-    Key? key,
+    super.key,
     required this.futureBuilder,
     required this.builder,
     required this.keys,
-  }) : super(key: key);
+  });
 
   @override
   State<CachedFutureBuilder<T>> createState() => _CachedFutureBuilderState<T>();

@@ -57,18 +57,6 @@ class SleepBar extends StatelessWidget {
   final List<SleepSlot> typeSlots;
   final bool showSessionLabels;
 
-  // Método auxiliar para obtener el tipo de sueño según el minuto (x)
-  String _getSleepTypeByMinute(double minute, List<SleepSlot> slots, DateTime graphStart) {
-    for (final slot in slots) {
-      final startMin = slot.start.difference(graphStart).inMinutes.toDouble();
-      final endMin = slot.end.difference(graphStart).inMinutes.toDouble();
-      if (minute >= startMin && minute < endMin) {
-        return slot.type;
-      }
-    }
-    return 'SLEEP_UNKNOWN';
-  }
-
   // Obtiene el tipo de sueño basándose en el valor del eje Y
   String _getSleepTypeByLevel(double level) {
     final rounded = level.round();

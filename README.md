@@ -37,6 +37,12 @@ MrFit es una aplicación de entrenamiento personalizada que permite gestionar ru
    ```
    flutter run
    ```
+### Ejecución con adb
+1. adb tcpip 5555
+2. adb shell ip route
+3. adb connect 192.168.1.62
+4. adb devices
+5. flutter run
 
 ## Compilación para producción
 Para generar un APK release:

@@ -88,7 +88,7 @@ class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMus
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withAlpha(25),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -118,7 +118,7 @@ class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMus
                     // El margen del body debe coincidir con el del header para alineación.
                     margin: const EdgeInsets.symmetric(horizontal: 16.0).copyWith(bottom: 8.0, left: 16.0 + 4.0, right: 16.0 + 4.0),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.accentColor.withOpacity(0.5))),
+                    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.accentColor.withAlpha(125))),
                     child: Column(
                       children: entry.value.map((mi) {
                         return ListTile(
@@ -139,8 +139,8 @@ class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMus
                           ),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           // Efecto visual al hacer hover o tap
-                          hoverColor: AppColors.accentColor.withOpacity(0.1),
-                          splashColor: AppColors.accentColor.withOpacity(0.2),
+                          hoverColor: AppColors.accentColor.withAlpha(25),
+                          splashColor: AppColors.accentColor.withAlpha(50),
                         );
                       }).toList(),
                     ),

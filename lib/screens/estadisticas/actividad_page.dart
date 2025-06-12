@@ -82,8 +82,7 @@ class ActividadPage extends ConsumerWidget {
               final horaInicio = "${DateFormat('HH:mm:ss').format(paso.dateFrom)}.${paso.dateFrom.millisecond.toString().padLeft(3, '0')}";
               final horaFin = "${DateFormat('HH:mm:ss').format(paso.dateTo)}.${paso.dateTo.millisecond.toString().padLeft(3, '0')}";
               final cantidad = paso.value is NumericHealthValue ? (paso.value as NumericHealthValue).numericValue.toInt() : 0;
-              final sourceName = paso.sourceName ?? 'Desconocido';
-              final diferencia = paso.dateTo.difference(paso.dateFrom).inMilliseconds; // Se agrega la declaración de diferencia
+              final sourceName = paso.sourceName;
               // Calcula acumulados totales, válidos y por SourceName hasta este registro en rawSteps
               int acumuladoTotal = 0;
               int acumuladoValido = 0;
@@ -104,8 +103,12 @@ class ActividadPage extends ConsumerWidget {
               // Determina si el registro es "extra" (no está en los pasos originales)
               final isExtra =
                   !originalSteps.any((s) => s.dateFrom.millisecondsSinceEpoch == paso.dateFrom.millisecondsSinceEpoch && s.dateTo.millisecondsSinceEpoch == paso.dateTo.millisecondsSinceEpoch && s.value.toString() == paso.value.toString());
+
+              // Determina el color de fondo de la tarjeta
+              final cardBackgroundColor = sourceName == "es.mrfit.app" ? AppColors.mutedGreen.withAlpha(100) : AppColors.cardBackground;
+
               return Card(
-                color: AppColors.cardBackground, // mismo fondo normal para todos
+                color: cardBackgroundColor, // Fondo condicional
                 shape: RoundedRectangleBorder(
                   side: isExtra ? const BorderSide(color: AppColors.mutedRed, width: 2) : BorderSide.none,
                   borderRadius: BorderRadius.circular(20),

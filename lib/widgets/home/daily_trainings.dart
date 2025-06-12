@@ -3,9 +3,7 @@ import 'package:mrfit/screens/rutinas/rutinas_page.dart';
 import 'package:mrfit/screens/rutinas/rutina_detalle.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:health/health.dart';
-import 'package:mrfit/models/entrenamiento/entrenamiento.dart';
 import 'package:mrfit/utils/colors.dart';
-import 'package:mrfit/utils/constants.dart';
 import 'package:mrfit/screens/entrenamiento_realizado/entrenamiento_realizado.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 
@@ -141,9 +139,7 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               iconBackgroundColor: AppColors.appBarBackground,
               timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} (${activity['durationMin']} min)",
             );
-            return index == activities.length - 1
-                ? rowWidget
-                : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+            return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
           } else if (activity['type'] == 'workout') {
             final info = ModeloDatos().getActivityTypeDetails(activity['activityType']);
             final duration = (activity['end'] as DateTime).difference(activity['start'] as DateTime).inMinutes;
@@ -159,9 +155,7 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
               timeInfo: "${activity['start'].toLocal().toIso8601String().split('T').last.split('.').first.substring(0, 5)} ($duration min)",
               sourceName: activity['sourceName'],
             );
-            return index == activities.length - 1
-                ? rowWidget
-                : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
+            return index == activities.length - 1 ? rowWidget : Padding(padding: const EdgeInsets.only(bottom: 10), child: rowWidget);
           }
           return const SizedBox.shrink();
         }).toList(),
@@ -183,8 +177,7 @@ class DailyTrainingsWidgetState extends State<DailyTrainingsWidget> {
             curve: Curves.easeInOut,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
+              transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
               child: dynamicContent,
             ),
           ),

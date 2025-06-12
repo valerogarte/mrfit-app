@@ -131,7 +131,7 @@ class AnimatedImageState extends State<AnimatedImage> with SingleTickerProviderS
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5), // Fondo negro con 50% de transparencia
+                    color: Colors.black.withAlpha(125), // Fondo negro con 50% de transparencia
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(20), // Esquina superior derecha redondeada
                     ),
