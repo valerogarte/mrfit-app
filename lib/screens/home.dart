@@ -137,9 +137,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   @override
   void dispose() {
     _stepCounterService?.dispose();
-    if (mounted) {
-      ref.read(walkingProvider.notifier).state = false;
-    }
     super.dispose();
   }
 

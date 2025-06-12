@@ -4,39 +4,45 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:health/health.dart';
 import 'package:intl/intl.dart';
-import 'package:mrfit/utils/colors.dart'; // Importa los colores personalizados
+import 'package:mrfit/utils/colors.dart';
+import 'package:fl_chart/fl_chart.dart';
 
-// Página de actividad: muestra el listado de pasos del día.
-class ActividadPage extends ConsumerWidget {
+class ActividadPage extends ConsumerStatefulWidget {
   final DateTime selectedDate;
+  final bool showDataPoints; // Permite mostrar/ocultar detalles
 
-  const ActividadPage({super.key, required this.selectedDate});
-
-  // Obtiene la fecha seleccionada en formato yyyy-MM-dd
-  String _getSelectedDateString() {
-    return DateFormat('yyyy-MM-dd').format(selectedDate);
-  }
+  const ActividadPage({
+    super.key,
+    required this.selectedDate,
+    this.showDataPoints = false, // Por defecto, no muestra detalles
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ActividadPageState createState() => _ActividadPageState();
+}
+
+class _ActividadPageState extends ConsumerState<ActividadPage> {
+  int? selectedHour;
+
+  String _getSelectedDateString() => DateFormat('yyyy-MM-dd').format(widget.selectedDate);
+
+  @override
+  Widget build(BuildContext context) {
     final usuario = ref.read(usuarioProvider);
     final dateString = _getSelectedDateString();
-    final formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+    final formattedDate = DateFormat('dd/MM/yyyy').format(widget.selectedDate);
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Pasos del día: $formattedDate'),
-        backgroundColor: AppColors.appBarBackground, // Color del AppBar
+        backgroundColor: AppColors.background,
       ),
-      backgroundColor: AppColors.background, // Fondo principal
+      backgroundColor: AppColors.background,
       body: FutureBuilder<List<List<HealthDataPoint>>>(
-        // Se ejecutan ambas llamadas en paralelo.
         future: Future.wait([
           usuario.getStepsByDate(dateString),
           (() async {
-            // Se usa HealthFactory para obtener los datos crudos.
-            final parsedDate = selectedDate; // Usar selectedDate directamente
-            final start = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+            final start = DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day);
             final end = start.add(const Duration(days: 1));
             final health = Health();
             final dataPoints = await health.getHealthDataFromTypes(
@@ -44,17 +50,14 @@ class ActividadPage extends ConsumerWidget {
               endTime: end,
               types: [HealthDataType.STEPS],
             );
-            final dataPointsRaw = health.removeDuplicates(dataPoints);
-            return dataPointsRaw;
+            return health.removeDuplicates(dataPoints);
           })(),
         ]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Muestra un indicador de carga mientras se obtienen los datos
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-            // Muestra un mensaje de error si ocurre algún problema
+          if (snap.hasError) {
             return Center(
               child: Text(
                 'Error al cargar los pasos',
@@ -62,12 +65,10 @@ class ActividadPage extends ConsumerWidget {
               ),
             );
           }
-          // Los resultados: [originalSteps, rawSteps]
-          final originalSteps = snapshot.data?[0] ?? [];
-          final rawSteps = snapshot.data?[1] ?? [];
-          // Se ordena según fecha
-          rawSteps.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
-          if (rawSteps.isEmpty) {
+          final original = snap.data![0];
+          final raw = snap.data![1]..sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+          if (raw.isEmpty) {
             return Center(
               child: Text(
                 'No hay pasos registrados para el $formattedDate.',
@@ -75,126 +76,172 @@ class ActividadPage extends ConsumerWidget {
               ),
             );
           }
-          return ListView.builder(
-            itemCount: rawSteps.length,
-            itemBuilder: (context, index) {
-              final paso = rawSteps[index];
-              final horaInicio = "${DateFormat('HH:mm:ss').format(paso.dateFrom)}.${paso.dateFrom.millisecond.toString().padLeft(3, '0')}";
-              final horaFin = "${DateFormat('HH:mm:ss').format(paso.dateTo)}.${paso.dateTo.millisecond.toString().padLeft(3, '0')}";
-              final cantidad = paso.value is NumericHealthValue ? (paso.value as NumericHealthValue).numericValue.toInt() : 0;
-              final sourceName = paso.sourceName;
-              // Calcula acumulados totales, válidos y por SourceName hasta este registro en rawSteps
-              int acumuladoTotal = 0;
-              int acumuladoValido = 0;
-              int acumuladoSource = 0; // acumulado para registros de este sourceName
-              for (int i = 0; i <= index; i++) {
-                final p = rawSteps[i];
-                final value = p.value is NumericHealthValue ? (p.value as NumericHealthValue).numericValue.toInt() : 0;
-                acumuladoTotal += value;
-                final isExtra = !originalSteps.any((s) => s.dateFrom.millisecondsSinceEpoch == p.dateFrom.millisecondsSinceEpoch && s.dateTo.millisecondsSinceEpoch == p.dateTo.millisecondsSinceEpoch && s.value.toString() == p.value.toString());
-                if (!isExtra) {
-                  acumuladoValido += value;
-                }
-                final pSourceName = p.sourceName ?? 'Desconocido';
-                if (pSourceName == sourceName) {
-                  acumuladoSource += value;
-                }
-              }
-              // Determina si el registro es "extra" (no está en los pasos originales)
-              final isExtra =
-                  !originalSteps.any((s) => s.dateFrom.millisecondsSinceEpoch == paso.dateFrom.millisecondsSinceEpoch && s.dateTo.millisecondsSinceEpoch == paso.dateTo.millisecondsSinceEpoch && s.value.toString() == paso.value.toString());
 
-              // Determina el color de fondo de la tarjeta
-              final cardBackgroundColor = sourceName == "es.mrfit.app" ? AppColors.mutedGreen.withAlpha(100) : AppColors.cardBackground;
+          // 1) Cuenta por hora (0–23)
+          final hourlyCounts = List.generate(24, (_) => 0);
+          for (var p in raw) hourlyCounts[p.dateFrom.hour]++;
 
-              return Card(
-                color: cardBackgroundColor, // Fondo condicional
-                shape: RoundedRectangleBorder(
-                  side: isExtra ? const BorderSide(color: AppColors.mutedRed, width: 2) : BorderSide.none,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: ListTile(
-                  leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Muestra horaInicio y diferencia en la misma línea
-                      Row(
-                        children: [
-                          Text(
-                            horaInicio,
-                            style: const TextStyle(
-                              color: AppColors.textNormal,
-                              fontWeight: FontWeight.bold,
+          // 2) Filtra si hay hora seleccionada
+          final display = selectedHour == null ? raw : raw.where((p) => p.dateFrom.hour == selectedHour).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: SizedBox(
+                  height: 200,
+                  child: BarChart(
+                    BarChartData(
+                      barTouchData: BarTouchData(
+                        enabled: widget.showDataPoints, // Solo permite interacción si showDataPoints es true
+                        touchCallback: widget.showDataPoints
+                            ? (e, resp) {
+                                if (resp != null && resp.spot != null) {
+                                  setState(() => selectedHour = resp.spot!.touchedBarGroupIndex);
+                                }
+                              }
+                            : null,
+                      ),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (v, _) {
+                              final h = v.toInt(); // 0–23
+                              // Muestra label si la hora es múltiplo de 6 o es la última (23)
+                              if (h % 6 == 0 || h == 23) {
+                                return Text(h.toString().padLeft(2, '0'));
+                              }
+                              return const SizedBox.shrink();
+                            },
+                            interval: 1,
+                          ),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      ),
+                      gridData: FlGridData(
+                        show: false, // Oculta todas las líneas de grid
+                      ),
+                      borderData: FlBorderData(
+                        show: false, // Elimina el borde del gráfico
+                      ),
+                      barGroups: List.generate(24, (i) {
+                        return BarChartGroupData(
+                          x: i,
+                          barRods: [
+                            BarChartRodData(
+                              toY: hourlyCounts[i].toDouble(),
+                              color: widget.showDataPoints && i == selectedHour ? AppColors.accentColor : AppColors.mutedGreen,
+                              width: 14,
                             ),
-                          ),
-                          // const SizedBox(width: 8),
-                          // Text(
-                          //   '$diferencia ms',
-                          //   style: const TextStyle(
-                          //     color: AppColors.mutedGreen,
-                          //     fontSize: 12,
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                      Text(
-                        horaFin,
-                        style: const TextStyle(
-                          color: AppColors.textNormal,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Pasos: $cantidad', style: const TextStyle(color: AppColors.mutedGreen)),
-                      Text(sourceName, style: const TextStyle(color: AppColors.mutedSilver)),
-                    ],
-                  ),
-                  trailing: FittedBox(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min, // evita que la columna se expanda verticalmente
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Acum. Total', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                        Text(
-                          '$acumuladoTotal',
-                          style: const TextStyle(
-                            color: AppColors.accentColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text('Acum. Válido', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                        Text(
-                          '$acumuladoValido',
-                          style: const TextStyle(
-                            color: AppColors.accentColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text('Acum. $sourceName', style: const TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                        Text(
-                          '$acumuladoSource',
-                          style: const TextStyle(
-                            color: AppColors.accentColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      }),
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+              if (widget.showDataPoints) ...[
+                if (selectedHour != null)
+                  Column(
+                    children: [
+                      // Muestra el total de pasos de la hora seleccionada
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'Pasos dados de ${selectedHour!.toString().padLeft(2, '0')}:00 a ${selectedHour!.toString().padLeft(2, '0')}:59 - '
+                          '${display.fold<int>(0, (sum, paso) => sum + ((paso.value is NumericHealthValue) ? (paso.value as NumericHealthValue).numericValue.toInt() : 0))}',
+                          style: const TextStyle(
+                            color: AppColors.accentColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => setState(() => selectedHour = null),
+                        child: const Text(
+                          'Ver todas las horas',
+                          style: TextStyle(color: AppColors.mutedAdvertencia),
+                        ),
+                      ),
+                    ],
+                  ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: display.length,
+                    itemBuilder: (ctx, i) {
+                      final paso = display[i];
+                      final inicio = "${DateFormat('HH:mm:ss').format(paso.dateFrom)}.${paso.dateFrom.millisecond.toString().padLeft(3, '0')}";
+                      final fin = "${DateFormat('HH:mm:ss').format(paso.dateTo)}.${paso.dateTo.millisecond.toString().padLeft(3, '0')}";
+                      final cantidad = (paso.value is NumericHealthValue) ? (paso.value as NumericHealthValue).numericValue.toInt() : 0;
+                      final src = paso.sourceName ?? 'Desconocido';
+
+                      // Acumulados
+                      int total = 0, valido = 0, srcAcum = 0;
+                      for (var j = 0; j <= i; j++) {
+                        final p = display[j];
+                        final v = (p.value is NumericHealthValue) ? (p.value as NumericHealthValue).numericValue.toInt() : 0;
+                        total += v;
+                        final extra = !original.any((o) => o.dateFrom.millisecondsSinceEpoch == p.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == p.dateTo.millisecondsSinceEpoch && o.value.toString() == p.value.toString());
+                        if (!extra) valido += v;
+                        if (p.sourceName == src) srcAcum += v;
+                      }
+
+                      final isExtra =
+                          !original.any((o) => o.dateFrom.millisecondsSinceEpoch == paso.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == paso.dateTo.millisecondsSinceEpoch && o.value.toString() == paso.value.toString());
+
+                      final bg = src == "es.mrfit.app" ? AppColors.mutedGreen.withAlpha(100) : AppColors.cardBackground;
+
+                      return Card(
+                        color: bg,
+                        shape: RoundedRectangleBorder(
+                          side: isExtra ? const BorderSide(color: AppColors.mutedRed, width: 2) : BorderSide.none,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        child: ListTile(
+                          leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(inicio, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                              Text(fin, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Pasos: $cantidad', style: const TextStyle(color: AppColors.mutedGreen)),
+                              Text(src, style: const TextStyle(color: AppColors.mutedSilver)),
+                            ],
+                          ),
+                          trailing: FittedBox(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Acum. Total', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                Text('$total', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                const Text('Acum. Válido', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                Text('$valido', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Text('Acum. $src', style: const TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                Text('$srcAcum', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ],
           );
         },
       ),
