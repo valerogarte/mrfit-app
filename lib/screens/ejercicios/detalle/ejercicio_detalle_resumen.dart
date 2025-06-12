@@ -3,8 +3,10 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/widgets/animated_image.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'package:mrfit/widgets/grafico_ejercicios_musculosinvolucrados.dart'; // Import nuevo widget
+import 'package:mrfit/widgets/grafico_ejercicios_musculosinvolucrados.dart';
 import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Import para iconos FontAwesome
 
 class EjercicioResumen extends StatelessWidget {
   final Ejercicio ejercicio;
@@ -199,6 +201,27 @@ class EjercicioResumen extends StatelessWidget {
               ),
             ),
             EjercicioTiempoRecomendadoPorRepeticion(ejercicio: ejercicio),
+            // Espacio antes del botón
+            const SizedBox(height: 16.0),
+            // Botón de YouTube con icono FontAwesome para coherencia visual
+            Center(
+              child: IconButton(
+                icon: const FaIcon(FontAwesomeIcons.youtube, color: AppColors.mutedRed, size: 32),
+                tooltip: 'Buscar en YouTube',
+                onPressed: () async {
+                  // Usa el nombre del ejercicio para la búsqueda
+                  final query = Uri.encodeComponent(ejercicio.nombre);
+                  final url = 'https://www.youtube.com/results?search_query=$query';
+                  try {
+                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                  } catch (_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No se pudo abrir YouTube')),
+                    );
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
