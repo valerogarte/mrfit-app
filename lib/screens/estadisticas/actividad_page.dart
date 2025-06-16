@@ -33,7 +33,8 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd/MM/yyyy').format(widget.selectedDate);
+    // Formatea la fecha como "16 junio" en español para mayor claridad al usuario
+    final formattedDate = DateFormat("d MMMM", "es_ES").format(widget.selectedDate);
     final usuario = ref.read(usuarioProvider); // Obtener usuario
 
     // Calcular horas activas usando la lógica de usuario
@@ -45,7 +46,7 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pasos del día: $formattedDate'),
+        title: Text('Actividad del $formattedDate'),
         backgroundColor: AppColors.background,
       ),
       backgroundColor: AppColors.background,
