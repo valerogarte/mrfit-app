@@ -156,7 +156,7 @@ extension UsuarioHCActivityExtension on Usuario {
           while (current.isBefore(end)) {
             horasActivas[current] = true;
             current = current.add(const Duration(hours: 1));
-            print("Hora activa por entrenamiento: $current");
+            // print("Hora activa por entrenamiento: $current");
           }
         }
       }
@@ -173,7 +173,7 @@ extension UsuarioHCActivityExtension on Usuario {
           while (current.isBefore(end)) {
             horasActivas[current] = true;
             current = current.add(const Duration(hours: 1));
-            print("Hora activa por entrenamiento MrFit: $current");
+            // print("Hora activa por entrenamiento MrFit: $current");
           }
         }
       }
@@ -215,7 +215,7 @@ extension UsuarioHCActivityExtension on Usuario {
       // Marca como activa la hora si supera los 400 pasos y no fue marcada por entrenamiento
       for (var entry in pasosPorHora.entries) {
         if (entry.value > pasosMinimosPorHora) {
-          print("Hora activa por pasos: ${entry.key} tiene ${entry.value} pasos");
+          // print("Hora activa por pasos: ${entry.key} tiene ${entry.value} pasos");
           horasActivas[entry.key] = true;
         }
       }
