@@ -134,7 +134,7 @@ extension UsuarioHCActivityExtension on Usuario {
   /// Una hora se considera activa si:
   /// - Hay un entrenamiento (o entrenamientoMrFit) de más de 5 minutos en esa hora, o
   /// - Se han dado más de 400 pasos en esa hora.
-  int getTimeUserActivity({
+  Map<DateTime, bool> getTimeUserActivity({
     List<HealthDataPoint>? steps,
     List<HealthDataPoint>? entrenamientos,
     List<Map<String, dynamic>>? entrenamientosMrFit,
@@ -156,6 +156,7 @@ extension UsuarioHCActivityExtension on Usuario {
           while (current.isBefore(end)) {
             horasActivas[current] = true;
             current = current.add(const Duration(hours: 1));
+            print("Hora activa por entrenamiento: $current");
           }
         }
       }
@@ -172,6 +173,7 @@ extension UsuarioHCActivityExtension on Usuario {
           while (current.isBefore(end)) {
             horasActivas[current] = true;
             current = current.add(const Duration(hours: 1));
+            print("Hora activa por entrenamiento MrFit: $current");
           }
         }
       }
@@ -186,24 +188,56 @@ extension UsuarioHCActivityExtension on Usuario {
           final pasos = (dp.value as NumericHealthValue).numericValue.toInt();
           final start = dp.dateFrom;
           final end = dp.dateTo;
-          // Marca cada hora cubierta por el segmento de pasos
-          DateTime current = DateTime(start.year, start.month, start.day, start.hour);
-          while (current.isBefore(end)) {
-            pasosPorHora[current] = (pasosPorHora[current] ?? 0) + pasos;
-            current = current.add(const Duration(hours: 1));
+          final durationHours = end.difference(start).inHours;
+
+          // Si el segmento cubre más de una hora, reparte los pasos equitativamente entre las horas
+          if (durationHours > 1) {
+            final pasosPorHoraEquitativos = (pasos / durationHours).round();
+            DateTime current = DateTime(start.year, start.month, start.day, start.hour);
+            for (int i = 0; i < durationHours; i++) {
+              pasosPorHora[current] = (pasosPorHora[current] ?? 0) + pasosPorHoraEquitativos;
+              current = current.add(const Duration(hours: 1));
+            }
+          } else {
+            // Marca cada hora cubierta por el segmento de pasos
+            DateTime current = DateTime(start.year, start.month, start.day, start.hour);
+            while (current.isBefore(end)) {
+              pasosPorHora[current] = (pasosPorHora[current] ?? 0) + pasos;
+              current = current.add(const Duration(hours: 1));
+            }
           }
         }
       }
+      // Ordena los pasos por hora
+      pasosPorHora.forEach((key, value) {
+        horasActivas[key] ??= false; // Asegura que la hora exista en el mapa
+      });
       // Marca como activa la hora si supera los 400 pasos y no fue marcada por entrenamiento
       for (var entry in pasosPorHora.entries) {
         if (entry.value > pasosMinimosPorHora) {
+          print("Hora activa por pasos: ${entry.key} tiene ${entry.value} pasos");
           horasActivas[entry.key] = true;
         }
       }
     }
 
-    // Devuelve el número de horas activas
-    return horasActivas.values.where((v) => v).length;
+    return horasActivas;
+  }
+
+  int getTotalHoursTimeUserActivity({
+    List<HealthDataPoint>? steps,
+    List<HealthDataPoint>? entrenamientos,
+    List<Map<String, dynamic>>? entrenamientosMrFit,
+  }) {
+    final horasActivo = getTimeUserActivity(
+      steps: steps,
+      entrenamientos: entrenamientos,
+      entrenamientosMrFit: entrenamientosMrFit,
+    );
+
+    // Solo cuenta las horas activas (valor true)
+    // Cuenta solo las horas activas (valor true) en el mapa de horas activas
+    return horasActivo.values.where((isActive) => isActive == true).length;
   }
 
   int getTimeActivityByDateForCalendar(

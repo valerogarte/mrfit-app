@@ -36,7 +36,7 @@ Widget dailyStatsWidget({
       dataPointsWorkout,
       entrenamientosMrFit,
     );
-    horasActivo = usuario.getTimeUserActivity(
+    horasActivo = usuario.getTotalHoursTimeUserActivity(
       steps: dataPointsSteps,
       entrenamientos: dataPointsWorkout,
       entrenamientosMrFit: entrenamientosMrFit,

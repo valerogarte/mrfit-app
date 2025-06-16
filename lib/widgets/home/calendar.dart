@@ -150,7 +150,7 @@ class _CalendarWidgetState extends CalendarWidgetStateBase {
               entrenamientosMrFit,
             );
 
-            horasAct = usuario.getTimeUserActivity(
+            horasAct = usuario.getTotalHoursTimeUserActivity(
               steps: dataPointsSteps,
               entrenamientos: dataPointsWorkout,
               entrenamientosMrFit: entrenamientosMrFit,
