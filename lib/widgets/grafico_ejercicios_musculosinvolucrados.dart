@@ -73,6 +73,7 @@ class _GraficoCircularMusculosInvolucradosState extends State<GraficoCircularMus
               materialGapSize: 0,
               expandIconColor: Colors.transparent, // Oculta el icono de expansión por defecto del ExpansionPanelList.
               children: _groups.entries.map((entry) {
+                // ignore: unused_local_variable
                 final bool isExpanded = _openPanel == entry.key;
                 return ExpansionPanelRadio(
                   value: entry.key,

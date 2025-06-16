@@ -4,6 +4,9 @@ import 'package:health/health.dart';
 import 'package:intl/intl.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:mrfit/models/modelo_datos.dart';
 
 class ActividadPage extends ConsumerStatefulWidget {
   final DateTime selectedDate;
@@ -31,6 +34,14 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
   @override
   Widget build(BuildContext context) {
     final formattedDate = DateFormat('dd/MM/yyyy').format(widget.selectedDate);
+    final usuario = ref.read(usuarioProvider); // Obtener usuario
+
+    // Calcular horas activas usando la lógica de usuario
+    final Map<DateTime, bool> horasActivas = usuario.getTimeUserActivity(
+      steps: widget.steps,
+      entrenamientos: widget.entrenamientos,
+      entrenamientosMrFit: widget.entrenamientosMrFit,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +105,16 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
           final maxValidSteps = validHourlyCounts.isNotEmpty ? validHourlyCounts.reduce((a, b) => a > b ? a : b) : 0;
 
           // 2) Filtra la vista detallada según hora
-          final display = selectedHour == null ? raw : raw.where((p) => p.dateFrom.hour == selectedHour).toList();
+          final displaySteps = selectedHour == null ? raw : raw.where((p) => p.dateFrom.hour == selectedHour).toList();
+          final displayEntrenamientos = selectedHour == null ? widget.entrenamientos : widget.entrenamientos.where((e) => e.dateFrom.hour == selectedHour).toList();
+          final displayEntrenamientosMrFit = selectedHour == null ? widget.entrenamientosMrFit : widget.entrenamientosMrFit.where((e) => (e['start'] as DateTime).hour == selectedHour).toList();
+
+          // Unifica todos los eventos para el listado
+          final List<dynamic> display = [
+            ...displaySteps.map((e) => {'type': 'step', 'data': e}),
+            ...displayEntrenamientos.map((e) => {'type': 'entrenamiento', 'data': e}),
+            ...displayEntrenamientosMrFit.map((e) => {'type': 'entrenamientoMrFit', 'data': e}),
+          ];
 
           // Calcula pasos válidos en la hora seleccionada
           int validStepsInSelectedHour = 0;
@@ -111,9 +131,9 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                   child: BarChart(
                     BarChartData(
                       barTouchData: BarTouchData(
-                        enabled: true,
+                        enabled: widget.showDataPoints,
                         touchCallback: (e, resp) {
-                          if (resp != null && resp.spot != null) {
+                          if (widget.showDataPoints && resp != null && resp.spot != null) {
                             setState(() => selectedHour = resp.spot!.touchedBarGroupIndex);
                           }
                         },
@@ -139,14 +159,16 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                       gridData: FlGridData(show: false),
                       borderData: FlBorderData(show: false),
                       barGroups: List.generate(24, (i) {
-                        // Solo pinta pasos válidos
+                        // Determina si la hora es activa según getTimeUserActivity
+                        final hora = DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day, i);
+                        final isActive = horasActivas[hora] == true;
                         final normalized = maxValidSteps > 0 ? validHourlyCounts[i] / maxValidSteps * 100 : 0.0;
                         return BarChartGroupData(
                           x: i,
                           barRods: [
                             BarChartRodData(
                               toY: normalized,
-                              color: selectedHour != null && i == selectedHour ? AppColors.accentColor : AppColors.mutedGreen,
+                              color: selectedHour != null && i == selectedHour ? AppColors.mutedAdvertencia : (isActive ? AppColors.mutedGreen : AppColors.cardBackground),
                               width: 14,
                             ),
                           ],
@@ -156,7 +178,7 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                   ),
                 ),
               ),
-              if (selectedHour != null)
+              if (selectedHour != null && widget.showDataPoints)
                 Column(
                   children: [
                     Padding(
@@ -180,73 +202,127 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                     ),
                   ],
                 ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: display.length,
-                  itemBuilder: (ctx, i) {
-                    final paso = display[i];
-                    final inicio = "${DateFormat('HH:mm:ss').format(paso.dateFrom)}.${paso.dateFrom.millisecond.toString().padLeft(3, '0')}";
-                    final fin = "${DateFormat('HH:mm:ss').format(paso.dateTo)}.${paso.dateTo.millisecond.toString().padLeft(3, '0')}";
-                    final cantidad = (paso.value is NumericHealthValue) ? (paso.value as NumericHealthValue).numericValue.toInt() : 0;
-                    final src = paso.sourceName;
+              if (widget.showDataPoints)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: display.length,
+                    itemBuilder: (ctx, i) {
+                      final item = display[i];
+                      if (item['type'] == 'step') {
+                        final paso = item['data'] as HealthDataPoint;
+                        final inicio = "${DateFormat('HH:mm:ss').format(paso.dateFrom)}.${paso.dateFrom.millisecond.toString().padLeft(3, '0')}";
+                        final fin = "${DateFormat('HH:mm:ss').format(paso.dateTo)}.${paso.dateTo.millisecond.toString().padLeft(3, '0')}";
+                        final cantidad = (paso.value is NumericHealthValue) ? (paso.value as NumericHealthValue).numericValue.toInt() : 0;
+                        final src = paso.sourceName;
 
-                    int total = 0, valido = 0, srcAcum = 0;
-                    for (var j = 0; j <= i; j++) {
-                      final p = display[j];
-                      final v = (p.value is NumericHealthValue) ? (p.value as NumericHealthValue).numericValue.toInt() : 0;
-                      total += v;
-                      final extra = !original.any((o) => o.dateFrom.millisecondsSinceEpoch == p.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == p.dateTo.millisecondsSinceEpoch && o.value.toString() == p.value.toString());
-                      if (!extra) valido += v;
-                      if (p.sourceName == src) srcAcum += v;
-                    }
-                    final isExtra =
-                        !original.any((o) => o.dateFrom.millisecondsSinceEpoch == paso.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == paso.dateTo.millisecondsSinceEpoch && o.value.toString() == paso.value.toString());
+                        int total = 0, valido = 0, srcAcum = 0;
+                        for (var j = 0; j <= i; j++) {
+                          final pItem = display[j];
+                          if (pItem['type'] != 'step') continue;
+                          final p = pItem['data'] as HealthDataPoint;
+                          final v = (p.value is NumericHealthValue) ? (p.value as NumericHealthValue).numericValue.toInt() : 0;
+                          total += v;
+                          final extra = !original.any((o) => o.dateFrom.millisecondsSinceEpoch == p.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == p.dateTo.millisecondsSinceEpoch && o.value.toString() == p.value.toString());
+                          if (!extra) valido += v;
+                          if (p.sourceName == src) srcAcum += v;
+                        }
+                        final isExtra =
+                            !original.any((o) => o.dateFrom.millisecondsSinceEpoch == paso.dateFrom.millisecondsSinceEpoch && o.dateTo.millisecondsSinceEpoch == paso.dateTo.millisecondsSinceEpoch && o.value.toString() == paso.value.toString());
 
-                    final bg = src == "es.mrfit.app" ? AppColors.mutedGreen.withAlpha(100) : AppColors.cardBackground;
+                        final bg = src == "es.mrfit.app" ? AppColors.mutedGreen.withAlpha(100) : AppColors.cardBackground;
 
-                    return Card(
-                      color: bg,
-                      shape: RoundedRectangleBorder(
-                        side: isExtra ? const BorderSide(color: AppColors.mutedRed, width: 2) : BorderSide.none,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      child: ListTile(
-                        leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(inicio, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
-                            Text(fin, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Pasos: $cantidad', style: const TextStyle(color: AppColors.mutedGreen)),
-                            Text(src, style: const TextStyle(color: AppColors.mutedSilver)),
-                          ],
-                        ),
-                        trailing: FittedBox(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text('Acum. Total', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                              Text('$total', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                              const SizedBox(height: 4),
-                              const Text('Acum. Válido', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                              Text('$valido', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                              const SizedBox(height: 4),
-                              Text('Acum. $src', style: const TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
-                              Text('$srcAcum', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                            ],
+                        return Card(
+                          color: bg,
+                          shape: RoundedRectangleBorder(
+                            side: isExtra ? const BorderSide(color: AppColors.mutedRed, width: 2) : BorderSide.none,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          child: ListTile(
+                            leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(inicio, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                                Text(fin, style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Pasos: $cantidad', style: const TextStyle(color: AppColors.mutedGreen)),
+                                Text(src, style: const TextStyle(color: AppColors.mutedSilver)),
+                              ],
+                            ),
+                            trailing: FittedBox(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('Acum. Total', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                  Text('$total', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 4),
+                                  const Text('Acum. Válido', style: TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                  Text('$valido', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 4),
+                                  Text('Acum. $src', style: const TextStyle(fontSize: 11, color: AppColors.mutedSilver)),
+                                  Text('$srcAcum', style: const TextStyle(color: AppColors.accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      } else if (item['type'] == 'entrenamiento') {
+                        final entrenamiento = item['data'] as HealthDataPoint;
+                        final inicio = DateFormat('HH:mm').format(entrenamiento.dateFrom);
+                        final fin = DateFormat('HH:mm').format(entrenamiento.dateTo);
+                        String tipo = 'Entrenamiento';
+                        IconData icono = Icons.fitness_center;
+                        Color color = AppColors.mutedAdvertencia;
+                        if (entrenamiento.value is WorkoutHealthValue) {
+                          final activityType = (entrenamiento.value as WorkoutHealthValue).workoutActivityType.toString();
+                          final details = ModeloDatos().getActivityTypeDetails(activityType);
+                          icono = details['icon'] as IconData? ?? Icons.fitness_center;
+                          tipo = details['nombre'] as String? ?? activityType;
+                        }
+                        return Card(
+                          color: color.withAlpha(60),
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: ListTile(
+                            leading: Icon(icono, color: color),
+                            title: Text('Entrenamiento ($tipo)', style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                            subtitle: Text('De $inicio a $fin', style: const TextStyle(color: AppColors.textNormal)),
+                          ),
+                        );
+                      } else if (item['type'] == 'entrenamientoMrFit') {
+                        final entrenamiento = item['data'] as Map<String, dynamic>;
+                        final inicio = DateFormat('HH:mm').format(entrenamiento['start'] as DateTime);
+                        final fin = DateFormat('HH:mm').format(entrenamiento['end'] as DateTime);
+                        final titulo = entrenamiento['title'] ?? 'Entrenamiento MrFit';
+                        String tipo = 'MrFit';
+                        IconData icono = Icons.fitness_center;
+                        Color color = AppColors.mutedGreen;
+                        if (entrenamiento.containsKey('activityType')) {
+                          final details = ModeloDatos().getActivityTypeDetails(entrenamiento['activityType'] as String);
+                          icono = details['icon'] as IconData? ?? Icons.fitness_center;
+                          tipo = details['nombre'] as String? ?? 'MrFit';
+                        }
+                        return Card(
+                          color: color.withAlpha(60),
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: ListTile(
+                            leading: Icon(icono, color: color),
+                            title: Text('$titulo ($tipo)', style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold)),
+                            subtitle: Text('De $inicio a $fin', style: const TextStyle(color: AppColors.textNormal)),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
                 ),
-              ),
             ],
           );
         },

@@ -88,6 +88,6 @@ class StepCounterService {
     // El MethodCallHandler se mantiene para recibir pasos si el servicio sigue corriendo.
     // Si se quisiera limpiar el handler al hacer dispose de esta instancia de servicio Dart:
     // _channel.setMethodCallHandler(null);
-    // // print('[StepCounterService] MethodCallHandler potentially cleared in dispose (if uncommented).');
+    // print('[StepCounterService] MethodCallHandler potentially cleared in dispose (if uncommented).');
   }
 }

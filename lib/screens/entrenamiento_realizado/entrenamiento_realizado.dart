@@ -165,13 +165,13 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
   Future<_PageData> _loadData(Usuario usuario) async {
     Entrenamiento? entrenamiento;
     Map<String, dynamic>? healthSummary;
-    if (usuario.isHealthConnectAvailable) {
-      entrenamiento = await Entrenamiento.loadByUuid(idHealthConnect).catchError((_) => null);
 
+    entrenamiento = await Entrenamiento.loadById(id).catchError((_) => null);
+
+    if (usuario.isHealthConnectAvailable) {
       healthSummary = await HealthSummary(usuario).getSummaryByDateRange(start, end).catchError((_) => <String, dynamic>{});
-    } else {
-      entrenamiento = await Entrenamiento.loadById(id).catchError((_) => null);
     }
+
     return _PageData(entrenamiento: entrenamiento, healthSummary: healthSummary);
   }
 
