@@ -60,6 +60,20 @@ class _EjercicioGraficaProgresionMarcaState extends State<EjercicioGraficaProgre
           if (volumenMaximoData.any((value) => value > 0.0)) {'title': 'Máx Volumen', 'values': volumenMaximoData},
         ];
 
+        // Si no hay datos para mostrar, se informa al usuario
+        if (charts.isEmpty) {
+          // Se muestra un gráfico vacío para mantener consistencia visual y UX
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: ChartWidget(
+              title: 'Progresión',
+              labels: const [],
+              values: const [],
+              textNoResults: 'Cuando realices este ejercicio se mostrarán los datos',
+            ),
+          );
+        }
+
         return Column(
           children: [
             // Fila de pastillas de selección
@@ -114,7 +128,12 @@ class _EjercicioGraficaProgresionMarcaState extends State<EjercicioGraficaProgre
             // Se muestra el gráfico seleccionado
             ClipRRect(
               borderRadius: BorderRadius.circular(16.0),
-              child: ChartWidget(title: charts[selectedIndex]['title'] as String, labels: labels, values: charts[selectedIndex]['values'] as List<double>, textNoResults: 'Cuando realices este ejercicio se mostrarán los datos'),
+              child: ChartWidget(
+                title: charts[selectedIndex]['title'] as String,
+                labels: labels,
+                values: charts[selectedIndex]['values'] as List<double>,
+                textNoResults: 'Cuando realices este ejercicio se mostrarán los datos',
+              ),
             ),
           ],
         );

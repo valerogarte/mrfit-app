@@ -186,11 +186,13 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(context);
-                              ejercicioPersonalizado.delete();
+                              await ejercicioPersonalizado.delete();
                               if (onSeriesChanged != null) onSeriesChanged();
-                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context, true);
+                              }
                             },
                             child: const Text('Eliminar'),
                           ),
@@ -262,11 +264,13 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ejercicioPersonalizado.delete();
+                        onPressed: () async {
+                          Navigator.pop(context); // Cierra el diálogo
+                          await ejercicioPersonalizado.delete();
                           if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
-                          Navigator.pop(context);
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context, true); // Cierra la pantalla de series
+                          }
                         },
                         child: const Text('Eliminar'),
                       ),

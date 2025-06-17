@@ -55,7 +55,9 @@ extension UsuarioMrPointsExtension on Usuario {
       return 0;
     }
 
-    final fecha = DateTime.now().toIso8601String();
+    // Formatea la fecha como 'yyyy-MM-dd' para cumplir con el formato requerido
+    final now = DateTime.now();
+    final fecha = "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final id = await db.insert('accounts_volumenmaximo', {
       'fecha': fecha,
       'volumen': volumen,

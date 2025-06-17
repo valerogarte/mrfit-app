@@ -41,12 +41,16 @@ class ModeloDatos {
       List<String> condiciones = [];
       List<dynamic> argumentos = [];
 
-      // Búsqueda flexible por nombre: todas las palabras deben estar presentes en cualquier orden
+      // Búsqueda flexible: cada palabra debe estar en nombre o título adicional
       if ((filtros['nombre'] ?? '').isNotEmpty) {
         final palabras = filtros['nombre']!.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
         for (final palabra in palabras) {
-          condiciones.add("LOWER(e.nombre) LIKE ?");
-          argumentos.add("%$palabra%");
+          // Coincidencia solo en nombre o título adicional
+          condiciones.add('(' +
+              "LOWER(e.nombre) LIKE ? OR "
+                  "LOWER(ta.titulo) LIKE ?" +
+              ')');
+          argumentos.addAll(["%$palabra%", "%$palabra%"]);
         }
       }
 
@@ -70,24 +74,23 @@ class ModeloDatos {
         argumentos.add(filtros['musculo_secundario']);
       }
 
-      // Build base query without ORDER BY.
+      // LEFT JOIN a ejercicios_tituloadicional para permitir búsqueda en títulos adicionales
       String query = '''
-        SELECT e.*,
-               d.titulo AS dificultad,
+        SELECT e.*, d.titulo AS dificultad,
           (SELECT group_concat(m.titulo, ', ') 
            FROM ejercicios_ejerciciomusculo em
            INNER JOIN ejercicios_musculo m ON m.id = em.musculo_id 
-           WHERE em.ejercicio_id = e.id AND em.tipo = 'P'
-          ) as primary_musculos
+           WHERE em.ejercicio_id = e.id AND em.tipo = 'P') as primary_musculos
         FROM ejercicios_ejercicio e
         LEFT JOIN ejercicios_dificultad d ON d.id = e.dificultad_id
+        LEFT JOIN ejercicios_tituloadicional ta ON ta.ejercicio_id = e.id
       ''';
 
       if (condiciones.isNotEmpty) {
         query += " WHERE ${condiciones.join(" AND ")}";
       }
-      // Append ORDER BY after the optional WHERE clause.
-      query += " ORDER BY e.nombre";
+      // Agrupamos por e.id para evitar duplicados por el LEFT JOIN
+      query += " GROUP BY e.id ORDER BY e.nombre";
 
       final List<Map<String, dynamic>> resultados = await db.rawQuery(query, argumentos);
 
