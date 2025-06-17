@@ -9,6 +9,7 @@ import 'package:mrfit/models/usuario/usuario_backup.dart';
 class ConfiguracionApp {
   static Future<void> openFTPConfig(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
+    if (!context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _FTPConfigScreen(prefs: prefs),
@@ -44,6 +45,7 @@ class ConfiguracionApp {
     );
 
     final backupFiles = await UsuarioBackup.listarBackups();
+    if (!context.mounted) return;
 
     Navigator.of(rootCtx).pop();
 
@@ -112,6 +114,7 @@ class ConfiguracionApp {
                                 if (ok) {
                                   setState(() => backupFiles.remove(fileName));
                                 } else {
+                                  if (!ctx2.mounted) return;
                                   showDialog(
                                     context: ctx2,
                                     builder: (_) => AlertDialog(
@@ -145,7 +148,7 @@ class ConfiguracionApp {
       },
     );
 
-    if (selectedFile == null) {
+    if (selectedFile == null || !context.mounted) {
       return;
     }
 
@@ -171,7 +174,7 @@ class ConfiguracionApp {
         ],
       ),
     );
-    if (confirmImport != true) {
+    if (confirmImport != true || !context.mounted) {
       return;
     }
 
@@ -193,6 +196,7 @@ class ConfiguracionApp {
     );
 
     final exito = await UsuarioBackup.importarBackupSeleccionado(context, selectedFile);
+    if (!context.mounted) return;
 
     Navigator.of(rootCtx).pop();
 

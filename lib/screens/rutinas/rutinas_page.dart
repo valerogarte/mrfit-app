@@ -154,12 +154,13 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
           return;
         }
         // Navegación diferida para evitar el lock del Navigator.
-        Future.microtask(() {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const MyApp()),
-            (route) => false,
-          );
-        });
+          final navigator = Navigator.of(context);
+          Future.microtask(() {
+            navigator.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const MyApp()),
+              (route) => false,
+            );
+          });
         // No se cierra la app, se redirige a la raíz.
       },
       child: Scaffold(

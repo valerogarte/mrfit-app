@@ -208,18 +208,19 @@ class EjercicioResumen extends StatelessWidget {
               child: IconButton(
                 icon: const FaIcon(FontAwesomeIcons.youtube, color: AppColors.mutedRed, size: 32),
                 tooltip: 'Buscar en YouTube',
-                onPressed: () async {
-                  // Usa el nombre del ejercicio para la búsqueda
-                  final query = Uri.encodeComponent(ejercicio.nombre);
-                  final url = 'https://www.youtube.com/results?search_query=$query';
-                  try {
-                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                  } catch (_) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No se pudo abrir YouTube')),
-                    );
-                  }
-                },
+                  onPressed: () async {
+                    // Usa el nombre del ejercicio para la búsqueda
+                    final query = Uri.encodeComponent(ejercicio.nombre);
+                    final url = 'https://www.youtube.com/results?search_query=$query';
+                    try {
+                      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No se pudo abrir YouTube')),
+                      );
+                    }
+                  },
               ),
             ),
           ],
