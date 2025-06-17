@@ -1,5 +1,3 @@
-// android/app/src/main/kotlin/es/mrfit/app/services/BootReceiver.kt
-
 package es.mrfit.app.services
 
 import android.content.BroadcastReceiver
