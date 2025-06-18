@@ -1,4 +1,5 @@
 class AppConstants {
+  // Modificalo también en pubspec.yaml
   static const String version = '1.0.1';
 
   static const String hostImages = 'https://mrfit.es/MrFit/media/';
