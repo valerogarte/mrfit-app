@@ -268,20 +268,26 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(5),
                                                   child: LinearProgressIndicator(
-                                                    value: pct / 100,
+                                                    value: pct < 0 ? 0 : pct / 100,
                                                     backgroundColor: barColor.withAlpha(40),
                                                     valueColor: AlwaysStoppedAnimation<Color>(barColor.withAlpha(130)),
                                                   ),
                                                 ),
                                               ),
-                                              Text(
-                                                '${pct.toStringAsFixed(0)}%',
-                                                style: const TextStyle(
-                                                  color: AppColors.textNormal,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
+                                              pct < 0
+                                                  ? const Icon(
+                                                      Icons.battery_alert,
+                                                      color: AppColors.mutedRed,
+                                                      size: 18,
+                                                    )
+                                                  : Text(
+                                                      '${pct.toStringAsFixed(0)}%',
+                                                      style: const TextStyle(
+                                                        color: AppColors.textNormal,
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
                                             ],
                                           ),
                                         ],
