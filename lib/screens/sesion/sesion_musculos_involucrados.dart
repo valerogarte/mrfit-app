@@ -42,6 +42,7 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
         return LayoutBuilder(
           builder: (context, constraints) {
             final availableWidth = constraints.maxWidth;
+            final maxImageHeight = MediaQuery.of(context).size.height * 0.5;
             return Container(
               color: AppColors.background,
               child: Row(
@@ -56,19 +57,22 @@ class _SesionMusculosInvolucradosPageState extends ConsumerState<SesionMusculosI
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(left: 16, bottom: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: _showFrontImage
-                                ? Image.asset(
-                                    'assets/images/cuerpohumano/cuerpohumano-frontal.png',
-                                    key: const ValueKey('front'),
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/images/cuerpohumano/cuerpohumano-back.png',
-                                    key: const ValueKey('back'),
-                                    fit: BoxFit.cover,
-                                  ),
+                          child: SizedBox(
+                            height: maxImageHeight,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: _showFrontImage
+                                  ? Image.asset(
+                                      'assets/images/cuerpohumano/cuerpohumano-frontal.png',
+                                      key: const ValueKey('front'),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/cuerpohumano/cuerpohumano-back.png',
+                                      key: const ValueKey('back'),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
                           ),
                         ),
                         const LegendWidget(),

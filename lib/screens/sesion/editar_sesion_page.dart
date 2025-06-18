@@ -59,78 +59,80 @@ class _EditarSesionPageState extends State<EditarSesionPage> {
         iconTheme: const IconThemeData(color: AppColors.textNormal),
       ),
       backgroundColor: AppColors.background,
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              enabled: !_saving,
-              decoration: const InputDecoration(
-                labelText: 'Título de la sesión',
-                labelStyle: TextStyle(color: AppColors.textNormal),
-                border: OutlineInputBorder(),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _controller,
+                enabled: !_saving,
+                decoration: const InputDecoration(
+                  labelText: 'Título de la sesión',
+                  labelStyle: TextStyle(color: AppColors.textNormal),
+                  border: OutlineInputBorder(),
+                ),
+                style: const TextStyle(color: AppColors.textNormal),
+                autofocus: true,
+                onSubmitted: (_) => _guardar(),
               ),
-              style: const TextStyle(color: AppColors.textNormal),
-              autofocus: true,
-              onSubmitted: (_) => _guardar(),
-            ),
-            const SizedBox(height: 32),
-            // Selector de dificultad (igual que en editar_rutina_page.dart)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Dificultad', style: TextStyle(color: AppColors.textNormal)),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove, color: AppColors.textNormal),
-                      onPressed: _dificultad > 1 ? () => setState(() => _dificultad--) : null,
-                      splashRadius: 18,
-                    ),
-                    Row(
-                      children: List.generate(
-                        5,
-                        (i) => GestureDetector(
-                          onTap: () => setState(() => _dificultad = i + 1),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 1.0),
-                            width: 30,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: i < _dificultad ? AppColors.accentColor : AppColors.appBarBackground,
-                              borderRadius: BorderRadius.circular(2),
+              const SizedBox(height: 32),
+              // Selector de dificultad (igual que en editar_rutina_page.dart)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Dificultad', style: TextStyle(color: AppColors.textNormal)),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove, color: AppColors.textNormal),
+                        onPressed: _dificultad > 1 ? () => setState(() => _dificultad--) : null,
+                        splashRadius: 18,
+                      ),
+                      Row(
+                        children: List.generate(
+                          5,
+                          (i) => GestureDetector(
+                            onTap: () => setState(() => _dificultad = i + 1),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                              width: 30,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: i < _dificultad ? AppColors.accentColor : AppColors.appBarBackground,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add, color: AppColors.textNormal),
-                      onPressed: _dificultad < 5 ? () => setState(() => _dificultad++) : null,
-                      splashRadius: 18,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _guardar,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentColor,
-                  foregroundColor: AppColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.background)) : const Text('Guardar'),
+                      IconButton(
+                        icon: const Icon(Icons.add, color: AppColors.textNormal),
+                        onPressed: _dificultad < 5 ? () => setState(() => _dificultad++) : null,
+                        splashRadius: 18,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _guardar,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentColor,
+                    foregroundColor: AppColors.background,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.background)) : const Text('Guardar'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

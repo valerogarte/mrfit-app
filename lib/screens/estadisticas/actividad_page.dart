@@ -130,7 +130,10 @@ class _ActividadPageState extends ConsumerState<ActividadPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: SizedBox(
-                    height: 200,
+                    height: [
+                      200.0,
+                      MediaQuery.of(context).size.height * 0.40,
+                    ].reduce((a, b) => a < b ? a : b),
                     child: BarChart(
                       BarChartData(
                         barTouchData: BarTouchData(

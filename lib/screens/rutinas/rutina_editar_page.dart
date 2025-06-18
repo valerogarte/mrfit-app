@@ -75,121 +75,123 @@ class _EditarRutinaPageState extends ConsumerState<EditarRutinaPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // campo título
-            TextField(
-              controller: _ctrl,
-              style: const TextStyle(color: AppColors.textNormal),
-              decoration: const InputDecoration(
-                labelText: 'Título de la rutina',
-                labelStyle: TextStyle(color: AppColors.textNormal),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.textNormal),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // campo título
+              TextField(
+                controller: _ctrl,
+                style: const TextStyle(color: AppColors.textNormal),
+                decoration: const InputDecoration(
+                  labelText: 'Título de la rutina',
+                  labelStyle: TextStyle(color: AppColors.textNormal),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.textNormal),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            // campo descripción
-            TextFormField(
-              controller: _descCtrl,
-              style: const TextStyle(color: AppColors.textNormal),
-              decoration: const InputDecoration(
-                labelText: 'Descripción',
-                labelStyle: TextStyle(color: AppColors.textNormal),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.textNormal),
+              const SizedBox(height: 12),
+              // campo descripción
+              TextFormField(
+                controller: _descCtrl,
+                style: const TextStyle(color: AppColors.textNormal),
+                decoration: const InputDecoration(
+                  labelText: 'Descripción',
+                  labelStyle: TextStyle(color: AppColors.textNormal),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.textNormal),
+                  ),
                 ),
+                maxLines: 5,
               ),
-              maxLines: 5,
-            ),
-            const SizedBox(height: 12),
-            // switch rutina actual
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Rutina actual', style: TextStyle(color: AppColors.textNormal)),
-                Switch(
-                  value: esActual,
-                  onChanged: (v) {
-                    setState(() => esActual = v);
-                    ref.read(usuarioProvider).setRutinaActual(v ? widget.rutina.id : null);
-                  },
-                  activeColor: AppColors.accentColor,
-                  activeTrackColor: AppColors.cardBackground,
-                  inactiveTrackColor: AppColors.background,
-                  inactiveThumbColor: AppColors.cardBackground,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // selector dificultad
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove, color: AppColors.textNormal),
-                      onPressed: dificultad > 1 ? () => setState(() => dificultad--) : null,
-                      splashRadius: 18,
-                    ),
-                    Row(
-                      children: List.generate(
-                          5,
-                          (i) => GestureDetector(
-                                onTap: () => setState(() => dificultad = i + 1),
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 1.0),
-                                  width: 30,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    color: i < dificultad ? AppColors.accentColor : AppColors.cardBackground,
-                                    borderRadius: BorderRadius.circular(2),
+              const SizedBox(height: 12),
+              // switch rutina actual
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Rutina actual', style: TextStyle(color: AppColors.textNormal)),
+                  Switch(
+                    value: esActual,
+                    onChanged: (v) {
+                      setState(() => esActual = v);
+                      ref.read(usuarioProvider).setRutinaActual(v ? widget.rutina.id : null);
+                    },
+                    activeColor: AppColors.accentColor,
+                    activeTrackColor: AppColors.cardBackground,
+                    inactiveTrackColor: AppColors.background,
+                    inactiveThumbColor: AppColors.cardBackground,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // selector dificultad
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove, color: AppColors.textNormal),
+                        onPressed: dificultad > 1 ? () => setState(() => dificultad--) : null,
+                        splashRadius: 18,
+                      ),
+                      Row(
+                        children: List.generate(
+                            5,
+                            (i) => GestureDetector(
+                                  onTap: () => setState(() => dificultad = i + 1),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                                    width: 30,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: i < dificultad ? AppColors.accentColor : AppColors.cardBackground,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
                                   ),
-                                ),
-                              )),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add, color: AppColors.textNormal),
-                      onPressed: dificultad < 5 ? () => setState(() => dificultad++) : null,
-                      splashRadius: 18,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentColor,
-                foregroundColor: AppColors.background,
-                minimumSize: const Size.fromHeight(48),
+                                )),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add, color: AppColors.textNormal),
+                        onPressed: dificultad < 5 ? () => setState(() => dificultad++) : null,
+                        splashRadius: 18,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              onPressed: () async {
-                final nuevo = _ctrl.text.trim();
-                final nuevaDesc = _descCtrl.text.trim();
-                if (nuevo.isNotEmpty && nuevo != widget.rutina.titulo) {
-                  await widget.rutina.rename(nuevo);
-                }
-                // actualizar descripción si cambió
-                if (nuevaDesc != widget.rutina.descripcion) {
-                  await widget.rutina.setDescripcion(nuevaDesc);
-                }
-                // actualizar dificultad si cambió
-                if (dificultad != widget.rutina.dificultad) {
-                  await widget.rutina.setDificultad(dificultad);
-                }
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context, true); // <-- Devuelve true para indicar cambios
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accentColor,
+                  foregroundColor: AppColors.background,
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                onPressed: () async {
+                  final nuevo = _ctrl.text.trim();
+                  final nuevaDesc = _descCtrl.text.trim();
+                  if (nuevo.isNotEmpty && nuevo != widget.rutina.titulo) {
+                    await widget.rutina.rename(nuevo);
+                  }
+                  // actualizar descripción si cambió
+                  if (nuevaDesc != widget.rutina.descripcion) {
+                    await widget.rutina.setDescripcion(nuevaDesc);
+                  }
+                  // actualizar dificultad si cambió
+                  if (dificultad != widget.rutina.dificultad) {
+                    await widget.rutina.setDificultad(dificultad);
+                  }
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context, true); // <-- Devuelve true para indicar cambios
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -289,101 +289,103 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
         ],
       ),
       backgroundColor: AppColors.background,
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Series',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textNormal,
+      body: SafeArea(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Series',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textNormal,
+                    ),
                   ),
-                ),
-                FutureBuilder<List<dynamic>>(
-                  future: Future.wait([ejercicioPersonalizado.calcularTiempo(), ejercicioPersonalizado.calcularVolumen()]),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
-                      return const SizedBox();
-                    } else {
-                      final int tiempo = snapshot.data![0] as int;
-                      final double volumen = snapshot.data![1] as double;
-                      final String tiempoFormateado = (MrFunctions.formatDuration(Duration(seconds: tiempo)));
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.timer, color: AppColors.mutedAdvertencia, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            tiempoFormateado,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.textNormal,
+                  FutureBuilder<List<dynamic>>(
+                    future: Future.wait([ejercicioPersonalizado.calcularTiempo(), ejercicioPersonalizado.calcularVolumen()]),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+                        return const SizedBox();
+                      } else {
+                        final int tiempo = snapshot.data![0] as int;
+                        final double volumen = snapshot.data![1] as double;
+                        final String tiempoFormateado = (MrFunctions.formatDuration(Duration(seconds: tiempo)));
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.timer, color: AppColors.mutedAdvertencia, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              tiempoFormateado,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textNormal,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.fitness_center, color: AppColors.mutedAdvertencia, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$volumen kg',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.textNormal,
+                            const SizedBox(width: 8),
+                            const Icon(Icons.fitness_center, color: AppColors.mutedAdvertencia, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$volumen kg',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textNormal,
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-              ],
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: ejercicioPersonalizado.countSeriesPersonalizadas(),
-            itemBuilder: (context, setIndex) {
-              final serieP = ejercicioPersonalizado.seriesPersonalizadas?[setIndex];
-              if (serieP != null) {
-                return SesionGestionSerieDetalle(
-                  key: ValueKey(serieP.id),
-                  setIndex: setIndex,
-                  serieP: serieP,
-                  ejercicioP: ejercicioPersonalizado,
-                  isExpanded: (expandedSetIndex == setIndex),
-                  onToggleExpand: () {
-                    setState(() {
-                      expandedSetIndex = expandedSetIndex == setIndex ? null : setIndex;
-                    });
-                  },
-                  onDelete: () async {
-                    setState(() => ejercicioPersonalizado.seriesPersonalizadas?.removeAt(setIndex));
-                    if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
-                  },
-                  onSave: () async {
-                    await ejercicioPersonalizado.getSeriesPersonalizadas();
-                    setState(() {});
-                    if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
-                  },
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-          _buildSeriesControls(
-            ejercicioPersonalizado,
-            (fn) => setState(fn),
-            onSeriesChanged: widget.onSeriesChanged,
-            context: context,
-          ),
-          _buildPromedioSeries(ejercicioPersonalizado),
-        ],
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: ejercicioPersonalizado.countSeriesPersonalizadas(),
+              itemBuilder: (context, setIndex) {
+                final serieP = ejercicioPersonalizado.seriesPersonalizadas?[setIndex];
+                if (serieP != null) {
+                  return SesionGestionSerieDetalle(
+                    key: ValueKey(serieP.id),
+                    setIndex: setIndex,
+                    serieP: serieP,
+                    ejercicioP: ejercicioPersonalizado,
+                    isExpanded: (expandedSetIndex == setIndex),
+                    onToggleExpand: () {
+                      setState(() {
+                        expandedSetIndex = expandedSetIndex == setIndex ? null : setIndex;
+                      });
+                    },
+                    onDelete: () async {
+                      setState(() => ejercicioPersonalizado.seriesPersonalizadas?.removeAt(setIndex));
+                      if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
+                    },
+                    onSave: () async {
+                      await ejercicioPersonalizado.getSeriesPersonalizadas();
+                      setState(() {});
+                      if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
+                    },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            _buildSeriesControls(
+              ejercicioPersonalizado,
+              (fn) => setState(fn),
+              onSeriesChanged: widget.onSeriesChanged,
+              context: context,
+            ),
+            _buildPromedioSeries(ejercicioPersonalizado),
+          ],
+        ),
       ),
     );
   }

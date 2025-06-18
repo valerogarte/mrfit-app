@@ -218,10 +218,12 @@ class _CalendarWidgetState extends CalendarWidgetStateBase {
       builder: (context, constraints) {
         const double topPad = 0;
         final double cellWidth = constraints.maxWidth / 7;
-        final double aditionalHeight = 26;
-        final double computedHeight = cellWidth + aditionalHeight + topPad;
+        const double aditionalHeight = 26;
         const double maxHeight = 85;
+        final double computedHeight = cellWidth + aditionalHeight + topPad;
         final double height = computedHeight > maxHeight ? maxHeight : computedHeight;
+        // Aplica tope al tamaño de la celda para el gráfico de rings
+        final double cellSize = computedHeight > maxHeight ? maxHeight - aditionalHeight - topPad : cellWidth;
         final today = DateTime.now();
 
         return SizedBox(
@@ -250,7 +252,7 @@ class _CalendarWidgetState extends CalendarWidgetStateBase {
                     final dateString = date.toIso8601String().split('T').first;
                     return RepaintBoundary(
                       child: SizedBox(
-                        width: cellWidth,
+                        width: cellSize,
                         child: _DayCell(
                           date: date,
                           isSelected: date.year == widget.selectedDate.year && date.month == widget.selectedDate.month && date.day == widget.selectedDate.day,
@@ -266,7 +268,7 @@ class _CalendarWidgetState extends CalendarWidgetStateBase {
                               widget.onDateSelected(date);
                             }
                           },
-                          cellWidth: cellWidth,
+                          cellWidth: cellSize,
                         ),
                       ),
                     );

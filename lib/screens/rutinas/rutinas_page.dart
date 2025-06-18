@@ -171,105 +171,68 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
             onPressed: _handleBackButton,
           ),
         ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : gruposConRutinas.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: NotFoundData(
-                      title: 'Sin rutinas',
-                      textNoResults: 'Puedes crear la primera pulsando "+".',
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: gruposConRutinas.keys.length,
-                    itemBuilder: (ctx, i) {
-                      final grupo = gruposConRutinas.keys.elementAt(i);
-                      final rutinas = gruposConRutinas[grupo]!;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              grupo.titulo,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textNormal),
+        body: SafeArea(
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : gruposConRutinas.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: NotFoundData(
+                        title: 'Sin rutinas',
+                        textNoResults: 'Puedes crear la primera pulsando "+".',
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(10),
+                      itemCount: gruposConRutinas.keys.length,
+                      itemBuilder: (ctx, i) {
+                        final grupo = gruposConRutinas.keys.elementAt(i);
+                        final rutinas = gruposConRutinas[grupo]!;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                grupo.titulo,
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textNormal),
+                              ),
                             ),
-                          ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: SizedBox(
-                              height: 120,
-                              child: grupo.id == 1
-                                  ? ReorderableListView(
-                                      padding: EdgeInsets.zero, // <-- quitamos padding
-                                      scrollDirection: Axis.horizontal,
-                                      onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
-                                      proxyDecorator: (child, index, animation) => Material(color: Colors.transparent, child: child),
-                                      children: rutinas.map((rutina) {
-                                        final esActual = rutina.id == rutinaActualId;
-                                        return Container(
-                                          key: ValueKey(rutina.id),
-                                          width: 200,
-                                          height: 120,
-                                          margin: const EdgeInsets.only(right: 10),
-                                          child: Card(
-                                            margin: EdgeInsets.zero, // <-- quitamos margen
-                                            color: AppColors.cardBackground, // Siempre el color de fondo de la tarjeta
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(20),
-                                              side: esActual ? const BorderSide(color: AppColors.mutedAdvertencia, width: 2) : BorderSide.none,
-                                            ),
-                                            shadowColor: Colors.transparent,
-                                            elevation: esActual ? 8 : 4,
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.circular(20),
-                                              onTap: () async {
-                                                final result = await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(builder: (_) => RutinaPage(rutina: rutina)),
-                                                );
-                                                if (result == true) {
-                                                  await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
-                                                }
-                                              },
-                                              child: _contenidoTarjeta(rutina, esActual),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    )
-                                  : SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: SizedBox(
+                                height: 120,
+                                child: grupo.id == 1
+                                    ? ReorderableListView(
+                                        padding: EdgeInsets.zero, // <-- quitamos padding
+                                        scrollDirection: Axis.horizontal,
+                                        onReorder: (a, b) => _onReorderRutinas(grupo, a, b),
+                                        proxyDecorator: (child, index, animation) => Material(color: Colors.transparent, child: child),
                                         children: rutinas.map((rutina) {
                                           final esActual = rutina.id == rutinaActualId;
                                           return Container(
+                                            key: ValueKey(rutina.id),
                                             width: 200,
                                             height: 120,
                                             margin: const EdgeInsets.only(right: 10),
                                             child: Card(
-                                              shadowColor: Colors.transparent,
-                                              margin: EdgeInsets.zero,
+                                              margin: EdgeInsets.zero, // <-- quitamos margen
                                               color: AppColors.cardBackground, // Siempre el color de fondo de la tarjeta
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(20),
                                                 side: esActual ? const BorderSide(color: AppColors.mutedAdvertencia, width: 2) : BorderSide.none,
                                               ),
+                                              shadowColor: Colors.transparent,
                                               elevation: esActual ? 8 : 4,
                                               child: InkWell(
                                                 borderRadius: BorderRadius.circular(20),
                                                 onTap: () async {
                                                   final result = await Navigator.push(
                                                     context,
-                                                    MaterialPageRoute(
-                                                      builder: (_) => RutinaPage(rutina: rutina),
-                                                    ),
+                                                    MaterialPageRoute(builder: (_) => RutinaPage(rutina: rutina)),
                                                   );
                                                   if (result == true) {
-                                                    await fetchPlanes();
+                                                    await fetchPlanes(); // Refresca la lista si hubo cambios (eliminación o edición)
                                                   }
                                                 },
                                                 child: _contenidoTarjeta(rutina, esActual),
@@ -277,16 +240,55 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
                                             ),
                                           );
                                         }).toList(),
+                                      )
+                                    : SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: rutinas.map((rutina) {
+                                            final esActual = rutina.id == rutinaActualId;
+                                            return Container(
+                                              width: 200,
+                                              height: 120,
+                                              margin: const EdgeInsets.only(right: 10),
+                                              child: Card(
+                                                shadowColor: Colors.transparent,
+                                                margin: EdgeInsets.zero,
+                                                color: AppColors.cardBackground, // Siempre el color de fondo de la tarjeta
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  side: esActual ? const BorderSide(color: AppColors.mutedAdvertencia, width: 2) : BorderSide.none,
+                                                ),
+                                                elevation: esActual ? 8 : 4,
+                                                child: InkWell(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  onTap: () async {
+                                                    final result = await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) => RutinaPage(rutina: rutina),
+                                                      ),
+                                                    );
+                                                    if (result == true) {
+                                                      await fetchPlanes();
+                                                    }
+                                                  },
+                                                  child: _contenidoTarjeta(rutina, esActual),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
                                       ),
-                                    ),
+                              ),
                             ),
-                          ),
-                          // Agrega un espaciado de 40 al final de la última fila
-                          if (i == gruposConRutinas.keys.length - 1) const SizedBox(height: 80),
-                        ],
-                      );
-                    },
-                  ),
+                            // Agrega un espaciado de 40 al final de la última fila
+                            if (i == gruposConRutinas.keys.length - 1) const SizedBox(height: 80),
+                          ],
+                        );
+                      },
+                    ),
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: _mostrarDialogoNuevoPlan,
           backgroundColor: gruposConRutinas.isEmpty ? AppColors.mutedAdvertencia : AppColors.appBarBackground,

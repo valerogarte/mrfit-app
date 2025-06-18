@@ -377,67 +377,69 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                   ]
                 : [],
           ),
-          body: Column(
-            children: [
-              // Bullets
-              Container(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                color: AppColors.background,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    ejercicios.length,
-                    (index) {
+          body: SafeArea(
+            // SafeArea aplicado a todo el body para evitar solapamiento con la barra de navegación
+            child: Column(
+              children: [
+                // Bullets
+                Container(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  color: AppColors.background,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      ejercicios.length,
+                      (index) {
+                        final ejercicio = ejercicios[index];
+                        final series = (ejercicio.series).where((s) => s.deleted == false).toList();
+                        final allSeriesCompleted = series.every((s) => s.realizada == true);
+
+                        // Determinar el color del bullet
+                        Color bulletColor;
+                        if (index == _currentIndex) {
+                          bulletColor = AppColors.textNormal; // Ejercicio actual
+                        } else if (allSeriesCompleted) {
+                          bulletColor = AppColors.accentColor; // Ejercicio completado
+                        } else if (index < _currentIndex && !allSeriesCompleted) {
+                          bulletColor = AppColors.mutedAdvertencia; // Ejercicio anterior incompleto
+                        } else {
+                          bulletColor = AppColors.textMedium; // Ejercicio pendiente
+                        }
+
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                          height: 10,
+                          width: _currentIndex == index ? 20 : 10,
+                          decoration: BoxDecoration(
+                            color: bulletColor,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Paginador + contenido
+                Expanded(
+                  child: PageView.builder(
+                    padEnds: false,
+                    itemCount: ejercicios.length,
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
                       final ejercicio = ejercicios[index];
-                      final series = (ejercicio.series).where((s) => s.deleted == false).toList();
-                      final allSeriesCompleted = series.every((s) => s.realizada == true);
-
-                      // Determinar el color del bullet
-                      Color bulletColor;
-                      if (index == _currentIndex) {
-                        bulletColor = AppColors.textNormal; // Ejercicio actual
-                      } else if (allSeriesCompleted) {
-                        bulletColor = AppColors.accentColor; // Ejercicio completado
-                      } else if (index < _currentIndex && !allSeriesCompleted) {
-                        bulletColor = AppColors.mutedAdvertencia; // Ejercicio anterior incompleto
-                      } else {
-                        bulletColor = AppColors.textMedium; // Ejercicio pendiente
-                      }
-
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                        height: 10,
-                        width: _currentIndex == index ? 20 : 10,
-                        decoration: BoxDecoration(
-                          color: bulletColor,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      );
+                      return buildEjercicio(ejercicio, index);
                     },
                   ),
                 ),
-              ),
-              // Paginador + contenido
-              Expanded(
-                child: PageView.builder(
-                  padEnds: false,
-                  itemCount: ejercicios.length,
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final ejercicio = ejercicios[index];
-                    return buildEjercicio(ejercicio, index);
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-
           // Sección inferior que ocupa el 100% del ancho en lugar de FAB flotantes
           bottomNavigationBar: SafeArea(
             child: Container(
