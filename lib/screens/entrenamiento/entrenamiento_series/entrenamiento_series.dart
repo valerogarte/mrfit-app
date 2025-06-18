@@ -3,6 +3,7 @@ import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class EntrenamientoSeries extends StatefulWidget {
   final String setIndex;
@@ -150,11 +151,23 @@ class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTic
         description,
         style: const TextStyle(color: AppColors.textNormal),
       ),
-      onTap: () {
+      onTap: () async {
         setState(() {
           widget.set.setRer(value);
           _selectedEmojiColor = iconColor;
         });
+        // Evento analytics: selección de dificultad en la serie
+        await FirebaseAnalytics.instance.logEvent(
+          name: 'entrenamiento_set_dificultad',
+          parameters: {
+            'ejercicio_id': widget.ejercicioRealizado.ejercicio.id,
+            'serie_id': widget.set.id,
+            'dificultad_valor': value,
+            'dificultad_label': label,
+            'repeticiones': widget.set.repeticiones,
+            'peso': widget.set.peso,
+          },
+        );
         Navigator.pop(context);
       },
     );

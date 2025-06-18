@@ -10,6 +10,7 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_series.dart';
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class FinalizarPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
@@ -23,7 +24,7 @@ class FinalizarPage extends ConsumerStatefulWidget {
 class _FinalizarPageState extends ConsumerState<FinalizarPage> {
   late ConfettiController _controllerLeft;
   late ConfettiController _controllerRight;
-  double _ratingValue = 0; // Default rating value (Normal)
+  double _ratingValue = 0;
   bool _isUpdatingMrPoints = true;
   int _dotCount = 0;
   Timer? _dotTimer;
@@ -31,6 +32,9 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'entrenamiento_finalizar',
+    );
     // Initialize the confetti controllers
     _controllerLeft = ConfettiController(duration: const Duration(seconds: 5));
     _controllerRight = ConfettiController(duration: const Duration(seconds: 5));
@@ -237,6 +241,14 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               onPressed: _isUpdatingMrPoints
                   ? null
                   : () async {
+                      // Evento de analytics: usuario pulsa continuar tras finalizar
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'entrenamiento_finalizar_continuar',
+                        parameters: {
+                          'entrenamiento_id': widget.entrenamiento.id,
+                          'sensacion': _ratingValue.toInt(),
+                        },
+                      );
                       await widget.entrenamiento.setSensacion(_ratingValue.toInt());
                       Navigator.pushAndRemoveUntil(
                         // ignore: use_build_context_synchronously

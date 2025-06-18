@@ -6,6 +6,7 @@ import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class RecuperacionPage extends ConsumerStatefulWidget {
   const RecuperacionPage({super.key});
@@ -27,6 +28,9 @@ class _RecuperacionPageState extends ConsumerState<RecuperacionPage> {
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'recuperacion',
+    );
     _cargarDisponibilidadMuscular();
     _cargarHealthData();
   }

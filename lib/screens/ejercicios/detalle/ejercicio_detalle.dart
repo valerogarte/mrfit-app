@@ -6,6 +6,7 @@ import 'ejercicio_detalle_marcas.dart';
 import 'ejercicio_detalle_resumen.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class EjercicioDetallePage extends StatelessWidget {
   final Ejercicio ejercicio;
@@ -14,6 +15,10 @@ class EjercicioDetallePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'ejercicio_detalle',
+    );
+
     return DefaultTabController(
       length: 4,
       child: AnnotatedRegion<SystemUiOverlayStyle>(

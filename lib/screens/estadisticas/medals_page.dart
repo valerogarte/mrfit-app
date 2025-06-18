@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/medal_card.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class MedalsPage extends StatefulWidget {
   final Usuario usuario;
@@ -194,6 +195,10 @@ class _MedalsPageState extends State<MedalsPage> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'medallas',
+    );
+
     final defaults = {
       "STEPS": [5000, 10000, 20000, 30000, 40000],
       "WORKOUT": [60, 90, 120, 180, 210],

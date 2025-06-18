@@ -4,12 +4,17 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/grafica.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class MedidasPage extends ConsumerWidget {
   const MedidasPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'medidas',
+    );
+
     final usuario = ref.read(usuarioProvider);
 
     return Scaffold(
