@@ -76,9 +76,6 @@ Para más herramientas y configuración avanzada, consulta la documentación ofi
 - Componente de text-to-speech con Flutter TTS.
 - Patrones de Estado con StatefulWidgets y Singletons simplificados.
 
-## Conectividad Google Fit
-- Aún pendiente de ajustar.
-
 ## Contribuciones
 ¡Las contribuciones a MrFit son bienvenidas! Si encuentras algún problema o tienes sugerencias para nuevas funcionalidades, por favor abre un issue o envía un pull request. Asegúrate de seguir el estilo de código y las directrices del proyecto.
 
