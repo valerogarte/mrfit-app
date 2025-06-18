@@ -12,8 +12,10 @@ class MrFunctions {
       return 'Hace $months ${months == 1 ? 'mes' : 'meses'}';
     } else if (days > 1) {
       return 'Hace $days días';
-    } else if (days == 1 || (now.day != tiempo.day && hours < 24)) {
+    } else if (days == 0 || (now.day != tiempo.day && hours < 24)) {
       return 'Ayer';
+    } else if (hours >= 24 && hours < 48 && days == 1) {
+      return 'Anteayer';
     } else if (hours < 1) {
       return 'Recientemente';
     } else {
