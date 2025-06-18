@@ -312,6 +312,12 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.memory, color: AppColors.accentColor),
+            title: Text('Inteligencia Artificial', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Integración aún no disponible'))),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
             leading: Icon(Icons.favorite, color: AppColors.accentColor),
             title: Text(_isHealthConnctLinked ? 'Health Connect vinculado' : 'Vincular con Health Connect', style: TextStyle(color: AppColors.textMedium)),
             onTap: () async {
@@ -330,8 +336,6 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             title: Text('Información del desarrollador', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConfiguracionCreditosPage())),
           ),
-
-          const SizedBox(height: 45, child: DecoratedBox(decoration: BoxDecoration(color: AppColors.cardBackground))),
         ],
       ),
     );

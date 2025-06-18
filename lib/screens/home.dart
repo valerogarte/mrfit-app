@@ -366,7 +366,6 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   const SizedBox(height: 15),
                                   StatisticsWidget(usuario: usuario),
                                 ],
-                                SizedBox(height: 30 + MediaQuery.of(context).padding.bottom),
                               ],
                             ),
                           ),
