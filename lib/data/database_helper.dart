@@ -1,5 +1,6 @@
 // import 'dart:io';
 import 'package:logger/logger.dart';
+import 'package:mrfit/utils/mr_functions.dart';
 // import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,7 +23,7 @@ class DatabaseHelper {
 
   Future<Database> _initDB() async {
     // Versionado
-    final newVersion = int.parse(AppConstants.version.replaceAll('.', ''));
+    final newVersion = MrFunctions.versionToInt(AppConstants.version);
     final fileName = getDatabaseName();
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);

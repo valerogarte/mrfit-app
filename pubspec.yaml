@@ -52,6 +52,7 @@ dependencies:
   firebase_core: ^3.14.0 # Firebase Core
   firebase_crashlytics: ^4.3.7 # Firebase Crashlytics
   firebase_analytics: ^11.5.0 # Firebase Analytics
+  firebase_remote_config: ^5.4.5 # Firebase Remote Config
 
 flutter_icons:
   android: true

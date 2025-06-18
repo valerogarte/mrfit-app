@@ -34,4 +34,19 @@ class MrFunctions {
       return "$minutes:$seconds";
     }
   }
+
+  /// Convierte una versión en formato 'x.y.z' a un entero.
+  static int versionToInt(String version) {
+    final parts = version.split('.');
+    if (parts.length < 2) return 0;
+
+    int major = int.tryParse(parts[0]) ?? 0;
+    int minor = int.tryParse(parts[1]) ?? 0;
+    int patch = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+
+    major = major * 1000000;
+    minor = minor * 1000;
+
+    return major + minor + patch;
+  }
 }

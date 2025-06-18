@@ -8,13 +8,17 @@ import 'package:mrfit/screens/usuario/usuario_config.dart';
 import 'package:mrfit/providers/walking_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:mrfit/widgets/home/update_required.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Manejo de errores con Firebase Crashlytics
   await Firebase.initializeApp();
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  // Verifica la versión mínima requerida antes de continuar.
+  final shouldContinue = await checkMinVersionCode();
+  if (!shouldContinue) return;
 
   final usuario = await Usuario.load();
 
