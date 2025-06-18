@@ -155,12 +155,15 @@ class _RutinaPageState extends ConsumerState<RutinaPage> {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            RutinaListadoSesionesPage(rutina: widget.rutina),
-            RutinaInformacionPage(rutina: widget.rutina),
-          ],
+        body: SafeArea(
+          child: TabBarView(
+            children: [
+              RutinaListadoSesionesPage(rutina: widget.rutina),
+              RutinaInformacionPage(rutina: widget.rutina),
+            ],
+          ),
         ),
+        backgroundColor: AppColors.background,
       ),
     );
   }

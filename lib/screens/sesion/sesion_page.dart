@@ -116,7 +116,6 @@ class SesionPageState extends State<SesionPage> {
           ),
         ),
         body: SafeArea(
-          // SafeArea protege el contenido de las áreas no seguras (status y navigation bar)
           child: TabBarView(
             children: [
               SesionListadoEjerciciosPage(
