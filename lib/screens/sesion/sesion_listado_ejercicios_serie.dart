@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
@@ -25,6 +26,22 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
   Future<void> _agregarSerieAlEjercicioEnRutina(EjercicioPersonalizado ejercicioPersonalizado) async {
     await ejercicioPersonalizado.insertSeriePersonalizada();
     await ejercicioPersonalizado.getSeriesPersonalizadas();
+    final nuevaSerie = ejercicioPersonalizado.seriesPersonalizadas?.last;
+    // Log directo al insertar serie
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'rutina_serie_insertar',
+      parameters: {
+        'accion': 'insertar',
+        'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
+        'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
+        'set_index': ((ejercicioPersonalizado.seriesPersonalizadas?.length ?? 1) - 1) as Object,
+        'serie_id': (nuevaSerie?.id ?? 0) as Object,
+        'repeticiones': (nuevaSerie?.repeticiones ?? 0) as Object,
+        'peso': (nuevaSerie?.peso ?? 0) as Object,
+        'velocidad_repeticion': (nuevaSerie?.velocidadRepeticion ?? 0) as Object,
+        'descanso': (nuevaSerie?.descanso ?? 0) as Object,
+      },
+    );
   }
 
   Widget _buildPromedioSeries(EjercicioPersonalizado ejercicioPersonalizado) {
@@ -188,6 +205,16 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.pop(context);
+                              // Log directo al eliminar todas las series del ejercicio
+                              // Se registra un solo evento genérico al eliminar todas las series del ejercicio
+                              await FirebaseAnalytics.instance.logEvent(
+                                name: 'rutina_ejercicio_eliminar',
+                                parameters: {
+                                  'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
+                                  'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
+                                  'series_totales': ejercicioPersonalizado.seriesPersonalizadas?.length ?? 0,
+                                },
+                              );
                               await ejercicioPersonalizado.delete();
                               if (onSeriesChanged != null) onSeriesChanged();
                               if (Navigator.canPop(context)) {
@@ -229,6 +256,10 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'sesion_ejercicios_series',
+    );
+
     final ejercicioPersonalizado = widget.ejercicioPersonalizado;
     return Scaffold(
       appBar: AppBar(
@@ -363,11 +394,42 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                       });
                     },
                     onDelete: () async {
+                      // Log directo al eliminar serie
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'rutina_serie_eliminar',
+                        parameters: {
+                          'accion': 'eliminar',
+                          'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
+                          'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
+                          'set_index': setIndex,
+                          'serie_id': (serieP.id) as Object,
+                          'repeticiones': (serieP.repeticiones) as Object,
+                          'peso': (serieP.peso) as Object,
+                          'velocidad_repeticion': (serieP.velocidadRepeticion) as Object,
+                          'descanso': (serieP.descanso) as Object,
+                        },
+                      );
                       setState(() => ejercicioPersonalizado.seriesPersonalizadas?.removeAt(setIndex));
                       if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
                     },
                     onSave: () async {
                       await ejercicioPersonalizado.getSeriesPersonalizadas();
+                      final serieGuardada = ejercicioPersonalizado.seriesPersonalizadas?[setIndex];
+                      // Log directo al guardar serie
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'rutina_serie_guardar',
+                        parameters: {
+                          'accion': 'guardar',
+                          'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
+                          'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
+                          'set_index': setIndex,
+                          'serie_id': (serieGuardada?.id ?? 0) as Object,
+                          'repeticiones': (serieGuardada?.repeticiones ?? 0) as Object,
+                          'peso': (serieGuardada?.peso ?? 0) as Object,
+                          'velocidad_repeticion': (serieGuardada?.velocidadRepeticion ?? 0) as Object,
+                          'descanso': (serieGuardada?.descanso ?? 0) as Object,
+                        },
+                      );
                       setState(() {});
                       if (widget.onSeriesChanged != null) widget.onSeriesChanged!();
                     },

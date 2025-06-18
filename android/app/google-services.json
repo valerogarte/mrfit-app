@@ -1,9 +1,29 @@
 {
-  "installed": {
-    "client_id": "371176744904-g270qcjduqteidmo56p8vfq5qmg7anva.apps.googleusercontent.com",
-    "project_id": "mrfit",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"
-  }
+  "project_info": {
+    "project_number": "345897591854",
+    "project_id": "mrfit-8d2e8",
+    "storage_bucket": "mrfit-8d2e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345897591854:android:caf6a19a5ee539dd4debbf",
+        "android_client_info": {
+          "package_name": "es.mrfit.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-MeZjOp7z0FfIZ6DUJL8rRSIuvLwmJRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }

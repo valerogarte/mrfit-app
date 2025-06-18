@@ -44,7 +44,6 @@ dependencies:
   logger: ^2.5.0 # Logs
   dartssh2: ^2.11.0 # SSH
   flutter_local_notifications: ^19.0.0 # Notificaciones
-  android_alarm_manager_plus: ^4.0.7 # Cron
   fl_chart: ^0.70.2 # Gráficos
   health: ^12.1.0 # Healht
   flutter_riverpod: ^2.3.6 # Variables globales
@@ -56,6 +55,9 @@ dependencies:
   pedometer: ^4.1.1 # Contador de pasos
   device_info_plus: ^11.4.0 # Información del dispositivo
   path: ^1.9.1 # Manejo de rutas
+  firebase_core: ^3.14.0 # Firebase Core
+  firebase_crashlytics: ^4.3.7 # Firebase Crashlytics
+  firebase_analytics: ^11.5.0 # Firebase Analytics
 
 flutter_icons:
   android: true

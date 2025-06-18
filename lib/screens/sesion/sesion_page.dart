@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mrfit/models/rutina/sesion.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
@@ -73,6 +74,10 @@ class SesionPageState extends State<SesionPage> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'sesion',
+    );
+
     // Solo muestra el menú si la rutina no es de grupo 1 ni 2
     final bool mostrarMenu = widget.rutina.grupoId == 1 || widget.rutina.grupoId == 2;
 

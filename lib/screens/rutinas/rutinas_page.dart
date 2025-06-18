@@ -9,6 +9,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/main.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class RutinasPage extends ConsumerStatefulWidget {
   const RutinasPage({super.key});
@@ -24,6 +25,9 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'rutinas',
+    );
     fetchPlanes();
   }
 

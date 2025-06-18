@@ -24,6 +24,8 @@ import 'package:mrfit/widgets/home/daily_vitals.dart';
 import 'package:mrfit/services/step_counter_service.dart';
 import 'package:mrfit/providers/walking_provider.dart';
 import 'package:mrfit/screens/estadisticas/actividad_page.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:mrfit/widgets/home/daily_analitics.dart';
 
 class InicioPage extends ConsumerStatefulWidget {
   const InicioPage({super.key});
@@ -38,6 +40,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   final GlobalKey<State<CalendarWidget>> _calendarKey = GlobalKey<State<CalendarWidget>>();
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
   bool _showHcWarning = true;
+  bool _showAnalyticsWarning = false; // Controla el aviso de analítica
   int _refreshCounter = 0;
   StepCounterService? _stepCounterService;
 
@@ -114,10 +117,16 @@ class _InicioPageState extends ConsumerState<InicioPage> {
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'home',
+    );
+
     DatabaseHelper.instance.database.then((db) {});
     initializeDateFormatting('es', null);
     _cargarResumenEntrenamientos();
     _checkHcWarning();
+    _checkAnalyticsWarning();
     final usuario = ref.read(usuarioProvider);
     _fetchAndSetDailyStatsData(usuario, _selectedDate);
 
@@ -147,6 +156,26 @@ class _InicioPageState extends ConsumerState<InicioPage> {
       return;
     }
     setState(() => _showHcWarning = true);
+  }
+
+  Future<void> _checkAnalyticsWarning() async {
+    // Consulta el consentimiento en caché
+    final cache = await CustomCache.getByKey("analytics_consent");
+    if (cache != null) {
+      final consent = cache.value == "1";
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(consent);
+      setState(() => _showAnalyticsWarning = false);
+    } else {
+      // Si no hay consentimiento, desactiva la analítica y muestra el aviso
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+      setState(() => _showAnalyticsWarning = true);
+    }
+  }
+
+  Future<void> _setAnalyticsConsent(bool consent) async {
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(consent);
+    await CustomCache.set("analytics_consent", consent ? "1" : "0");
+    setState(() => _showAnalyticsWarning = false);
   }
 
   Future<void> _cargarResumenEntrenamientos() async {
@@ -305,6 +334,13 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                     onClose: () async {
                                       setState(() => _showHcWarning = false);
                                     },
+                                  ),
+                                  const SizedBox(height: 15),
+                                ],
+                                if (_showAnalyticsWarning) ...[
+                                  AnalyticsConsentWidget(
+                                    onAccept: () => _setAnalyticsConsent(true),
+                                    onReject: () => _setAnalyticsConsent(false),
                                   ),
                                   const SizedBox(height: 15),
                                 ],

@@ -15,6 +15,7 @@ import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/widgets/not_found/not_found.dart';
 import 'package:mrfit/screens/sesion/sesion_listado_ejercicios_serie.dart';
 import 'package:mrfit/models/rutina/rutina.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class SesionListadoEjerciciosPage extends ConsumerStatefulWidget {
   final Sesion sesion;
@@ -37,6 +38,11 @@ class _SesionListadoEjerciciosPageState extends ConsumerState<SesionListadoEjerc
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'sesion_listado_ejercicios',
+    );
+
     _initializeSesion();
     _checkEntrenandoStatus();
   }

@@ -11,6 +11,7 @@ import 'package:mrfit/widgets/entrenamiento/entrenamiento_resumen_pastilla.dart'
 import 'package:mrfit/widgets/chart/heart_grafica.dart';
 import 'package:mrfit/widgets/entrenamiento/entrenamiento_realizado_mrfit.dart';
 import 'package:logger/logger.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 /// Página que muestra siempre el resumen de salud en el rango [start, end]
 /// y, si existe un entrenamiento creado en Mr Fit, lo añade debajo.
@@ -35,6 +36,10 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Usuario usuario = ref.watch(usuarioProvider);
+
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'entrenamiento_realizado',
+    );
 
     // Cargamos entrenamiento y datos de salud en paralelo.
     return FutureBuilder<_PageData>(

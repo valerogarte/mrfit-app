@@ -10,6 +10,8 @@ import 'configuracion/config_objetivos.dart';
 import 'configuracion/config_entrenador.dart';
 import 'package:mrfit/widgets/custom_bottom_sheet.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:mrfit/models/cache/custom_cache.dart';
 
 class UsuarioConfigPage extends ConsumerStatefulWidget {
   const UsuarioConfigPage({super.key});
@@ -21,13 +23,41 @@ class UsuarioConfigPage extends ConsumerStatefulWidget {
 class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
   // static const List<String> semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   bool _isHealthConnctLinked = false;
+  bool _analyticsConsent = false;
+  bool _analyticsConsentLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'usuario_config',
+    );
     ref.read(usuarioProvider).checkPermissions().then((granted) {
       setState(() => _isHealthConnctLinked = granted);
     });
+    _loadAnalyticsConsent();
+  }
+
+  Future<void> _loadAnalyticsConsent() async {
+    // Recupera el consentimiento de analítica desde caché
+    final cache = await CustomCache.getByKey("analytics_consent");
+    final consent = cache != null && cache.value == "1";
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(consent);
+    if (mounted) {
+      setState(() {
+        _analyticsConsent = consent;
+        _analyticsConsentLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _setAnalyticsConsent(bool consent) async {
+    // Actualiza el consentimiento y la configuración de Firebase Analytics
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(consent);
+    await CustomCache.set("analytics_consent", consent ? "1" : "0");
+    if (mounted) {
+      setState(() => _analyticsConsent = consent);
+    }
   }
 
   int calculateAge(DateTime birthDate) {
@@ -287,21 +317,6 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
             ),
           ),
 
-          // Datos y respaldos
-          const SectionHeader('Datos'),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.restore, color: AppColors.accentColor),
-            title: Text('Restaurar Datos', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => ConfiguracionApp.selectFileFromServer(context),
-          ),
-          ListTile(
-            tileColor: AppColors.cardBackground,
-            leading: Icon(Icons.cloud_upload, color: AppColors.accentColor),
-            title: Text('Respaldo sFTP', style: TextStyle(color: AppColors.textMedium)),
-            onTap: () => ConfiguracionApp.openFTPConfig(context),
-          ),
-
           // Integraciones
           const SectionHeader('Integraciones'),
           ListTile(
@@ -327,6 +342,39 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
               }
             },
           ),
+
+          // Datos y respaldos
+          const SectionHeader('Datos'),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.restore, color: AppColors.accentColor),
+            title: Text('Restaurar Datos', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => ConfiguracionApp.selectFileFromServer(context),
+          ),
+          ListTile(
+            tileColor: AppColors.cardBackground,
+            leading: Icon(Icons.cloud_upload, color: AppColors.accentColor),
+            title: Text('Respaldo sFTP', style: TextStyle(color: AppColors.textMedium)),
+            onTap: () => ConfiguracionApp.openFTPConfig(context),
+          ),
+          // Consentimiento de analítica (Switch)
+          if (_analyticsConsentLoaded)
+            SwitchListTile(
+              value: _analyticsConsent,
+              onChanged: (value) {
+                _setAnalyticsConsent(value);
+              },
+              title: Text(
+                _analyticsConsent ? "Gracias por ayudar" : "Ayúdanos a mejorar",
+                style: TextStyle(color: AppColors.textMedium),
+              ),
+              activeColor: AppColors.mutedAdvertencia,
+              activeTrackColor: AppColors.background,
+              inactiveTrackColor: AppColors.background,
+              inactiveThumbColor: AppColors.cardBackground,
+              tileColor: AppColors.cardBackground,
+              secondary: Icon(Icons.analytics, color: AppColors.accentColor),
+            ),
 
           // Créditos
           const SectionHeader('Créditos'),

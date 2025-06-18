@@ -15,6 +15,7 @@ import 'package:mrfit/screens/entrenamiento/entrenamiento_editar/entrenamiento_e
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:mrfit/utils/mr_functions.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class EntrenamientoPage extends ConsumerStatefulWidget {
   final Entrenamiento entrenamiento;
@@ -49,6 +50,10 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
   @override
   void initState() {
     super.initState();
+
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'entrenamiento',
+    );
 
     usuario = ref.read(usuarioProvider);
 
@@ -457,6 +462,14 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     icon: const Icon(Icons.flag, color: AppColors.cardBackground),
                     label: const Text("Finalizar"),
                     onPressed: () async {
+                      // Evento de analytics: usuario pulsa finalizar entrenamiento
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'entrenamiento_finalizar_click',
+                        parameters: {
+                          'entrenamiento_id': widget.entrenamiento.id,
+                          'ejercicios_completados': widget.entrenamiento.ejercicios.where((e) => e.isAllSeriesRealizadas()).length,
+                        },
+                      );
                       await _entrenadora.detener();
                       // Obtener el usuario desde el provider
                       final usuario = ref.read(usuarioProvider);
@@ -478,6 +491,14 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                         backgroundColor: AppColors.appBarBackground,
                       ),
                       onPressed: () {
+                        // Evento de analytics: usuario salta descanso
+                        FirebaseAnalytics.instance.logEvent(
+                          name: 'entrenamiento_descanso_skip',
+                          parameters: {
+                            'entrenamiento_id': widget.entrenamiento.id,
+                            'resting_time_left': _restingTimeLeft ?? 0,
+                          },
+                        );
                         _setInicioNextSeries();
                         setState(() {
                           _restTimer?.cancel();
@@ -514,6 +535,14 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     icon: const Icon(Icons.add, color: AppColors.textMedium),
                     label: const Text("Serie"),
                     onPressed: () async {
+                      // Evento de analytics: usuario añade una serie
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'entrenamiento_serie_add_click',
+                        parameters: {
+                          'entrenamiento_id': widget.entrenamiento.id,
+                          'ejercicio_index': _currentIndex,
+                        },
+                      );
                       final currentEjercicio = widget.entrenamiento.ejercicios[_currentIndex];
                       await currentEjercicio.insertSerieRealizada();
                     },
@@ -642,14 +671,34 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                   });
                 },
                 onUpdate: () async {
-                  // Pulsa en Actualizar Set
+                  // Evento analytics: actualización de set
+                  await FirebaseAnalytics.instance.logEvent(
+                    name: 'entrenamiento_serie_set_update',
+                    parameters: {
+                      'entrenamiento_id': widget.entrenamiento.id,
+                      'ejercicio_id': ejercicioR.ejercicio.id,
+                      'serie_id': serie.id,
+                      'repeticiones': serie.repeticiones,
+                      'peso': serie.peso,
+                    },
+                  );
                   serie.updateRepesPeso();
                   setState(() {
                     _expandedStates[expandedKey] = false;
                   });
                 },
                 onComplete: () async {
-                  // Pulsa en Set Completo
+                  // Evento analytics: set completado
+                  await FirebaseAnalytics.instance.logEvent(
+                    name: 'entrenamiento_serie_set_completo',
+                    parameters: {
+                      'entrenamiento_id': widget.entrenamiento.id,
+                      'ejercicio_id': ejercicioR.ejercicio.id,
+                      'serie_id': serie.id,
+                      'repeticiones': serie.repeticiones,
+                      'peso': serie.peso,
+                    },
+                  );
                   serie.setRealizada();
                   _setInicioNextSeries();
                   _entrenadora.detener();
@@ -660,7 +709,6 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       _restTimer?.cancel();
                       _isResting = true;
                       _restingTimeLeft = serie.descanso;
-                      // Se activa el estado restartEntrenadora
                       restartEntrenadora = true;
                     });
                   }
