@@ -30,25 +30,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # firebase_core: ^3.0.0
-  # firebase_auth: ^5.0.0
-  # flutter_signin_button: ^2.0.0 # Botones de login
-  google_sign_in: ^6.1.4 # Google Sign In
   flutter_tts: ^4.0.0 # Text to speech
-  http: ^1.0.0 # Peticiones HTTP
   shared_preferences: ^2.0.6 # Preferencias de usuario
   intl: ^0.20.0 # Internacionalización
-  vibration: ^3.0.0 # Vibración
+  vibration: ^3.0.0 # Vibración3
   sqflite: ^2.4.1 # BBDD SQLite
-  path_provider: ^2.1.5 # 
   logger: ^2.5.0 # Logs
   dartssh2: ^2.11.0 # SSH
-  flutter_local_notifications: ^19.0.0 # Notificaciones
   fl_chart: ^0.70.2 # Gráficos
   health: ^12.1.0 # Healht
   flutter_riverpod: ^2.3.6 # Variables globales
   confetti: ^0.8.0 # Confetti
-  flutter_launcher_icons: ^0.14.3 # Icono de la app
   font_awesome_flutter: ^10.8.0 # Iconos
   url_launcher: ^6.3.1 # Lanzar URL
   permission_handler: ^12.0.0 # Permisos
@@ -63,11 +55,6 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/icono_app.png"
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
