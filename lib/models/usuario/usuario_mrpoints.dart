@@ -6,7 +6,7 @@ extension UsuarioMrPointsExtension on Usuario {
       return _cachedMrPoints!;
     }
     Map<String, double> mrPoints = await _computeMrPoints();
-    _cachedMrPoints = mrPoints; // almacenar en caché
+    _cachedMrPoints = mrPoints;
     return mrPoints;
   }
 

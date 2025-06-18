@@ -404,6 +404,36 @@ class DetalleMusculoGasto extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _showInfoDialog(
+                            context,
+                            title: 'Uso del peso corporal',
+                            description: 'Indica el porcentaje del ejercicio en el que el peso corporal actúa como peso adicional. Un valor elevado significa que el propio cuerpo es clave en la ejecución del movimiento.',
+                            icon: Icons.monitor_weight,
+                            iconColor: AppColors.accentColor,
+                            formula: [],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.monitor_weight, color: AppColors.accentColor),
+                              const SizedBox(width: 5),
+                              ejercicioRealizado.ejercicio.influenciaPesoCorporal == 0
+                                  ? Text(
+                                      'Sin uso del peso corporal',
+                                      style: TextStyle(color: AppColors.textMedium),
+                                    )
+                                  : Text(
+                                      '${(ejercicioRealizado.ejercicio.influenciaPesoCorporal * 100).round()}% uso peso corporal',
+                                      style: TextStyle(color: AppColors.textMedium),
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     // Progresión de porcentaje
                     Row(
                       children: [
