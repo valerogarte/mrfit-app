@@ -44,7 +44,6 @@ dependencies:
   logger: ^2.5.0 # Logs
   dartssh2: ^2.11.0 # SSH
   flutter_local_notifications: ^19.0.0 # Notificaciones
-  android_alarm_manager_plus: ^4.0.7 # Cron
   fl_chart: ^0.70.2 # Gráficos
   health: ^12.1.0 # Healht
   flutter_riverpod: ^2.3.6 # Variables globales

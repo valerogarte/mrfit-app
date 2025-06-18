@@ -148,23 +148,6 @@
             </intent-filter>
         </service>
 
-        <!-- Otros servicios y receptores -->
-        <service
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false"/>
-        <receiver
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
-            android:exported="false"/>
-        <receiver
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
-            android:enabled="false"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
-
         <!-- Receptor para reiniciar el servicio de conteo de pasos tras el reinicio del dispositivo -->
         <receiver
             android:name=".services.BootReceiver"
