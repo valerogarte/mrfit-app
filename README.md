@@ -51,6 +51,12 @@ Para generar un APK release:
 flutter build apk --release
 ```
 
+## Generación .aab
+```
+keytool -genkeypair -v -keystore ".\android\app\mrfit-keystore.jks" -alias mrfit -keyalg RSA -keysize 2048 -validity 10000
+flutter build appbundle --release
+```
+
 Para más herramientas y configuración avanzada, consulta la documentación oficial de Flutter.
 
 ## Ajustes en VSCode
