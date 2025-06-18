@@ -1,4 +1,5 @@
 part of '../entrenadora.dart';
+
 final List<String> completionMessages = [
   '¡Serie completada!',
   '¡Finalizada!',
@@ -317,10 +318,9 @@ extension EntrenadoraHelpers on Entrenadora {
     final stopwatch = Stopwatch()..start();
 
     while (stopwatch.elapsed.inSeconds < tiempoTotalDescanso) {
-      // Pausa si está en modo pausa o toca borrar
-      if (isPaused || borrarSpeaker) {
+      if (isPaused || borrarSpeaker || saltarDescanso) {
         await Future.delayed(const Duration(milliseconds: 100));
-        if (borrarSpeaker) return;
+        if (borrarSpeaker || saltarDescanso) return;
         continue;
       }
 
