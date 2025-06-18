@@ -77,96 +77,98 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
       body: Stack(
         children: [
           // Main content
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle_outline, size: 60, color: AppColors.mutedAdvertencia),
-                  const SizedBox(height: 20),
-                  const Text(
-                    '¡Entrenamiento completado!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textNormal),
-                  ),
-                  const SizedBox(height: 25),
-                  const Text(
-                    '¿Cómo ha ido el entrenamiento?',
-                    style: TextStyle(fontSize: 16, color: AppColors.textNormal),
-                  ),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text('Desastre', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
-                            Text('Normal', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
-                            Text('Increíble', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
-                          ],
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.check_circle_outline, size: 60, color: AppColors.mutedAdvertencia),
+                    const SizedBox(height: 20),
+                    const Text(
+                      '¡Entrenamiento completado!',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textNormal),
+                    ),
+                    const SizedBox(height: 25),
+                    const Text(
+                      '¿Cómo ha ido el entrenamiento?',
+                      style: TextStyle(fontSize: 16, color: AppColors.textNormal),
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text('Desastre', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
+                              Text('Normal', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
+                              Text('Increíble', style: TextStyle(color: AppColors.textNormal, fontSize: 12)),
+                            ],
+                          ),
                         ),
-                      ),
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppColors.mutedAdvertencia,
-                          inactiveTrackColor: AppColors.mutedAdvertencia,
-                          thumbColor: AppColors.mutedAdvertencia,
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                          trackHeight: 4,
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: AppColors.mutedAdvertencia,
+                            inactiveTrackColor: AppColors.mutedAdvertencia,
+                            thumbColor: AppColors.mutedAdvertencia,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                            trackHeight: 4,
+                          ),
+                          child: Slider(
+                            value: _ratingValue,
+                            min: -3,
+                            max: 3,
+                            divisions: 6,
+                            onChanged: (value) {
+                              setState(() {
+                                _ratingValue = value;
+                              });
+                            },
+                          ),
                         ),
-                        child: Slider(
-                          value: _ratingValue,
-                          min: -3,
-                          max: 3,
-                          divisions: 6,
-                          onChanged: (value) {
-                            setState(() {
-                              _ratingValue = value;
-                            });
-                          },
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Text(
+                            ModeloDatos.getSensacionText(_ratingValue),
+                            style: const TextStyle(color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: Text(
-                          ModeloDatos.getSensacionText(_ratingValue),
-                          style: const TextStyle(color: AppColors.mutedAdvertencia, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  ResumenPastilla(entrenamiento: widget.entrenamiento),
-                  const SizedBox(height: 30),
-                  Column(
-                    children: widget.entrenamiento.ejercicios.map((ejercicio) {
-                      if (ejercicio.countSeriesRealizadas() == 0) return const SizedBox.shrink();
-                      return ListTile(
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ejercicio.ejercicio.nombre,
-                              style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 5),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: ejercicio.series.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final serie = entry.value;
-                            return ResumenSerie(index: index, serie: serie, pesoUsuario: widget.entrenamiento.pesoUsuario);
-                          }).toList(),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ResumenPastilla(entrenamiento: widget.entrenamiento),
+                    const SizedBox(height: 30),
+                    Column(
+                      children: widget.entrenamiento.ejercicios.map((ejercicio) {
+                        if (ejercicio.countSeriesRealizadas() == 0) return const SizedBox.shrink();
+                        return ListTile(
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ejercicio.ejercicio.nombre,
+                                style: const TextStyle(color: AppColors.textNormal, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 5),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: ejercicio.series.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final serie = entry.value;
+                              return ResumenSerie(index: index, serie: serie, pesoUsuario: widget.entrenamiento.pesoUsuario);
+                            }).toList(),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -222,28 +224,34 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
           ),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-            backgroundColor: AppColors.mutedAdvertencia,
-          ),
-          onPressed: _isUpdatingMrPoints
-              ? null
-              : () async {
-                  await widget.entrenamiento.setSensacion(_ratingValue.toInt());
-                  Navigator.pushAndRemoveUntil(
-                    // ignore: use_build_context_synchronously
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyApp()),
-                    (Route<dynamic> route) => false,
-                  );
-                },
-          child: Text(
-            _isUpdatingMrPoints ? 'Actualizando Datos${'.' * (_dotCount + 1)}' : 'Continuar',
-            style: TextStyle(fontSize: 18, color: _isUpdatingMrPoints ? AppColors.mutedAdvertencia : AppColors.background),
-          ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                backgroundColor: AppColors.mutedAdvertencia,
+              ),
+              onPressed: _isUpdatingMrPoints
+                  ? null
+                  : () async {
+                      await widget.entrenamiento.setSensacion(_ratingValue.toInt());
+                      Navigator.pushAndRemoveUntil(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        MaterialPageRoute(builder: (context) => const MyApp()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+              child: Text(
+                _isUpdatingMrPoints ? 'Actualizando Datos${'.' * (_dotCount + 1)}' : 'Continuar',
+                style: TextStyle(fontSize: 18, color: _isUpdatingMrPoints ? AppColors.mutedAdvertencia : AppColors.background),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );

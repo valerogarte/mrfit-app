@@ -115,15 +115,18 @@ class SesionPageState extends State<SesionPage> {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            SesionListadoEjerciciosPage(
-              sesion: widget.sesion,
-              rutina: widget.rutina,
-            ),
-            SesionMusculosInvolucradosPage(sesion: widget.sesion),
-            SesionDetallePage(sesion: widget.sesion),
-          ],
+        body: SafeArea(
+          // SafeArea protege el contenido de las áreas no seguras (status y navigation bar)
+          child: TabBarView(
+            children: [
+              SesionListadoEjerciciosPage(
+                sesion: widget.sesion,
+                rutina: widget.rutina,
+              ),
+              SesionMusculosInvolucradosPage(sesion: widget.sesion),
+              SesionDetallePage(sesion: widget.sesion),
+            ],
+          ),
         ),
         backgroundColor: AppColors.background,
       ),

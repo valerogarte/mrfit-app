@@ -9,6 +9,7 @@ import 'configuracion/config_creditos.dart';
 import 'configuracion/config_objetivos.dart';
 import 'configuracion/config_entrenador.dart';
 import 'package:mrfit/widgets/custom_bottom_sheet.dart';
+import 'package:intl/intl.dart';
 
 class UsuarioConfigPage extends ConsumerStatefulWidget {
   const UsuarioConfigPage({super.key});
@@ -134,14 +135,16 @@ class _UsuarioConfigPageState extends ConsumerState<UsuarioConfigPage> {
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.directions_walk, color: AppColors.accentColor),
-            // ignore: unnecessary_null_comparison
-            title: Text(user.objetivoPasosDiarios != null ? '${user.objetivoPasosDiarios} pasos diarios' : 'Objetivo Pasos', style: TextStyle(color: AppColors.textMedium)),
+            title: Text(
+              user.objetivoPasosDiarios > 0 ? '${NumberFormat.decimalPattern('es').format(user.objetivoPasosDiarios)} pasos diarios' : 'Objetivo Pasos',
+              style: TextStyle(color: AppColors.textMedium),
+            ),
             onTap: () => _showConfigDialog('Objetivo Pasos', 'Editar Objetivo Pasos', ConfiguracionObjetivosPage(campo: 'Objetivo Pasos')),
           ),
           ListTile(
             tileColor: AppColors.cardBackground,
             leading: Icon(Icons.accessibility_new, color: AppColors.accentColor),
-            title: Text(user.objetivoTiempoEntrenamiento > 0 ? '${user.objetivoTiempoEntrenamiento} minutos diarios' : 'Objetivo Actividad', style: TextStyle(color: AppColors.textMedium)),
+            title: Text(user.objetivoTiempoEntrenamiento > 0 ? '${user.objetivoTiempoEntrenamiento} m entrenamiento diario' : 'Objetivo Actividad', style: TextStyle(color: AppColors.textMedium)),
             onTap: () => _showConfigDialog('Objetivo Actividad', 'Editar Objetivo Actividad', ConfiguracionObjetivosPage(campo: 'Objetivo Actividad')),
           ),
           // Campo para Objetivo Tiempo Activo

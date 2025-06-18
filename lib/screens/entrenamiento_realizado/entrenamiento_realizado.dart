@@ -61,99 +61,101 @@ class EntrenamientoRealizadoPage extends ConsumerWidget {
             ),
             actions: _menuActions(context, pageData.entrenamiento),
           ),
-          body: Container(
-            // Contenedor principal con bordes superiores redondeados, overflow oculto y margen horizontal
-            decoration: const BoxDecoration(
-              // color: AppColors.appBarBackground,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+          body: SafeArea(
+            child: Container(
+              // Contenedor principal con bordes superiores redondeados, overflow oculto y margen horizontal
+              decoration: const BoxDecoration(
+                // color: AppColors.appBarBackground,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
-            ),
-            clipBehavior: Clip.hardEdge, // Oculta el overflow
-            margin: const EdgeInsets.symmetric(horizontal: 20), // Margen horizontal de 20
-            child: SingleChildScrollView(
-              // Quitamos el padding horizontal, solo dejamos vertical si se desea
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Fila con el icono a la izquierda y la fecha a la derecha
-                  Row(
-                    children: [
-                      // Columna para el icono
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.background, // Fondo del círculo
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.mutedAdvertencia, // Borde del círculo
-                            width: 2,
+              clipBehavior: Clip.hardEdge, // Oculta el overflow
+              margin: const EdgeInsets.symmetric(horizontal: 20), // Margen horizontal de 20
+              child: SingleChildScrollView(
+                // Quitamos el padding horizontal, solo dejamos vertical si se desea
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Fila con el icono a la izquierda y la fecha a la derecha
+                    Row(
+                      children: [
+                        // Columna para el icono
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.background, // Fondo del círculo
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.mutedAdvertencia, // Borde del círculo
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              icon,
+                              size: 28,
+                              color: AppColors.mutedAdvertencia,
+                            ),
                           ),
                         ),
-                        child: Center(
-                          child: Icon(
-                            icon,
-                            size: 28,
-                            color: AppColors.mutedAdvertencia,
+                        const SizedBox(width: 12),
+                        // Columna para la hora alineada a la izquierda
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: AppColors.textNormal, // Color definido para texto medio
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${TimeOfDay.fromDateTime(start).format(context)} - ${TimeOfDay.fromDateTime(end).format(context)}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: AppColors.textMedium, // Color definido para texto medio
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Columna para la hora alineada a la izquierda
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: AppColors.textNormal, // Color definido para texto medio
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${TimeOfDay.fromDateTime(start).format(context)} - ${TimeOfDay.fromDateTime(end).format(context)}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: AppColors.textMedium, // Color definido para texto medio
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  ResumenPastilla(
-                    entrenamiento: pageData.entrenamiento,
-                    steps: usuario.isHealthConnectAvailable ? pageData.healthSummary?['STEPS']?['sum'] : 0,
-                    distance: usuario.isHealthConnectAvailable ? pageData.healthSummary?['DISTANCE_DELTA']?['sum'] : 0,
-                    heartRateAvg: usuario.isHealthConnectAvailable ? (pageData.healthSummary?['HEART_RATE']?['avg'] != null ? (pageData.healthSummary?['HEART_RATE']?['avg'] as num).toInt() : null) : 0,
-                  ),
-                  const SizedBox(height: 20),
-                  // Solo mostramos el resumen de salud si Health Connect está disponible
-                  if (usuario.isHealthConnectAvailable) ...[
-                    ResumenSaludEntrenamiento(
-                      datosSalud: pageData.healthSummary,
-                      start: start,
-                      end: end,
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ResumenPastilla(
+                      entrenamiento: pageData.entrenamiento,
+                      steps: usuario.isHealthConnectAvailable ? pageData.healthSummary?['STEPS']?['sum'] : 0,
+                      distance: usuario.isHealthConnectAvailable ? pageData.healthSummary?['DISTANCE_DELTA']?['sum'] : 0,
+                      heartRateAvg: usuario.isHealthConnectAvailable ? (pageData.healthSummary?['HEART_RATE']?['avg'] != null ? (pageData.healthSummary?['HEART_RATE']?['avg'] as num).toInt() : null) : 0,
                     ),
                     const SizedBox(height: 20),
+                    // Solo mostramos el resumen de salud si Health Connect está disponible
+                    if (usuario.isHealthConnectAvailable) ...[
+                      ResumenSaludEntrenamiento(
+                        datosSalud: pageData.healthSummary,
+                        start: start,
+                        end: end,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    // Solo si existe un entrenamiento Mr Fit.
+                    if (pageData.entrenamiento != null)
+                      EntrenamientoMrFitWidget(
+                        entrenamiento: pageData.entrenamiento!,
+                      ),
                   ],
-                  // Solo si existe un entrenamiento Mr Fit.
-                  if (pageData.entrenamiento != null)
-                    EntrenamientoMrFitWidget(
-                      entrenamiento: pageData.entrenamiento!,
-                    ),
-                ],
+                ),
               ),
             ),
           ),
