@@ -60,7 +60,7 @@ Widget dailyVitalsWidget({
             // const SizedBox(height: 8),
             // _buildRow("Estrés:", "$stress%"),
             const SizedBox(height: 8),
-            _buildRow("Escaleras subidas:", "$stairs"),
+            _buildRow("Pisos subidos:", "$stairs"),
           ],
         ),
       );

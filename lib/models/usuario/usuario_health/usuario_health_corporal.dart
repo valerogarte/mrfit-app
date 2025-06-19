@@ -87,12 +87,13 @@ extension UsuarioHealthCorporalExtension on Usuario {
   }
 
   Future<int> getDailyStress(DateTime date) async {
-    await _health.configure();
-    if (!await checkPermissionsFor("HEART_RATE_VARIABILITY_RMSSD")) return 0;
-    final raw = await readHealthDataByDate([healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!], date);
-    if (raw.isEmpty) return 0;
-    final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
-    return avg.round(); // RMSSD en ms, pero lo usas como “estrés”
+    return 0;
+    // await _health.configure();
+    // if (!await checkPermissionsFor("HEART_RATE_VARIABILITY_RMSSD")) return 0;
+    // final raw = await readHealthDataByDate([healthDataTypesString["HEART_RATE_VARIABILITY_RMSSD"]!], date);
+    // if (raw.isEmpty) return 0;
+    // final avg = raw.map((dp) => (dp.value as NumericHealthValue).numericValue).reduce((a, b) => a + b) / raw.length;
+    // return avg.round();
   }
 
   Future<int> getDailyStairsClimbed(DateTime date) async {

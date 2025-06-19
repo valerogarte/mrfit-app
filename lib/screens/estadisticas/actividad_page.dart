@@ -18,7 +18,7 @@ class ActividadPage extends ConsumerStatefulWidget {
   const ActividadPage({
     super.key,
     required this.selectedDate,
-    this.showDataPoints = true,
+    this.showDataPoints = false,
     required this.steps,
     required this.entrenamientos,
     required this.entrenamientosMrFit,
