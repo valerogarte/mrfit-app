@@ -12,6 +12,7 @@ import 'package:mrfit/screens/rutinas/rutinas_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/models/usuario/usuario.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class RutinaListadoSesionesPage extends ConsumerStatefulWidget {
   final Rutina rutina;
@@ -155,6 +156,17 @@ class _RutinaListadoSesionesPageState extends ConsumerState<RutinaListadoSesione
                   onPressed: () async {
                     if (nuevoTitulo.isNotEmpty) {
                       final Sesion sesionCreada = await widget.rutina.insertarSesion(nuevoTitulo, dificultad);
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: 'dia_entrenamiento_creado',
+                        parameters: {
+                          'sesion_id': sesionCreada.id,
+                          'sesion_titulo': sesionCreada.titulo,
+                          'dificultad': dificultad,
+                          'rutina_id': widget.rutina.id,
+                          'rutina_titulo': widget.rutina.titulo,
+                          'user': usuario.username,
+                        },
+                      );
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context, sesionCreada);
                     }

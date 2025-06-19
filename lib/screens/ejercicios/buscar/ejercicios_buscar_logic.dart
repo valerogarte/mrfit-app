@@ -76,6 +76,16 @@ mixin EjerciciosBuscarLogic on State<EjerciciosBuscarPage> implements _Ejercicio
       'categoria': _categoriaSeleccionada != null ? _categoriaSeleccionada!.id.toString() : '',
       'equipamiento': _equipamientoSeleccionado != null ? _equipamientoSeleccionado!.id.toString() : '',
     };
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'busqueda_ejercicios',
+      parameters: {
+        'nombre': filtros['nombre'].toString(),
+        'musculo_primario': filtros['musculo_primario'].toString(),
+        'musculo_secundario': filtros['musculo_secundario'].toString(),
+        'categoria': filtros['categoria'].toString(),
+        'equipamiento': filtros['equipamiento'].toString(),
+      },
+    );
     // Cast filtros to Map<String, String>
     final nuevosEjercicios = await ModeloDatos().buscarEjercicios(filtros.cast<String, String>());
     if (nuevosEjercicios != null) {

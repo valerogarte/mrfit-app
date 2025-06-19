@@ -123,7 +123,15 @@ class _RutinasPageState extends ConsumerState<RutinasPage> {
               if (nuevoTitulo.isNotEmpty) {
                 Navigator.pop(context);
                 final usuario = ref.read(usuarioProvider);
-                await usuario.crearRutina(titulo: nuevoTitulo);
+                final nuevaRutina = await usuario.crearRutina(titulo: nuevoTitulo);
+                await FirebaseAnalytics.instance.logEvent(
+                  name: 'rutina_creada',
+                  parameters: {
+                    'rutina_id': nuevaRutina.id,
+                    'rutina_titulo': nuevaRutina.titulo,
+                    'user': usuario.username,
+                  },
+                );
                 await fetchPlanes();
               }
             },
