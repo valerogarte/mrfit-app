@@ -469,6 +469,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
                           'ejercicios_completados': widget.entrenamiento.countEjerciciosWithUnlessOneSerieRealizada(),
+                          'series_completadas': widget.entrenamiento.countSeriesRealizadas(),
                           'user': usuario.username,
                         },
                       );
