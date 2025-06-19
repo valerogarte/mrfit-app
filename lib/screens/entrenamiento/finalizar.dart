@@ -247,7 +247,9 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
                         name: 'entrenamiento_finalizar_continuar',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
-                          'sensacion': _ratingValue.toInt(),
+                          'kcal': widget.entrenamiento.kcalConsumidas,
+                          'sensacion_id': _ratingValue.toInt(),
+                          'sensacion_text': ModeloDatos.getSensacionText(_ratingValue),
                           'user': usuario.username,
                         },
                       );

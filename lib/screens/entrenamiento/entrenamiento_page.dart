@@ -468,7 +468,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                         name: 'entrenamiento_finalizar_click',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
-                          'ejercicios_completados': widget.entrenamiento.ejercicios.where((e) => e.isAllSeriesRealizadas()).length,
+                          'ejercicios_completados': widget.entrenamiento.countEjerciciosWithUnlessOneSerieRealizada(),
                           'user': usuario.username,
                         },
                       );
@@ -497,7 +497,10 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                           name: 'entrenamiento_descanso_skip',
                           parameters: {
                             'entrenamiento_id': widget.entrenamiento.id,
-                            'resting_time_left': _restingTimeLeft ?? 0,
+                            'descanso_segundos_restantes': _restingTimeLeft ?? 0,
+                            'descanso_segundos_iniciales': widget.entrenamiento.ejercicios[_currentIndex].series.firstWhere((s) => !s.realizada).descanso,
+                            'ejercicio_id': widget.entrenamiento.ejercicios[_currentIndex].ejercicio.id,
+                            'ejercicio_nombre': widget.entrenamiento.ejercicios[_currentIndex].ejercicio.nombre,
                             'user': usuario.username,
                           },
                         );
@@ -543,7 +546,8 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                         name: 'entrenamiento_serie_add_click',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
-                          'ejercicio_index': _currentIndex,
+                          'ejercicio_id': widget.entrenamiento.ejercicios[_currentIndex].ejercicio.id,
+                          'ejercicio_nombre': widget.entrenamiento.ejercicios[_currentIndex].ejercicio.nombre,
                           'user': usuario.username,
                         },
                       );
@@ -682,6 +686,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     parameters: {
                       'entrenamiento_id': widget.entrenamiento.id,
                       'ejercicio_id': ejercicioR.ejercicio.id,
+                      'ejercicio_nombre': ejercicioR.ejercicio.nombre,
                       'serie_id': serie.id,
                       'repeticiones': serie.repeticiones,
                       'peso': serie.peso,
@@ -701,6 +706,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     parameters: {
                       'entrenamiento_id': widget.entrenamiento.id,
                       'ejercicio_id': ejercicioR.ejercicio.id,
+                      'ejercicio_nombre': ejercicioR.ejercicio.nombre,
                       'serie_id': serie.id,
                       'repeticiones': serie.repeticiones,
                       'peso': serie.peso,

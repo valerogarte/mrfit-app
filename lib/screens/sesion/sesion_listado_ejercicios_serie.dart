@@ -34,7 +34,6 @@ class _SesionGestionSeriesPageState extends ConsumerState<SesionGestionSeriesPag
     await FirebaseAnalytics.instance.logEvent(
       name: 'rutina_serie_insertar',
       parameters: {
-        'accion': 'insertar',
         'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
         'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
         'set_index': ((ejercicioPersonalizado.seriesPersonalizadas?.length ?? 1) - 1) as Object,
@@ -407,7 +406,6 @@ class _SesionGestionSeriesPageState extends ConsumerState<SesionGestionSeriesPag
                       await FirebaseAnalytics.instance.logEvent(
                         name: 'rutina_serie_eliminar',
                         parameters: {
-                          'accion': 'eliminar',
                           'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
                           'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
                           'set_index': setIndex,
@@ -429,7 +427,6 @@ class _SesionGestionSeriesPageState extends ConsumerState<SesionGestionSeriesPag
                       await FirebaseAnalytics.instance.logEvent(
                         name: 'rutina_serie_guardar',
                         parameters: {
-                          'accion': 'guardar',
                           'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
                           'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
                           'set_index': setIndex,

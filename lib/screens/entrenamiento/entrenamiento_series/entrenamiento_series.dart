@@ -166,6 +166,7 @@ class EntrenamientoSeriesState extends ConsumerState<EntrenamientoSeries> with S
           name: 'entrenamiento_set_dificultad',
           parameters: {
             'ejercicio_id': widget.ejercicioRealizado.ejercicio.id,
+            'ejercicio_nombre': widget.ejercicioRealizado.ejercicio.nombre,
             'serie_id': widget.set.id,
             'dificultad_valor': value,
             'dificultad_label': label,

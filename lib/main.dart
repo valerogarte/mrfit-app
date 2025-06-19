@@ -35,6 +35,7 @@ Future<void> main() async {
     final randomSuffix = 100 + Random().nextInt(899);
     usuario.setUsername("mrfit_$formattedUsername$randomSuffix");
 
+    // Evento de analytics: usuario inicializado
     await FirebaseAnalytics.instance.logEvent(
       name: 'app_start',
       parameters: {
