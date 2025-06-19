@@ -3,7 +3,7 @@ import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/widgets/chart/pills_dificultad.dart';
 import 'package:mrfit/widgets/animated_image.dart';
 import 'package:mrfit/models/ejercicio/ejercicio.dart';
-import 'package:mrfit/widgets/grafico_ejercicios_musculosinvolucrados.dart';
+import 'package:mrfit/widgets/chart/grafico_ejercicios_musculosinvolucrados.dart';
 import 'package:mrfit/widgets/ejercicio/ejercicio_tiempo_recomendado_por_repeticion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Import para iconos FontAwesome

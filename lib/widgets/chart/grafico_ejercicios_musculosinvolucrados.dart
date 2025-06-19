@@ -224,10 +224,10 @@ class _PieChartPainter extends CustomPainter {
       final Offset outside = Offset(center.dx + (radius + extra) * cos(midAngle), center.dy + (radius + extra) * sin(midAngle));
       final offset = outside - Offset(textPainter.width / 2, textPainter.height / 2);
       textPainter.paint(canvas, offset);
-      final Paint linePaint = Paint()
-        ..strokeWidth = 1.0
-        ..color = AppColors.textNormal;
-      canvas.drawLine(offset + Offset(textPainter.width / 2, textPainter.height / 2), labelPos, linePaint);
+      // final Paint linePaint = Paint()
+      //   ..strokeWidth = 1.0
+      //   ..color = AppColors.textNormal;
+      // canvas.drawLine(offset + Offset(textPainter.width / 2, textPainter.height), labelPos, linePaint);
     }
   }
 

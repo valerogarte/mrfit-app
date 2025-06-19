@@ -8,7 +8,6 @@ import 'configuracion/config_personal.dart';
 import 'configuracion/config_creditos.dart';
 import 'configuracion/config_objetivos.dart';
 import 'configuracion/config_entrenador.dart';
-import 'package:mrfit/widgets/custom_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:mrfit/models/cache/custom_cache.dart';
@@ -399,4 +398,29 @@ class SectionHeader extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMedium)),
       );
+}
+
+class ConfigBottomSheet extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const ConfigBottomSheet({super.key, required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title, style: const TextStyle(color: AppColors.textNormal, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
 }
