@@ -462,17 +462,18 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     icon: const Icon(Icons.flag, color: AppColors.cardBackground),
                     label: const Text("Finalizar"),
                     onPressed: () async {
+                      final usuario = ref.read(usuarioProvider);
                       // Evento de analytics: usuario pulsa finalizar entrenamiento
                       await FirebaseAnalytics.instance.logEvent(
                         name: 'entrenamiento_finalizar_click',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
                           'ejercicios_completados': widget.entrenamiento.ejercicios.where((e) => e.isAllSeriesRealizadas()).length,
+                          'user': usuario.username,
                         },
                       );
                       await _entrenadora.detener();
                       // Obtener el usuario desde el provider
-                      final usuario = ref.read(usuarioProvider);
                       await widget.entrenamiento.finalizar(usuario);
                       Navigator.pushReplacement(
                         // ignore: use_build_context_synchronously
@@ -497,6 +498,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                           parameters: {
                             'entrenamiento_id': widget.entrenamiento.id,
                             'resting_time_left': _restingTimeLeft ?? 0,
+                            'user': usuario.username,
                           },
                         );
                         _setInicioNextSeries();
@@ -535,12 +537,14 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                     icon: const Icon(Icons.add, color: AppColors.textMedium),
                     label: const Text("Serie"),
                     onPressed: () async {
+                      final usuario = ref.read(usuarioProvider);
                       // Evento de analytics: usuario añade una serie
                       await FirebaseAnalytics.instance.logEvent(
                         name: 'entrenamiento_serie_add_click',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
                           'ejercicio_index': _currentIndex,
+                          'user': usuario.username,
                         },
                       );
                       final currentEjercicio = widget.entrenamiento.ejercicios[_currentIndex];
@@ -671,6 +675,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                   });
                 },
                 onUpdate: () async {
+                  final usuario = ref.read(usuarioProvider);
                   // Evento analytics: actualización de set
                   await FirebaseAnalytics.instance.logEvent(
                     name: 'entrenamiento_serie_set_update',
@@ -680,6 +685,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       'serie_id': serie.id,
                       'repeticiones': serie.repeticiones,
                       'peso': serie.peso,
+                      'user': usuario.username,
                     },
                   );
                   serie.updateRepesPeso();
@@ -688,6 +694,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                   });
                 },
                 onComplete: () async {
+                  final usuario = ref.read(usuarioProvider);
                   // Evento analytics: set completado
                   await FirebaseAnalytics.instance.logEvent(
                     name: 'entrenamiento_serie_set_completo',
@@ -697,6 +704,7 @@ class _EntrenamientoPageState extends ConsumerState<EntrenamientoPage> {
                       'serie_id': serie.id,
                       'repeticiones': serie.repeticiones,
                       'peso': serie.peso,
+                      'user': usuario.username,
                     },
                   );
                   serie.setRealizada();

@@ -3,9 +3,12 @@ import 'package:mrfit/models/entrenamiento/serie_realizada.dart';
 import 'package:mrfit/utils/colors.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/entrenamiento/ejercicio_realizado.dart';
+import 'package:mrfit/models/usuario/usuario.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 
-class EntrenamientoSeries extends StatefulWidget {
+class EntrenamientoSeries extends ConsumerStatefulWidget {
   final String setIndex;
   final SerieRealizada set;
   final TextEditingController repsController;
@@ -34,10 +37,10 @@ class EntrenamientoSeries extends StatefulWidget {
   });
 
   @override
-  EntrenamientoSeriesState createState() => EntrenamientoSeriesState();
+  ConsumerState<EntrenamientoSeries> createState() => EntrenamientoSeriesState();
 }
 
-class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTickerProviderStateMixin {
+class EntrenamientoSeriesState extends ConsumerState<EntrenamientoSeries> with SingleTickerProviderStateMixin {
   bool isEditing = false;
   Color _selectedEmojiColor = AppColors.textMedium;
   List<Map<String, dynamic>>? _avgRerLabel;
@@ -95,6 +98,7 @@ class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTic
 
   // Función para mostrar el modal bottom sheet de dificultad
   void _showDifficultySheet() {
+    final usuario = ref.read(usuarioProvider);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -125,6 +129,7 @@ class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTic
                             option['label'],
                             option['description'],
                             option['iconColor'],
+                            usuario,
                           ))
                       .toList(),
                 ],
@@ -137,7 +142,7 @@ class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTic
   }
 
   // Widget para cada opción de dificultad, con título en negrita y descripción
-  Widget _buildDifficultyTile(int value, String label, String description, Color iconColor) {
+  Widget _buildDifficultyTile(int value, String label, String description, Color iconColor, Usuario usuario) {
     return ListTile(
       leading: Icon(Icons.star, color: iconColor),
       title: Text(
@@ -166,6 +171,7 @@ class EntrenamientoSeriesState extends State<EntrenamientoSeries> with SingleTic
             'dificultad_label': label,
             'repeticiones': widget.set.repeticiones,
             'peso': widget.set.peso,
+            'user': usuario.username,
           },
         );
         Navigator.pop(context);

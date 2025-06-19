@@ -8,7 +8,9 @@ import 'package:mrfit/screens/usuario/usuario_config.dart';
 import 'package:mrfit/providers/walking_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:mrfit/widgets/home/update_required.dart';
+import 'dart:math';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,25 @@ Future<void> main() async {
   if (!shouldContinue) return;
 
   final usuario = await Usuario.load();
+  if (usuario.username == "mrfit") {
+    final now = DateTime.now();
+    final formattedUsername = "${now.year.toString().padLeft(4, '0')}"
+        "${now.month.toString().padLeft(2, '0')}"
+        "${now.day.toString().padLeft(2, '0')}."
+        "${now.hour.toString().padLeft(2, '0')}"
+        "${now.minute.toString().padLeft(2, '0')}"
+        "${now.second.toString().padLeft(2, '0')}"
+        "_${now.millisecond.toString().padLeft(3, '0')}";
+    final randomSuffix = 100 + Random().nextInt(899);
+    usuario.setUsername("mrfit_$formattedUsername$randomSuffix");
+
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'app_start',
+      parameters: {
+        'user': usuario.username,
+      },
+    );
+  }
 
   runApp(
     ProviderScope(

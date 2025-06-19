@@ -1,12 +1,14 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mrfit/models/modelo_datos.dart';
 import 'package:mrfit/models/rutina/ejercicio_personalizado.dart';
 import 'package:mrfit/screens/sesion/sesion_listado_ejercicios_serie_detalle.dart';
 import 'package:mrfit/utils/colors.dart';
+import 'package:mrfit/providers/usuario_provider.dart';
 import 'package:mrfit/utils/mr_functions.dart';
 
-class SesionGestionSeriesPage extends StatefulWidget {
+class SesionGestionSeriesPage extends ConsumerStatefulWidget {
   final EjercicioPersonalizado ejercicioPersonalizado;
   final VoidCallback? onSeriesChanged;
 
@@ -17,13 +19,14 @@ class SesionGestionSeriesPage extends StatefulWidget {
   });
 
   @override
-  State<SesionGestionSeriesPage> createState() => _SesionGestionSeriesPageState();
+  ConsumerState<SesionGestionSeriesPage> createState() => _SesionGestionSeriesPageState();
 }
 
-class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
+class _SesionGestionSeriesPageState extends ConsumerState<SesionGestionSeriesPage> {
   int? expandedSetIndex;
 
   Future<void> _agregarSerieAlEjercicioEnRutina(EjercicioPersonalizado ejercicioPersonalizado) async {
+    final usuario = ref.read(usuarioProvider);
     await ejercicioPersonalizado.insertSeriePersonalizada();
     await ejercicioPersonalizado.getSeriesPersonalizadas();
     final nuevaSerie = ejercicioPersonalizado.seriesPersonalizadas?.last;
@@ -40,6 +43,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
         'peso': (nuevaSerie?.peso ?? 0) as Object,
         'velocidad_repeticion': (nuevaSerie?.velocidadRepeticion ?? 0) as Object,
         'descanso': (nuevaSerie?.descanso ?? 0) as Object,
+        'user': usuario.username,
       },
     );
   }
@@ -171,6 +175,8 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
   }
 
   Widget _buildSeriesControls(EjercicioPersonalizado ejercicioPersonalizado, void Function(void Function()) localSetState, {VoidCallback? onSeriesChanged, BuildContext? context}) {
+    final usuario = ref.read(usuarioProvider);
+
     return Column(
       children: [
         Divider(color: AppColors.textMedium),
@@ -213,6 +219,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                                   'ejercicio_id': ejercicioPersonalizado.ejercicio.id,
                                   'ejercicio_nombre': ejercicioPersonalizado.ejercicio.nombre,
                                   'series_totales': ejercicioPersonalizado.seriesPersonalizadas?.length ?? 0,
+                                  'user': usuario.username,
                                 },
                               );
                               await ejercicioPersonalizado.delete();
@@ -256,6 +263,8 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final usuario = ref.read(usuarioProvider);
+
     FirebaseAnalytics.instance.logScreenView(
       screenName: 'sesion_ejercicios_series',
     );
@@ -407,6 +416,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                           'peso': (serieP.peso) as Object,
                           'velocidad_repeticion': (serieP.velocidadRepeticion) as Object,
                           'descanso': (serieP.descanso) as Object,
+                          'user': usuario.username,
                         },
                       );
                       setState(() => ejercicioPersonalizado.seriesPersonalizadas?.removeAt(setIndex));
@@ -428,6 +438,7 @@ class _SesionGestionSeriesPageState extends State<SesionGestionSeriesPage> {
                           'peso': (serieGuardada?.peso ?? 0) as Object,
                           'velocidad_repeticion': (serieGuardada?.velocidadRepeticion ?? 0) as Object,
                           'descanso': (serieGuardada?.descanso ?? 0) as Object,
+                          'user': usuario.username,
                         },
                       );
                       setState(() {});

@@ -241,12 +241,14 @@ class _FinalizarPageState extends ConsumerState<FinalizarPage> {
               onPressed: _isUpdatingMrPoints
                   ? null
                   : () async {
+                      final usuario = ref.read(usuarioProvider);
                       // Evento de analytics: usuario pulsa continuar tras finalizar
                       await FirebaseAnalytics.instance.logEvent(
                         name: 'entrenamiento_finalizar_continuar',
                         parameters: {
                           'entrenamiento_id': widget.entrenamiento.id,
                           'sensacion': _ratingValue.toInt(),
+                          'user': usuario.username,
                         },
                       );
                       await widget.entrenamiento.setSensacion(_ratingValue.toInt());
