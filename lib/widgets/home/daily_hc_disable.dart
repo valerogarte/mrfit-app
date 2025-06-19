@@ -60,12 +60,12 @@ Widget dailyHCDisableWidget({
         ),
         const SizedBox(height: 8),
         const Text(
-          'Necesario para acceder a todas las funcionalidades. Otorga todos los permisos necesarios.',
+          'Necesario para acceder a todas las funcionalidades de la app.',
           style: TextStyle(fontSize: 14, color: AppColors.background),
         ),
         const SizedBox(height: 4),
         const Text(
-          'No te preocupes por la privacidad, nunca saldrán los datos de tu dispositivo.',
+          'No te preocupes por la privacidad, los datos nunca saldrán de tu dispositivo.',
           style: TextStyle(fontSize: 14, color: AppColors.background),
         ),
         const SizedBox(height: 16),

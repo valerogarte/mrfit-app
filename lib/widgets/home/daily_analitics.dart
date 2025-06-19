@@ -39,7 +39,7 @@ class AnalyticsConsentWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Para detectar errores y mejorar necesitamos recopilar datos de uso. Será 100% anónimo.",
+                "Recopilamos información para detectar errores y mejorar el uso de la app de manera anónima.",
                 style: TextStyle(color: AppColors.background),
               ),
             ],

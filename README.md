@@ -59,6 +59,11 @@ flutter build appbundle --release
 
 Para más herramientas y configuración avanzada, consulta la documentación oficial de Flutter.
 
+## Generación de miniaturas iconos
+```
+flutter pub run flutter_launcher_icons:main
+```
+
 ## Ajustes en VSCode
 1. Abre el archivo `settings.json` del VSCode.
 2. Añade las siguientes configuraciones:

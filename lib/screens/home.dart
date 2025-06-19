@@ -58,6 +58,9 @@ class _InicioPageState extends ConsumerState<InicioPage> {
 
   // Obtiene y actualiza los datos necesarios para dailyStatsWidget según el día seleccionado.
   Future<void> _fetchAndSetDailyStatsData(Usuario usuario, DateTime day) async {
+    if (!usuario.isHealthConnectAvailable) {
+      return;
+    }
     final Map<String, bool> grantedPermissions = {};
     for (var key in usuario.healthDataTypesString.keys) {
       final bool permissionGranted = await usuario.checkPermissionsFor(key);
@@ -346,19 +349,19 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                 ],
                                 if (usuario.isHealthConnectAvailable) ...[
                                   GestureDetector(
-                                    onTap: () {
-                                      // Navega a la página de actividad al pulsar el widget
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => ActividadPage(
-                                            selectedDate: _selectedDate,
-                                            steps: _dataPointsSteps,
-                                            entrenamientos: _dataPointsWorkout,
-                                            entrenamientosMrFit: _entrenamientosMrFit,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    // onTap: () {
+                                    //   // Navega a la página de actividad al pulsar el widget
+                                    //   Navigator.of(context).push(
+                                    //     MaterialPageRoute(
+                                    //       builder: (_) => ActividadPage(
+                                    //         selectedDate: _selectedDate,
+                                    //         steps: _dataPointsSteps,
+                                    //         entrenamientos: _dataPointsWorkout,
+                                    //         entrenamientosMrFit: _entrenamientosMrFit,
+                                    //       ),
+                                    //     ),
+                                    //   );
+                                    // },
                                     child: dailyStatsWidget(
                                       usuario: usuario,
                                       grantedPermissions: _grantedPermissions,
@@ -384,8 +387,8 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                 ),
                                 const SizedBox(height: 15),
                                 DailyNutritionWidget(day: _selectedDate, usuario: usuario),
+                                const SizedBox(height: 15),
                                 if (usuario.isHealthConnectAvailable) ...[
-                                  const SizedBox(height: 15),
                                   dailyHearthWidget(
                                     day: _selectedDate,
                                     usuario: usuario,
@@ -401,6 +404,7 @@ class _InicioPageState extends ConsumerState<InicioPage> {
                                   dailyPhysicalWidget(usuario: usuario),
                                   const SizedBox(height: 15),
                                   StatisticsWidget(usuario: usuario),
+                                  const SizedBox(height: 15),
                                 ],
                               ],
                             ),
