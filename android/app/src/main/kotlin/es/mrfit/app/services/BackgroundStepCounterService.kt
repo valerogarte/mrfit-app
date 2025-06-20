@@ -53,6 +53,9 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
     // Canal de comunicación para enviar datos (pasos) a Flutter.
     private lateinit var channel: MethodChannel
 
+    // Notificación preparada para mostrar al activar el modo foreground.
+    private lateinit var foregroundNotification: Notification
+
     // Indica si los listeners del sensor y los temporizadores están activos.
     private var isCountingActive = false
 
@@ -84,30 +87,18 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "Servicio onCreate: Inicializando componentes.")
+        Log.d(TAG, "Servicio onCreate: Configurando canal y preferencias.")
 
-        createNotificationChannel() // Esencial para Android Oreo (API 26) y superior.
+        createNotificationChannel()
 
         prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        // Carga el estado previo del contador desde SharedPreferences.
         lastStepsValue = prefs.getFloat(KEY_LAST_STEPS, 0f)
         pendingSteps = prefs.getInt(KEY_PENDING_STEPS, 0)
-
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-
-        // Inicializa FlutterEngine para la comunicación con Dart.
-        // Este motor es específico para este servicio y se destruye con él.
-        flutterEngine = FlutterEngine(this.applicationContext)
-        flutterEngine!!.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
-        channel = MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, "background_step_counter")
 
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             Log.d(TAG, "Temporizador principal: Enviando pasos.")
-            flushSteps() // El método flushSteps se encarga de la lógica de re-programación.
+            flushSteps()
         }
 
         inactivityHandler = Handler(Looper.getMainLooper())
@@ -116,11 +107,8 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
             flushSteps()
         }
 
-        // Si el servicio se reinicia (ej. por el sistema) y estaba activo, reanuda el conteo.
-        if (prefs.getBoolean(KEY_SERVICE_ACTIVE, false)) {
-            Log.d(TAG, "El servicio estaba marcado como activo, reiniciando conteo.")
-            startCountingInternally()
-        }
+        // Prepara la notificación con antelación para minimizar la latencia de startForeground.
+        foregroundNotification = getNotification()
     }
 
     // Crea el canal de notificación necesario para mostrar notificaciones en Android 8.0+.
@@ -159,20 +147,34 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
     // Inicia internamente el proceso de conteo de pasos.
     // Registra el listener del sensor y activa el servicio en primer plano.
     private fun startCountingInternally() {
-        if (!isCountingActive) {
-            if (stepSensor != null) {
-                sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
-                handler.removeCallbacks(runnable)
-                handler.postDelayed(runnable, FLUSH_INTERVAL_MS)
-                isCountingActive = true
-                Log.d(TAG, "Conteo de pasos iniciado internamente.")
-            } else {
-                Log.e(TAG, "Sensor de pasos no disponible. Deteniendo el servicio.")
-                stopForeground(true)
-                stopSelf()
-            }
-        } else {
+        if (isCountingActive) {
             Log.d(TAG, "El conteo de pasos ya estaba activo internamente.")
+            return
+        }
+
+        if (!this::sensorManager.isInitialized) {
+            sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        }
+
+        if (flutterEngine == null) {
+            flutterEngine = FlutterEngine(this.applicationContext).apply {
+                dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
+            }
+            channel = MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, "background_step_counter")
+            setupMethodChannelHandler()
+        }
+
+        if (stepSensor != null) {
+            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            handler.removeCallbacks(runnable)
+            handler.postDelayed(runnable, FLUSH_INTERVAL_MS)
+            isCountingActive = true
+            Log.d(TAG, "Conteo de pasos iniciado internamente.")
+        } else {
+            Log.e(TAG, "Sensor de pasos no disponible. Deteniendo el servicio.")
+            stopForeground(true)
+            stopSelf()
         }
     }
 
@@ -197,9 +199,13 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
 
         // Asegurarse de llamar a startForeground inmediatamente al inicio del servicio.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            startForeground(
+                NOTIFICATION_ID,
+                foregroundNotification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
         } else {
-            startForeground(NOTIFICATION_ID, getNotification())
+            startForeground(NOTIFICATION_ID, foregroundNotification)
         }
 
         when (intent?.action) {
