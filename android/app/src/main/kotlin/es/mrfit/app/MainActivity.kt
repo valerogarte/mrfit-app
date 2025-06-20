@@ -29,6 +29,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val HEALTH_CHANNEL = "es.mrfit.app/health"
     private val STEP_COUNTER_CHANNEL = "background_step_counter" // Same as in Dart and Service
     private val REQUEST_CODE = 1001
+    private val REQUEST_FOREGROUND_SERVICE_PERMISSION = 2001
     private var screenStateReceiver: BroadcastReceiver? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -172,6 +173,23 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         )
+
+        checkAndRequestForegroundServicePermission()
+    }
+
+    private fun checkAndRequestForegroundServicePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val permissions = arrayOf(
+                "android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+            )
+            val missingPermissions = permissions.filter {
+                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            }
+
+            if (missingPermissions.isNotEmpty()) {
+                ActivityCompat.requestPermissions(this, missingPermissions.toTypedArray(), REQUEST_FOREGROUND_SERVICE_PERMISSION)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -186,6 +204,13 @@ class MainActivity : FlutterFragmentActivity() {
             flutterEngine?.let { engine ->
                 MethodChannel(engine.dartExecutor.binaryMessenger, HEALTH_CHANNEL)
                     .invokeMethod("onPermissionResult", granted)
+            }
+        } else if (requestCode == REQUEST_FOREGROUND_SERVICE_PERMISSION) {
+            val deniedPermissions = permissions.zip(grantResults.toTypedArray()).filter { it.second != PackageManager.PERMISSION_GRANTED }
+            if (deniedPermissions.isNotEmpty()) {
+                android.util.Log.e("MainActivity", "Permisos denegados: ${deniedPermissions.map { it.first }}")
+            } else {
+                android.util.Log.d("MainActivity", "Todos los permisos necesarios fueron otorgados.")
             }
         }
     }

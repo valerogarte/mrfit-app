@@ -161,26 +161,15 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
     private fun startCountingInternally() {
         if (!isCountingActive) {
             if (stepSensor != null) {
-                // Inicia el servicio en primer plano para evitar que el sistema lo cierre.
-                // Es crucial llamar a startForeground rápidamente tras recibir la intención de inicio.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-                } else {
-                    startForeground(NOTIFICATION_ID, getNotification())
-                }
-                Log.d(TAG, "Servicio en primer plano iniciado con notificación.")
-
                 sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
-                
-                // Inicia el temporizador principal para el envío periódico de pasos.
-                handler.removeCallbacks(runnable) // Limpia callbacks previos para evitar duplicados.
+                handler.removeCallbacks(runnable)
                 handler.postDelayed(runnable, FLUSH_INTERVAL_MS)
-                
                 isCountingActive = true
                 Log.d(TAG, "Conteo de pasos iniciado internamente.")
             } else {
-                Log.e(TAG, "Sensor de pasos no disponible. No se puede iniciar el conteo.")
-                // Considerar detener el servicio si el sensor no está disponible para no consumir recursos.
+                Log.e(TAG, "Sensor de pasos no disponible. Deteniendo el servicio.")
+                stopForeground(true)
+                stopSelf()
             }
         } else {
             Log.d(TAG, "El conteo de pasos ya estaba activo internamente.")
@@ -205,6 +194,13 @@ class BackgroundStepCounterService : Service(), SensorEventListener {
     // Método principal que se ejecuta cuando el servicio es iniciado o recibe un comando.
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Servicio onStartCommand, action: ${intent?.action}")
+
+        // Asegurarse de llamar a startForeground inmediatamente al inicio del servicio.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH or ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            startForeground(NOTIFICATION_ID, getNotification())
+        }
 
         when (intent?.action) {
             ACTION_START_COUNTING -> {
